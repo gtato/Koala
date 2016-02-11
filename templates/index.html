@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="js/main.js"></script>
+  
+<style>
+
+
+
+.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+.node circle {
+  fill: #ccc;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+/*text {
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+*/
+
+.nodetext{
+  font: 10px sans-serif;
+  pointer-events: none;
+  color: #696969;
+}
+
+</style>
+<body style="text-align:center">
+
+<h1>
+  Prototype
+</h1>
+
+<table border="1" style="width:100%">
+<tr>
+<td align="center" valign="top" style="width:200px">
+  <div style="padding-top:10px">
+    <table border="0" style="width:100%">
+      <tr align="center"><td></td><td>DC ID </td><td></td> <td>Node ID </td></tr>
+      <tr align="center"><td>ID</td><td>
+      <input id="dc_id" list="dcs" name="dc" style="width:70px; text-align:center">
+      <datalist id="dcs"></datalist>
+
+      <!-- <input id="dc_id" type="text"> </td> -->
+
+      <td>-</td> <td><input id="node_id" type="text" style="width:70px; text-align:center" value=""> </td></tr>
+      <tr align="center"> <td>Bootstrap ID:</td><td colspan="3"><select id="boot_node_id"></select></td></tr>
+    </table>
+
+    <input type="button" value="Add node" id="add_node" />
+    <br/>
+    <br/>
+    <input type="button" value="Delete all nodes" id="delete_all_nodes" />
+  </div> 
+
+</td>
+
+<td align="center" ><div id='hello' style="width:700px; height:700px; text-align:center; /*border:1px solid black*/ "> </div></td>
+<td valign="top" style="width:200px"><div style="padding-top:10px">Info: <br> <div id="node_info"> </div> </div> </td>
+</tr>
+<tr><td colspan="3"><div id="cons_cont" style="width:100%; height: 300px; background:#313131;  color:#fff; text-align:left; overflow: auto; font-family: Courier, 'Lucida Sans Typewriter'">
+  <div id="console" style="padding:5px">  </div>
+</div>
+
+</td> </tr>
+</table>
+
+
+
+</body>
+
