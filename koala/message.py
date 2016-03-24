@@ -8,6 +8,9 @@ class Message(object):
         self.type = ttype
         self.content = content
         self.latency = 0
+        self.path = []
+        self.direction = 'cw'
+        self.referrer = None
 
         
     def set_rand_latency(self, source_id, dest_id):

@@ -28,12 +28,33 @@ class RoutingTable(object):
 
         return ret
 
+    @staticmethod
+    def from_dict(rtd):
+        rt = RoutingTable()
+        rt.globals = Neighbors.from_dict(rtd['globals'])
+        rt.locals = Neighbors.from_dict(rtd['locals'])
+        return rt
+
+    def get_neighbours_ids(self):
+        to_ret = [self.locals.predecessor, self.locals.successor, self.globals.predecessor, self.globals.successor]
+        seen = {}
+        for n in to_ret:
+            if n and n.id not in seen.keys():
+                seen[n.id] = n
+
+        return seen.keys()
 
     def get_all_neighbours(self):
         to_ret = [self.locals.predecessor, self.locals.successor, self.globals.predecessor, self.globals.successor]
         to_ret.extend(self.locals.visited)
         to_ret.extend(self.globals.visited)
-        return filter(None, to_ret)
+
+        seen = {}
+        for n in to_ret:
+            if n and n.id not in seen.keys():
+                seen[n.id] = n
+
+        return seen.values()
 
 
 class Neighbors(object):
@@ -49,6 +70,17 @@ class Neighbors(object):
     def set_predecessor(self, pred):
         return self._set(pred, False)
 
+    def add_to_visted(self, to_add):
+        if to_add and to_add.id != self.successor.id and to_add.id != self.predecessor.id:
+            present = False
+            for v in self.visited:
+                if v.id == to_add.id:
+                    present = True
+                    if to_add.latency > 0:
+                        v.latency = to_add.latency
+            if not present:
+                self.visited.append(to_add)
+
 
     def _set(self, entry, succ):
         to_add = self.successor if succ else self.predecessor
@@ -63,15 +95,22 @@ class Neighbors(object):
 
             return False
         else:
-            #probably put the old value on the visited nodes
-            if to_add and len(filter(lambda a: a.id == to_add.id, self.visited)) == 0:
-                self.visited.append(to_add)
             if succ:
                 self.successor = NeighborEntry(entry.id, entry.latency) 
             else:
                 self.predecessor = NeighborEntry(entry.id, entry.latency) 
 
+            #probably put the old value on the visited nodes
+            self.add_to_visted(to_add)
+
             return True
+
+    @staticmethod
+    def from_dict(nd):
+        n = Neighbors( NeighborEntry.from_dict(nd['successor']), NeighborEntry.from_dict(nd['predecessor']))
+        for v in nd['visited']:
+            n.visited.append(NeighborEntry.from_dict(v))
+        return n
 
     # def contain(self, node_id):
     #     alln = self.successors + self.predecessors
@@ -82,13 +121,20 @@ class Neighbors(object):
 
 class NeighborEntry(object):
     """docstring for NeighborEntry"""
-    def __init__(self, id, latency):
+    def __init__(self, id, latency, lpos=0):
         super(NeighborEntry, self).__init__()
         self.id = id
         self.latency = latency
+        self.lpos = lpos
 
     def __str__(self):   
-        return "(id: %s, latency:%s)" % (self.id, self.latency)
+        return "(id: %s, latency:%s, lpos:%s)" % (self.id, self.latency, self.lpos)
 
     def to_dict(self):
-        return {'id': self.id, 'latency':self.latency} 
+        return {'id': self.id, 'latency':self.latency, 'lpos':self.lpos}
+
+    @staticmethod
+    def from_dict(ned):
+        if ned:
+            return NeighborEntry(ned['id'], ned['latency'], ned['lpos'])
+        return None

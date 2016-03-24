@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
-<script src="//d3js.org/d3.v3.min.js"></script>
+<!--script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+<script src="//d3js.org/d3.v3.min.js"></script-->
+
+<script src="js/jquery-1.12.0.min.js"></script>
+<script src="js/d3.v3.min.js"></script>
 <script src="js/main.js"></script>
   
 <style>
@@ -55,16 +58,41 @@
       <tr align="center"> <td>Bootstrap ID:</td><td colspan="3"><select id="boot_node_id"></select></td></tr>
     </table>
 
-    <input type="button" value="Add node" id="add_node" />
+    <input type="button" value="Add node" id="add_node" /><br/><br/>
+
+    <input type="number" id="nr_add_nodes" min="1" max="100" style="width:30px" value="10">
+    <input type="button" value="Add random list" id="add_list" /><br/>
+    <select id="add_list_select"></select>
+    <input type="button" value="Execute" id="exec_list" /><br/>
+    <input type="button" value="Delete lists" id="delete_lists" /><br/>
+    <br/><br/><hr><br/><br/>
+
+
+    <table style="width:100%"><tr align="center"><td>Route</td> <td><select id="route_from"></select></td><td><input id="swap" type="button" value="<->"  ></td><td><select id="route_to"></select></td></tr>
+    <tr align="center"><td></td><td colspan="3"><input type="button" value="Route" id="route" /></td></tr>
+    </table>
     <br/>
-    <br/>
+    <input type="number" id="nr_routs" min="1" max="100" style="width:30px" value="10">
+    <input type="button" value="Add random routs" id="add_route_list" /> <input type="button" value="Add all" id="add_all_route_list" /><br/>
+    <select id="add_route_list_select"></select>
+    <input type="button" value="Execute" id="exec_route_list" /><br/>
+    <input type="button" value="Delete lists" id="delete_route_lists" /><br/>
+
+
+    <br/><br/><hr><br/><br/>
+
+
+    <input id="nodes_file" type="file"  accept="">
+    <input id="save" type="button" value="Save"> <input id="restore" type="button" value="Restore">
+
+    <br/><br/> <hr><br/><br/>
     <input type="button" value="Delete all nodes" id="delete_all_nodes" />
   </div> 
 
 </td>
 
 <td align="center" ><div id='hello' style="width:700px; height:700px; text-align:center; /*border:1px solid black*/ "> </div></td>
-<td valign="top" style="width:200px"><div style="padding-top:10px">Info: <br> <div id="node_info"> </div> </div> </td>
+<td valign="top" style="width:200px"><div style="padding-top:10px; overflow: auto; height:700px">Info: <br><div id="general_info"> </div> <hr> <div id="node_info"> </div> </div> </td>
 </tr>
 <tr><td colspan="3"><div id="cons_cont" style="width:100%; height: 300px; background:#313131;  color:#fff; text-align:left; overflow: auto; font-family: Courier, 'Lucida Sans Typewriter'">
   <div id="console" style="padding:5px">  </div>

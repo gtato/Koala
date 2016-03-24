@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
+import simplejson as json
 from koala.protocol import Koala
 from koala.node import Node
+from koala.message import Message
 # Initialize the Flask application
 app = Flask(__name__)
 
@@ -20,6 +22,7 @@ def send_js(path):
 
 @app.route('/add_node')
 def add_node():
+    Koala.reset_msgs()
     node_id = request.args.get('node_id', '', type=str)
     boot_node_id = request.args.get('boot_node_id', '', type=str)
 
@@ -27,8 +30,52 @@ def add_node():
     node = Node(nsplit[1], nsplit[0])
     node.join(boot_node_id)
 
+    # print 'after adding %s, consistent: %s' % (node_id,Koala.detect_inconsitent_position())
 
-    return jsonify(result=True)
+    return jsonify(result=True, msgs=Koala.get_nr_msgs())
+
+
+@app.route('/add_list')
+def add_list():
+    Koala.reset_msgs()
+    Koala.nodes = []
+    lnodes = request.args.get('nodes', '', type=str)
+    nodes = lnodes.split(",")
+    for ln in nodes:
+        ln_split = ln.split('|')
+        nsplit = ln_split[0].split('-')
+        node = Node(nsplit[1].strip(), nsplit[0].strip())
+        node.join(ln_split[1].strip())
+
+    nodes = []
+    for n in Koala.nodes:
+        nodes.append(n.to_dict())
+
+    return jsonify(result=nodes, msgs=Koala.get_nr_msgs())
+
+
+@app.route('/route_list')
+def route_list():
+    Koala.reset_msgs()
+
+    lroutes = request.args.get('routes', '', type=str)
+    routes = lroutes.split(",")
+    paths = []
+    for lr in routes:
+        lr_split = lr.split('->')
+        start = lr_split[0].strip()
+        dest = lr_split[1].strip()
+
+        try:
+            path = Koala.send_to(start, start, Message('route', dest))
+        except:
+            print "routing %s -> %s" % (start, dest)
+        paths.append(path)
+
+
+    return jsonify(result=paths, msgs=Koala.get_nr_msgs())
+
+
 
 
 @app.route('/get_nodes')
@@ -41,6 +88,18 @@ def get_nodes():
     return jsonify(result=nodes)
 
 
+@app.route('/route')
+def route():
+    Koala.reset_msgs()
+    start = request.args.get('from', '', type=str)
+    dest = request.args.get('to', '', type=str)
+
+    path  = Koala.send_to(start, start, Message('route', dest))
+
+
+    return jsonify(result=path, msgs=Koala.get_nr_msgs())
+
+
 @app.route('/delete_nodes')
 def delete_nodes():
     Koala.nodes = []
@@ -48,15 +107,24 @@ def delete_nodes():
 
 
 
+@app.route('/restore', methods=['POST'])
+def upload():
+    # Get the name of the uploaded file
+    file = request.files['file']
+    json_nodes = json.loads(file.read())
+    nodes = [Node.from_dict(jn) for jn in json_nodes]
+    Koala.nodes = nodes
+    return jsonify(result=json_nodes)
+
 if __name__ == '__main__':
-    n1 = Node('5', 'a')
-    n1.join('')
-
-    n2 = Node('10', 'a')
-    n2.join('a-5')
-
-    n3 = Node('20', 'a')
-    n3.join('a-10')
+    # n1 = Node('5', 'a')
+    # n1.join('')
+    #
+    # n2 = Node('10', 'a')
+    # n2.join('a-5')
+    #
+    # n3 = Node('20', 'a')
+    # n3.join('a-10')
 
     app.run(
         host="0.0.0.0",
