@@ -20,6 +20,11 @@ def send_js(path):
     return send_from_directory('js', path)
 
 
+@app.route('/css/<path:path>')
+def send_css(path):
+    return send_from_directory('css', path)
+
+
 @app.route('/add_node')
 def add_node():
     Koala.reset_msgs()
@@ -94,7 +99,7 @@ def route():
     start = request.args.get('from', '', type=str)
     dest = request.args.get('to', '', type=str)
 
-    path  = Koala.send_to(start, start, Message('route', dest))
+    path = Koala.send_to(start, start, Message('route', dest))
 
 
     return jsonify(result=path, msgs=Koala.get_nr_msgs())

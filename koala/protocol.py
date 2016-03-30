@@ -18,15 +18,26 @@ class Koala(object):
 
     @staticmethod
     def add_node(node):
-        Koala.nodes.append(node)
+        nodes_with_same_id = filter(lambda n: n.id == node.id, Koala.nodes)
+        if len(nodes_with_same_id) == 0:
+            Koala.nodes.append(node)
+            return True
+        return False
 
     @staticmethod
     def send_to(source_id, dest_id, msg):
         # try:
         # print 'nodes %s' % [n.to_dict() for n in Koala.nodes]
         print "%s->%s" % (source_id, dest_id)
-        source = filter(lambda n: n.id == source_id, Koala.nodes)[0]
-        dest = filter(lambda n: n.id == dest_id, Koala.nodes)[0]
+        srcs = filter(lambda n: n.id == source_id, Koala.nodes)
+        dests = filter(lambda n: n.id == dest_id, Koala.nodes)
+
+        if len(srcs) > 1 or len(dests) > 1:
+            print 'wtf'
+
+        source = srcs[0]
+        dest = dests[0]
+
         msg.set_rand_latency(source_id, dest_id)
         msg.path.append(dest_id)
         if source.dc_id == dest.dc_id:

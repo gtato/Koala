@@ -458,7 +458,7 @@ function store_list_to_ls(listid, name, id){
 }
 
 function mouseover(d) {
-    
+    colors = ['red','orange', 'blue', 'green']
     html = '<div style="text-align:center; padding:5px" ><strong>' + d.id +'</strong> <br/><hr>'
 //    html += 'nr local nodes: ' + d.nr_local_nodes +'<br>local position: ' + d.lpos + '<br>distance: ' +  d.neighbor_distance + '<hr>'
 
@@ -490,13 +490,27 @@ function mouseover(d) {
     }
 
 
-    if (d.rt.globals.predecessor)
-        html += '<tr><td>p</td><td>'+d.rt.globals.predecessor.id+'</td><td>'+d.rt.globals.predecessor.latency+'</td></tr>'
-    if (d.rt.globals.successor)
-        html += '<tr><td>s</td><td>'+d.rt.globals.successor.id+'</td><td>'+d.rt.globals.successor.latency+'</td></tr>'
-
+    if (d.rt.globals.predecessor){
+        col = colors[d.rt.globals.predecessor.lq]
+        html += '<tr><td>p</td><td>'+d.rt.globals.predecessor.id+'</td><td style="color:'+col+'">'+d.rt.globals.predecessor.latency+'</td></tr>'
+    }
+    if (d.rt.globals.successor){
+        col = colors[d.rt.globals.successor.lq]
+        html += '<tr><td>s</td><td>'+d.rt.globals.successor.id+'</td><td style="color:'+col+'">'+d.rt.globals.successor.latency+'</td></tr>'
+    }
     if (table)
         html += '</table>'    
+
+    if (d.rt.globals.longlinks.length > 0 ){
+        html += '<br><span>Long links</span> <br/>'
+        html += '<table border="1" style="width:100%"><tr><th>id</th><th>latency</th></tr>'
+
+        for(i = 0; i < d.rt.globals.longlinks.length; i++){
+            col = colors[d.rt.globals.longlinks[i].lq]
+            html += '<tr><td>'+d.rt.globals.longlinks[i].id+'</td><td style="color:'+col+'">'+d.rt.globals.longlinks[i].latency+'</td></tr>'
+           }
+        html += '</table>'
+    }
 
 
     if (d.rt.locals.visited.length > 0 ){
@@ -514,8 +528,10 @@ function mouseover(d) {
         html += '<br><span>Global visited</span> <br/>'
         html += '<table border="1" style="width:100%"><tr><th>id</th><th>latency</th></tr>'
 
-        for(i = 0; i < d.rt.globals.visited.length; i++)
-            html += '<tr><td>'+d.rt.globals.visited[i].id+'</td><td>'+d.rt.globals.visited[i].latency+'</td></tr>'
+        for(i = 0; i < d.rt.globals.visited.length; i++){
+            col = colors[d.rt.globals.visited[i].lq]
+            html += '<tr><td>'+d.rt.globals.visited[i].id+'</td><td style="color:'+col+'">'+d.rt.globals.visited[i].latency+'</td></tr>'
+        }
         html += '</table>'
     }
 
@@ -556,7 +572,7 @@ function myGraph(el) {
         new_nodes = []
         present = false;
         for(var i = 0; i < snodes.length; i++){
-            new_nodes.push({"id":snodes[i].id, "group":snodes[i].dc_id, 'rt':snodes[i].rt, 'nr_local_nodes': snodes[i].nr_local_nodes, 'lpos':snodes[i].lpos, 'neighbor_distance': snodes[i].neighbor_distance });
+            new_nodes.push({"id":snodes[i].id, "group":snodes[i].dc_id, 'rt':snodes[i].rt /*, 'nr_local_nodes': snodes[i].nr_local_nodes, 'lpos':snodes[i].lpos, 'neighbor_distance': snodes[i].neighbor_distance */});
 
             var all = [];
 
@@ -598,7 +614,7 @@ function myGraph(el) {
 
     // set up the D3 visualisation in the specified element
     var w = $(el).innerWidth(),
-        h = $(el).innerHeight();
+        h = $(el).parent().innerHeight();
 
     var vis = this.vis = d3.select(el).append("svg:svg")
         .attr("width", w)
@@ -645,7 +661,7 @@ function myGraph(el) {
             .attr("class", "nodetext")
             .attr("dx", 12)
             .attr("dy", ".35em")
-            .attr("fill", "#B0171F")
+//            .attr("fill", "#B0171F")
             .text(function(d) {return d.id});
 
         node.exit().remove();
