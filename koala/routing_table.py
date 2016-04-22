@@ -48,6 +48,7 @@ class RoutingTable(object):
             to_ret.extend(self.globals.visited)
             to_ret.extend(self.globals.longlinks)
 
+        to_ret = filter(None, to_ret)
         seen = {}
         for n in to_ret:
             if n and n.id not in seen.keys():

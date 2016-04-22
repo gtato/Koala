@@ -28,7 +28,7 @@ def get_route_value(dest, re):
         res = 1 + a * dist(nid, re.nid) # prefer long local links, they potentially know things I don't know
 
     if dist(dc_id, dest.dc_id) > dist(re.dc_id, dest.dc_id):
-        res = b * 1 / dist(re.dc_id, dest,dc_id) + c * 1 / re.latency
+        res = b * 1 / dist(re.dc_id, dest.dc_id) + c * 1 / re.latency
 
     if dest.dc_id == re.dc_id:
         res = MAX_VAL - d * dist(re.nid, dest.nid)

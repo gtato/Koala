@@ -655,8 +655,9 @@ function myGraph(el) {
 
         node.append("circle")
         .style("fill", function(d) { return color(d.group);})
-        .attr("r", 4);
-    
+//        .attr("r", 4);
+        .attr("r", 5);
+
         nodeEnter.append("text")
             .attr("class", "nodetext")
             .attr("dx", 12)

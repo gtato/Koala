@@ -2,7 +2,6 @@
 # from protocol import Koala
 import sys, math, random
 
-from migrate.versioning.api import source
 
 from routing_table import RoutingTable, NeighborEntry
 from message import Message
@@ -14,6 +13,10 @@ class Node(object):
     DC_SIZE = 100
     WORLD_SIZE = 100
     MAGIC = 2
+
+    MAX_VAL = 999999
+    A = B = C = D = 1
+    B = 99999
 
     """docstring for Node"""
     def __init__(self, nid, dc_id):
@@ -52,7 +55,7 @@ class Node(object):
         # self.search_long_links_in_path(msg)
 
         if msg.type == 'route':
-            return self.on_route(msg)
+            return self.on_route(source, msg)
 
         if msg.type == 'rt':
             self.update_rt(source, msg)
@@ -72,7 +75,7 @@ class Node(object):
         rec_neighbours = rt.get_all_neighbours()
         if source_old_neig:
             rec_neighbours.extend(source_old_neig)
-        rec_neighbours.append(source) # maybe source could be a potential neighbour
+        rec_neighbours.append(source)  # maybe source could be a potential neighbour
 
         neigh_before = self.rt.get_neighbours_ids()
         dc_before = [Node.dc_id(nb) for nb in neigh_before]
@@ -112,16 +115,17 @@ class Node(object):
         for new_n in new_neighbours:
             if new_n.id in neigh_after and new_n.id not in neigh_before or new_n.id == source.id:
                 if self.is_local(new_n.id):
-                    self.send(new_n.id, Message('rt', {'c':True, 'rt': self.rt, 'old_neighbors':old_neighbors}))
+                    self.send(new_n.id, Message('rt', {'c': True, 'rt': self.rt, 'old_neighbors': old_neighbors}))
                 else:
                     new_dc = Node.dc_id(new_n.id) not in dc_before
-                    if new_dc:
+                    if new_dc and not self_joining:
                         self.broadcast_global_neighbor(new_n)
                     if not self.is_local(source.id) and (chain or new_dc):
                         self.send(new_n.id, Message('rt', {'c': False, 'rt': self.rt, 'old_neighbors':old_neighbors}))
 
 
     def update_latency_x_dc(self, id, l, lq):
+        # if Node.dc_id(id) == self.
         if lq > 1:
             self.latency_x_dc[Node.dc_id(id)] = l
 
@@ -173,7 +177,7 @@ class Node(object):
     def get_lq(self, is_source, source_id, ne):
         if is_source:
             return 3
-        if self.is_local(source_id) and ne.lq == 3:
+        if self.is_local(source_id) and ne.lq > 1:
             return 2
         return 1
 
@@ -230,8 +234,10 @@ class Node(object):
             rids = list(set(rids))
         return rids
 
-    def on_route(self, msg):
+    def on_route(self, source, msg):
         nid = msg.content
+        self.update_latency_x_dc(source.id, msg.latency, 3)
+        self.update_latencies()
         if nid != self.id:
             dest = self.route_to(nid, msg)
             return self.send(dest, msg)
@@ -240,7 +246,12 @@ class Node(object):
 
 
     def is_joining(self):
-        return len(self.rt.get_neighbours_ids()) == 1
+        neighs = self.rt.get_all_neighbours()
+        return len(neighs) == 1 and neighs[0].latency == 0
+        # return len(self.rt.get_all_neighbours() .get_neighbours_ids()) == 1
+
+    def alone_in_dc(self):
+        return self.rt.locals.successor == None
 
 
     def try_set_neighbour(self, nid, latency, lq):
@@ -269,18 +280,46 @@ class Node(object):
         return ret, old_neighs
 
 
-    def route_to(self, nid, msg):
-        local = self.is_local(nid)
+    # def route_to(self, nid, msg):
+    #     local = self.is_local(nid)
+    #
+    #     succ = self.rt.locals.successor.id if local else self.rt.globals.successor.id
+    #     pred = self.rt.locals.predecessor.id if local else self.rt.globals.predecessor.id
+    #
+    #     d_from_succ = Node.distance(nid, succ)
+    #     d_from_pred = Node.distance(nid, pred)
+    #     if d_from_pred < d_from_succ:
+    #         return pred
+    #     else:
+    #         return succ
 
-        succ = self.rt.locals.successor.id if local else self.rt.globals.successor.id
-        pred = self.rt.locals.predecessor.id if local else self.rt.globals.predecessor.id
+    def route_to(self, dest, msg):
+        max = 0
+        ret = None
+        rt = self.rt.get_all_neighbours(RoutingTable.ALL)
+        for re in rt:
+            v = self.get_route_value(dest, re)
+            if v > max:
+                max = v
+                ret = re
+        return ret.id
 
-        d_from_succ = Node.distance(nid, succ)
-        d_from_pred = Node.distance(nid, pred)
-        if d_from_pred < d_from_succ:
-            return pred
-        else:
-            return succ
+    def get_route_value(self, dest, re):
+        res = 0
+
+        if Node.distance(self.id, dest) < Node.distance(re.id, dest): #current node is better than sending it to this entry
+            res = -1
+
+        if self.dc_id == Node.dc_id(re.id): # the entry is local
+            res = 1 + Node.A * Node.distance(self.id, re.id) # prefer long local links, they potentially know things I don't know
+
+        if Node.distance(self.id, dest) > Node.distance(re.id, dest):
+            res = Node.B * 1 / float(Node.distance(re.id, dest)) + Node.C * 1 / float(re.latency)
+
+        if Node.dc_id(dest) == Node.dc_id(re.id):
+            res = Node.MAX_VAL - Node.A * Node.distance(re.id, dest)
+        return res
+
 
 
     # def get_rt_entry(self, node_id):
