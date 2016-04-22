@@ -25,6 +25,10 @@ def send_js(path):
 def send_css(path):
     return send_from_directory('css', path)
 
+@app.route('/images/<path:path>')
+def send_image(path):
+    return send_from_directory('images', path)
+
 
 @app.route('/add_node')
 def add_node():
