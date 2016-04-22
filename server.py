@@ -3,6 +3,7 @@ import simplejson as json
 from koala.protocol import Koala
 from koala.node import Node
 from koala.message import Message
+import os
 # Initialize the Flask application
 app = Flask(__name__)
 
@@ -130,9 +131,13 @@ if __name__ == '__main__':
     #
     # n3 = Node('20', 'a')
     # n3.join('a-10')
+    prt = "8080"
+    loc = '%s' % os.getcwd()
+    if 'tatoal' in loc:
+        prt = "56789"
 
     app.run(
         host="0.0.0.0",
-        port=int("8080"),
+        port=int(prt),
         debug=True
     )
