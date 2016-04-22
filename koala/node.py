@@ -16,7 +16,8 @@ class Node(object):
 
     MAX_VAL = 999999
     A = B = C = D = 1
-    B = 99999
+    A = 1 / float(1000)
+    # B = 99999
 
     """docstring for Node"""
     def __init__(self, nid, dc_id):
@@ -311,10 +312,10 @@ class Node(object):
             res = -1
 
         if self.dc_id == Node.dc_id(re.id): # the entry is local
-            res = 1 + Node.A * Node.distance(self.id, re.id) # prefer long local links, they potentially know things I don't know
+            res = Node.A * Node.distance(self.id, re.id) # prefer long local links, they potentially know things I don't know
 
         if Node.distance(self.id, dest) > Node.distance(re.id, dest):
-            res = Node.B * 1 / float(Node.distance(re.id, dest)) + Node.C * 1 / float(re.latency)
+            res = 1 + ( Node.B *float(Node.distance(self.id, dest)) / float(Node.distance(self.id, re.id)) + Node.C * 1 / float(re.latency) )
 
         if Node.dc_id(dest) == Node.dc_id(re.id):
             res = Node.MAX_VAL - Node.A * Node.distance(re.id, dest)
