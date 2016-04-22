@@ -129,7 +129,7 @@ function exec_list(){
         return
     }
     lname = $("#add_list_select option:selected").text();
-    $.getJSON("/add_list", {
+    $.getJSON("add_list", {
          nodes: lnodes
          },
          function(data, status){
@@ -190,7 +190,7 @@ function exec_route_list(){
         return
     }
     lname = $("#add_route_list_select option:selected").text();
-    $.getJSON("/route_list", {
+    $.getJSON("route_list", {
          routes: lroutes
          },
          function(data, status){
@@ -239,7 +239,7 @@ function swap(){
 }
 
 function save(){
-  $.getJSON("/get_nodes", function(data, status){
+  $.getJSON("get_nodes", function(data, status){
       nodes = data.result
       text = JSON.stringify(nodes)
       filename = 'nodes.js'
@@ -294,7 +294,7 @@ function route(){
         return
     }
 
-    $.getJSON("/route", {
+    $.getJSON("route", {
           from: from,
           to: to
         },
@@ -325,7 +325,7 @@ function add_node(){
     var boot_id = $("#boot_node_id").val()
 
 
-    $.getJSON("/add_node", {
+    $.getJSON("add_node", {
           node_id: id,
           boot_node_id: boot_id
         },
@@ -375,7 +375,7 @@ function random(what){
 }
 
 function delete_all_nodes(){
-    $.getJSON("/delete_nodes", 
+    $.getJSON("delete_nodes",
         function(data, status){
             location.reload(); 
         });
@@ -383,7 +383,7 @@ function delete_all_nodes(){
 
 
 function get_nodes(){
-    $.getJSON("/get_nodes", function(data, status){
+    $.getJSON("get_nodes", function(data, status){
         nodes = data.result
         update_graph(nodes)
     });
