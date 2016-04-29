@@ -116,6 +116,21 @@ def delete_nodes():
     return jsonify(result=True)
 
 
+@app.route('/upload_changes')
+def upload_changes():
+    str_nodes = request.args.get('nodes')
+    nodes_dict = json.loads(str_nodes)
+    nodes = []
+    for nd in nodes_dict:
+        nd['node_id'] = nd['id'].split('-')[1]
+        nd['dc_id'] = nd['id'].split('-')[0]
+        nn = Node.from_dict(nd)
+        for n in Koala.nodes:
+            if n.id == nn.id:
+                n.rt = nn.rt
+                break
+    return jsonify(result=True)
+
 
 @app.route('/restore', methods=['POST'])
 def upload():

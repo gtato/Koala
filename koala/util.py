@@ -31,3 +31,17 @@ class Util(object):
             return False
 
         return True
+
+    @staticmethod
+    def normalize_latency(latency, tot_distance):
+        x1 = 1
+        y1 = 1
+        x2 = 1000
+        y2 = 1 / float(tot_distance)
+
+        sl = (y2-y1)/float(x2 - x1)
+
+        #y is the normalized latency
+        y = sl * (latency - x1) + y1
+        return y
+

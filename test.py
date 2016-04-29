@@ -1,4 +1,5 @@
 from koala.node import Node
+from koala.util import Util
 
 def define_direction(arr):
     if arr[1] > arr[0] and arr[2] > arr[1]:
@@ -66,7 +67,7 @@ if __name__ == "__main__":
 
 
     # test predecessors
-    n = Node('10','c')
+    # n = Node('10','c')
 
     # print n.try_set_neighbour('b-20',50)
     # print n.try_set_neighbour('d-30',50)
@@ -82,7 +83,9 @@ if __name__ == "__main__":
     # print 'b-20', n.can_be_predecessor('b-20')
     # print 'b-6', n.is_predecessor('b-6' )
     # print 'e-20', n.is_predecessor('e-20')
-    arr = [4,3,6]
-    print consistent(arr)
+    # arr = [4,3,6]
+    # print consistent(arr)
 
-
+    latency = 200
+    tot_distance = 20
+    print Util.normalize_latency(latency, tot_distance)

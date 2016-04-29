@@ -6,6 +6,7 @@ import sys, math, random
 from routing_table import RoutingTable, NeighborEntry
 from message import Message
 from protocol import Koala
+from util import Util
 
 
 class Node(object):
@@ -16,7 +17,7 @@ class Node(object):
 
     MAX_VAL = 999999
     A = B = C = D = 1
-    A = 1 / float(1000)
+    A = 1 / float(WORLD_SIZE)
     # B = 99999
 
     """docstring for Node"""
@@ -315,7 +316,10 @@ class Node(object):
             res = Node.A * Node.distance(self.id, re.id) # prefer long local links, they potentially know things I don't know
 
         if Node.distance(self.id, dest) > Node.distance(re.id, dest):
-            res = 1 + ( Node.B *float(Node.distance(self.id, dest)) / float(Node.distance(self.id, re.id)) + Node.C * 1 / float(re.latency) )
+            tot_distance = Node.distance(self.id, dest)
+            distance = Node.distance(self.id, re.id) / float(tot_distance)
+            norm_latency = Util.normalize_latency(tot_distance, re.latency)
+            res = 1 + Node.B * distance + Node.C * norm_latency
 
         if Node.dc_id(dest) == Node.dc_id(re.id):
             res = Node.MAX_VAL - Node.A * Node.distance(re.id, dest)

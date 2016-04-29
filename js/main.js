@@ -1,6 +1,7 @@
 graph = {}
 boots =[]
 nodes =[]
+gmode='readonly'
 $( document ).ready(function() {
    add_listeners()   
    graph = new myGraph("#hello"); 
@@ -22,10 +23,12 @@ function add_listeners(){
     $(document).on('change', '#add_route_list_select', show_route_list);
     $(document).on('click', '#delete_route_lists', delete_route_lists);
 
+    $(document).on('click', '#uploadchanges', upload_changes);
     $(document).on('click', '#save', save);
     $(document).on('click', '#restore', restore);
 
     $(document).on('click', '#delete_all_nodes', delete_all_nodes);
+    $(document).on('mouseover', '#mapping', show_mapping);
 
 
 }
@@ -236,6 +239,19 @@ function swap(){
 
     $("#route_from").val(to)
     $("#route_to").val(from)
+}
+
+function upload_changes(){
+    $.getJSON("upload_changes", {
+          nodes: JSON.stringify(nodes)
+        },
+        function(data, status){
+//            msgs = data.msgs;
+//            log("Adding node: " + id + " using node: " + boot_id, msgs)
+//            get_nodes()
+//            $("#node_id").val('')
+            alert('nodes updated')
+        });
 }
 
 function save(){
@@ -458,12 +474,18 @@ function store_list_to_ls(listid, name, id){
 }
 
 function mouseover(d) {
+    if (gmode == 'readonly')
+        show_node_info(d, 'readonly') //readonly
+}
+
+function show_node_info(d, mode){
     colors = ['red','orange', 'blue', 'green']
-    html = '<div style="text-align:center; padding:5px" ><strong>' + d.id +'</strong> <br/><hr>'
+
+    html = '<div style="text-align:center; padding:5px" ><strong>' + d.id + '</strong><br/>  (' + mode +')<hr>'
 //    html += 'nr local nodes: ' + d.nr_local_nodes +'<br>local position: ' + d.lpos + '<br>distance: ' +  d.neighbor_distance + '<hr>'
 
     table = false;
-    
+
     if (d.rt.locals.predecessor || d.rt.locals.successor){
         html += '<br><span>Local</span> <br/>'
         html += '<table border="1" style="width:100%"><tr><th>role</th><th>id</th><th>latency</th></tr>'
@@ -471,14 +493,23 @@ function mouseover(d) {
     }
 
 
-    if (d.rt.locals.predecessor)
-        html += '<tr><td>p</td><td>'+d.rt.locals.predecessor.id+'</td><td>'+d.rt.locals.predecessor.latency+'</td></tr>'
-    if (d.rt.locals.successor)
-        html += '<tr><td>s</td><td>'+d.rt.locals.successor.id+'</td><td>'+d.rt.locals.successor.latency+'</td></tr>'
+    if (d.rt.locals.predecessor){
+        latency = d.rt.locals.predecessor.latency
+        if(mode == 'editing'){
+            latency = '<input id="llp" style="width:50px; text-align:center" value="'+latency+'"><br>'
+         }
+        html += '<tr><td>p</td><td>'+d.rt.locals.predecessor.id+'</td><td>'+latency +'</td></tr>'
+    }
 
+    if (d.rt.locals.successor){
+        latency = d.rt.locals.successor.latency
+        if(mode == 'editing')
+            latency = '<input id="lls" style="width:50px; text-align:center" value="'+latency+'">'
+        html += '<tr><td>s</td><td>'+d.rt.locals.successor.id+'</td><td>'+latency+'</td></tr>'
+    }
 
     if (table){
-        html += '</table>'    
+        html += '</table>'
         table = false
     }
 
@@ -492,26 +523,66 @@ function mouseover(d) {
 
     if (d.rt.globals.predecessor){
         col = colors[d.rt.globals.predecessor.lq]
-        html += '<tr><td>p</td><td>'+d.rt.globals.predecessor.id+'</td><td style="color:'+col+'">'+d.rt.globals.predecessor.latency+'</td></tr>'
+        checked = ['o','o', 'o', 'o']
+        checked[d.rt.globals.predecessor.lq] = '+'
+        latency = d.rt.globals.predecessor.latency
+        if(mode == 'editing'){
+            latency = '<input id="lgp" style="width:50px; text-align:center" type="number" value="'+latency+'">'
+            latency += '<table id="lqgp" border="0" style="margin-top:2px" ><tr>'
+            for(i=0;i<colors.length;i++)
+                latency += '<td style="color:'+ colors[i] +'; padding:0px; margin:0px; font-weight: 900;" onclick="changeLQ(event)">' + checked[i] + '</td>'
+            latency += '</tr></table>'
+        }
+        html += '<tr><td>p</td><td>'+d.rt.globals.predecessor.id+'</td><td style="color:'+col+'">'+latency+'</td></tr>'
     }
     if (d.rt.globals.successor){
         col = colors[d.rt.globals.successor.lq]
-        html += '<tr><td>s</td><td>'+d.rt.globals.successor.id+'</td><td style="color:'+col+'">'+d.rt.globals.successor.latency+'</td></tr>'
+        checked = ['o','o', 'o', 'o']
+        checked[d.rt.globals.successor.lq] = '+'
+        latency = d.rt.globals.successor.latency
+        if(mode == 'editing'){
+            latency = '<input id="lgs" style="width:50px; text-align:center" type="number" value="'+latency+'">'
+            latency += '<table id="lqgs" border="0" style="margin-top:2px" ><tr>'
+            for(i=0;i<colors.length;i++)
+                latency += '<td style="color:'+ colors[i] +'; padding:0px; margin:0px; font-weight: 900; cursor:pointer" onclick="changeLQ(event)">' + checked[i] + '</td>'
+            latency += '</tr></table>'
+        }
+        html += '<tr><td>s</td><td>'+d.rt.globals.successor.id+'</td><td style="color:'+col+'">'+latency+'</td></tr>'
     }
     if (table)
-        html += '</table>'    
+        html += '</table>'
+
+
+    html += '<div id="ll_ph" style="display:none"><br><span>Long links</span><br><table id="nll_tb" border="1" style="width:100%;"><tr><th>id</th><th>latency</th>'
+    if(mode == 'editing')
+        html += '<th></th>'
 
     if (d.rt.globals.longlinks.length > 0 ){
-        html += '<br><span>Long links</span> <br/>'
-        html += '<table border="1" style="width:100%"><tr><th>id</th><th>latency</th></tr>'
-
         for(i = 0; i < d.rt.globals.longlinks.length; i++){
             col = colors[d.rt.globals.longlinks[i].lq]
-            html += '<tr><td>'+d.rt.globals.longlinks[i].id+'</td><td style="color:'+col+'">'+d.rt.globals.longlinks[i].latency+'</td></tr>'
-           }
-        html += '</table>'
+            checked = ['o','o', 'o', 'o']
+            checked[d.rt.globals.longlinks[i].lq] = '+'
+            latency = d.rt.globals.longlinks[i].latency
+            if(mode == 'editing'){
+                latency = '<input id="lgll'+i+'" style="width:50px; text-align:center" type="number" value="'+latency+'">'
+                latency += '<table id="lqgll'+i+'" border="0" style="margin-top:2px" ><tr>'
+                for(j=0;j<colors.length;j++)
+                    latency += '<td style="color:'+ colors[j] +'; padding:0px; margin:0px; font-weight: 900; cursor:pointer" onclick="changeLQ(event)">' + checked[j] + '</td>'
+                latency += '</tr></table>'
+            }
+
+            if(mode == 'editing'){
+                html += '<tr><td><select>'+ get_ops(d, d.rt.globals.longlinks[i].id) +'<select></td><td style="color:'+col+'">'+latency+'</td>'
+                html += '<td style="font-weight:900; cursor:pointer" onclick="delete_ll(event)">x</td>'
+            }else
+                html += '<tr><td>'+ d.rt.globals.longlinks[i].id +'</td><td style="color:'+col+'">'+latency+'</td>'
+            html += '</tr>'
+        }
+
+
     }
 
+    html += '</table></div>'
 
     if (d.rt.locals.visited.length > 0 ){
         html += '<br><span>Local visited</span> <br/>'
@@ -539,13 +610,141 @@ function mouseover(d) {
 
 
     html += '</div>'
-    
+
+    if(mode == 'editing'){
+
+        opts = get_ops(d, '')
+
+        if (opts.length > 0){
+            html += '<div id="new_ll_ph" style="display:none"><br><span>New long links</span><br><table id="nll_tb"></table></div>'
+            html += '<br><input id="add_ll" type="button" value="Add long links" onclick="add_new_ll(opts)" />'
+        }
+        html += '<br><br><input id="done" type="button" value="Done"  />' //onclick="done_editing"
+
+
+
+    }
+
     d3.select("#node_info").html(html);
-  
+    if (d.rt.globals.longlinks.length > 0 )
+        $("#ll_ph").show()
+    if(mode == 'editing')
+        document.getElementById("done").addEventListener("click", function() {done_editing(d);}, false);
+}
+
+function get_ops(d, select){
+    opts=''
+    for(i=0;i<nodes.length;i++){
+        if( nodes[i].id.split("-")[0] == d.id.split("-")[0]
+            || (d.rt.globals.predecessor &&  nodes[i].id == d.rt.globals.predecessor.id)
+            || (d.rt.globals.successor &&  nodes[i].id == d.rt.globals.successor.id))
+            continue
+        if (select.length > 0 && nodes[i].id == select)
+            opts += '<option value="'+nodes[i].id+'" selected>' + nodes[i].id + '</option>'
+        else
+            opts += '<option value="'+nodes[i].id+'">' + nodes[i].id + '</option>'
+    }
+    return opts
+}
+
+function add_new_ll(opts){
+    colors = ['red','orange', 'blue', 'green']
+    html = '<tr><td><select>' + opts + '</select></td><td ><input id="lgll'+rand_str(3)+'" type="number" style="width:50px;">'
+    checked = ['o','o', 'o', '+']
+    html += '<table  style="margin-top:2px;" ><tr>'
+        for(i=0;i<colors.length;i++)
+            html += '<td style="color:'+ colors[i] +'; padding:0px; margin:0px; font-weight: 900; cursor:pointer" onclick="changeLQ(event)">' + checked[i] + '</td>'
+        html += '</tr></table></td><td style="font-weight:900; cursor:pointer" onclick="delete_ll(event)">x</td></tr>'
+    $("#nll_tb").append(html)
+    $("#ll_ph").show()
+}
+
+function changeLQ(e){
+//    table_id = $($(e.target).parents('table')[0]).attr('id')
+    $($(e.target).parents('table')[0]).find('td').each(function () {
+        $(this).html('o')
+    });
+    $(e.target).html('+')
+}
+
+function delete_ll(e){
+    table = $($(e.target).parents('table')[0])
+    $($(e.target).parents('tr')[0]).remove()
+    if (table.find('td').length == 0)
+        $("#ll_ph").hide()
+}
+
+function done_editing(d){
+    lls = []
+    $('#node_info :input[type="number"]').each(
+        function(index){
+            var input = $(this);
+            id = input.attr('id')
+            if(id == 'llp')
+                d.rt.locals.predecessor.latency = input.val()
+            if(id == 'lls')
+                d.rt.locals.successor.latency = input.val()
+            if(id == 'lgp'){
+                d.rt.globals.predecessor.latency = input.val()
+                tds = $('#lqgp').find('td')
+                for(i=0;i<tds.length;i++)
+                    if ($(tds[i]).html() == '+')
+                        d.rt.globals.predecessor.lq = i
+
+            }
+            if(id == 'lgs'){
+                d.rt.globals.successor.latency = input.val()
+                tds = $('#lqgs').find('td')
+                for(i=0;i<tds.length;i++)
+                    if ($(tds[i]).html() == '+')
+                        d.rt.globals.successor.lq = i
+
+            }
+            if(id.indexOf('lgll') > -1){
+                e = {id:$(input.parents('tr')[0]).find('select').val(), latency:input.val(), lq:1}
+                tds = $(input.parent()).find('table').find('td')
+                for(i=0;i<tds.length;i++)
+                    if ($(tds[i]).html() == '+')
+                        e.lq = i
+                if(e.latency.length > 0)
+                    lls.push(e)
+            }
+        }
+    );
+
+    d.rt.globals.longlinks = lls
+
+    // update node in nodes
+    for(i=0;i<nodes.length;i++){
+        if(nodes[i].id == d.id)
+            nodes[i] = d
+    }
+
+    gmode = 'readonly'
+    show_node_info(d, 'readonly')
+}
+
+function dblclick(d){
+    md = 'editing'
+    gmode = md
+    show_node_info(d, md)
 }
 
 function mouseout() {
-  d3.select("#node_info").html('');
+  if (gmode!='editing')
+    d3.select("#node_info").html('');
+}
+
+function show_mapping(){
+    l = 'abcdefghijklmnopqrstuvwxyz'
+    mp = ''
+    for(i=0; i < l.length; i++){
+        mp += (i+1) + '->' +  l.charAt(i) + '<br>'
+    }
+
+    txt = '<div style="text-align:center; padding:5px" >'+mp+'</div>'
+    if (gmode == 'readonly')
+        $("#node_info").html(txt);
 }
 
 
@@ -651,6 +850,7 @@ function myGraph(el) {
             .attr("class", "node")
             .on("mouseover", mouseover)
             .on("mouseout", mouseout)
+            .on("dblclick", dblclick)
             .call(force.drag);
 
         node.append("circle")
