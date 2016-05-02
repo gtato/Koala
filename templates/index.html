@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
+<meta charset="utf-8" xmlns="http://www.w3.org/1999/html">
 <!--script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
 <script src="//d3js.org/d3.v3.min.js"></script-->
 
@@ -38,11 +38,15 @@
 
     <input type="button" value="Add node" id="add_node" /><br/><br/>
 
-    <input type="number" id="nr_add_nodes" min="1" max="100" style="width:30px" value="10">
-    <input type="button" value="Add random list" id="add_list" /><br/>
+
+    <br><span id="toggle_list" style="cursor:pointer; color:#cc1e04;">Show list options</span>
+    <div id="random_list" style="display:none">
+        <input type="number" id="nr_add_nodes" min="1" max="100" style="width:30px" value="10">
+        <input type="button" value="Add random list" id="add_list" /><br/>
     <select id="add_list_select"></select>
     <input type="button" value="Execute" id="exec_list" /><br/>
     <input type="button" value="Delete lists" id="delete_lists" /><br/>
+    </div>
     <br/><hr><br/>
 
 
@@ -50,12 +54,15 @@
     <tr align="center"><td></td><td colspan="3"><input type="button" value="Route" id="route" /></td></tr>
     </table>
     <br/>
+
+    <br><span id="toggle_route_list" style="cursor:pointer; color: #cc1e04;">Show route list options</span>
+    <div id="random_route_list" style="display:none">
     <input type="number" id="nr_routs" min="1" max="100" style="width:30px" value="10">
     <input type="button" value="Add random routs" id="add_route_list" /> <input type="button" value="Add all" id="add_all_route_list" /><br/>
     <select id="add_route_list_select"></select>
     <input type="button" value="Execute" id="exec_route_list" /><br/>
     <input type="button" value="Delete lists" id="delete_route_lists" /><br/>
-
+    </div>
 
     <br/><hr><br/>
 
@@ -72,7 +79,7 @@
 
 <td align="center" style="border:1px solid black; border-width:0px 1px 0px 1px; height:100%" ><div id='hello' style="width:100%; height:100%"> </div></td>
 <td valign="top" style="width:200px"><div style="padding-top:10px; overflow: auto; height:700px">
-  Info: <br><div id="general_info"> </div> <br> <div id="mapping"> show mapping </div> <hr> <div id="node_info"> </div> </div> </td>
+  Info: <br><div id="general_info"> </div> <br> <div id="mapping" style="cursor:pointer; color:#cc1e04;"> Show mapping </div> <hr> <div id="node_info"> </div> </div> </td>
 </tr>
 <tr><td colspan="3"><div id="cons_cont" style="width:100%; height: 300px; background:#313131;  color:#fff; text-align:left; overflow: auto; font-family: Courier, 'Lucida Sans Typewriter'">
   <div id="console" style="padding:5px">  </div>

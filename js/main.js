@@ -10,11 +10,14 @@ $( document ).ready(function() {
 
 function add_listeners(){
     $(document).on('click', '#add_node', add_node);
+    $(document).on('click', '#toggle_list', toggle_list);
+
     $(document).on('click', '#add_list', add_list);
     $(document).on('click', '#exec_list', exec_list);
     $(document).on('change', '#add_list_select', show_list);
     $(document).on('click', '#delete_lists', delete_lists);
 
+    $(document).on('click', '#toggle_route_list', toggle_route_list);
     $(document).on('click', '#route', route);
     $(document).on('click', '#add_route_list', add_route_list);
     $(document).on('click', '#swap', swap);
@@ -29,9 +32,33 @@ function add_listeners(){
 
     $(document).on('click', '#delete_all_nodes', delete_all_nodes);
     $(document).on('mouseover', '#mapping', show_mapping);
+    $(document).on('mouseleave', '#mapping', hide_mapping);
 
 
 }
+
+function toggle_list(e){
+    if($(e.target).html().indexOf('Show') > -1)
+    {
+        $("#random_list").show()
+        $(e.target).html('Hide list options')
+    }else{
+        $("#random_list").hide()
+        $(e.target).html('Show list options')
+    }
+}
+
+function toggle_route_list(e){
+    if($(e.target).html().indexOf('Show') > -1)
+    {
+        $("#random_route_list").show()
+        $(e.target).html('Hide route list options')
+    }else{
+        $("#random_route_list").hide()
+        $(e.target).html('Show route list options')
+    }
+}
+
 
 function add_all_route_list(){
     if (nodes.length == 0){
@@ -457,7 +484,7 @@ function update_graph(nodes){
 //    }
 //    mae = Math.round(total_diff/nodes.length * 100) / 100 ;
 
-    $('#general_info').html('total nr nodes: ' + nodes.length  )
+    $('#general_info').html('Total nr. nodes: ' + nodes.length  )
 
 
     graph.addNodesAndLinks(nodes);
@@ -473,10 +500,7 @@ function store_list_to_ls(listid, name, id){
     localStorage.setItem(listid, JSON.stringify(list));
 }
 
-function mouseover(d) {
-    if (gmode == 'readonly')
-        show_node_info(d, 'readonly') //readonly
-}
+
 
 function show_node_info(d, mode){
     colors = ['red','orange', 'blue', 'green']
@@ -724,6 +748,16 @@ function done_editing(d){
     show_node_info(d, 'readonly')
 }
 
+
+function mouseover(d) {
+    if (gmode == 'readonly'){
+        show_node_info(d, 'readonly') //readonly
+        d3.select(this.firstChild).attr("r", 10);
+    }
+
+
+}
+
 function dblclick(d){
     md = 'editing'
     gmode = md
@@ -731,9 +765,83 @@ function dblclick(d){
 }
 
 function mouseout() {
-  if (gmode!='editing')
+  if (gmode!='editing'){
     d3.select("#node_info").html('');
+
+    if (d3.select(this).attr('class') == 'link')
+        d3.select(this).attr("stroke-width", "1.5")
+    else
+        d3.select(this.firstChild).attr("r", 5);
+  }
+
 }
+
+function linkmouseover(l)
+{
+    if (gmode == 'readonly'){
+        srcs = []
+        trgts = []
+        relations = []
+        latencies = []
+
+        is_local = (l.source.id.split('-')[0] == l.target.id.split('-')[0])
+
+        neigs_s = is_local ? l.source.rt.locals : l.source.rt.globals
+        neigs_t = is_local ? l.target.rt.locals : l.target.rt.globals
+
+
+        if(neigs_s.predecessor.id == l.target.id || neigs_s.successor.id == l.target.id ){
+            srcs.push(l.source.id)
+            trgts.push(l.target.id)
+            if (neigs_s.predecessor.id == l.target.id){
+                relations.push('predecessor')
+                latencies.push(neigs_s.predecessor)
+            }else{
+                relations.push('successor')
+                latencies.push(neigs_s.successor)
+             }
+        }
+
+        if(neigs_t.predecessor.id == l.source.id || neigs_t.successor.id == l.source.id ){
+            srcs.push(l.target.id)
+            trgts.push(l.source.id)
+            if (neigs_t.predecessor.id == l.source.id){
+                relations.push('predecessor')
+                latencies.push(neigs_t.predecessor)
+            }else{
+                relations.push('successor')
+                latencies.push(neigs_t.successor)
+            }
+        }
+        html = '<br>'
+
+        final_srcs = srcs
+        final_trgts = trgts
+        final_rs = relations
+        final_l = latencies
+
+        if(srcs.length > 1 && relations[1]=='successor'){
+            final_srcs = [srcs[1], srcs[0]]
+            final_trgts = [trgts[1], trgts[0]]
+            final_rs = [relations[1], relations[0]]
+            final_l = [latencies[1], latencies[0]]
+        }
+
+        colors = ['red','orange', 'blue', 'green']
+        for(i=0;i<final_srcs.length;i++)
+        {
+            html += '<strong>' + final_srcs[i] + '</strong> has <strong>' + final_trgts[i] + '</strong> as <br> <strong> ' + final_rs[i] +'</strong><br>'
+            html += 'Latency: <span style="color:'+colors[final_l[i].lq] +'">' + final_l[i].latency + '</span>'
+            html += '<br><br>'
+        }
+        d3.select(this).attr("stroke-width", "5")
+        d3.select("#node_info").html(html);
+    }
+
+
+}
+
+
 
 function show_mapping(){
     l = 'abcdefghijklmnopqrstuvwxyz'
@@ -747,6 +855,10 @@ function show_mapping(){
         $("#node_info").html(txt);
 }
 
+function hide_mapping(){
+    if (gmode == 'readonly')
+        $("#node_info").html('');
+}
 
 function uniq_fast(a) {
     var seen = {};
@@ -838,8 +950,10 @@ function myGraph(el) {
             .data(force.links(), function(d) { return d.source.id + "-" + d.target.id; });
 
         link.enter().insert("line")
-            .attr("class", "link");
-            
+            .attr("class", "link")
+            .attr("stroke-width", "1.5")
+            .on("mouseover", linkmouseover)
+            .on("mouseout", mouseout);
 
         link.exit().remove();
 

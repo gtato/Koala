@@ -34,6 +34,7 @@ class Node(object):
     @staticmethod
     def from_dict(json_node):
         node = Node(json_node['node_id'], json_node['dc_id'])
+        node.latency_x_dc = json_node['latency_x_dc']
         node.rt = RoutingTable.from_dict(json_node['rt'])
         return node
 
@@ -138,8 +139,6 @@ class Node(object):
                 ln.latency = l
                 ln.lq = lq
 
-
-
     def update_latencies(self):
 
         ln = [self.rt.globals.predecessor, self.rt.globals.successor]
@@ -151,30 +150,7 @@ class Node(object):
                 n.lq = 2
                 n.latency = self.latency_x_dc[Node.dc_id(n.id)]
 
-    def search_long_links_in_path(self, msg):
-        for id in msg.path:
-            if self.is_long_link_worthy(id):
-                self.rt.globals.add_to_longlinks(NeighborEntry(id, 0))
 
-    def is_long_link_worthy(self, id):
-        #
-        if self.is_local(id):
-            return False
-
-        quality = 0
-        # for i in reversed(range(3,7)):
-        #     if Node.distance(self.id, id) >= (Node.WORLD_SIZE / i):
-        #         quality = i
-        #         break
-
-        for i in range(3,7):
-            if Node.distance(self.id, id) >= (Node.WORLD_SIZE / i):
-                quality = i
-                break
-
-        if quality > 4:
-            return True
-        return False
 
     def get_lq(self, is_source, source_id, ne):
         if is_source:
@@ -337,7 +313,7 @@ class Node(object):
 
     def to_dict(self):
         return {
-            'node_id': self.node_id, 'dc_id': self.dc_id, 'id': self.id, 'rt': self.rt.to_dict()
+            'node_id': self.node_id, 'dc_id': self.dc_id, 'id': self.id, 'rt': self.rt.to_dict(), 'latency_x_dc': self.latency_x_dc
         }
 
     def is_local(self, nid):

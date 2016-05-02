@@ -3,7 +3,7 @@ h1 { font-family: Baskerville, Garamond, Arial, 'Comic Sans'; color: #cc1e04;}
 .link {
   fill: none;
   stroke: #666;
-  stroke-width: 1.5px;
+  /*stroke-width: 1.5px;*/
 }
 
 .node circle {
