@@ -1,3 +1,10 @@
+body
+{
+    /*padding-left:20px;
+    padding-right:20px;*/
+}
+
+
 h1 { font-family: Baskerville, Garamond, Arial, 'Comic Sans'; color: #cc1e04;}
 
 .link {
@@ -77,3 +84,10 @@ input[type=button] {
 }
 
 
+#expand_log{
+background:#313131;  color:#fff; width:200px
+border-radius: 0px 0px 10px 10px;
+-moz-border-radius: 0px 0px 10px 10px;
+-webkit-border-radius: 0px 0px 10px 10px;
+cursor:pointer;
+}

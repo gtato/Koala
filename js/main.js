@@ -34,6 +34,7 @@ function add_listeners(){
     $(document).on('mouseover', '#mapping', show_mapping);
     $(document).on('mouseleave', '#mapping', hide_mapping);
 
+    $(document).on('click', '#expand_log', toggle_log);
 
 }
 
@@ -45,6 +46,19 @@ function toggle_list(e){
     }else{
         $("#random_list").hide()
         $(e.target).html('Show list options')
+    }
+}
+
+function toggle_log(e){
+    if($(e.target).html().indexOf('more') > -1)
+    {
+//        $("#random_list").show()
+        $(e.target).html('Show less...')
+        $('#cons_cont').css('height', '300px')
+    }else{
+//        $("#random_list").hide()
+        $(e.target).html('Show more...')
+        $('#cons_cont').css('height', '100px')
     }
 }
 
