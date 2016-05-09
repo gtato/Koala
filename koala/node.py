@@ -34,7 +34,7 @@ class Node(object):
     @staticmethod
     def from_dict(json_node):
         node = Node(json_node['node_id'], json_node['dc_id'])
-        node.latency_x_dc = json_node['latency_x_dc']
+        node.latency_x_dc = json_node.get('latency_x_dc', {})
         node.rt = RoutingTable.from_dict(json_node['rt'])
         return node
 

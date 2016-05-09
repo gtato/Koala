@@ -52,11 +52,9 @@ function toggle_list(e){
 function toggle_log(e){
     if($(e.target).html().indexOf('more') > -1)
     {
-//        $("#random_list").show()
         $(e.target).html('Show less...')
         $('#cons_cont').css('height', '300px')
     }else{
-//        $("#random_list").hide()
         $(e.target).html('Show more...')
         $('#cons_cont').css('height', '100px')
     }
