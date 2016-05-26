@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<meta charset="utf-8" xmlns="http://www.w3.org/1999/html">
+<!--script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+<script src="//d3js.org/d3.v3.min.js"></script-->
+
+<script src="static/js/jquery-1.12.0.min.js"></script>
+<script src="static/js/d3.v3.min.js"></script>
+<script src="static/js/main.js"></script>
+
+
+
+
+<head><title>Koala</title>
+<link rel="stylesheet" type="text/css" href="static/css/main.css">
+</head>
+<body style="text-align:center">
+
+<div style="padding-left:15px; padding-right:15px">
+
+<table style="width:100%; " border="0"><tr><td width="100"><a href="http://genc.tato.al"><img src="static/images/g.png" style="width:40px"></a></td><td><h1>Prototype</h1></td><td width="100"></td></tr></table>
+
+<table style="width:100%;" class="main_table">
+<tr>
+<td align="center" valign="top" style="width:170px;">
+  <div style="width:170px; padding-top:10px;">
+    <table border="0" style="width:100%">
+      <tr align="center"><td></td><td>DC ID - Node ID</td></tr>
+      <tr align="center"><td style="padding:0px">ID</td><td style="padding:0px">
+      <input id="dc_id" list="dcs" name="dc" style="width:45px; text-align:center">
+      <datalist id="dcs"></datalist>
+
+      <!-- <input id="dc_id" type="text"> </td> -->
+
+     - <input id="node_id" type="text" style="width:45px; text-align:center" value=""> </td></tr>
+      <tr align="center"> <td style="padding:0px; padding-top:2px">Boot ID:</td><td style="padding:0px; padding-top:2px" ><select id="boot_node_id"></select></td></tr>
+    </table>
+    <br>
+    <input type="button" value="Add node" id="add_node" /><br/><br/>
+
+
+    <br><span id="toggle_list" style="cursor:pointer; color:#cc1e04;">Show list options</span>
+    <div id="random_list" style="display:none">
+        <input type="number" id="nr_add_nodes" min="1" max="100" style="width:30px" value="10">
+        <input type="button" value="Add random list" id="add_list" /><br/>
+    <select id="add_list_select"></select>
+    <input type="button" value="Execute" id="exec_list" /><br/>
+    <input type="button" value="Delete lists" id="delete_lists" /><br/>
+    </div>
+    <br/><hr><br/>
+
+
+
+    <table border="0" style="width:100%"><tr align="center"> <td><select id="route_from"></select></td><td style="padding-left:0px; padding-right:0px"><input id="swap" type="button" value="<->" style="padding:0px" ></td><td><select id="route_to"></select></td></tr>
+    <tr align="center"><td colspan="3"><input type="button" value="Route" id="route" /></td></tr>
+    </table>
+    <br/>
+
+    <br><span id="toggle_route_list" style="cursor:pointer; color: #cc1e04;">Show route list options</span>
+    <div id="random_route_list" style="display:none">
+    <input type="number" id="nr_routs" min="1" max="100" style="width:30px" value="10">
+    <input type="button" value="Add random routs" id="add_route_list" /> <input type="button" value="Add all" id="add_all_route_list" /><br/>
+    <select id="add_route_list_select"></select>
+    <input type="button" value="Execute" id="exec_route_list" /><br/>
+    <input type="button" value="Delete lists" id="delete_route_lists" /><br/>
+    </div>
+
+    <br/><hr><br/>
+
+
+    <input id="nodes_file" type="file"  accept="">
+     <input id="save" type="button" value="Save"> <input id="restore" type="button" value="Restore"><br/>
+      <input id="uploadchanges" type="button" value="Upload changes">
+
+    <br/> <hr><br/>
+    <input type="button" value="Delete all nodes" id="delete_all_nodes" /><br/>
+    <br/>
+  </div> 
+
+</td>
+
+<td align="center" style="border:1px solid black; border-width:0px 1px 0px 1px; height:100%" ><div id='hello' style="width:90%; height:100%"> </div></td>
+<td valign="top" style="width:170px"><div style="width:170px;padding-top:10px; overflow: auto; height:700px">
+  Info: <br><div id="general_info"> </div> <br> <div id="mapping" style="cursor:pointer; color:#cc1e04;"> Show mapping </div> <hr> <div id="node_info"> </div> </div> </td>
+</tr>
+<tr><td colspan="3"><div id="cons_cont" style="width:100%; height: 100px; background:#313131;  color:#fff; text-align:left; overflow: auto; font-family: Courier, 'Lucida Sans Typewriter'">
+  <div id="console" style="padding:5px">  </div>
+</div>
+<div style="width:100%" align="center"><div id="expand_log" style="">Show more...</div></div>
+</td> </tr>
+</table>
+
+</div>
+
+</body>
+

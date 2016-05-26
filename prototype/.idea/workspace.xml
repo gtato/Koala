@@ -2,36 +2,26 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="03b80b24-1f6b-49f7-a6d6-000837a371f0" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/prototype.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../.htaccess" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../.idea/.name" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../.idea/encodings.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../.idea/koala.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../.idea/misc.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../.idea/modules.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../.idea/vcs.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../LICENSE" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../README.md" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../css/main.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../images/g.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../js/d3.v3.min.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../js/jquery-1.12.0.min.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../js/main.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../koala.fcgi" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../koala/message.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../koala/node.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../koala/protocol.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../koala/route_algo.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../koala/routing_table.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../koala/util.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../server.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../templates/index.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/../test.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/../koala/__init__.py" afterPath="$PROJECT_DIR$/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/g.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.htaccess" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/.name" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/koala.fcgi" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/koala/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/koala/message.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/koala/node.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/koala/protocol.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/koala/route_algo.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/koala/routing_table.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/koala/util.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/server.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/css/main.css" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/js/d3.v3.min.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/js/jquery-1.12.0.min.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/js/main.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/templates/index.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="prototype.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -51,6 +41,11 @@
     <favorites_list name="prototype" />
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Genc Tato" />
+      </list>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="ProjectFrameBounds">
@@ -271,12 +266,20 @@
       <option name="number" value="Default" />
       <updated>1464274504305</updated>
     </task>
+    <task id="LOCAL-00001" summary="moved stuff to prototype">
+      <created>1464276326236</created>
+      <option name="number" value="00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1464276326236</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="1920" y="24" width="1200" height="1896" extended-state="6" />
     <editor active="false" />
     <layout>
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -311,6 +314,8 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/.." />
     </ignored-roots>
+    <MESSAGE value="moved stuff to prototype" />
+    <option name="LAST_COMMIT_MESSAGE" value="moved stuff to prototype" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
