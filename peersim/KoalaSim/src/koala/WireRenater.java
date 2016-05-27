@@ -14,11 +14,14 @@ import peersim.graph.Graph;
 public class WireRenater extends WireGraph {
 
 	private static final String PAR_COORDINATES_PROT = "coord_protocol";
+	private static final String PAR_K = "k";
 	private final int coordPid;
+	private final int k;
 	
 	public WireRenater(String prefix) {
 		super(prefix);
 		coordPid = Configuration.getPid(prefix + "." + PAR_COORDINATES_PROT);
+		k = Configuration.getInt(prefix + "." + PAR_K);
 	}
 
 	@Override
@@ -58,7 +61,7 @@ public class WireRenater extends WireGraph {
 			}
 			});
 			
-			for(int j=0; j < dists.size() && j<2; j++)
+			for(int j=0; j < dists.size() && j<k; j++)
 			{
 				g.setEdge(gateway_cords.get(i), dists.get(j).getKey());
 				

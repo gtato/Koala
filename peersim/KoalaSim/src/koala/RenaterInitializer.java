@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
 
 import peersim.config.Configuration;
 import peersim.core.CommonState;
@@ -21,6 +20,7 @@ public class RenaterInitializer implements Control {
 	private static final String PAR_NR_NODE_PER_DC = "nr_node_per_dc";
 	
 	private static final String PAR_DC_FILE = "dc_file";
+	private static final String PAR_DC_DISTANCE = "distance";
 	
 	
 
@@ -31,7 +31,7 @@ public class RenaterInitializer implements Control {
     
     protected int nrDC;
     protected int nrNodePerDC;
-    
+    protected double distance;
     
     public RenaterInitializer(String prefix) {
         pid = Configuration.getPid(prefix + "." + PAR_PROT);
@@ -43,15 +43,15 @@ public class RenaterInitializer implements Control {
         nrNodePerDC = nrNodePerDCVal;
         
         dc_file = (Configuration.getString(prefix + "." + PAR_DC_FILE, "nofilewiththisname"));
+        distance = (Configuration.getDouble(prefix + "." + PAR_DC_DISTANCE, 0.01));
         
-       // if(Files.exists(Paths.get(dc_file)))
     }
 
     	
 	@Override
 	public boolean execute() {
 		List<String> lines = null;
-		Node n; RenaterNode prot; 
+		Node n; RenaterNode node; 
         
         if(Files.exists(Paths.get(dc_file))){
         	 lines = getDcCordsFromFile();
@@ -63,6 +63,8 @@ public class RenaterInitializer implements Control {
         double[][] centerPerDC = new double[nrDC][2];
         int equalNodesPerDC = Network.size() / nrDC;
         int rem = Network.size() % nrDC;
+        
+//      splitting the nodes per data center and creating the coordinates per dc
         for (int i = 0; i < nodesPerDC.length; i++){
         	nodesPerDC[i] = equalNodesPerDC;
         	if(rem > 0){
@@ -79,25 +81,28 @@ public class RenaterInitializer implements Control {
         	}
         }
         
-        int j = 0;
+        int j, k;
+        j = k = 0;
         double[] cords;
-        double radius = 0.01;
+        
+//        assigning nodes an id and setting their coordinates according to their data-center
         for (int i = 0; i < Network.size(); i++) {
             n = Network.get(i);
-            prot = (RenaterNode) n.getProtocol(pid);
+            node = (RenaterNode) n.getProtocol(pid);
             
             nodesPerDC[j]--;
-            prot.setDCID(j);
+            node.setID(j, k);
             
+            k++;
             if(nodesPerDC[j] == 0){
             	cords = new double[]{centerPerDC[j][0], centerPerDC[j][1]};
-            	prot.setGateway(true);
+            	node.setGateway(true);
             	j++;
+            	k=0;
             }else
-            	cords = this.getRandomCirclePoint(centerPerDC[j][0], centerPerDC[j][1], radius);       
-            prot.setX(cords[0]);
-            prot.setY(cords[1]);
-            
+            	cords = this.getRandomCirclePoint(centerPerDC[j][0], centerPerDC[j][1], distance);       
+            node.setX(cords[0]);
+            node.setY(cords[1]);
         }
         
         
