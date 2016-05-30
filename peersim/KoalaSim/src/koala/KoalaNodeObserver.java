@@ -26,6 +26,10 @@ public class KoalaNodeObserver extends GraphObserver {
 		{
 			RenaterNode current = (RenaterNode) ((Node)g.getNode(i)).getProtocol(coordPid);
 			System.out.println("ID: " + current.getID() + ", bootstrap: " + current.getBootstrapID());
+			System.out.println("my neighbours are: "  + current.degree());
+			for(int j=0; j < current.degree(); j++){
+				System.out.println("\t" + ((RenaterNode)current.getNeighbor(j)).getID());
+			}
 		}	
 		return false;
 	}

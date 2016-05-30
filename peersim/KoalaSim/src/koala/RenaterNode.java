@@ -1,5 +1,11 @@
 package koala;
 
+
+
+import java.util.ArrayList;
+
+import com.google.gson.Gson;
+
 import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.core.Protocol;
@@ -7,15 +13,23 @@ import example.hot.InetCoordinates;
 
 public class RenaterNode extends InetCoordinates implements Protocol, Linkable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int dcID;
 	private int nodeID;
 	private String bootstrapID;
 	
 	private boolean gateway;
 	private boolean joined;
+	Gson gson; 
+	
+	private ArrayList<KoalaNeighbor> neighbors = new ArrayList<KoalaNeighbor>();
 	
 	public RenaterNode(String prefix) {
 		super(prefix);
+		gson = new Gson();
 	}
 	
 	public Object clone() {
@@ -113,5 +127,13 @@ public class RenaterNode extends InetCoordinates implements Protocol, Linkable {
 	public void pack() {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public String toJson(){
+		return gson.toJson(this);
+	}
+	
+	public RenaterNode fromJson(String jsonObject){
+		return gson.fromJson(jsonObject, RenaterNode.class);
 	}
 }

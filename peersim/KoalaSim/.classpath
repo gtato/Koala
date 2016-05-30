@@ -9,5 +9,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="/home/genc/peersim-1.0.5/jep-2.3.0.jar"/>
 	<classpathentry kind="lib" path="/home/genc/peersim-1.0.5/djep-1.0.0.jar"/>
+	<classpathentry kind="lib" path="/home/genc/peersim-1.0.5/gson-2.6.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
