@@ -51,7 +51,7 @@ public class RenaterInitializer implements Control {
 	@Override
 	public boolean execute() {
 		List<String> lines = null;
-		Node n; RenaterNode node; 
+		Node n; KoalaNode node; 
         
         if(Files.exists(Paths.get(dc_file))){
         	 lines = getDcCordsFromFile();
@@ -88,7 +88,7 @@ public class RenaterInitializer implements Control {
 //        assigning nodes an id and setting their coordinates according to their data-center
         for (int i = 0; i < Network.size(); i++) {
             n = Network.get(i);
-            node = (RenaterNode) n.getProtocol(pid);
+            node = (KoalaNode) n.getProtocol(pid);
             
             nodesPerDC[j]--;
             node.setID(j, k);

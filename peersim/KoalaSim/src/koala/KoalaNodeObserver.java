@@ -1,5 +1,7 @@
 package koala;
 
+import java.util.Set;
+
 import peersim.config.Configuration;
 import peersim.reports.GraphObserver;
 import peersim.core.Node;
@@ -24,11 +26,13 @@ public class KoalaNodeObserver extends GraphObserver {
 		updateGraph();
 		for (int i = 0; i < g.size(); i++) 
 		{
-			RenaterNode current = (RenaterNode) ((Node)g.getNode(i)).getProtocol(coordPid);
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(coordPid);
 			System.out.println("ID: " + current.getID() + ", bootstrap: " + current.getBootstrapID());
-			System.out.println("my neighbours are: "  + current.degree());
-			for(int j=0; j < current.degree(); j++){
-				System.out.println("\t" + ((RenaterNode)current.getNeighbor(j)).getID());
+			System.out.println("my neighbours are: ");
+			Set<String> neigs = current.getRoutingTable().getNeighboursIDs(); 
+			
+			for(String n : neigs ){
+				System.out.println("\t" + n);
 			}
 		}	
 		return false;

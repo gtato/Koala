@@ -27,11 +27,11 @@ public class WireRenater extends WireGraph {
 	@Override
 	public void wire(Graph g) {
 		int centerIndex = -1;
-		ArrayList<RenaterNode> gateways = new ArrayList<RenaterNode>();
+		ArrayList<KoalaNode> gateways = new ArrayList<KoalaNode>();
 		ArrayList<Integer> gateway_cords = new ArrayList<Integer>();
 		for (int i = Network.size()-1; i >= 0; i--) {
             Node n = (Node) g.getNode(i);
-            RenaterNode rd = (RenaterNode)n.getProtocol(coordPid);
+            KoalaNode rd = (KoalaNode)n.getProtocol(coordPid);
             if(rd.isGateway()){
             	gateways.add(rd);
             	gateway_cords.add(i);
@@ -74,7 +74,7 @@ public class WireRenater extends WireGraph {
 	
 	
 	
-	private double distance(RenaterNode first, RenaterNode second) {
+	private double distance(KoalaNode first, KoalaNode second) {
         double x1 = first.getX();
         double x2 = second.getX();
         double y1 = first.getY();

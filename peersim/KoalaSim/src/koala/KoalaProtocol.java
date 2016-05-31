@@ -30,7 +30,7 @@ public class KoalaProtocol implements CDProtocol{
 	public void nextCycle(Node node, int protocolID) {
 		int linkableID = FastConfig.getLinkable(protocolID);
         Linkable linkable = (Linkable) node.getProtocol(linkableID);
-		RenaterNode rn = (RenaterNode) linkable;
+		KoalaNode rn = (KoalaNode) linkable;
 		System.out.println("yoyo, I is " + rn.getID() );
 		join(node, protocolID);
 				
@@ -41,16 +41,16 @@ public class KoalaProtocol implements CDProtocol{
 	{
 		int linkableID = FastConfig.getLinkable(protocolID);
         Linkable linkable = (Linkable) self.getProtocol(linkableID);
-        RenaterNode selfRn = (RenaterNode) linkable;
+        KoalaNode selfRn = (KoalaNode) linkable;
 		Node bootstrap = getBootstrap(linkableID);
 		if (bootstrap == null)
 			selfRn.setJoined(true);
 		else{
-			selfRn.setBootstrapID( ((RenaterNode)bootstrap.getProtocol(linkableID)).getID());
-			if (selfRn.addNeighbor(bootstrap))
-				System.out.println("added");
-			else 
-				System.out.println("not added");
+			String bootstrapID = ((KoalaNode)bootstrap.getProtocol(linkableID)).getID();
+			selfRn.setBootstrapID( bootstrapID );
+			KoalaNeighbor first = new KoalaNeighbor(bootstrapID);
+			selfRn.getRoutingTable().tryAddNeighbour(first);
+			
 			selfRn.setJoined(true);
 			KoalaMessage km = new KoalaMessage(KoalaMessage.JOIN, selfRn.toJson());
 			((KoalaProtocol)(bootstrap).getProtocol(protocolID)).send(km);
@@ -60,10 +60,10 @@ public class KoalaProtocol implements CDProtocol{
 	
 	private Node getBootstrap(int linkableID)
 	{
-		RenaterNode each;
+		KoalaNode each;
 		ArrayList<Node> joined = new ArrayList<Node>();
 		for (int i = 0; i < Network.size(); i++) {
-            each = (RenaterNode) Network.get(i).getProtocol(linkableID);
+            each = (KoalaNode) Network.get(i).getProtocol(linkableID);
             if(each.hasJoined())
             	joined.add(Network.get(i));   	
 		}

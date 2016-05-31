@@ -11,7 +11,7 @@ import peersim.core.Node;
 import peersim.core.Protocol;
 import example.hot.InetCoordinates;
 
-public class RenaterNode extends InetCoordinates implements Protocol, Linkable {
+public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 
 	/**
 	 * 
@@ -23,19 +23,21 @@ public class RenaterNode extends InetCoordinates implements Protocol, Linkable {
 	
 	private boolean gateway;
 	private boolean joined;
+	private KoalaRoutingTable routingTable;
+	        
 	Gson gson; 
 	
-	private ArrayList<KoalaNeighbor> neighbors = new ArrayList<KoalaNeighbor>();
 	
-	public RenaterNode(String prefix) {
+	
+	public KoalaNode(String prefix) {
 		super(prefix);
 		gson = new Gson();
+		routingTable = new KoalaRoutingTable(this.getID());
 	}
 	
 	public Object clone() {
-		RenaterNode inp = null;
-        inp = (RenaterNode) super.clone();
-        gateway = false;
+		KoalaNode inp = null;
+        inp = (KoalaNode) super.clone();
         return inp;
     }
 
@@ -92,13 +94,18 @@ public class RenaterNode extends InetCoordinates implements Protocol, Linkable {
 	public void setJoined(boolean joined) {
 		this.joined = joined;
 	}
-
+	
+	public KoalaRoutingTable getRoutingTable() {
+		return routingTable;
+	}
+	
 	@Override
 	public void onKill() {
 		// TODO Auto-generated method stub
 		
 	}
 
+	
 	@Override
 	public boolean addNeighbor(Node neighbour) {
 		// TODO Auto-generated method stub
@@ -133,7 +140,7 @@ public class RenaterNode extends InetCoordinates implements Protocol, Linkable {
 		return gson.toJson(this);
 	}
 	
-	public RenaterNode fromJson(String jsonObject){
-		return gson.fromJson(jsonObject, RenaterNode.class);
+	public KoalaNode fromJson(String jsonObject){
+		return gson.fromJson(jsonObject, KoalaNode.class);
 	}
 }
