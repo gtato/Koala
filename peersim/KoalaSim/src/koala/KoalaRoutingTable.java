@@ -1,8 +1,15 @@
 package koala;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 import peersim.config.Configuration;
 
@@ -14,6 +21,8 @@ public class KoalaRoutingTable {
 	private KoalaNeighbor globalPredecessor;
 	private KoalaNeighbor globalSucessor;
 	private ArrayList<KoalaNeighbor> neighbors = new ArrayList<KoalaNeighbor>();
+	private ArrayList<KoalaNeighbor> oldNeighbors = new ArrayList<KoalaNeighbor>();
+	
 	
 	public KoalaRoutingTable(String nodeID){
 		this.nodeID = nodeID;
@@ -143,7 +152,7 @@ public class KoalaRoutingTable {
         if( ret ==-1 && (canBePredecessor(n.getNodeID()) || canBeSuccessor(n.getNodeID())))
             ret = 1;
 
-        
+        this.oldNeighbors = oldNeighbors;
         // 2: added, 1: potential neighbor, 0: updated , -1:not neighbor
         return ret; // should return oldNeighbors as well
 	}
@@ -156,6 +165,23 @@ public class KoalaRoutingTable {
 	 */
 	
 	
+	public ArrayList<KoalaNeighbor> getOldNeighbors() {
+		return oldNeighbors;
+	}
+
+
+	public ArrayList<KoalaNeighbor> getNeighbors() {
+		return neighbors;
+	}
+
+	public void setNeighbors(ArrayList<KoalaNeighbor> neighbors) {
+		this.neighbors = neighbors;
+	}
+
+	public void setOldNeighbors(ArrayList<KoalaNeighbor> oldNeighbors) {
+		this.oldNeighbors = oldNeighbors;
+	}
+
 	public Set<String> getNeighboursIDs(){
         KoalaNeighbor[] neighs = {this.localPredecessor, this.localSucessor, this.globalPredecessor, this.globalSucessor};
         Set<String> hs = new HashSet<String>();
@@ -166,6 +192,22 @@ public class KoalaRoutingTable {
                 
         return hs;
 	}
+	
+	public Set<KoalaNeighbor> getNeighbours(){
+        KoalaNeighbor[] neighs = {this.localPredecessor, this.localSucessor, this.globalPredecessor, this.globalSucessor};
+        Set<KoalaNeighbor> hs = new HashSet<KoalaNeighbor>();
+        
+        for(int i = 0; i < neighs.length; i++)
+            if(!isDefault(neighs[i]))
+            	hs.add(neighs[i]);
+        
+        for(int i = 0; i < neighbors.size(); i++)
+            if(!isDefault(neighbors.get(i)))
+            	hs.add(neighbors.get(i));
+                
+        return hs;
+	}
+	
 	
 	private boolean isNeighbour(String nodeID){
         if (isSuccessor(nodeID))
@@ -296,4 +338,5 @@ public class KoalaRoutingTable {
 	private boolean isDefault(KoalaNeighbor n){
 		return n == null || n.getNodeID() == DEFAULTID;
 	}
+	
 }

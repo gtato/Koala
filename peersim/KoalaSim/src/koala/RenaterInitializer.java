@@ -50,6 +50,9 @@ public class RenaterInitializer implements Control {
     	
 	@Override
 	public boolean execute() {
+		//initialize the gson parser
+		Util.intitialize((KoalaNode)Network.get(0).getProtocol(pid));
+		
 		List<String> lines = null;
 		Node n; KoalaNode node; 
         
