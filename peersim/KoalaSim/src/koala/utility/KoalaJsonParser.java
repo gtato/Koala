@@ -1,10 +1,15 @@
-package koala;
+package koala.utility;
+
+import koala.KoalaNeighbor;
+import koala.KoalaNode;
+import koala.KoalaNode.KoalaNodeDeserializer;
+import koala.KoalaNode.KoalaNodeSerializer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
-public class Util {
+public class KoalaJsonParser {
 	private static Gson gson;
 	
 	public static void intitialize(KoalaNode sample){
@@ -14,14 +19,14 @@ public class Util {
 		gson = gsonBuilder.create();
 	}
 	
-	public static String nodeToJson(KoalaNode k){
+	public static String toJson(Object k){
 		return gson.toJson(k);
 	}
 	
-	public static KoalaNode jsonToNode(String jsonode){
-		return gson.fromJson(jsonode, KoalaNode.class);
+	public static <T> T jsonToObject(String jsonode, Class<T> c){
+		return gson.fromJson(jsonode, c);
 	}
-	
+
 	
 	public static JsonElement neighborToJsonTree(KoalaNeighbor k){
 		return gson.toJsonTree(k);

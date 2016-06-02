@@ -2,7 +2,13 @@ package koala;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import koala.utility.KoalaJsonParser;
+import koala.utility.KoalaNodeUtilities;
 import peersim.core.CommonState;
 import peersim.cdsim.CDProtocol;
 import peersim.config.FastConfig;
@@ -13,7 +19,10 @@ import peersim.core.Node;
 
 public class KoalaProtocol implements CDProtocol{
 
+	KoalaNode me = null;
 	ArrayDeque<KoalaMessage> queue = new ArrayDeque<KoalaMessage>();
+	int koalaNodePid = -1;
+	int koalaPid = -1;
 	
 	public KoalaProtocol(String prefix) {
 	}
@@ -29,45 +38,44 @@ public class KoalaProtocol implements CDProtocol{
 	
 	@Override
 	public void nextCycle(Node node, int protocolID) {
-		int linkableID = FastConfig.getLinkable(protocolID);
-        Linkable linkable = (Linkable) node.getProtocol(linkableID);
-		KoalaNode rn = (KoalaNode) linkable;
-		System.out.println("yoyo, I is " + rn.getID() );
-		join(node, protocolID);
+		koalaPid = protocolID;
+		koalaNodePid = FastConfig.getLinkable(protocolID);
+		me = (KoalaNode) (Linkable) node.getProtocol(koalaNodePid);
+		System.out.println("yoyo, I is " + me.getID() );
+		join(node);
 				
 	}
 	
 
-	private void join(Node self, int protocolID)
+	private void join(Node self)
 	{
 		receive();
 		
-		int linkableID = FastConfig.getLinkable(protocolID);
-        KoalaNode selfRn = (KoalaNode) (Linkable) self.getProtocol(linkableID);
-		Node bootstrap = getBootstrap(linkableID);
+		
+		Node bootstrap = getBootstrap();
 		
 		if (bootstrap == null)
-			selfRn.setJoined(true);
+			me.setJoined(true);
 		else{
-			KoalaNode bootstrapRn = (KoalaNode)bootstrap.getProtocol(linkableID);
+			KoalaNode bootstrapRn = (KoalaNode)bootstrap.getProtocol(koalaNodePid);
 			String bootstrapID = bootstrapRn.getID();
-			selfRn.setBootstrapID( bootstrapID );
+			me.setBootstrapID( bootstrapID );
 			KoalaNeighbor first = new KoalaNeighbor(bootstrapID);
-			selfRn.getRoutingTable().tryAddNeighbour(first);
+			me.tryAddNeighbour(first);
 			
-			selfRn.setJoined(true);
-			KoalaMessage km = new KoalaMessage(KoalaMessage.JOIN, Util.nodeToJson(selfRn));
-			((KoalaProtocol)(bootstrap).getProtocol(protocolID)).send(km);
+			me.setJoined(true);
+			KoalaMessage km = new KoalaMessage(me.getID(), KoalaMessage.RT, KoalaJsonParser.toJson(me));
+			send(bootstrapID, km);
 		}
 			
 	}
 	
-	private Node getBootstrap(int linkableID)
+	private Node getBootstrap()
 	{
 		KoalaNode each;
 		ArrayList<Node> joined = new ArrayList<Node>();
 		for (int i = 0; i < Network.size(); i++) {
-            each = (KoalaNode) Network.get(i).getProtocol(linkableID);
+            each = (KoalaNode) Network.get(i).getProtocol(koalaNodePid);
             if(each.hasJoined())
             	joined.add(Network.get(i));   	
 		}
@@ -78,11 +86,27 @@ public class KoalaProtocol implements CDProtocol{
 	}
 	
 	
-	public void send(KoalaMessage msg)
+	public void send(String destinationID, KoalaMessage msg)
 	{
+		Node each = null;
+		for (int i = 0; i < Network.size(); i++) {
+            each =  Network.get(i);
+            if(((KoalaNode)each.getProtocol(koalaNodePid)).getID().equals(destinationID))
+            	break;
+		}
+		if(each != null){
+			msg.setRandomLatency(me.getID(), destinationID);
+			msg.addToPath(destinationID);
+			((KoalaProtocol)each.getProtocol(koalaPid)).registerMsg(msg);
+		}
+	}
+	
+	
+	public void registerMsg(KoalaMessage msg){
 		queue.add(msg);
 	}
 
+	
 	public void receive()
 	{
 		if(queue.size() == 0)
@@ -90,75 +114,142 @@ public class KoalaProtocol implements CDProtocol{
 		
 		KoalaMessage msg = queue.remove();
 		switch(msg.getMsgType()){
-			case KoalaMessage.JOIN:
+			case KoalaMessage.RT:
 				updateRoutingTable(msg);
 				break;
-		
+			case KoalaMessage.ROUTE:
+				onRoute(msg);
+				break;
+			case KoalaMessage.NGN:
+				onNewGlobalNeighbours(msg);
+				break;
 		}
+	}
+
+	private void onNewGlobalNeighbours(KoalaMessage msg) {
+		GlobalNeighborMsgContent content = KoalaJsonParser.jsonToObject(msg.getMsgContent(), GlobalNeighborMsgContent.class);
 		
-		
+        ArrayList<String> respees = new ArrayList<String>();
+        for(String  c : content.getCandidates()){
+            if(me.isResponsible(c))
+                if(respees.size() == 0)
+                {
+                	KoalaMessage km = new KoalaMessage(me.getID(), KoalaMessage.RT, KoalaJsonParser.toJson(me), true);
+                	send(content.getNeighbor().getNodeID(), km);
+                }
+ 
+                respees.add(c);
+        }
+        content.getNeighbor().setLatencyQuality(2);
+        int rnes = me.tryAddNeighbour(content.getNeighbor());
+        if(rnes != 2)
+            return;
+        
+        List<String> cands = Arrays.asList(content.getCandidates());
+        cands.removeAll(respees);
+        
+        Set<String> add_cands = me.createRandomIDs(respees.size() - 1);
+        cands.addAll(add_cands);
+        Set<String> new_cands = new HashSet<String>(cands);
+        content.setCandidates(new_cands.toArray(new String[new_cands.size()]));
+        msg.setMsgContent(KoalaJsonParser.toJson(content));
+        
+        String target = me.getRoutingTable().getLocalPredecessor().getNodeID();
+        if (msg.getSource() == target)
+            target = me.getRoutingTable().getLocalSucessor().getNodeID();
+
+        send(target, msg);
 	}
 
 	private void updateRoutingTable(KoalaMessage msg) {
-		KoalaNode sender = Util.jsonToNode(msg.getMsgContent());
+		KoalaNode sender = KoalaJsonParser.jsonToObject(msg.getMsgContent(), KoalaNode.class);
 		System.out.println("content: " + sender.getID());
+		ArrayList<KoalaNeighbor> senderOldNeighbors = sender.getRoutingTable().getOldNeighbors();
+		ArrayList<KoalaNeighbor> newNeighbors = new ArrayList<KoalaNeighbor>();
+		ArrayList<KoalaNeighbor> receivedNeighbors = sender.getRoutingTable().getNeighborsContainer();
+		receivedNeighbors.addAll(senderOldNeighbors);
 		
-        
-//        source_old_neig= msg.content.get('old_neighbors')
-//
-//        # then update my rt with the nodes i received
-//        new_neighbours = []
-//        rec_neighbours = rt.get_all_neighbours()
-//        if source_old_neig:
-//            rec_neighbours.extend(source_old_neig)
-//        rec_neighbours.append(source)  # maybe source could be a potential neighbour
-//
-//        neigh_before = self.rt.get_neighbours_ids()
-//        dc_before = [Node.dc_id(nb) for nb in neigh_before]
-//        dc_before.append(self.dc_id)
-//
-//        source_joining = source.is_joining()
-//        self_joining = self.is_joining()
-//
-//        old_neighbors = []
-//        for rec_neighbour in rec_neighbours:
-//            is_source = rec_neighbour.id == source.id
-//            if rec_neighbour.id != self.id:
-//
-//                if self_joining and self.is_local(source.id):
-//                    dc_before.append(Node.dc_id(rec_neighbour.id))
-//
-//                l = msg.latency if is_source else rec_neighbour.latency
-//                lq = self.get_lq(is_source, source.id, rec_neighbour)
-//                res, oldies = self.try_set_neighbour(rec_neighbour.id, l, lq)
-//                old_neighbors.extend(oldies)
-//                self.update_latency_x_dc(rec_neighbour.id, l, lq)
-//
-//                if res == 2 or (res == 1 and is_source and source_joining):
-//                    new_neighbours.append(NeighborEntry(rec_neighbour.id, l))
-//
-//                elif res < 0 and rec_neighbour.id == source.id:
-//                    dest = self.route_to(source.id, msg)
-//                    msg.referrer = self
-//                    msg.content['c'] = True
-//                    source.send(dest, msg)
-//
-//        dc_before = list(set(dc_before))
-//        self.update_latencies()
-//
-//        #  some neighbours might have been overwritten, we send only to the neighbors .
-//        neigh_after = self.rt.get_neighbours_ids()
-//        for new_n in new_neighbours:
-//            if new_n.id in neigh_after and new_n.id not in neigh_before or new_n.id == source.id:
-//                if self.is_local(new_n.id):
-//                    self.send(new_n.id, Message('rt', {'c': True, 'rt': self.rt, 'old_neighbors': old_neighbors}))
-//                else:
-//                    new_dc = Node.dc_id(new_n.id) not in dc_before
-//                    if new_dc and not self_joining:
-//                        self.broadcast_global_neighbor(new_n)
-//                    if not self.is_local(source.id) and (chain or new_dc):
-//                        self.send(new_n.id, Message('rt', {'c': False, 'rt': self.rt, 'old_neighbors':old_neighbors}))
+		receivedNeighbors.add(new KoalaNeighbor(sender.getID()));
+		
+		
+		
+		Set<String> neighborsBefore = me.getRoutingTable().getNeighboursIDs();
+		Set<Integer> dcsBefore = new HashSet<Integer>(); 
+		for(String neighID : neighborsBefore)
+			dcsBefore.add(KoalaNodeUtilities.getDCID(neighID));
+		dcsBefore.add(me.getDCID());
+		
+		boolean sourceJoining = sender.getJoining();
+		boolean selfJoining = me.isJoining();
+		ArrayList<KoalaNeighbor> myOldNeighbors = new ArrayList<KoalaNeighbor>();
+		for(KoalaNeighbor recNeighbor: receivedNeighbors){
+			boolean isSource = recNeighbor.getNodeID() == sender.getID();
+			if(recNeighbor.getNodeID() == me.getID())
+				continue;
+			if(selfJoining && me.isLocal(sender.getID()))
+				dcsBefore.add(KoalaNodeUtilities.getDCID(recNeighbor.getNodeID()));
+
+			int l = isSource ? msg.getLatency() : recNeighbor.getLatency();
+			int lq = me.getLatencyQuality(isSource, sender.getID(), recNeighbor);
+			
+            int res  = me.tryAddNeighbour(new KoalaNeighbor(recNeighbor.getNodeID(), l, lq));
+			ArrayList<KoalaNeighbor> oldies = me.getRoutingTable().getOldNeighbors();
+			myOldNeighbors.addAll(oldies);
+
+			me.updateLatencyPerDC(recNeighbor.getNodeID(), l, lq);
+			
+			if( res == 2 || (res == 1 && isSource && sourceJoining))
+				newNeighbors.add(new KoalaNeighbor(recNeighbor.getNodeID(), l));
+			else if (res < 0 && recNeighbor.getNodeID() == sender.getID()){				
+				String dest = me.getRoute(sender.getID());
+				msg.setConfidential(false);
+				send(dest, msg);
+			}
+
+
+		}
+		me.updateLatencies();
+
+		Set<String> neighborsAfter = me.getRoutingTable().getNeighboursIDs();
+		for(KoalaNeighbor newNeig : newNeighbors){
+			if(neighborsAfter.contains(newNeig.getNodeID()) && !neighborsBefore.contains(newNeig.getNodeID()) || newNeig.getNodeID() == sender.getID())
+			{
+				KoalaMessage newMsg = new KoalaMessage(me.getID(), KoalaMessage.RT, KoalaJsonParser.toJson(me));
+				if(me.isLocal(newNeig.getNodeID())){
+					send(newNeig.getNodeID(), newMsg);
+				}else
+				{
+					boolean newDC = !dcsBefore.contains(KoalaNodeUtilities.getDCID(newNeig.getNodeID()));
+					if(newDC && !selfJoining)
+						broadcastGlobalNeighbor(newNeig);
+					else{
+						newMsg.setConfidential(true); 
+						send(newNeig.getNodeID(), newMsg);
+					}
+				}
+			}
+		}
+		
+	}
+
+	private void broadcastGlobalNeighbor(KoalaNeighbor newNeig) {
+        Set<String> candidates = me.createRandomIDs(KoalaNodeUtilities.MAGIC);
+        KoalaNeighbor[] localNeigs = {me.getRoutingTable().getLocalSucessor(), me.getRoutingTable().getLocalPredecessor()};
+        String msgContent = KoalaJsonParser.toJson(new GlobalNeighborMsgContent(candidates.toArray(new String[candidates.size()]), newNeig));
+        KoalaMessage newMsg = new KoalaMessage(me.getID(), KoalaMessage.NGN, msgContent);        
+        for( KoalaNeighbor n : localNeigs)
+            if(!KoalaNodeUtilities.isDefault(n))
+                send(n.getNodeID(), newMsg);
 		
 	}
 	
+	
+	private void onRoute(KoalaMessage msg){
+        String nid = msg.getMsgContent();
+        me.updateLatencyPerDC(msg.getSource(), msg.getLatency(), 3);
+        me.updateLatencies();
+        if(nid != me.getID())
+            send(me.getRoute(nid), msg);
+        
+	}
 }

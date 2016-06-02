@@ -6,7 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-
+import koala.utility.KoalaJsonParser;
+import koala.utility.KoalaNodeUtilities;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Control;
@@ -51,7 +52,8 @@ public class RenaterInitializer implements Control {
 	@Override
 	public boolean execute() {
 		//initialize the gson parser
-		Util.intitialize((KoalaNode)Network.get(0).getProtocol(pid));
+		KoalaJsonParser.intitialize((KoalaNode)Network.get(0).getProtocol(pid));
+		KoalaNodeUtilities.initialize();
 		
 		List<String> lines = null;
 		Node n; KoalaNode node; 
