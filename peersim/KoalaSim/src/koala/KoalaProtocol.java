@@ -20,7 +20,7 @@ import peersim.core.Node;
 public class KoalaProtocol implements CDProtocol{
 
 	KoalaNode me = null;
-	ArrayDeque<KoalaMessage> queue = new ArrayDeque<KoalaMessage>();
+	ArrayDeque<KoalaMessage> queue;
 	int koalaNodePid = -1;
 	int koalaPid = -1;
 	
@@ -31,6 +31,7 @@ public class KoalaProtocol implements CDProtocol{
 		KoalaProtocol inp = null;
         try {
             inp = (KoalaProtocol) super.clone();
+            inp.queue = new ArrayDeque<KoalaMessage>();
         } catch (CloneNotSupportedException e) {
         } // never happens
         return inp;
@@ -42,16 +43,16 @@ public class KoalaProtocol implements CDProtocol{
 		koalaNodePid = FastConfig.getLinkable(protocolID);
 		me = (KoalaNode) (Linkable) node.getProtocol(koalaNodePid);
 		System.out.println("yoyo, I is " + me.getID() );
-		join(node);
+		
+		//receive();
+		if(!me.hasJoined())
+			join(node);
 				
 	}
 	
 
 	private void join(Node self)
 	{
-		receive();
-		
-		
 		Node bootstrap = getBootstrap();
 		
 		if (bootstrap == null)
@@ -67,7 +68,6 @@ public class KoalaProtocol implements CDProtocol{
 			KoalaMessage km = new KoalaMessage(me.getID(), KoalaMessage.RT, KoalaJsonParser.toJson(me));
 			send(bootstrapID, km);
 		}
-			
 	}
 	
 	private Node getBootstrap()
@@ -98,6 +98,8 @@ public class KoalaProtocol implements CDProtocol{
 			msg.setRandomLatency(me.getID(), destinationID);
 			msg.addToPath(destinationID);
 			((KoalaProtocol)each.getProtocol(koalaPid)).registerMsg(msg);
+			/*TODO: uncomment this later*/
+			((KoalaProtocol)each.getProtocol(koalaPid)).receive();
 		}
 	}
 	
@@ -155,7 +157,7 @@ public class KoalaProtocol implements CDProtocol{
         msg.setMsgContent(KoalaJsonParser.toJson(content));
         
         String target = me.getRoutingTable().getLocalPredecessor().getNodeID();
-        if (msg.getSource() == target)
+        if (msg.getSource().equals(target))
             target = me.getRoutingTable().getLocalSucessor().getNodeID();
 
         send(target, msg);
@@ -183,8 +185,8 @@ public class KoalaProtocol implements CDProtocol{
 		boolean selfJoining = me.isJoining();
 		ArrayList<KoalaNeighbor> myOldNeighbors = new ArrayList<KoalaNeighbor>();
 		for(KoalaNeighbor recNeighbor: receivedNeighbors){
-			boolean isSource = recNeighbor.getNodeID() == sender.getID();
-			if(recNeighbor.getNodeID() == me.getID())
+			boolean isSource = recNeighbor.getNodeID().equals(sender.getID());
+			if(recNeighbor.getNodeID().equals(me.getID()))
 				continue;
 			if(selfJoining && me.isLocal(sender.getID()))
 				dcsBefore.add(KoalaNodeUtilities.getDCID(recNeighbor.getNodeID()));
@@ -200,7 +202,7 @@ public class KoalaProtocol implements CDProtocol{
 			
 			if( res == 2 || (res == 1 && isSource && sourceJoining))
 				newNeighbors.add(new KoalaNeighbor(recNeighbor.getNodeID(), l));
-			else if (res < 0 && recNeighbor.getNodeID() == sender.getID()){				
+			else if (res < 0 && recNeighbor.getNodeID().equals(sender.getID())){				
 				String dest = me.getRoute(sender.getID());
 				msg.setConfidential(false);
 				send(dest, msg);
@@ -212,7 +214,7 @@ public class KoalaProtocol implements CDProtocol{
 
 		Set<String> neighborsAfter = me.getRoutingTable().getNeighboursIDs();
 		for(KoalaNeighbor newNeig : newNeighbors){
-			if(neighborsAfter.contains(newNeig.getNodeID()) && !neighborsBefore.contains(newNeig.getNodeID()) || newNeig.getNodeID() == sender.getID())
+			if(neighborsAfter.contains(newNeig.getNodeID()) && !neighborsBefore.contains(newNeig.getNodeID()) || newNeig.getNodeID().equals(sender.getID()))
 			{
 				KoalaMessage newMsg = new KoalaMessage(me.getID(), KoalaMessage.RT, KoalaJsonParser.toJson(me));
 				if(me.isLocal(newNeig.getNodeID())){
@@ -222,7 +224,8 @@ public class KoalaProtocol implements CDProtocol{
 					boolean newDC = !dcsBefore.contains(KoalaNodeUtilities.getDCID(newNeig.getNodeID()));
 					if(newDC && !selfJoining)
 						broadcastGlobalNeighbor(newNeig);
-					else{
+					if(!me.isLocal(sender.getID())  && (!msg.isConfidential() || newDC) )
+					{
 						newMsg.setConfidential(true); 
 						send(newNeig.getNodeID(), newMsg);
 					}

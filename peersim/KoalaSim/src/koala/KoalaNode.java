@@ -182,6 +182,8 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 	}
 	
 	public boolean isJoining(){
+		if(this.getBootstrapID() == null)
+			return false;
 		Set<KoalaNeighbor> neighbors = getRoutingTable().getNeighbors();
 		for(KoalaNeighbor kn : neighbors)
 			if(!KoalaNodeUtilities.isDefault(kn) && kn.getLatency() != -1)
@@ -279,7 +281,7 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 
         Set<KoalaNeighbor> links = routingTable.getNeighbors();
         for(KoalaNeighbor ln : links){
-            if(ln.getNodeID() == id && lq >= ln.getLatencyQuality()){
+            if(ln.getNodeID().equals(id) && lq >= ln.getLatencyQuality()){
                 ln.setLatency(l);
                 ln.setLatencyQuality(lq);
             }
