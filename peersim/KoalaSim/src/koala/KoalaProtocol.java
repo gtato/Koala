@@ -42,7 +42,7 @@ public class KoalaProtocol implements CDProtocol{
 		koalaPid = protocolID;
 		koalaNodePid = FastConfig.getLinkable(protocolID);
 		me = (KoalaNode) (Linkable) node.getProtocol(koalaNodePid);
-		System.out.println("yoyo, I is " + me.getID() );
+//		System.out.println("yoyo, I is " + me.getID() );
 		
 		//receive();
 		if(!me.hasJoined())
@@ -147,8 +147,10 @@ public class KoalaProtocol implements CDProtocol{
         if(rnes != 2)
             return;
         
-        List<String> cands = Arrays.asList(content.getCandidates());
-        cands.removeAll(respees);
+        List<String> cands = new ArrayList<String>();
+        for(String cand : content.getCandidates())
+        	if (!respees.contains(cand))
+        		cands.add(cand);
         
         Set<String> add_cands = me.createRandomIDs(respees.size() - 1);
         cands.addAll(add_cands);
@@ -156,16 +158,16 @@ public class KoalaProtocol implements CDProtocol{
         content.setCandidates(new_cands.toArray(new String[new_cands.size()]));
         msg.setMsgContent(KoalaJsonParser.toJson(content));
         
-        String target = me.getRoutingTable().getLocalPredecessor().getNodeID();
+        KoalaNeighbor target = me.getRoutingTable().getLocalPredecessor();
         if (msg.getSource().equals(target))
-            target = me.getRoutingTable().getLocalSucessor().getNodeID();
-
-        send(target, msg);
+            target = me.getRoutingTable().getLocalSucessor();
+        if(!KoalaNodeUtilities.isDefault(target))
+        	send(target.getNodeID(), msg);
 	}
 
 	private void updateRoutingTable(KoalaMessage msg) {
 		KoalaNode sender = KoalaJsonParser.jsonToObject(msg.getMsgContent(), KoalaNode.class);
-		System.out.println("content: " + sender.getID());
+//		System.out.println("content: " + sender.getID());
 		ArrayList<KoalaNeighbor> senderOldNeighbors = sender.getRoutingTable().getOldNeighbors();
 		ArrayList<KoalaNeighbor> newNeighbors = new ArrayList<KoalaNeighbor>();
 		ArrayList<KoalaNeighbor> receivedNeighbors = sender.getRoutingTable().getNeighborsContainer();

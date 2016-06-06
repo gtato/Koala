@@ -14,7 +14,8 @@ i = 5
 #plot '../out/graph00000000.dat' with lines lc rgb "forest-green", '../out/graph00000000.dat' u ($1):($2) with points pt 7 lc rgb "black"
 
 # this is for plotting the logical topology (using KoalaNodeObserver)
-plot '../out/graph00000000.dat' with lines lc rgb "forest-green", '../out/graph00000000.dat' u ($1):($2):($3) with labels point pt 7 offset char 0,0.5 lc rgb "black"
+plot '../out/graph00000000.dat' with lines lc rgb "forest-green" ,\
+     '../out/graph00000000.dat' u ($1):($2):($3) with labels point pt 7 offset char 0,0.5 lc rgb "black"
 
 
 

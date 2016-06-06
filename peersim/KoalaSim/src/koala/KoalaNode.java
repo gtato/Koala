@@ -328,7 +328,7 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 
         if( KoalaNodeUtilities.distance(this.getID(), dest) > KoalaNodeUtilities.distance(re.getNodeID(), dest)){
             int tot_distance = KoalaNodeUtilities.distance(this.getID(), dest);
-            double distance = KoalaNodeUtilities.distance(this.getID(), re.getNodeID()) / tot_distance;
+            double distance = (double) KoalaNodeUtilities.distance(this.getID(), re.getNodeID()) / tot_distance;
             double norm_latency = KoalaNodeUtilities.normalizeLatency(tot_distance, re.getLatency());
             res = 1 + KoalaNodeUtilities.B * distance + KoalaNodeUtilities.C * norm_latency;
         }
@@ -339,7 +339,7 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 	
 	public Set<String> createRandomIDs(int nr){
         Set<String> rids = new HashSet<String>();
-        while( rids.size() != nr){
+        while( rids.size() < nr){
             String rand_id = this.dcID + "-" + new Random().nextInt(KoalaNodeUtilities.NR_NODE_PER_DC);
             if( !this.isResponsible(rand_id))
                 rids.add(rand_id);

@@ -1,4 +1,4 @@
-package koala;
+package koala.initializers;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import koala.KoalaNode;
 import koala.utility.KoalaJsonParser;
 import koala.utility.KoalaNodeUtilities;
 import peersim.config.Configuration;

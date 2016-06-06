@@ -77,11 +77,11 @@ public class KoalaNodeUtilities {
 		double x1 = 1;
         double y1 = 1;
         double x2 = 1000;
-        double y2 = 1 / totDistance;
+        double y2 = (double) 1 / totDistance;
 
-        double sl = (y2-y1)/(x2 - x1);
+        double sl = (double) (y2-y1)/(x2 - x1);
 
-        double y = sl * (latency - x1) + y1;
+        double y = (double) sl * (latency - x1) + y1;
         return y;
 	}
 	

@@ -1,10 +1,11 @@
-package koala;
+package koala.initializers;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import koala.KoalaNode;
 import peersim.config.Configuration;
 import peersim.core.Network;
 import peersim.core.Node;
