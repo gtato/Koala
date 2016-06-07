@@ -18,8 +18,7 @@ import peersim.reports.GraphObserver;
 import peersim.util.FileNameGenerator;
 import peersim.core.Node;
 import peersim.graph.Graph;
-import example.hot.InetObserver;
-import example.hot.InetCoordinates;;
+
 
 public class KoalaNodeObserver extends GraphObserver {
 
@@ -78,31 +77,6 @@ public class KoalaNodeObserver extends GraphObserver {
 		}
 		
 
-//		KoalaNode each = (KoalaNode)((Node)g.getNode(0)).getProtocol(coordPid);
-//		String firstID = each.getID();
-//		do{
-//			
-//			double[] coords = getNextCoordinate(each.getID());
-//			each.setX(coords[0]);
-//			each.setY(coords[1]);
-//			each = getNodeFromID(each.getRoutingTable().getGlobalPredecessor().getNodeID());
-//		
-//		}while(!each.getID().equals(firstID));
-		
-		
-		
-//		KoalaNode each = (KoalaNode)((Node)g.getNode(0)).getProtocol(coordPid);
-//		String firstID = each.getID();
-//		do{
-//			
-//			double[] coords = getNextCoordinate(each.getID());
-//			each.setX(coords[0]);
-//			each.setY(coords[1]);
-//			
-//			each = getNodeFromID(each.getRoutingTable().getGlobalPredecessor().getNodeID());
-//		}while(!each.getID().equals(firstID));
-//		
-		
 		try {
             
             String fname = fng.nextCounterName();
@@ -137,16 +111,7 @@ public class KoalaNodeObserver extends GraphObserver {
         	KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(coordPid);
             double x_to = current.getX();
             double y_to = current.getY();
-//            KoalaNode n = getNodeFromID(current.getRoutingTable().getGlobalSucessor().getNodeID());
-//            double x_from = n.getX();
-//            double y_from = n.getY();
-//            String label = current.getID();
-//            ps.println(x_from + " " + y_from + " " + label);
-//            ps.println(x_to + " " + y_to+ " " + label);
-//            ps.println();
-            
-            
-            
+                        
             KoalaNeighbor[] gneigs = {current.getRoutingTable().getGlobalPredecessor(), current.getRoutingTable().getGlobalSucessor()};
             for(int j = 0; j < gneigs.length; j++){
             	KoalaNode n = getNodeFromID(gneigs[j].getNodeID());

@@ -1,11 +1,14 @@
-package koala;
+package messaging;
 
-public class GlobalNeighborMsgContent {
+import koala.KoalaMessage;
+import koala.KoalaNeighbor;
+
+public class KoalaGNMsgContent extends KoalaMsgContent{
 	private String[] candidates;
 	private KoalaNeighbor neighbor;
 	
-	public GlobalNeighborMsgContent(String[] candidates, KoalaNeighbor neighbor) {
-		super();
+	public KoalaGNMsgContent(String[] candidates, KoalaNeighbor neighbor) {
+		super(KoalaMessage.NGN);
 		this.candidates = candidates;
 		this.neighbor = neighbor;
 	}

@@ -48,6 +48,7 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 	
 	public KoalaNode(String prefix) {
 		super(prefix);
+		resetRoutingTable();
 	}
 	
 	
@@ -165,7 +166,7 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
         if( ret ==-1 && (canBePredecessor(n.getNodeID()) || canBeSuccessor(n.getNodeID())))
             ret = 1;
 
-        getRoutingTable().setOldNeighbors(oldNeighbors);
+        getRoutingTable().setOldNeighborsContainer(oldNeighbors);
         // 2: added, 1: potential neighbor, 0: updated , -1:not neighbor
         return ret; // should return oldNeighbors as well
 	}
@@ -412,7 +413,7 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 			}
 			
 			JsonArray oldNeighbors = new JsonArray();
-			ArrayList<KoalaNeighbor> oldNeigs = src.getRoutingTable().getOldNeighbors();
+			ArrayList<KoalaNeighbor> oldNeigs = src.getRoutingTable().getOldNeighborsContainer();
 			for(KoalaNeighbor oldNeig : oldNeigs){
 				oldNeighbors.add(KoalaJsonParser.neighborToJsonTree(oldNeig));
 			}
@@ -450,7 +451,7 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 				oldNeighbors.add(KoalaJsonParser.jsonToNeighbor(neig));
 			
 			kn.getRoutingTable().setNeighborsContainer(neighbors);
-			kn.getRoutingTable().setOldNeighbors(oldNeighbors); 
+			kn.getRoutingTable().setOldNeighborsContainer(oldNeighbors); 
 			return kn;
 		}
 		

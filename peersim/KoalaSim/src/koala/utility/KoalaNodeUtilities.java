@@ -13,6 +13,9 @@ public class KoalaNodeUtilities {
 	
 	public static int MAGIC = 2;
 	
+	public static int MAX_INTER_LATENCY = 2000;
+	public static int MAX_INTRA_LATENCY = 500;
+	
 	public static int NR_NODE_PER_DC = 0; //Configuration.getInt("NR_NODE_PER_DC")
 	public static int NR_DC = 0; //Configuration.getInt("NR_DC")
 	
@@ -20,7 +23,7 @@ public class KoalaNodeUtilities {
 		A = B = C = 1;
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
 		NR_DC = Configuration.getInt("NR_DC");
-		A = 1 / NR_DC;
+		A = (double) 1 / NR_DC;
 	}
 	
 	public static int getDCID(String id){
@@ -76,7 +79,7 @@ public class KoalaNodeUtilities {
 	public static double normalizeLatency(int totDistance, int latency) {
 		double x1 = 1;
         double y1 = 1;
-        double x2 = 1000;
+        double x2 = KoalaNodeUtilities.MAX_INTER_LATENCY;
         double y2 = (double) 1 / totDistance;
 
         double sl = (double) (y2-y1)/(x2 - x1);

@@ -90,9 +90,9 @@ public class KoalaMessage {
         int min, max;
          
         if (sDC == dDC){
-            min = 5; max = 500;
+            min = 5; max = KoalaNodeUtilities.MAX_INTRA_LATENCY;
         }else{
-        	min = 500; max = 2000;
+        	min = KoalaNodeUtilities.MAX_INTRA_LATENCY; max = KoalaNodeUtilities.MAX_INTER_LATENCY;
         }
         
         latency = random.nextInt((max - min) + 1) + min;

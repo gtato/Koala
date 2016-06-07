@@ -1,19 +1,12 @@
 package koala;
 
-import java.lang.reflect.Type;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 import koala.utility.KoalaNodeUtilities;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-
-import peersim.config.Configuration;
 
 public class KoalaRoutingTable {
 	
@@ -24,8 +17,8 @@ public class KoalaRoutingTable {
 	private KoalaNeighbor globalSucessor;
 	
 	/*these two are supposed to be used only when the object is transmitted*/
-	private ArrayList<KoalaNeighbor> neighbors = new ArrayList<KoalaNeighbor>();
-	private ArrayList<KoalaNeighbor> oldNeighbors = new ArrayList<KoalaNeighbor>();
+	private ArrayList<KoalaNeighbor> neighborsContainer = new ArrayList<KoalaNeighbor>();
+	private ArrayList<KoalaNeighbor> oldNeighborsContainer = new ArrayList<KoalaNeighbor>();
 	
 	
 	public KoalaRoutingTable(/*String nodeID*/){
@@ -105,33 +98,7 @@ public class KoalaRoutingTable {
 		}
 		return oldEntry;
 	}
-//	
-//	//true if added, false if just updated
-//	public boolean addNeighbor(KoalaNeighbor neighbor) {
-//		
-//		KoalaNeighbor each = null;
-//		boolean updated= false;
-//		for(int i = 0; i < neighbors.size(); i++)
-//		{
-//			each = neighbors.get(i);
-//			if (each.equals(neighbor)){
-//				each.update(neighbor);
-//				updated = true;
-//				break;
-//			}
-//			
-//		}
-//		
-//		if(!updated)
-//			neighbors.add(neighbor);
-//		
-//		return !updated;
-//		
-//	}
-//	
-	
-	
-	
+
 		
 	
 	
@@ -140,21 +107,21 @@ public class KoalaRoutingTable {
 	 */
 	
 	
-	public ArrayList<KoalaNeighbor> getOldNeighbors() {
-		return oldNeighbors;
+	public ArrayList<KoalaNeighbor> getOldNeighborsContainer() {
+		return oldNeighborsContainer;
 	}
 
 
 	public ArrayList<KoalaNeighbor> getNeighborsContainer() {
-		return neighbors;
+		return neighborsContainer;
 	}
 
 	public void setNeighborsContainer(ArrayList<KoalaNeighbor> neighbors) {
-		this.neighbors = neighbors;
+		this.neighborsContainer = neighbors;
 	}
 
-	public void setOldNeighbors(ArrayList<KoalaNeighbor> oldNeighbors) {
-		this.oldNeighbors = oldNeighbors;
+	public void setOldNeighborsContainer(ArrayList<KoalaNeighbor> oldNeighbors) {
+		this.oldNeighborsContainer = oldNeighbors;
 	}
 
 	public Set<String> getNeighboursIDs(){
@@ -176,9 +143,9 @@ public class KoalaRoutingTable {
             if(!KoalaNodeUtilities.isDefault(neighs[i]))
             	hs.add(neighs[i]);
         
-        for(int i = 0; i < neighbors.size(); i++)
-            if(!KoalaNodeUtilities.isDefault(neighbors.get(i)))
-            	hs.add(neighbors.get(i));
+        for(int i = 0; i < neighborsContainer.size(); i++)
+            if(!KoalaNodeUtilities.isDefault(neighborsContainer.get(i)))
+            	hs.add(neighborsContainer.get(i));
                 
         return hs;
 	}
