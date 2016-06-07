@@ -409,13 +409,13 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 			JsonArray neighbors = new JsonArray();
 			Set<KoalaNeighbor> neigs = src.getRoutingTable().getNeighbors();
 			for(KoalaNeighbor neig : neigs){
-				neighbors.add(KoalaJsonParser.neighborToJsonTree(neig));
+				neighbors.add(KoalaJsonParser.toJsonTree(neig));
 			}
 			
 			JsonArray oldNeighbors = new JsonArray();
 			ArrayList<KoalaNeighbor> oldNeigs = src.getRoutingTable().getOldNeighborsContainer();
 			for(KoalaNeighbor oldNeig : oldNeigs){
-				oldNeighbors.add(KoalaJsonParser.neighborToJsonTree(oldNeig));
+				oldNeighbors.add(KoalaJsonParser.toJsonTree(oldNeig));
 			}
 			
 			JsonObject obj = new JsonObject();
@@ -443,12 +443,12 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 			JsonArray neigs = srcJO.getAsJsonArray("neighbors");
 			ArrayList<KoalaNeighbor> neighbors = new ArrayList<KoalaNeighbor>();
 			for(JsonElement neig : neigs)
-				neighbors.add(KoalaJsonParser.jsonToNeighbor(neig));
+				neighbors.add(KoalaJsonParser.jsonTreeToObject(neig, KoalaNeighbor.class));
 			
 			JsonArray oldNeigs = srcJO.getAsJsonArray("oldNeighbors");
 			ArrayList<KoalaNeighbor> oldNeighbors = new ArrayList<KoalaNeighbor>();
 			for(JsonElement neig : oldNeigs)
-				oldNeighbors.add(KoalaJsonParser.jsonToNeighbor(neig));
+				oldNeighbors.add(KoalaJsonParser.jsonTreeToObject(neig, KoalaNeighbor.class));
 			
 			kn.getRoutingTable().setNeighborsContainer(neighbors);
 			kn.getRoutingTable().setOldNeighborsContainer(oldNeighbors); 

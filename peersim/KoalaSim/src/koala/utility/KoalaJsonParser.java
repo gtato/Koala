@@ -1,5 +1,6 @@
 package koala.utility;
 
+import messaging.KoalaMessage;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import koala.KoalaNode.KoalaNodeDeserializer;
@@ -12,10 +13,12 @@ import com.google.gson.JsonElement;
 public class KoalaJsonParser {
 	private static Gson gson;
 	
-	public static void intitialize(KoalaNode sample){
+	public static void intitialize(){
 		GsonBuilder gsonBuilder = new GsonBuilder();
-		gsonBuilder.registerTypeAdapter(KoalaNode.class, new KoalaNode.KoalaNodeSerializer());
-		gsonBuilder.registerTypeAdapter(KoalaNode.class, new KoalaNode.KoalaNodeDeserializer(sample));
+		
+		gsonBuilder.registerTypeAdapter(KoalaMessage.class, new KoalaMessage.KoalaMessageSerializer());
+		gsonBuilder.registerTypeAdapter(KoalaMessage.class, new KoalaMessage.KoalaMessageDeserializer());
+		
 		gson = gsonBuilder.create();
 	}
 	
@@ -28,11 +31,13 @@ public class KoalaJsonParser {
 	}
 
 	
-	public static JsonElement neighborToJsonTree(KoalaNeighbor k){
+	public static JsonElement toJsonTree(Object k){
 		return gson.toJsonTree(k);
 	}
 	
-	public static KoalaNeighbor jsonToNeighbor(JsonElement jsonNeighbor){
-		return gson.fromJson(jsonNeighbor, KoalaNeighbor.class);
+	public static <T> T jsonTreeToObject(JsonElement json, Class<T> c){
+		return gson.fromJson(json, c);
 	}
+	
+	
 }

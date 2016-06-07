@@ -1,13 +1,12 @@
 package messaging;
 
-import koala.KoalaMessage;
 import koala.KoalaNeighbor;
 
-public class KoalaGNMsgContent extends KoalaMsgContent{
+public class KoalaNGNMsgContent extends KoalaMsgContent{
 	private String[] candidates;
 	private KoalaNeighbor neighbor;
 	
-	public KoalaGNMsgContent(String[] candidates, KoalaNeighbor neighbor) {
+	public KoalaNGNMsgContent(String[] candidates, KoalaNeighbor neighbor) {
 		super(KoalaMessage.NGN);
 		this.candidates = candidates;
 		this.neighbor = neighbor;
@@ -28,6 +27,5 @@ public class KoalaGNMsgContent extends KoalaMsgContent{
 	public void setNeighbor(KoalaNeighbor neighbor) {
 		this.neighbor = neighbor;
 	}
-	
 	
 }

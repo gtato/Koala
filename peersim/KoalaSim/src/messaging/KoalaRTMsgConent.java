@@ -5,7 +5,6 @@ package messaging;
 import java.util.ArrayList;
 import java.util.Set;
 
-import koala.KoalaMessage;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import koala.utility.KoalaJsonParser;
@@ -24,6 +23,11 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 	}
 
 	private void initalize(KoalaNode kn) {
+		if (kn == null)
+			return;
+		
+		id = kn.getID();
+		joining = kn.isJoining();
 		Set<KoalaNeighbor> neigs = kn.getRoutingTable().getNeighbors();
 		neighbors = new String[neigs.size()];
 		int i=0;

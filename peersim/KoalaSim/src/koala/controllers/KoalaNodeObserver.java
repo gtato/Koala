@@ -1,7 +1,9 @@
 package koala.controllers;
 
+import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,7 +14,6 @@ import java.util.Set;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import koala.utility.KoalaNodeUtilities;
-
 import peersim.config.Configuration;
 import peersim.reports.GraphObserver;
 import peersim.util.FileNameGenerator;
@@ -51,8 +52,8 @@ public class KoalaNodeObserver extends GraphObserver {
 		updateGraph();
 		//simpleReport();
 		generateGraph();
-		
-		
+		plotIt();
+
 		return false;
 	}
 
@@ -91,6 +92,22 @@ public class KoalaNodeObserver extends GraphObserver {
         }
 	}
 
+	private void plotIt(){
+		try {
+			Process p = new ProcessBuilder("gnuplot", "-persistent","gnuplot/topology.plt").start();
+//			BufferedReader reader = new BufferedReader (new InputStreamReader(p.getErrorStream()));
+//			String line;
+//			while ((line = reader.readLine ()) != null) {
+//				System.out.println ("Stdout: " + line);
+//			}
+
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 
 	private void simpleReport() {
 		for (int i = 0; i < g.size(); i++) 
