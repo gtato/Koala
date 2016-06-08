@@ -33,6 +33,8 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 	/**
 	 * 
 	 */
+	double logicalX;
+	double logicalY;
 	private static final long serialVersionUID = 1L;
 	private int dcID;
 	private int nodeID;
@@ -135,6 +137,27 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 		return getID();
 	}
 	
+	public double getLogicalX() {
+		return logicalX;
+	}
+
+
+
+	public void setLogicalX(double logicalX) {
+		this.logicalX = logicalX;
+	}
+
+
+
+	public double getLogicalY() {
+		return logicalY;
+	}
+
+
+
+	public void setLogicalY(double logicalY) {
+		this.logicalY = logicalY;
+	}
 
 	
 	/* The relevant methods start here */

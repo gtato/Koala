@@ -1,9 +1,5 @@
 package koala.controllers;
 
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,33 +11,18 @@ import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import koala.utility.KoalaNodeUtilities;
 import peersim.config.Configuration;
-import peersim.reports.GraphObserver;
-import peersim.util.FileNameGenerator;
 import peersim.core.Node;
-import peersim.graph.Graph;
 
 
-public class KoalaNodeObserver extends GraphObserver {
+public class KoalaNodeObserver extends NodeObserver {
 
-    private static final String PAR_COORDINATES_PROT = "coord_protocol";
-    private static final String PAR_FILENAME_BASE = "file_base";
-
-    private final int coordPid;
-    private final String graph_filename;
-    private final FileNameGenerator fng;
     
-    boolean dumpToStd = false;
     HashMap<Integer, double[]> cords = new HashMap<Integer, double[]>();
     ArrayList<KoalaNode> orderedGraph = new ArrayList<KoalaNode>(); 
     
 	public KoalaNodeObserver(String prefix) {
 		super(prefix);
-		coordPid = Configuration.getPid(prefix + "." + PAR_COORDINATES_PROT);
-		graph_filename = Configuration.getString(prefix + "."
-                + PAR_FILENAME_BASE, "graph_dump");
-        if(graph_filename.equals("graph_dump"))
-        	dumpToStd = true;
-		fng = new FileNameGenerator(graph_filename, ".dat");
+		plotScript = "gnuplot/plotKoala.plt";
 	}
 
 	
@@ -63,9 +44,7 @@ public class KoalaNodeObserver extends GraphObserver {
         	orderedGraph.add(each);
 		}
 		
-		
 		Collections.sort(orderedGraph, new Comparator<KoalaNode>(){
-
 			@Override
 			public int compare(KoalaNode arg0, KoalaNode arg1) {
 				return KoalaNodeUtilities.compare(arg0.getID(), arg1.getID());
@@ -73,41 +52,13 @@ public class KoalaNodeObserver extends GraphObserver {
 		
 		for(KoalaNode each: orderedGraph){
 	    	double[] coords = getNextCoordinate(each.getID());
-			each.setX(coords[0]);
-			each.setY(coords[1]);
+			each.setLogicalX(coords[0]);
+			each.setLogicalY(coords[1]);
 		}
 		
+		graphToFile();
 
-		try {
-            
-            String fname = fng.nextCounterName();
-            FileOutputStream fos = new FileOutputStream(fname);
-            PrintStream pstr = dumpToStd ? System.out : new PrintStream(fos);
-
-            graphToFile(g, pstr, coordPid);
-
-            fos.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 	}
-
-	private void plotIt(){
-		try {
-			Process p = new ProcessBuilder("gnuplot", "-persistent","gnuplot/topology.plt").start();
-//			BufferedReader reader = new BufferedReader (new InputStreamReader(p.getErrorStream()));
-//			String line;
-//			while ((line = reader.readLine ()) != null) {
-//				System.out.println ("Stdout: " + line);
-//			}
-
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
 
 	private void simpleReport() {
 		for (int i = 0; i < g.size(); i++) 
@@ -122,26 +73,6 @@ public class KoalaNodeObserver extends GraphObserver {
 			}
 		}
 	}
-	
-	private void graphToFile(Graph g, PrintStream ps, int coordPid) {
-        for (int i = 0; i < g.size(); i++) {
-        	KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(coordPid);
-            double x_to = current.getX();
-            double y_to = current.getY();
-                        
-            KoalaNeighbor[] gneigs = {current.getRoutingTable().getGlobalPredecessor(), current.getRoutingTable().getGlobalSucessor()};
-            for(int j = 0; j < gneigs.length; j++){
-            	KoalaNode n = getNodeFromID(gneigs[j].getNodeID());
-            	double x_from = n.getX();
-                double y_from = n.getY();
-                String label = j==0 ? current.getID() : "";
-                ps.println(x_from + " " + y_from);
-                ps.println(x_to + " " + y_to + " " + label);
-                ps.println();
-            }
-          
-        }
-    }
 	
 	private double[] getNextCoordinate(String id){
 		int dc_id = koala.utility.KoalaNodeUtilities.getDCID(id);
@@ -166,16 +97,31 @@ public class KoalaNodeObserver extends GraphObserver {
 		  
 		return entry;
 	}
-	
-	
-	private KoalaNode getNodeFromID(String id)
-	{
-		for (int i = 0; i < g.size(); i++) 
-		{
-			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(coordPid);
-			if(current.getID().equals(id))
-				return current;
-		}
-		return null;
+
+
+
+
+	@Override
+	protected void printGraph(PrintStream ps) {
+		for (int i = 0; i < g.size(); i++) {
+        	KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(coordPid);
+            double x_to = current.getLogicalX();
+            double y_to = current.getLogicalY();
+                        
+            KoalaNeighbor[] gneigs = {current.getRoutingTable().getGlobalPredecessor(), current.getRoutingTable().getGlobalSucessor()};
+            for(int j = 0; j < gneigs.length; j++){
+            	KoalaNode n = getNodeFromID(gneigs[j].getNodeID());
+            	double x_from =  n.getLogicalX();
+                double y_from =   n.getLogicalY();
+                String label = j==0 ? current.getID() : "";
+                ps.println(x_from + " " + y_from);
+                ps.println(x_to + " " + y_to + " " + label);
+                ps.println();
+            }
+        }
+		
 	}
+	
+	
+	
 }
