@@ -49,17 +49,16 @@ public class KoalaProtocol implements CDProtocol{
 		koalaPid = protocolID;
 		koalaNodePid = FastConfig.getLinkable(protocolID);
 		me = (KoalaNode) (Linkable) node.getProtocol(koalaNodePid);
-		//System.out.println("yoyo, I is " + me.getID() );
-		
-		//receive();
-		if(!me.hasJoined())
-			join(node);
-				
+		//System.out.print(me.getID() + "  ");
+		receive();
 	}
 	
 
-	private void join(Node self)
+	public void join()
 	{
+		if(me.hasJoined())
+			return;
+		
 		Node bootstrap = getBootstrap();
 		
 		if (bootstrap == null)
@@ -110,10 +109,14 @@ public class KoalaProtocol implements CDProtocol{
 			msg.addToPath(destinationID);
 			((KoalaProtocol)each.getProtocol(koalaPid)).registerMsg(msg);
 			/*TODO: uncomment this later*/
-			((KoalaProtocol)each.getProtocol(koalaPid)).receive();
+//			((KoalaProtocol)each.getProtocol(koalaPid)).receive();
 		}
 	}
 	
+	
+	public boolean hasEmptyQueue(){
+		return queue.size() == 0;
+	}
 	
 	public void registerMsg(KoalaMessage msg){
 		String msgStr = KoalaJsonParser.toJson(msg);
@@ -139,6 +142,9 @@ public class KoalaProtocol implements CDProtocol{
 				break;
 			case KoalaMessage.NGN:
 				onNewGlobalNeighbours(msg);
+				break;
+			case KoalaMessage.JOIN:
+				join();
 				break;
 		}
 	}

@@ -11,6 +11,7 @@ import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import koala.utility.KoalaNodeUtilities;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Node;
 
 
@@ -31,10 +32,14 @@ public class KoalaNodeObserver extends NodeObserver {
 	@Override
 	public boolean execute() {
 		updateGraph();
-		//simpleReport();
+		simpleReport();
 		generateGraph();
 		plotIt();
-
+//		System.out.println("");
+//		System.out.println("observer at " + CommonState.getTime());
+		
+		
+		
 		return false;
 	}
 
@@ -111,6 +116,7 @@ public class KoalaNodeObserver extends NodeObserver {
             KoalaNeighbor[] gneigs = {current.getRoutingTable().getGlobalPredecessor(), current.getRoutingTable().getGlobalSucessor()};
             for(int j = 0; j < gneigs.length; j++){
             	KoalaNode n = getNodeFromID(gneigs[j].getNodeID());
+            	if(n == null) return;
             	double x_from =  n.getLogicalX();
                 double y_from =   n.getLogicalY();
                 String label = j==0 ? current.getID() : "";

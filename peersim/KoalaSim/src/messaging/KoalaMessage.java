@@ -23,6 +23,7 @@ public class KoalaMessage {
 	public static final int RT = 0;
 	public static final int NGN = 1;
 	public static final int ROUTE = 2;
+	public static final int JOIN = 3;
 	
 	
 	private int type;
@@ -127,6 +128,8 @@ public class KoalaMessage {
 				return KoalaNGNMsgContent.class;
 			case ROUTE:
 				return KoalaRouteMsgContent.class;
+			case JOIN:
+				return KoalaMsgContent.class;
 		}
 		return null;
 	}
