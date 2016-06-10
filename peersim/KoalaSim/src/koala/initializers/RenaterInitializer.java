@@ -18,17 +18,13 @@ import peersim.core.Node;
 public class RenaterInitializer implements Control {
 
 	private static final String PAR_PROT = "protocol";
-	private static final String PAR_NR_DC = "nr_dc";
-	private static final String PAR_NR_NODE_PER_DC = "nr_node_per_dc";
-	
 	private static final String PAR_DC_FILE = "dc_file";
 	private static final String PAR_DC_DISTANCE = "distance";
 	
 	
 
     private static int pid;
-    private final int nrDCVal;
-    private final int nrNodePerDCVal;
+    
     private final String dc_file;
     
     protected int nrDC;
@@ -38,11 +34,9 @@ public class RenaterInitializer implements Control {
     public RenaterInitializer(String prefix) {
         pid = Configuration.getPid(prefix + "." + PAR_PROT);
         
-        nrDCVal = (Configuration.getInt(prefix + "." + PAR_NR_DC, 1));
-        nrDC = nrDCVal;
         
-        nrNodePerDCVal = (Configuration.getInt(prefix + "." + PAR_NR_NODE_PER_DC, 1));
-        nrNodePerDC = nrNodePerDCVal;
+        nrDC = Configuration.getInt("NR_DC", 1);
+        nrNodePerDC = Configuration.getInt("NR_NODE_PER_DC", 1);
         
         dc_file = (Configuration.getString(prefix + "." + PAR_DC_FILE, "nofilewiththisname"));
         distance = (Configuration.getDouble(prefix + "." + PAR_DC_DISTANCE, 0.01));
@@ -65,27 +59,9 @@ public class RenaterInitializer implements Control {
         		 nrDC = lines.size();
         }
         
-        int[] nodesPerDC = new int[nrDC];
-        double[][] centerPerDC = new double[nrDC][2];
-        int equalNodesPerDC = Network.size() / nrDC;
-        int rem = Network.size() % nrDC;
         
-//      splitting the nodes per data center and creating the coordinates per dc
-        for (int i = 0; i < nodesPerDC.length; i++){
-        	nodesPerDC[i] = equalNodesPerDC;
-        	if(rem > 0){
-        		nodesPerDC[i]++;
-        		rem--;
-        	}
-        	
-        	if(lines != null){
-        		centerPerDC[i][0] = Double.parseDouble(lines.get(i).split(", ")[0]);
-        		centerPerDC[i][1] = Double.parseDouble(lines.get(i).split(", ")[1]);
-        	}else{
-        		centerPerDC[i][0] = CommonState.r.nextDouble();
-        		centerPerDC[i][1] = CommonState.r.nextDouble();
-        	}
-        }
+        double[][] centerPerDC = getCenterPerDC(lines);
+        int[] nodesPerDC = getNodesPerDC(true, lines);
         
         int j, k;
         j = k = 0;
@@ -142,4 +118,56 @@ public class RenaterInitializer implements Control {
 		return new double[]{x,y};
 		
 	}
+	
+	//either equal or random
+	private int[] getNodesPerDC(boolean equal, List<String> lines){
+		boolean getNodesFromFile = false;
+		if(lines != null && lines.size() > 0 && lines.get(0).split(", ").length > 2)
+			getNodesFromFile = true;
+		
+		int equalNodesPerDC = Network.size() / nrDC;
+	    int rem = Network.size() % nrDC;
+	        
+		int[] nodesPerDC = new int[nrDC];
+		
+		
+	
+		for (int i = 0; i < nodesPerDC.length; i++){
+			if(getNodesFromFile){
+				nodesPerDC[i] = Integer.parseInt(lines.get(i).split(", ")[2]);
+				continue;
+			}
+			
+			if(equal){
+				nodesPerDC[i] = equalNodesPerDC;
+	        	if(rem > 0){
+	        		nodesPerDC[i]++;
+	        		rem--;
+	        	}
+			}else{
+	        	
+			}
+        }
+		return nodesPerDC;
+	}
+	
+	
+	private double[][] getCenterPerDC(List<String> lines){
+		double[][] centerPerDC = new double[nrDC][2];
+		
+		for (int i = 0; i < nrDC; i++){
+          	if(lines != null){
+        		centerPerDC[i][0] = Double.parseDouble(lines.get(i).split(", ")[0]);
+        		centerPerDC[i][1] = Double.parseDouble(lines.get(i).split(", ")[1]);
+        	}else{
+        		centerPerDC[i][0] = CommonState.r.nextDouble();
+        		centerPerDC[i][1] = CommonState.r.nextDouble();
+        	}
+        }
+		
+		return centerPerDC;
+	}
+	
+	
+	
 }
