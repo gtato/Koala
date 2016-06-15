@@ -32,12 +32,16 @@ public class WireRenater extends WireGraph {
 		ArrayList<Integer> gateway_cords = new ArrayList<Integer>();
 		for (int i = Network.size()-1; i >= 0; i--) {
             Node n = (Node) g.getNode(i);
-            KoalaNode rd = (KoalaNode)n.getProtocol(coordPid);
-            if(rd.isGateway()){
-            	gateways.add(rd);
+            KoalaNode kn = (KoalaNode)n.getProtocol(coordPid);
+            if(kn.isGateway()){
+            	gateways.add(kn);
             	gateway_cords.add(i);
             	centerIndex = i;
             }else{
+            	Node m = (Node) g.getNode(centerIndex);
+                KoalaNode km = (KoalaNode)m.getProtocol(coordPid);
+                kn.addNeighbor(m);
+				km.addNeighbor(n);
             	g.setEdge(i, centerIndex);
             }
 		}
@@ -62,8 +66,15 @@ public class WireRenater extends WireGraph {
 			}
 			});
 			
+			Node n = (Node)g.getNode(i);
+			KoalaNode kn = (KoalaNode) n.getProtocol(coordPid);
+			
 			for(int j=0; j < dists.size() && j<k; j++)
 			{
+				Node m = (Node)g.getNode(j);
+				KoalaNode km = (KoalaNode) m.getProtocol(coordPid);
+				kn.addNeighbor(m);
+				km.addNeighbor(n);
 				g.setEdge(gateway_cords.get(i), dists.get(j).getKey());
 				
 			}

@@ -1,30 +1,48 @@
 package koala;
 
 
+import messaging.KoalaMessage;
+import messaging.KoalaRouteMsgContent;
 import peersim.cdsim.CDProtocol;
 import peersim.config.FastConfig;
 import peersim.core.Linkable;
 import peersim.core.Node;
 
-public class RenaterProtocol implements CDProtocol {
+public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 
-	public RenaterProtocol(String prefix) {}
-	
-	public Object clone() {
-		RenaterProtocol inp = null;
-        try {
-            inp = (RenaterProtocol) super.clone();
-        } catch (CloneNotSupportedException e) {
-        } // never happens
-        return inp;
-    }
-	
-	@Override
-	public void nextCycle(Node node, int protocolID) {
-		KoalaNode me = (KoalaNode) (Linkable) node.getProtocol(FastConfig.getLinkable(protocolID));
-//		System.out.println("yoyo, I is ");
-		//TODO: implement physical routing here 
-
+	public RenaterProtocol(String prefix){
+		super(prefix);
 	}
+
+	@Override
+	protected void join() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onNewGlobalNeighbours(KoalaMessage msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onRoute(KoalaMessage msg) {
+		String nid = ((KoalaRouteMsgContent)msg.getContent()).getId();
+//		myNode.degree();
+	}
+
+	@Override
+	protected void onRoutingTable(KoalaMessage msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean hasJoined() {
+		return true;
+	}
+	
+	
 
 }

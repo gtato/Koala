@@ -22,66 +22,41 @@ import peersim.core.Network;
 import peersim.core.Node;
 
 
-public class KoalaProtocol implements CDProtocol{
+public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 
-	KoalaNode me = null;
-//	ArrayDeque<KoalaMessage> queue;
-	ArrayDeque<String> queue;
-	int koalaNodePid = -1;
-	int koalaPid = -1;
-	
+		
 	public KoalaProtocol(String prefix) {
+		super(prefix);
 	}
-	
-	public Object clone() {
-		KoalaProtocol inp = null;
-        try {
-            inp = (KoalaProtocol) super.clone();
-//            inp.queue = new ArrayDeque<KoalaMessage>();
-            inp.queue = new ArrayDeque<String>();
-        } catch (CloneNotSupportedException e) {
-        } // never happens
-        return inp;
-    }
-	
-	@Override
-	public void nextCycle(Node node, int protocolID) {
-		koalaPid = protocolID;
-		koalaNodePid = FastConfig.getLinkable(protocolID);
-		me = (KoalaNode) (Linkable) node.getProtocol(koalaNodePid);
-		//System.out.print(me.getID() + "  ");
-		receive();
-	}
-	
-
+		
 	public void join()
 	{
-		if(me.hasJoined())
+		if(hasJoined())
 			return;
 		
 		Node bootstrap = getBootstrap();
 		
 		if (bootstrap == null)
-			me.setJoined(true);
+			setJoined(true);
 		else{
 			KoalaNode bootstrapRn = (KoalaNode)bootstrap.getProtocol(koalaNodePid);
 			String bootstrapID = bootstrapRn.getID();
-			me.setBootstrapID( bootstrapID );
+			myNode.setBootstrapID( bootstrapID );
 			KoalaNeighbor first = new KoalaNeighbor(bootstrapID);
-			me.tryAddNeighbour(first);
+			myNode.tryAddNeighbour(first);
 			
-			me.setJoined(true);
-			KoalaMessage km = new KoalaMessage(me.getID(), new KoalaRTMsgConent(me));
+			setJoined(true);
+			KoalaMessage km = new KoalaMessage(myNode.getID(), new KoalaRTMsgConent(myNode));
 			send(bootstrapID, km);
 		}
 	}
 	
 	private Node getBootstrap()
 	{
-		KoalaNode each;
+		KoalaProtocol each;
 		ArrayList<Node> joined = new ArrayList<Node>();
 		for (int i = 0; i < Network.size(); i++) {
-            each = (KoalaNode) Network.get(i).getProtocol(koalaNodePid);
+            each = (KoalaProtocol) Network.get(i).getProtocol(myPid);
             if(each.hasJoined())
             	joined.add(Network.get(i));   	
 		}
@@ -101,70 +76,37 @@ public class KoalaProtocol implements CDProtocol{
             	break;
 		}
 		if(each != null){
-			if(ErrorDetection.hasLoopCommunication(me.getID(),destinationID))
+			if(ErrorDetection.hasLoopCommunication(myNode.getID(),destinationID))
 				System.out.println("problems in horizont");
 				
 //			System.out.println(me.getID() +"->"+ destinationID);
-			msg.setRandomLatency(me.getID(), destinationID);
+			msg.setRandomLatency(myNode.getID(), destinationID);
 			msg.addToPath(destinationID);
-			((KoalaProtocol)each.getProtocol(koalaPid)).registerMsg(msg);
+			((KoalaProtocol)each.getProtocol(myPid)).registerMsg(msg);
 			/*TODO: uncomment this later*/
 //			((KoalaProtocol)each.getProtocol(koalaPid)).receive();
 		}
 	}
 	
 	
-	public boolean hasEmptyQueue(){
-		return queue.size() == 0;
-	}
-	
-	public void registerMsg(KoalaMessage msg){
-		String msgStr = KoalaJsonParser.toJson(msg);
-		//queue.add(msg);
-		queue.add(msgStr);
-	}
 
-	
-	public void receive()
-	{
-		if(queue.size() == 0)
-			return;
-		
-//		KoalaMessage msg = queue.remove();
-		String msgStr = queue.remove();
-		KoalaMessage msg = KoalaJsonParser.jsonToObject(msgStr, KoalaMessage.class);
-		switch(msg.getType()){
-			case KoalaMessage.RT:
-				updateRoutingTable(msg);
-				break;
-			case KoalaMessage.ROUTE:
-				onRoute(msg);
-				break;
-			case KoalaMessage.NGN:
-				onNewGlobalNeighbours(msg);
-				break;
-			case KoalaMessage.JOIN:
-				join();
-				break;
-		}
-	}
 
-	private void onNewGlobalNeighbours(KoalaMessage msg) {
+	protected void onNewGlobalNeighbours(KoalaMessage msg) {
 		KoalaNGNMsgContent content = (KoalaNGNMsgContent )msg.getContent();
 		
         ArrayList<String> respees = new ArrayList<String>();
         for(String  c : content.getCandidates()){
-            if(me.isResponsible(c))
+            if(myNode.isResponsible(c))
                 if(respees.size() == 0)
                 {
-                	KoalaMessage km = new KoalaMessage(me.getID(), new KoalaRTMsgConent(me), true);
+                	KoalaMessage km = new KoalaMessage(myNode.getID(), new KoalaRTMsgConent(myNode), true);
                 	send(content.getNeighbor().getNodeID(), km);
                 }
  
                 respees.add(c);
         }
         content.getNeighbor().setLatencyQuality(2);
-        int rnes = me.tryAddNeighbour(content.getNeighbor());
+        int rnes = myNode.tryAddNeighbour(content.getNeighbor());
         if(rnes != 2)
             return;
         
@@ -173,21 +115,21 @@ public class KoalaProtocol implements CDProtocol{
         	if (!respees.contains(cand))
         		cands.add(cand);
         
-        Set<String> add_cands = me.createRandomIDs(respees.size() - 1);
+        Set<String> add_cands = myNode.createRandomIDs(respees.size() - 1);
         cands.addAll(add_cands);
         Set<String> new_cands = new HashSet<String>(cands);
         content.setCandidates(new_cands.toArray(new String[new_cands.size()]));
         msg.setContent(content);
-        msg.setSource(me.getID());
+        msg.setSource(myNode.getID());
         
-        KoalaNeighbor target = me.getRoutingTable().getLocalPredecessor();
+        KoalaNeighbor target = myNode.getRoutingTable().getLocalPredecessor();
         if (msg.getSource().equals(target))
-            target = me.getRoutingTable().getLocalSucessor();
+            target = myNode.getRoutingTable().getLocalSucessor();
         if(!KoalaNodeUtilities.isDefault(target))
         	send(target.getNodeID(), msg);
 	}
 
-	private void updateRoutingTable(KoalaMessage msg) {
+	protected void onRoutingTable(KoalaMessage msg) {
 		KoalaNode sender = ((KoalaRTMsgConent)msg.getContent()).getNode();
 		ArrayList<KoalaNeighbor> senderOldNeighbors = sender.getRoutingTable().getOldNeighborsContainer();
 		ArrayList<KoalaNeighbor> newNeighbors = new ArrayList<KoalaNeighbor>();
@@ -198,56 +140,56 @@ public class KoalaProtocol implements CDProtocol{
 		
 		
 		
-		Set<String> neighborsBefore = me.getRoutingTable().getNeighboursIDs();
+		Set<String> neighborsBefore = myNode.getRoutingTable().getNeighboursIDs();
 		Set<Integer> dcsBefore = new HashSet<Integer>(); 
 		for(String neighID : neighborsBefore)
 			dcsBefore.add(KoalaNodeUtilities.getDCID(neighID));
-		dcsBefore.add(me.getDCID());
+		dcsBefore.add(myNode.getDCID());
 		
 		boolean sourceJoining = sender.getJoining();
-		boolean selfJoining = me.isJoining();
+		boolean selfJoining = myNode.isJoining();
 		ArrayList<KoalaNeighbor> myOldNeighbors = new ArrayList<KoalaNeighbor>();
 		for(KoalaNeighbor recNeighbor: receivedNeighbors){
 			boolean isSource = recNeighbor.getNodeID().equals(sender.getID());
-			if(recNeighbor.getNodeID().equals(me.getID()))
+			if(recNeighbor.getNodeID().equals(myNode.getID()))
 				continue;
-			if(selfJoining && me.isLocal(sender.getID()))
+			if(selfJoining && myNode.isLocal(sender.getID()))
 				dcsBefore.add(KoalaNodeUtilities.getDCID(recNeighbor.getNodeID()));
 
 			int l = isSource ? msg.getLatency() : recNeighbor.getLatency();
-			int lq = me.getLatencyQuality(isSource, sender.getID(), recNeighbor);
+			int lq = myNode.getLatencyQuality(isSource, sender.getID(), recNeighbor);
 			
-            int res  = me.tryAddNeighbour(new KoalaNeighbor(recNeighbor.getNodeID(), l, lq));
-			ArrayList<KoalaNeighbor> oldies = me.getRoutingTable().getOldNeighborsContainer();
+            int res  = myNode.tryAddNeighbour(new KoalaNeighbor(recNeighbor.getNodeID(), l, lq));
+			ArrayList<KoalaNeighbor> oldies = myNode.getRoutingTable().getOldNeighborsContainer();
 			myOldNeighbors.addAll(oldies);
 
-			me.updateLatencyPerDC(recNeighbor.getNodeID(), l, lq);
+			myNode.updateLatencyPerDC(recNeighbor.getNodeID(), l, lq);
 			
 			if( res == 2 || (res == 1 && isSource && sourceJoining))
 				newNeighbors.add(new KoalaNeighbor(recNeighbor.getNodeID(), l));
 			else if (res < 0 && recNeighbor.getNodeID().equals(sender.getID())){				
-				String dest = me.getRoute(sender.getID());
+				String dest = myNode.getRoute(sender.getID());
 				msg.setConfidential(false);
 				send(dest, msg);
 			}
 
 
 		}
-		me.updateLatencies();
+		myNode.updateLatencies();
 
-		Set<String> neighborsAfter = me.getRoutingTable().getNeighboursIDs();
+		Set<String> neighborsAfter = myNode.getRoutingTable().getNeighboursIDs();
 		for(KoalaNeighbor newNeig : newNeighbors){
 			if(neighborsAfter.contains(newNeig.getNodeID()) && !neighborsBefore.contains(newNeig.getNodeID()) || newNeig.getNodeID().equals(sender.getID()))
 			{
-				KoalaMessage newMsg = new KoalaMessage(me.getID(), new KoalaRTMsgConent(me));
-				if(me.isLocal(newNeig.getNodeID())){
+				KoalaMessage newMsg = new KoalaMessage(myNode.getID(), new KoalaRTMsgConent(myNode));
+				if(myNode.isLocal(newNeig.getNodeID())){
 					send(newNeig.getNodeID(), newMsg);
 				}else
 				{
 					boolean newDC = !dcsBefore.contains(KoalaNodeUtilities.getDCID(newNeig.getNodeID()));
 					if(newDC && !selfJoining)
 						broadcastGlobalNeighbor(newNeig);
-					if(!me.isLocal(sender.getID())  && (!msg.isConfidential() || newDC) )
+					if(!myNode.isLocal(sender.getID())  && (!msg.isConfidential() || newDC) )
 					{
 						newMsg.setConfidential(true); 
 						send(newNeig.getNodeID(), newMsg);
@@ -259,11 +201,11 @@ public class KoalaProtocol implements CDProtocol{
 	}
 
 	private void broadcastGlobalNeighbor(KoalaNeighbor newNeig) {
-        Set<String> candidates = me.createRandomIDs(KoalaNodeUtilities.MAGIC);
-        KoalaNeighbor[] localNeigs = {me.getRoutingTable().getLocalSucessor(), me.getRoutingTable().getLocalPredecessor()};
+        Set<String> candidates = myNode.createRandomIDs(KoalaNodeUtilities.MAGIC);
+        KoalaNeighbor[] localNeigs = {myNode.getRoutingTable().getLocalSucessor(), myNode.getRoutingTable().getLocalPredecessor()};
         
         KoalaNGNMsgContent msgContent = new KoalaNGNMsgContent(candidates.toArray(new String[candidates.size()]), newNeig); 
-        KoalaMessage newMsg = new KoalaMessage(me.getID(), msgContent);        
+        KoalaMessage newMsg = new KoalaMessage(myNode.getID(), msgContent);        
         for( KoalaNeighbor n : localNeigs)
             if(!KoalaNodeUtilities.isDefault(n))
                 send(n.getNodeID(), newMsg);
@@ -271,12 +213,16 @@ public class KoalaProtocol implements CDProtocol{
 	}
 	
 	
-	private void onRoute(KoalaMessage msg){
+	protected void onRoute(KoalaMessage msg){
         String nid = ((KoalaRouteMsgContent)msg.getContent()).getId();
-        me.updateLatencyPerDC(msg.getSource(), msg.getLatency(), 3);
-        me.updateLatencies();
-        if(nid != me.getID())
-            send(me.getRoute(nid), msg);
+        myNode.updateLatencyPerDC(msg.getSource(), msg.getLatency(), 3);
+        myNode.updateLatencies();
+        if(nid != myNode.getID())
+            send(myNode.getRoute(nid), msg);
         
+	}
+	
+	public boolean hasJoined() {
+		return joined;
 	}
 }

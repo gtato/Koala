@@ -41,16 +41,18 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 	private String bootstrapID;
 	
 	private boolean gateway;
-	private boolean joined;
+//	private boolean joined;
 	private boolean isJoining;
 	private KoalaRoutingTable routingTable;
 	        
 	private HashMap<Integer, Integer> latencyPerDC = new HashMap<Integer, Integer>(); 
 	
+	private ArrayList<Node> physicalNeighbors;
 	
 	public KoalaNode(String prefix) {
 		super(prefix);
 		resetRoutingTable();
+		physicalNeighbors = new ArrayList<Node>();
 	}
 	
 	
@@ -59,6 +61,7 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 		KoalaNode inp = null;
         inp = (KoalaNode) super.clone();
         inp.resetRoutingTable();
+        physicalNeighbors = new ArrayList<Node>();
         return inp;
     }
 
@@ -108,13 +111,13 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 		this.bootstrapID = bootstrapID;
 	}
 	
-	public boolean hasJoined() {
-		return joined;
-	}
-
-	public void setJoined(boolean joined) {
-		this.joined = joined;
-	}
+//	public boolean hasJoined() {
+//		return joined;
+//	}
+//
+//	public void setJoined(boolean joined) {
+//		this.joined = joined;
+//	}
 	
 	public KoalaRoutingTable getRoutingTable() {
 		return routingTable;
@@ -396,26 +399,25 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 
 	@Override
 	public boolean addNeighbor(Node neighbour) {
-		// TODO Auto-generated method stub
-		return false;
+		return physicalNeighbors.add(neighbour);
 	}
 
 	@Override
 	public boolean contains(Node neighbor) {
-		// TODO Auto-generated method stub
+		for(Node neigh : physicalNeighbors)
+			if(neigh.equals(neighbor))
+				return true;
 		return false;
 	}
 
 	@Override
 	public int degree() {
-		// TODO Auto-generated method stub
-		return 0;
+		return physicalNeighbors.size();
 	}
 
 	@Override
 	public Node getNeighbor(int i) {
-		// TODO Auto-generated method stub
-		return null;
+		return physicalNeighbors.get(i);
 	}
 
 	@Override
