@@ -76,6 +76,7 @@ public class WireRenater extends WireGraph {
 				kn.addNeighbor(m);
 				km.addNeighbor(n);
 				g.setEdge(gateway_cords.get(i), dists.get(j).getKey());
+
 				
 			}
 				
