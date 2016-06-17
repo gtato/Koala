@@ -4,8 +4,12 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import koala.KoalaNode;
+import koala.utility.Dijkstra;
+import koala.utility.Dijkstra.Edge;
+
 import peersim.config.Configuration;
 import peersim.core.Network;
 import peersim.core.Node;
@@ -85,7 +89,34 @@ public class WireRenater extends WireGraph {
 
 	}
 	
-	
+	private void initializeDijkstra(Graph g, ArrayList<Integer> gateway_cords){
+		List<KoalaNode> nodes = new ArrayList<KoalaNode>();
+		List<Edge> edges = new ArrayList<Edge>();
+		Dijkstra.Graph dg = new Dijkstra.Graph(nodes, edges);
+
+		
+		
+		for (int i = 0; i < gateway_cords.size(); i++) {
+			Node n = (Node)g.getNode(i);
+			KoalaNode kn = (KoalaNode) n.getProtocol(coordPid);
+			nodes.add(kn);
+		}
+		
+		for (int i = 0; i < gateway_cords.size(); i++) {
+			Node n = (Node)g.getNode(i);
+			KoalaNode kn = (KoalaNode) n.getProtocol(coordPid);
+			
+			for (int j = 0; i < kn.degree(); i++) {
+				KoalaNode km = (KoalaNode) kn.getNeighbor(j).getProtocol(coordPid);
+				dg.addEdge(kn.getID()+":"+km.getID(), kn, km, distance(kn, km));
+			}
+		}
+		
+		
+		
+		
+		
+	}
 	
 	private double distance(KoalaNode first, KoalaNode second) {
         double x1 = first.getX();
