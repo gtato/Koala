@@ -100,6 +100,7 @@ public class KoalaPlanner extends GraphObserver {
         	int id = targetLogProtPid > 0 ? targetLogProtPid : targetPhysProtPid;
 			TopologyProtocol currentNode = (TopologyProtocol)((Node)g.getNode(i)).getProtocol(id);
         	boolean cond = joined ? currentNode.hasJoined() : !currentNode.hasJoined();
+//        	if(cond && ((KoalaNode)((Node)g.getNode(i)).getProtocol(targetNodePid)).isGateway()  )
         	if(cond)
             	complyingIndexes.add(i);
         }
@@ -107,7 +108,7 @@ public class KoalaPlanner extends GraphObserver {
 		int max = Math.min(n, complyingIndexes.size());
 		for(int i = 0; i< max; i++){
 			int sel = CommonState.r.nextInt(complyingIndexes.size());
-			toRet.add((Node)g.getNode(sel));
+			toRet.add((Node)g.getNode(complyingIndexes.get(sel)));
 		}
 		return toRet;
 		

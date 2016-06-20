@@ -4,6 +4,7 @@ import java.io.PrintStream;
 
 import peersim.core.Node;
 import koala.KoalaNode;
+import koala.RenaterNode;
 
 public class RenaterNodeObserver extends NodeObserver {
 
@@ -25,11 +26,11 @@ public class RenaterNodeObserver extends NodeObserver {
 	@Override
 	protected void printGraph(PrintStream ps) {
 		for (int i = 0; i < g.size(); i++) {
-			KoalaNode current = (KoalaNode)((Node) g.getNode(i)).getProtocol(coordPid);
+			RenaterNode current = (RenaterNode)((Node) g.getNode(i)).getProtocol(pid);
             double x_to = current.getX();
             double y_to = current.getY();
             for (int index : g.getNeighbours(i)) {
-            	KoalaNode n = (KoalaNode) ((Node) g.getNode(index)).getProtocol(coordPid);
+            	RenaterNode n = (RenaterNode) ((Node) g.getNode(index)).getProtocol(pid);
                 double x_from = n.getX();
                 double y_from = n.getY();
                 String label = true ? current.getID() : "";

@@ -10,6 +10,7 @@ import peersim.core.Node;
 
 public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 
+	RenaterNode myNode;
 	public RenaterProtocol(String prefix){
 		super(prefix);
 	}
@@ -41,6 +42,11 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 	@Override
 	public boolean hasJoined() {
 		return true;
+	}
+
+	@Override
+	protected void intializeMyNode(Node node) {
+		myNode = (RenaterNode) (Linkable) node.getProtocol(linkPid);
 	}
 	
 	

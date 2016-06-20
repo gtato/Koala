@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -33,26 +34,28 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 	/**
 	 * 
 	 */
-	double logicalX;
-	double logicalY;
+//	double logicalX;
+//	double logicalY;
 	private static final long serialVersionUID = 1L;
 	private int dcID;
 	private int nodeID;
 	private String bootstrapID;
 	
-	private boolean gateway;
+//	private boolean gateway;
 //	private boolean joined;
 	private boolean isJoining;
 	private KoalaRoutingTable routingTable;
 	        
 	private HashMap<Integer, Integer> latencyPerDC = new HashMap<Integer, Integer>(); 
 	
-	private ArrayList<Node> physicalNeighbors;
-	
+//	private ArrayList<Node> physicalNeighbors;
+//	private ArrayList<LinkedList<KoalaNode>> routes;
+//	
 	public KoalaNode(String prefix) {
 		super(prefix);
 		resetRoutingTable();
-		physicalNeighbors = new ArrayList<Node>();
+//		physicalNeighbors = new ArrayList<Node>();
+//		routes = new  ArrayList<LinkedList<KoalaNode>>();
 	}
 	
 	
@@ -61,7 +64,8 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 		KoalaNode inp = null;
         inp = (KoalaNode) super.clone();
         inp.resetRoutingTable();
-        physicalNeighbors = new ArrayList<Node>();
+//        physicalNeighbors = new ArrayList<Node>();
+//        routes = new  ArrayList<LinkedList<KoalaNode>>();
         return inp;
     }
 
@@ -73,13 +77,13 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
         this.dcID = dcID;
     }
 
-    public boolean isGateway() {
-        return gateway;
-    }
-
-    public void setGateway(boolean gateway) {
-        this.gateway = gateway;
-    }
+//    public boolean isGateway() {
+//        return gateway;
+//    }
+//
+//    public void setGateway(boolean gateway) {
+//        this.gateway = gateway;
+//    }
     
     public int getNodeID() {
 		return nodeID;
@@ -140,28 +144,32 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 		return getID();
 	}
 	
-	public double getLogicalX() {
-		return logicalX;
-	}
+//	public double getLogicalX() {
+//		return logicalX;
+//	}
+//
+//
+//
+//	public void setLogicalX(double logicalX) {
+//		this.logicalX = logicalX;
+//	}
+//
+//
+//
+//	public double getLogicalY() {
+//		return logicalY;
+//	}
+//
+//
+//
+//	public void setLogicalY(double logicalY) {
+//		this.logicalY = logicalY;
+//	}
 
-
-
-	public void setLogicalX(double logicalX) {
-		this.logicalX = logicalX;
-	}
-
-
-
-	public double getLogicalY() {
-		return logicalY;
-	}
-
-
-
-	public void setLogicalY(double logicalY) {
-		this.logicalY = logicalY;
-	}
-
+	
+//	public void addPhysicalRoute(LinkedList<KoalaNode> path){
+//		routes.add(path);
+//	}
 	
 	/* The relevant methods start here */
 	
@@ -399,25 +407,29 @@ public class KoalaNode extends InetCoordinates implements Protocol, Linkable {
 
 	@Override
 	public boolean addNeighbor(Node neighbour) {
-		return physicalNeighbors.add(neighbour);
+//		if (!this.contains(neighbour))
+//			return physicalNeighbors.add(neighbour);
+		return false;
 	}
 
 	@Override
 	public boolean contains(Node neighbor) {
-		for(Node neigh : physicalNeighbors)
-			if(neigh.equals(neighbor))
-				return true;
+//		for(Node neigh : physicalNeighbors)
+//			if(neigh.equals(neighbor))
+//				return true;
 		return false;
 	}
 
 	@Override
 	public int degree() {
-		return physicalNeighbors.size();
+//		return physicalNeighbors.size();
+		return 0;
 	}
 
 	@Override
 	public Node getNeighbor(int i) {
-		return physicalNeighbors.get(i);
+//		return physicalNeighbors.get(i);
+		return null;
 	}
 
 	@Override

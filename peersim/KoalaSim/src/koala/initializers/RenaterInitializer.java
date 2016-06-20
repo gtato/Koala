@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import koala.KoalaNode;
+import koala.RenaterNode;
 import koala.utility.KoalaJsonParser;
 import koala.utility.KoalaNodeUtilities;
 import peersim.config.Configuration;
+import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
@@ -24,6 +27,7 @@ public class RenaterInitializer implements Control {
 	
 
     private static int pid;
+    private static int phid;
     
     private final String dc_file;
     
@@ -33,7 +37,7 @@ public class RenaterInitializer implements Control {
     
     public RenaterInitializer(String prefix) {
         pid = Configuration.getPid(prefix + "." + PAR_PROT);
-        
+        phid  = FastConfig.getLinkable(pid);
         
         nrDC = Configuration.getInt("NR_DC", 1);
         nrNodePerDC = Configuration.getInt("NR_NODE_PER_DC", 1);
@@ -51,7 +55,7 @@ public class RenaterInitializer implements Control {
 		KoalaNodeUtilities.initialize();
 		
 		List<String> lines = null;
-		Node n; KoalaNode node; 
+		Node n; KoalaNode koalaNode; RenaterNode renaterNode; 
         
         if(Files.exists(Paths.get(dc_file))){
         	 lines = getDcCordsFromFile();
@@ -63,6 +67,7 @@ public class RenaterInitializer implements Control {
         double[][] centerPerDC = getCenterPerDC(lines);
         int[] nodesPerDC = getNodesPerDC(true, lines);
         
+        ArrayList<RenaterNode> gateways = new ArrayList<RenaterNode>(); 
         int j, k;
         j = k = 0;
         double[] cords;
@@ -70,23 +75,36 @@ public class RenaterInitializer implements Control {
 //        assigning nodes an id and setting their coordinates according to their data-center
         for (int i = 0; i < Network.size(); i++) {
             n = Network.get(i);
-            node = (KoalaNode) n.getProtocol(pid);
+            koalaNode = (KoalaNode) n.getProtocol(pid);
+            renaterNode = (RenaterNode) n.getProtocol(phid);
             
             nodesPerDC[j]--;
-            node.setID(j, k);
-            
+            koalaNode.setID(j, k);
+            renaterNode.setID(j+"-"+k);
             k++;
             if(nodesPerDC[j] == 0){
             	cords = new double[]{centerPerDC[j][0], centerPerDC[j][1]};
-            	node.setGateway(true);
+            	//renaterNode.setGateway(true);
+            	gateways.add(renaterNode);
             	j++;
             	k=0;
             }else
             	cords = this.getRandomCirclePoint(centerPerDC[j][0], centerPerDC[j][1], distance);       
-            node.setX(cords[0]);
-            node.setY(cords[1]);
+            renaterNode.setX(cords[0]);
+            renaterNode.setY(cords[1]);
         }
         
+        for (int i = 0; i < Network.size(); i++) {
+        	n = Network.get(i);
+            renaterNode = (RenaterNode) n.getProtocol(phid);
+            for(RenaterNode gateway: gateways){
+            	if(!renaterNode.equals(gateway) && renaterNode.getID().split("-")[0].equals(gateway.getID().split("-")[0])){
+            		renaterNode.setGateway(gateway.getID());
+            		//gateways.remove(gateway);
+            		break;
+            	}
+            }
+        }
         
         return false;
 	}

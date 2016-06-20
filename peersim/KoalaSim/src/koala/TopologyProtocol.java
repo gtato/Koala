@@ -2,6 +2,7 @@ package koala;
 
 import java.util.ArrayDeque;
 
+import example.hot.InetCoordinates;
 import peersim.cdsim.CDProtocol;
 import peersim.config.FastConfig;
 import peersim.core.Linkable;
@@ -11,10 +12,10 @@ import messaging.KoalaMessage;
 
 public abstract class TopologyProtocol implements CDProtocol {
 	protected ArrayDeque<String> queue;
-	protected KoalaNode myNode = null;
-//	protected TopologyProtocol me = null;
+	protected InetCoordinates myNode = null;
+
 	
-	protected int koalaNodePid = -1;
+	protected int linkPid = -1;
 	protected int myPid = -1;
 
 	protected boolean joined;
@@ -77,12 +78,15 @@ public abstract class TopologyProtocol implements CDProtocol {
 	protected abstract void onRoute(KoalaMessage msg);
 
 	protected abstract void onRoutingTable(KoalaMessage msg);
+	
+	protected abstract void intializeMyNode(Node node);
 
 	@Override
 	public void nextCycle(Node node, int protocolID) {
 		myPid = protocolID;
-		koalaNodePid = FastConfig.getLinkable(protocolID);
-		myNode = (KoalaNode) (Linkable) node.getProtocol(koalaNodePid);
+		linkPid = FastConfig.getLinkable(protocolID);
+		intializeMyNode(node);
+		
 //		me = (TopologyProtocol) (Linkable) node.getProtocol(myPid);
 		//System.out.print(me.getID() + "  ");
 		receive();

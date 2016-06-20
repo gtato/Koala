@@ -45,7 +45,7 @@ public class KoalaNodeObserver extends NodeObserver {
 
 	private void generateGraph(){
 		for (int i = 0; i < g.size(); i++) {
-			KoalaNode each = (KoalaNode) ((Node)g.getNode(i)).getProtocol(coordPid);
+			KoalaNode each = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
         	orderedGraph.add(each);
 		}
 		
@@ -57,8 +57,8 @@ public class KoalaNodeObserver extends NodeObserver {
 		
 		for(KoalaNode each: orderedGraph){
 	    	double[] coords = getNextCoordinate(each.getID());
-			each.setLogicalX(coords[0]);
-			each.setLogicalY(coords[1]);
+			each.setX(coords[0]);
+			each.setY(coords[1]);
 		}
 		
 		graphToFile();
@@ -68,7 +68,7 @@ public class KoalaNodeObserver extends NodeObserver {
 	private void simpleReport() {
 		for (int i = 0; i < g.size(); i++) 
 		{
-			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(coordPid);
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
 			System.out.println("ID: " + current.getID() + ", bootstrap: " + current.getBootstrapID());
 			System.out.println("my neighbours are: ");
 			Set<String> neigs = current.getRoutingTable().getNeighboursIDs(); 
@@ -109,16 +109,16 @@ public class KoalaNodeObserver extends NodeObserver {
 	@Override
 	protected void printGraph(PrintStream ps) {
 		for (int i = 0; i < g.size(); i++) {
-        	KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(coordPid);
-            double x_to = current.getLogicalX();
-            double y_to = current.getLogicalY();
+        	KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+            double x_to = current.getX();
+            double y_to = current.getY();
                         
             KoalaNeighbor[] gneigs = {current.getRoutingTable().getGlobalPredecessor(), current.getRoutingTable().getGlobalSucessor()};
             for(int j = 0; j < gneigs.length; j++){
             	KoalaNode n = getNodeFromID(gneigs[j].getNodeID());
             	if(n == null) return;
-            	double x_from =  n.getLogicalX();
-                double y_from =   n.getLogicalY();
+            	double x_from =  n.getX();
+                double y_from =   n.getY();
                 String label = j==0 ? current.getID() : "";
                 ps.println(x_from + " " + y_from);
                 ps.println(x_to + " " + y_to + " " + label);

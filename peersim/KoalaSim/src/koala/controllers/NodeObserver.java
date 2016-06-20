@@ -14,10 +14,10 @@ import peersim.util.FileNameGenerator;
 
 public abstract class NodeObserver extends GraphObserver {
 
-	private static final String PAR_COORDINATES_PROT = "coord_protocol";
+	private static final String PAR_PROT = "protocol";
     private static final String PAR_FILENAME_BASE = "file_base";
 
-    protected final int coordPid;
+    protected final int pid;
     private final String graph_filename;
     private final FileNameGenerator fng;
     protected String plotScript;
@@ -25,9 +25,8 @@ public abstract class NodeObserver extends GraphObserver {
     
 	protected NodeObserver(String prefix) {
 		super(prefix);
-		coordPid = Configuration.getPid(prefix + "." + PAR_COORDINATES_PROT);
-		graph_filename = Configuration.getString(prefix + "."
-                + PAR_FILENAME_BASE, "graph_dump");
+		pid = Configuration.getPid(prefix + "." + PAR_PROT);
+		graph_filename = Configuration.getString(prefix + "."+ PAR_FILENAME_BASE, "graph_dump");
         if(graph_filename.equals("graph_dump"))
         	dumpToStd = true;
 		fng = new FileNameGenerator(graph_filename, ".dat");
@@ -69,7 +68,7 @@ public abstract class NodeObserver extends GraphObserver {
 	{
 		for (int i = 0; i < g.size(); i++) 
 		{
-			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(coordPid);
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
 			if(current.getID().equals(id))
 				return current;
 		}

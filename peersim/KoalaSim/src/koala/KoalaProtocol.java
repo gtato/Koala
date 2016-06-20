@@ -24,7 +24,7 @@ import peersim.core.Node;
 
 public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 
-		
+	KoalaNode myNode;
 	public KoalaProtocol(String prefix) {
 		super(prefix);
 	}
@@ -39,7 +39,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		if (bootstrap == null)
 			setJoined(true);
 		else{
-			KoalaNode bootstrapRn = (KoalaNode)bootstrap.getProtocol(koalaNodePid);
+			KoalaNode bootstrapRn = (KoalaNode)bootstrap.getProtocol(linkPid);
 			String bootstrapID = bootstrapRn.getID();
 			myNode.setBootstrapID( bootstrapID );
 			KoalaNeighbor first = new KoalaNeighbor(bootstrapID);
@@ -72,7 +72,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		Node each = null;
 		for (int i = 0; i < Network.size(); i++) {
             each =  Network.get(i);
-            if(((KoalaNode)each.getProtocol(koalaNodePid)).getID().equals(destinationID))
+            if(((KoalaNode)each.getProtocol(linkPid)).getID().equals(destinationID))
             	break;
 		}
 		if(each != null){
@@ -224,5 +224,11 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 	
 	public boolean hasJoined() {
 		return joined;
+	}
+
+	@Override
+	protected void intializeMyNode(Node node) {
+		myNode = (KoalaNode) (Linkable) node.getProtocol(linkPid);
+		
 	}
 }
