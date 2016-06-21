@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import koala.utility.KoalaNodeUtilities;
+import koala.utility.NodeUtilities;
 
 
 public class KoalaRoutingTable {
@@ -23,7 +23,7 @@ public class KoalaRoutingTable {
 	
 	public KoalaRoutingTable(/*String nodeID*/){
 //		this.nodeID = nodeID;
-		KoalaNeighbor defaultNeighbor = new KoalaNeighbor(KoalaNodeUtilities.DEFAULTID);
+		KoalaNeighbor defaultNeighbor = new KoalaNeighbor(NodeUtilities.DEFAULTID);
 		localPredecessor = defaultNeighbor;
 		localSucessor = defaultNeighbor;
 		globalPredecessor = defaultNeighbor;
@@ -129,7 +129,7 @@ public class KoalaRoutingTable {
         Set<String> hs = new HashSet<String>();
         
         for(int i = 0; i < neighs.length; i++)
-            if(!KoalaNodeUtilities.isDefault(neighs[i]))
+            if(!NodeUtilities.isDefault(neighs[i]))
             	hs.add(neighs[i].getNodeID());
                 
         return hs;
@@ -140,11 +140,11 @@ public class KoalaRoutingTable {
         Set<KoalaNeighbor> hs = new HashSet<KoalaNeighbor>();
         
         for(int i = 0; i < neighs.length; i++)
-            if(!KoalaNodeUtilities.isDefault(neighs[i]))
+            if(!NodeUtilities.isDefault(neighs[i]))
             	hs.add(neighs[i]);
         
         for(int i = 0; i < neighborsContainer.size(); i++)
-            if(!KoalaNodeUtilities.isDefault(neighborsContainer.get(i)))
+            if(!NodeUtilities.isDefault(neighborsContainer.get(i)))
             	hs.add(neighborsContainer.get(i));
                 
         return hs;

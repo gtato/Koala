@@ -10,7 +10,7 @@ import java.util.List;
 import koala.KoalaNode;
 import koala.RenaterNode;
 import koala.utility.KoalaJsonParser;
-import koala.utility.KoalaNodeUtilities;
+import koala.utility.NodeUtilities;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
@@ -52,7 +52,7 @@ public class RenaterInitializer implements Control {
 	public boolean execute() {
 		//initialize the gson parser
 		KoalaJsonParser.intitialize();
-		KoalaNodeUtilities.initialize();
+		NodeUtilities.initialize();
 		
 		List<String> lines = null;
 		Node n; KoalaNode koalaNode; RenaterNode renaterNode; 

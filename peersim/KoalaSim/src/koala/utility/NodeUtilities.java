@@ -1,10 +1,11 @@
 package koala.utility;
 
 import koala.KoalaNeighbor;
+import koala.RenaterNode;
 import peersim.config.Configuration;
 import peersim.core.Node;
 
-public class KoalaNodeUtilities {
+public class NodeUtilities {
 	public static final String DEFAULTID = "xxx";
 	
 	public static double A = 0;
@@ -60,7 +61,7 @@ public class KoalaNodeUtilities {
 	}
 	
 	public static boolean isDefault(KoalaNeighbor n){
-		return n == null || n.getNodeID() == KoalaNodeUtilities.DEFAULTID;
+		return n == null || n.getNodeID() == NodeUtilities.DEFAULTID;
 	}
 	
 	public static int compare(String id1, String id2){
@@ -79,7 +80,7 @@ public class KoalaNodeUtilities {
 	public static double normalizeLatency(int totDistance, int latency) {
 		double x1 = 1;
         double y1 = 1;
-        double x2 = KoalaNodeUtilities.MAX_INTER_LATENCY;
+        double x2 = NodeUtilities.MAX_INTER_LATENCY;
         double y2 = (double) 1 / totDistance;
 
         double sl = (double) (y2-y1)/(x2 - x1);
@@ -88,5 +89,28 @@ public class KoalaNodeUtilities {
         return y;
 	}
 	
+	public static double getPhysicalDistance(RenaterNode first, RenaterNode second) {
+        double x1 = first.getX();
+        double x2 = second.getX();
+        double y1 = first.getY();
+        double y2 = second.getY();
+        if (x1 == -1 || x2 == -1 || y1 == -1 || y2 == -1)
+        // NOTE: in release 1.0 the line above incorrectly contains
+        // |-s instead of ||. Use latest CVS version, or fix it by hand.
+            throw new RuntimeException(
+                    "Found un-initialized coordinate. Use e.g.,InetInitializer class in the config file.");
+        double distance = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+        distance = Math.round(distance * 100000.0) / 100.0; //in km
+        return distance; 
+    }
+	
+	public static double[] getCoordinatesBetweenTwoPoints(double[] p1, double[] p2){
+		double[] cords = new double[2];
+		double minX = Math.min(p1[0], p2[0]);
+		double minY = Math.min(p1[1], p2[1]);
+		cords[0] = minX + Math.abs(p1[0] - p2[0])/2;
+		cords[1] = minY + Math.abs(p1[1] - p2[1])/2;
+		return cords;
+	}
 	
 }

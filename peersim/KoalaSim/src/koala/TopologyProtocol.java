@@ -6,13 +6,15 @@ import example.hot.InetCoordinates;
 import peersim.cdsim.CDProtocol;
 import peersim.config.FastConfig;
 import peersim.core.Linkable;
+import peersim.core.Network;
 import peersim.core.Node;
+import koala.utility.ErrorDetection;
 import koala.utility.KoalaJsonParser;
 import messaging.KoalaMessage;
 
 public abstract class TopologyProtocol implements CDProtocol {
 	protected ArrayDeque<String> queue;
-	protected InetCoordinates myNode = null;
+	protected TopologyNode myNode = null;
 
 	
 	protected int linkPid = -1;
@@ -81,6 +83,28 @@ public abstract class TopologyProtocol implements CDProtocol {
 	
 	protected abstract void intializeMyNode(Node node);
 
+	public void send(String destinationID, KoalaMessage msg)
+	{
+		Node each = null;
+		for (int i = 0; i < Network.size(); i++) {
+            each =  Network.get(i);
+            if(((KoalaNode)each.getProtocol(linkPid)).getID().equals(destinationID))
+            	break;
+		}
+		if(each != null){
+			if(ErrorDetection.hasLoopCommunication(myNode.getID(),destinationID))
+				System.out.println("problems in horizont");
+				
+//			System.out.println(me.getID() +"->"+ destinationID);
+			msg.setRandomLatency(myNode.getID(), destinationID);
+			msg.addToPath(destinationID);
+			((KoalaProtocol)each.getProtocol(myPid)).registerMsg(msg);
+			/*TODO: uncomment this later*/
+//			((KoalaProtocol)each.getProtocol(koalaPid)).receive();
+		}
+	}
+	
+	
 	@Override
 	public void nextCycle(Node node, int protocolID) {
 		myPid = protocolID;

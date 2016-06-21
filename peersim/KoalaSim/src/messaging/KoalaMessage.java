@@ -17,7 +17,7 @@ import com.google.gson.JsonSerializer;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import koala.utility.KoalaJsonParser;
-import koala.utility.KoalaNodeUtilities;
+import koala.utility.NodeUtilities;
 
 public class KoalaMessage {
 	public static final int RT = 0;
@@ -104,16 +104,16 @@ public class KoalaMessage {
 	}
 	
 	public void setRandomLatency(String sourceID, String destID){
-        int sDC = KoalaNodeUtilities.getDCID(sourceID);
-        int dDC = KoalaNodeUtilities.getDCID(destID);
+        int sDC = NodeUtilities.getDCID(sourceID);
+        int dDC = NodeUtilities.getDCID(destID);
 
         Random random = new Random(sDC*dDC);
         int min, max;
          
         if (sDC == dDC){
-            min = 5; max = KoalaNodeUtilities.MAX_INTRA_LATENCY;
+            min = 5; max = NodeUtilities.MAX_INTRA_LATENCY;
         }else{
-        	min = KoalaNodeUtilities.MAX_INTRA_LATENCY; max = KoalaNodeUtilities.MAX_INTER_LATENCY;
+        	min = NodeUtilities.MAX_INTRA_LATENCY; max = NodeUtilities.MAX_INTER_LATENCY;
         }
         
         latency = random.nextInt((max - min) + 1) + min;

@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import peersim.core.Node;
 import koala.KoalaNode;
 import koala.RenaterNode;
+import koala.utility.NodeUtilities;
 
 public class RenaterNodeObserver extends NodeObserver {
 
@@ -33,9 +34,17 @@ public class RenaterNodeObserver extends NodeObserver {
             	RenaterNode n = (RenaterNode) ((Node) g.getNode(index)).getProtocol(pid);
                 double x_from = n.getX();
                 double y_from = n.getY();
-                String label = true ? current.getID() : "";
+                String label = true ? current.getID() : ".";
                 ps.println(x_from + " " + y_from);
-                ps.println(x_to + " " + y_to + " " + label);
+                String secondLine = x_to + " " + y_to + " " + label; 
+                if(current.isGateway() && n.isGateway()){
+                	double[] p1 = new double[]{x_from,  y_from};
+                	double[] p2 = new double[]{x_to,  y_to};
+                	double[] middle = NodeUtilities.getCoordinatesBetweenTwoPoints(p1,p2); 
+                	double distance = NodeUtilities.getPhysicalDistance(current, n);
+                	secondLine += " " + middle[0] + " " + middle[1] + " " + distance; 
+                }
+                ps.println(secondLine);
                 ps.println();
             }
         }

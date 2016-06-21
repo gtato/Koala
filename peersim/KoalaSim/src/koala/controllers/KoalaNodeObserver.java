@@ -9,7 +9,7 @@ import java.util.Set;
 
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
-import koala.utility.KoalaNodeUtilities;
+import koala.utility.NodeUtilities;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Node;
@@ -52,7 +52,7 @@ public class KoalaNodeObserver extends NodeObserver {
 		Collections.sort(orderedGraph, new Comparator<KoalaNode>(){
 			@Override
 			public int compare(KoalaNode arg0, KoalaNode arg1) {
-				return KoalaNodeUtilities.compare(arg0.getID(), arg1.getID());
+				return NodeUtilities.compare(arg0.getID(), arg1.getID());
 			}});
 		
 		for(KoalaNode each: orderedGraph){
@@ -80,7 +80,7 @@ public class KoalaNodeObserver extends NodeObserver {
 	}
 	
 	private double[] getNextCoordinate(String id){
-		int dc_id = koala.utility.KoalaNodeUtilities.getDCID(id);
+		int dc_id = koala.utility.NodeUtilities.getDCID(id);
 		double radius = 0.5;
 		double[] center = {radius, radius};
 		double unitangle = 2*Math.PI/Configuration.getInt("NR_DC");

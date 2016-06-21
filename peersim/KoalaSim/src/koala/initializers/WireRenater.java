@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import koala.KoalaNode;
 import koala.RenaterNode;
 import koala.utility.Dijkstra;
+import koala.utility.NodeUtilities;
 import koala.utility.Dijkstra.Edge;
 import peersim.config.Configuration;
 import peersim.core.Network;
@@ -38,8 +39,7 @@ public class WireRenater extends WireGraph {
 		ArrayList<RenaterNode> gateways = new ArrayList<RenaterNode>();
 		ArrayList<Integer> gateway_cords = new ArrayList<Integer>();
 		for (int i = Network.size()-1; i >= 0; i--) {
-            Node n = (Node) g.getNode(i);
-//            RenaterNode kn = (RenaterNode)n.getProtocol(coordPid);
+            Node n = (Node) g.getNode(i);            
             RenaterNode rn = (RenaterNode)n.getProtocol(pid);
             if(rn.isGateway()){
             	gateways.add(rn);
@@ -59,7 +59,7 @@ public class WireRenater extends WireGraph {
 			ArrayList<AbstractMap.SimpleEntry<Integer, Double>> dists = new ArrayList<AbstractMap.SimpleEntry<Integer, Double>>();
 			for(int j = 0; j < gateways.size(); j++){
 				if(i != j)
-					dists.add(new AbstractMap.SimpleEntry<Integer, Double>(gateway_cords.get(j), this.distance(gateways.get(i), gateways.get(j))));
+					dists.add(new AbstractMap.SimpleEntry<Integer, Double>(gateway_cords.get(j), NodeUtilities.getPhysicalDistance(gateways.get(i), gateways.get(j))));
 			}
 			distances.add(dists);
 		}
@@ -74,12 +74,12 @@ public class WireRenater extends WireGraph {
 			}
 			});
 			
-			Node n = (Node)g.getNode(i);
+			Node n = (Node)g.getNode(gateway_cords.get(i));
 			RenaterNode kn = (RenaterNode) n.getProtocol(pid);
 			
 			for(int j=0; j < dists.size() && j<k; j++)
 			{
-				Node m = (Node)g.getNode(j);
+				Node m = (Node)g.getNode(dists.get(j).getKey());
 				RenaterNode km = (RenaterNode) m.getProtocol(pid);
 				kn.addNeighbor(m);
 				km.addNeighbor(n);
@@ -130,7 +130,7 @@ public class WireRenater extends WireGraph {
 			
 			for (int j = 0; j < kn.degree(); j++) {
 				RenaterNode km = (RenaterNode) kn.getNeighbor(j).getProtocol(pid);
-				dg.addEdge(i+":"+j, kn, km, distance(kn, km));
+				dg.addEdge(i+":"+j, kn, km, NodeUtilities.getPhysicalDistance(kn, km));
 			}
 		}
 		
@@ -141,18 +141,6 @@ public class WireRenater extends WireGraph {
 		
 	}
 	
-	private double distance(RenaterNode first, RenaterNode second) {
-        double x1 = first.getX();
-        double x2 = second.getX();
-        double y1 = first.getY();
-        double y2 = second.getY();
-        if (x1 == -1 || x2 == -1 || y1 == -1 || y2 == -1)
-        // NOTE: in release 1.0 the line above incorrectly contains
-        // |-s instead of ||. Use latest CVS version, or fix it by hand.
-            throw new RuntimeException(
-                    "Found un-initialized coordinate. Use e.g.,InetInitializer class in the config file.");
-        return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-    }
 	
 
 //	public static void main(String[] args){

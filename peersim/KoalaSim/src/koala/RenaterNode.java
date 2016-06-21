@@ -9,10 +9,9 @@ import peersim.core.Node;
 import peersim.core.Protocol;
 import example.hot.InetCoordinates;
 
-public class RenaterNode extends InetCoordinates implements Protocol, Linkable {
+public class RenaterNode extends TopologyNode{
 
 	private String gateway;
-	private String id;
 	
 	private ArrayList<Node> neighbors;
 	private HashMap<String, String> routes;
@@ -41,13 +40,7 @@ public class RenaterNode extends InetCoordinates implements Protocol, Linkable {
         this.gateway = gateway;
     }
 
-    public String getID() {
-		return id;
-	}
-
-	public void setID(String id) {
-		this.id = id;
-	}
+    
     
 	public void addRoute(String dest, String next ){
 		routes.put(dest, next);
@@ -104,6 +97,5 @@ public class RenaterNode extends InetCoordinates implements Protocol, Linkable {
 
 	public String toString(){
 		return getID();
-		
 	}
 }
