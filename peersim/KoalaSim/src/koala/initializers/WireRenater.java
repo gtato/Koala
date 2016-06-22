@@ -6,18 +6,23 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import koala.KoalaNode;
+import koala.RenaterEdge;
 import koala.RenaterNode;
 import koala.utility.Dijkstra;
 import koala.utility.NodeUtilities;
 import koala.utility.Dijkstra.Edge;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.dynamics.WireGraph;
+import peersim.graph.FastUndirGraph;
 import peersim.graph.Graph;
+import koala.RenaterGraph;
 
 public class WireRenater extends WireGraph {
 
@@ -27,14 +32,18 @@ public class WireRenater extends WireGraph {
 	private final int pid;
 	private final int k;
 	
+	
+	
 	public WireRenater(String prefix) {
 		super(prefix);
 		pid = Configuration.getPid(prefix + "." + PAR_PROT);
 		k = Configuration.getInt(prefix + "." + PAR_K);
+		g = new RenaterGraph(pid,false);
 	}
 
 	@Override
 	public void wire(Graph g) {
+		
 		int centerIndex = -1;
 		ArrayList<RenaterNode> gateways = new ArrayList<RenaterNode>();
 		ArrayList<Integer> gateway_cords = new ArrayList<Integer>();
@@ -48,9 +57,9 @@ public class WireRenater extends WireGraph {
             }else{
             	Node m = (Node) g.getNode(centerIndex);
                 RenaterNode rm = (RenaterNode)m.getProtocol(pid);
-                rn.addNeighbor(m);
-				rm.addNeighbor(n);
-            	g.setEdge(i, centerIndex);
+//                rn.addNeighbor(m);
+//				rm.addNeighbor(n);
+            	((RenaterGraph)g).setEdge(i, centerIndex, new RenaterEdge(2e-2,getBitRate(), getSpeed()));
             }
 		}
 		
@@ -81,10 +90,10 @@ public class WireRenater extends WireGraph {
 			{
 				Node m = (Node)g.getNode(dists.get(j).getKey());
 				RenaterNode km = (RenaterNode) m.getProtocol(pid);
-				kn.addNeighbor(m);
-				km.addNeighbor(n);
-				g.setEdge(gateway_cords.get(i), dists.get(j).getKey());
-
+				//kn.addNeighbor(m);
+				//km.addNeighbor(n);
+				RenaterEdge re = new RenaterEdge(dists.get(j).getValue(), getBitRate(), getSpeed());
+				((RenaterGraph)g).setEdge(gateway_cords.get(i), dists.get(j).getKey(), re);
 				
 			}
 		}
@@ -135,13 +144,23 @@ public class WireRenater extends WireGraph {
 		}
 		
 		return new Dijkstra(dg);
-		
-		
-		
-		
 	}
 	
+	private double getBitRate(){
+		double[] bitrates = {1e9, 2.5e9, 10e9};
+		int rand = CommonState.r.nextInt(100);
+		if(rand < 90)
+			return bitrates[2];
+		else if(rand >= 90 && rand < 97)
+			return bitrates[1];
+		else
+			return bitrates[0];
+	}
 	
+	private double getSpeed(){
+		double[] speeds = {2e8, 3e8};
+		return speeds[1];
+	}
 
 //	public static void main(String[] args){
 //		ArrayList<AbstractMap.SimpleEntry<Integer, Double>> dists = new ArrayList<AbstractMap.SimpleEntry<Integer, Double>>();

@@ -14,6 +14,7 @@ public class RenaterNode extends TopologyNode{
 	private String gateway;
 	
 	private ArrayList<Node> neighbors;
+	private HashMap<Integer, RenaterEdge> edges;
 	private HashMap<String, String> routes;
 	
 	
@@ -22,6 +23,7 @@ public class RenaterNode extends TopologyNode{
 		super(prefix);
 		neighbors = new ArrayList<Node>();
         routes = new  HashMap<String, String>();
+        edges = new  HashMap<Integer, RenaterEdge>();
 	}
 	
 	public Object clone() {
@@ -66,11 +68,22 @@ public class RenaterNode extends TopologyNode{
 
 	@Override
 	public boolean addNeighbor(Node neighbour) {
-		if (!this.contains(neighbour))
+		if (!neighbors.contains(neighbour))
 			return neighbors.add(neighbour);
 		return false;
 	}
 
+	public boolean addEdge(int index, RenaterEdge edge) {
+		edges.put(index, edge);
+		return true;
+	}
+	
+	public RenaterEdge getEdge(int index) {
+		if(edges.containsKey(index))
+			return edges.get(index);
+		return null;
+	}
+	
 	@Override
 	public boolean contains(Node neighbor) {
 		for(Node neigh : neighbors)
