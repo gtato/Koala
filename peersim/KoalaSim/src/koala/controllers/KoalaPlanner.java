@@ -7,33 +7,43 @@ import messaging.KoalaMsgContent;
 import messaging.KoalaRouteMsgContent;
 import koala.KoalaNode;
 import koala.KoalaProtocol;
+import koala.RenaterNode;
 import koala.RenaterProtocol;
+import koala.TopologyNode;
 import koala.TopologyProtocol;
 import peersim.config.Configuration;
+import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Node;
 import peersim.reports.GraphObserver;
 
 public class KoalaPlanner extends GraphObserver {
 
-	private static final String PAR_TARGET_LPROT = "log_protocol";
-	private static final String PAR_TARGET_PPROT = "phys_protocol";
-	private static final String PAR_TARGET_NODE = "protocol";
-	private final int targetLogProtPid;
-	private final int targetPhysProtPid;
-	private final int targetNodePid;
-	private KoalaMessage joinMsg;
+
+	private static final String PAR_KOALA_PROTOCOL= "kprotocol";
+	private static final String PAR_RENATER_PROTOCOL= "protocol";
 	
+	private final int renProtPid;
+	private final int renNodePid;
+	private final int koaProtPid;
+	private final int koaNodePid;
+	
+	private KoalaMessage joinMsg;
 	
 	
 	public KoalaPlanner(String prefix) {
 		super(prefix);
-		targetPhysProtPid = Configuration.getPid(prefix + "." + PAR_TARGET_PPROT, -1);
-		targetLogProtPid = Configuration.getPid(prefix + "." + PAR_TARGET_LPROT, -1);
 		
-		targetNodePid = Configuration.getPid(prefix + "." + PAR_TARGET_NODE);
+		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
+		renNodePid = FastConfig.getLinkable(renProtPid);
+		
+		koaProtPid = Configuration.getPid(prefix + "." + PAR_KOALA_PROTOCOL, -1);
+		if(koaProtPid > -1)
+			koaNodePid = FastConfig.getLinkable(koaProtPid);
+		else
+			koaNodePid = -1;
+		
 		joinMsg = new KoalaMessage("", new KoalaMsgContent(KoalaMessage.JOIN));
-		
 	}
 
 	@Override
@@ -50,20 +60,20 @@ public class KoalaPlanner extends GraphObserver {
 		return false;
 	}
 
-	private void joinNodes() {
-		ArrayList<Node> nodes = getRandomNodes(1, false);
-		for(Node node : nodes){
-			if(targetLogProtPid > 0){
-				KoalaProtocol koatProt = (KoalaProtocol) node.getProtocol(targetLogProtPid);
-				koatProt.registerMsg(joinMsg);
-			}
-			
-			if(targetPhysProtPid > 0){
-	        	RenaterProtocol retProt = (RenaterProtocol) node.getProtocol(targetPhysProtPid);
-	        	retProt.registerMsg(joinMsg);
-			}
-		}
-	}
+//	private void joinNodes() {
+//		ArrayList<Node> nodes = getRandomNodes(1, false);
+//		for(Node node : nodes){
+//			if(targetLogProtPid > 0){
+//				KoalaProtocol koatProt = (KoalaProtocol) node.getProtocol(targetLogProtPid);
+//				koatProt.registerMsg(joinMsg);
+//			}
+//			
+//			if(targetPhysProtPid > 0){
+//	        	RenaterProtocol retProt = (RenaterProtocol) node.getProtocol(targetPhysProtPid);
+//	        	retProt.registerMsg(joinMsg);
+//			}
+//		}
+//	}
 	
 	
 	private void route() {
@@ -75,15 +85,15 @@ public class KoalaPlanner extends GraphObserver {
 		
 		for(int i = 0; i < count; i++){
 			Node src = sources.get(i);
-			KoalaNode dest = (KoalaNode)dests.get(i).getProtocol(targetNodePid);
+			TopologyNode dest = koaProtPid >= 0 ? (KoalaNode)dests.get(i).getProtocol(koaNodePid) : (RenaterNode)dests.get(i).getProtocol(renNodePid);
 			
-			if(targetLogProtPid > 0){
-				KoalaProtocol koatProt = (KoalaProtocol) src.getProtocol(targetLogProtPid);
+			if(koaProtPid > 0){
+				KoalaProtocol koatProt = (KoalaProtocol) src.getProtocol(koaProtPid);
 				koatProt.registerMsg(new KoalaMessage("", new KoalaRouteMsgContent(dest.getID())));
 			}
 			
-			if(targetPhysProtPid > 0){
-	        	RenaterProtocol retProt = (RenaterProtocol) src.getProtocol(targetPhysProtPid);
+			if(renProtPid > 0){
+	        	RenaterProtocol retProt = (RenaterProtocol) src.getProtocol(renProtPid);
 	        	retProt.registerMsg(new KoalaMessage("", new KoalaRouteMsgContent(dest.getID())));
 			}
 		}
@@ -97,7 +107,7 @@ public class KoalaPlanner extends GraphObserver {
 		ArrayList<Node> toRet = new ArrayList<Node>();
 		ArrayList<Integer> complyingIndexes = new ArrayList<Integer>();
 		for (int i = 0; i < g.size(); i++) {
-        	int id = targetLogProtPid > 0 ? targetLogProtPid : targetPhysProtPid;
+        	int id = koaProtPid >= 0 ? koaProtPid : renProtPid;
 			TopologyProtocol currentNode = (TopologyProtocol)((Node)g.getNode(i)).getProtocol(id);
         	boolean cond = joined ? currentNode.hasJoined() : !currentNode.hasJoined();
 //        	if(cond && ((KoalaNode)((Node)g.getNode(i)).getProtocol(targetNodePid)).isGateway()  )

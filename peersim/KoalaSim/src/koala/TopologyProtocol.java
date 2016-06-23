@@ -81,14 +81,16 @@ public abstract class TopologyProtocol implements CDProtocol {
 
 	protected abstract void onRoutingTable(KoalaMessage msg);
 	
-	protected abstract void intializeMyNode(Node node);
+	protected void intializeMyNode(Node node){
+		myNode = (TopologyNode) (Linkable) node.getProtocol(linkPid);
+	}
 
 	public void send(String destinationID, KoalaMessage msg)
 	{
 		Node each = null;
 		for (int i = 0; i < Network.size(); i++) {
             each =  Network.get(i);
-            if(((KoalaNode)each.getProtocol(linkPid)).getID().equals(destinationID))
+            if(((TopologyNode)each.getProtocol(linkPid)).getID().equals(destinationID))
             	break;
 		}
 		if(each != null){
@@ -98,7 +100,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 //			System.out.println(me.getID() +"->"+ destinationID);
 			msg.setRandomLatency(myNode.getID(), destinationID);
 			msg.addToPath(destinationID);
-			((KoalaProtocol)each.getProtocol(myPid)).registerMsg(msg);
+			registerMsg(msg);
 			/*TODO: uncomment this later*/
 //			((KoalaProtocol)each.getProtocol(koalaPid)).receive();
 		}

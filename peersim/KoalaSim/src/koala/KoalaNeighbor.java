@@ -6,7 +6,7 @@ package koala;
 public class KoalaNeighbor{
 
 	private String nodeID;
-	private int latency = -1;
+	private double latency = -1;
 	private int latencyQuality = -1;
 
 	public KoalaNeighbor(String nodeID) {
@@ -15,14 +15,14 @@ public class KoalaNeighbor{
 		
 	}
 	
-	public KoalaNeighbor(String nodeID, int latency, int latencyQuality) {
+	public KoalaNeighbor(String nodeID, double latency, int latencyQuality) {
 		super();
 		this.nodeID = nodeID;
 		this.latency = latency;
 		this.latencyQuality = latencyQuality;
 	}
 	
-	public KoalaNeighbor(String nodeID, int latency) {
+	public KoalaNeighbor(String nodeID, double latency) {
 		super();
 		this.nodeID = nodeID;
 		this.latency = latency;
@@ -37,11 +37,11 @@ public class KoalaNeighbor{
 		this.nodeID = nodeID;
 	}
 	
-	public int getLatency() {
+	public double getLatency() {
 		return latency;
 	}
 	
-	public void setLatency(int latency) {
+	public void setLatency(double latency) {
 		this.latency = latency;
 	}
 	

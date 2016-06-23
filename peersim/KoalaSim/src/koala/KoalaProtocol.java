@@ -136,7 +136,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 			if(selfJoining && myNode.isLocal(sender.getID()))
 				dcsBefore.add(NodeUtilities.getDCID(recNeighbor.getNodeID()));
 
-			int l = isSource ? msg.getLatency() : recNeighbor.getLatency();
+			double l = isSource ? msg.getLatency() : recNeighbor.getLatency();
 			int lq = myNode.getLatencyQuality(isSource, sender.getID(), recNeighbor);
 			
             int res  = myNode.tryAddNeighbour(new KoalaNeighbor(recNeighbor.getNodeID(), l, lq));
@@ -208,6 +208,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 
 	@Override
 	protected void intializeMyNode(Node node) {
+		super.intializeMyNode(node);
 		myNode = (KoalaNode) (Linkable) node.getProtocol(linkPid);
 		
 	}

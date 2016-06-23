@@ -31,7 +31,7 @@ public class KoalaMessage {
 	private KoalaMsgContent content;
 	/*if set to true, it means that you shouldn't share it with the rest of the DC*/
 	private boolean confidential;
-	private int latency;
+	private double latency;
 	private String source;
 	private ArrayList<String> path = new ArrayList<String>();	
 	
@@ -75,11 +75,11 @@ public class KoalaMessage {
 		this.content = msgContent;
 	}
 	
-	public int getLatency() {
+	public double getLatency() {
 		return latency;
 	}
 
-	public void setLatency(int latency) {
+	public void setLatency(double latency) {
 		this.latency = latency;
 	}
 	
@@ -164,7 +164,7 @@ public class KoalaMessage {
 			km.setSource(srcJO.get("source").getAsString());
 			km.setType(srcJO.get("type").getAsInt());
 			km.setConfidential(srcJO.get("confidential").getAsBoolean());
-			km.setLatency(srcJO.get("latency").getAsInt());
+			km.setLatency(srcJO.get("latency").getAsDouble());
 			
 			
 			JsonArray jpath = srcJO.getAsJsonArray("path");

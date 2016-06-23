@@ -44,7 +44,7 @@ public class RenaterEdge {
 	}
 
 	public double getLatency() {
-		return latency;
+		return latency; 
 	}
 
 	public void calculateLatency(){
@@ -52,7 +52,8 @@ public class RenaterEdge {
 		double tranmissionTime = (double) ((packetSize * 8)/bitrate);
 		double propagationTime = (double) ((distance * 1000)/speed);
 		latency = tranmissionTime  + propagationTime;
-		latency *= 1000;
+//		latency *= 1000;
+		latency = Math.round(latency * 100000.0) / 100.0; //in milliseconds
 	}
 	
 	public String getTo() {

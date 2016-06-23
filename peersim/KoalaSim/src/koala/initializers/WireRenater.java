@@ -46,13 +46,13 @@ public class WireRenater extends WireGraph {
 		
 		int centerIndex = -1;
 		ArrayList<RenaterNode> gateways = new ArrayList<RenaterNode>();
-		ArrayList<Integer> gateway_cords = new ArrayList<Integer>();
+		ArrayList<Integer> gateway_indexes = new ArrayList<Integer>();
 		for (int i = Network.size()-1; i >= 0; i--) {
             Node n = (Node) g.getNode(i);            
             RenaterNode rn = (RenaterNode)n.getProtocol(pid);
             if(rn.isGateway()){
             	gateways.add(rn);
-            	gateway_cords.add(i);
+            	gateway_indexes.add(i);
             	centerIndex = i;
             }else{
             	Node m = (Node) g.getNode(centerIndex);
@@ -68,7 +68,7 @@ public class WireRenater extends WireGraph {
 			ArrayList<AbstractMap.SimpleEntry<Integer, Double>> dists = new ArrayList<AbstractMap.SimpleEntry<Integer, Double>>();
 			for(int j = 0; j < gateways.size(); j++){
 				if(i != j)
-					dists.add(new AbstractMap.SimpleEntry<Integer, Double>(gateway_cords.get(j), NodeUtilities.getPhysicalDistance(gateways.get(i), gateways.get(j))));
+					dists.add(new AbstractMap.SimpleEntry<Integer, Double>(gateway_indexes.get(j), NodeUtilities.getPhysicalDistance(gateways.get(i), gateways.get(j))));
 			}
 			distances.add(dists);
 		}
@@ -83,7 +83,7 @@ public class WireRenater extends WireGraph {
 			}
 			});
 			
-			Node n = (Node)g.getNode(gateway_cords.get(i));
+			Node n = (Node)g.getNode(gateway_indexes.get(i));
 			RenaterNode kn = (RenaterNode) n.getProtocol(pid);
 			
 			for(int j=0; j < dists.size() && j<k; j++)
@@ -93,29 +93,43 @@ public class WireRenater extends WireGraph {
 				//kn.addNeighbor(m);
 				//km.addNeighbor(n);
 				RenaterEdge re = new RenaterEdge(dists.get(j).getValue(), getBitRate(), getSpeed());
-				((RenaterGraph)g).setEdge(gateway_cords.get(i), dists.get(j).getKey(), re);
+				((RenaterGraph)g).setEdge(gateway_indexes.get(i), dists.get(j).getKey(), re);
 				
 			}
 		}
 		
-		Dijkstra dijkstra = initializeDijkstra(g, gateway_cords);
-		for (int i = 0; i < Network.size(); i++) {
-			Node n = (Node) g.getNode(i);
+		Dijkstra dijkstra = initializeDijkstra(g, gateway_indexes);
+		
+		for (int i = 0; i < gateway_indexes.size(); i++) {
+			Node n = (Node) g.getNode(gateway_indexes.get(i));
             RenaterNode rn = (RenaterNode)n.getProtocol(pid);
-            if(rn.isGateway()){
-            	dijkstra.execute(rn);
-            	for (int j = 0; j < Network.size(); j++) {
-            		Node m = (Node) g.getNode(j);
-                    RenaterNode rm = (RenaterNode)m.getProtocol(pid);
-            		if (rm.isGateway() && !n.equals(m)){
-            			LinkedList<RenaterNode> path = dijkstra.getPath(rm);
-            			rn.addRoute(rm.getID(), path.get(1).getID());
-            		}
-            	}
-            }
+        	dijkstra.execute(rn);
+        	for (int j = 0; j < gateway_indexes.size(); j++) {
+        		if (i==j) continue;
+        		Node m = (Node) g.getNode(gateway_indexes.get(j));
+                RenaterNode rm = (RenaterNode)m.getProtocol(pid);
+        		
+    			LinkedList<RenaterNode> path = dijkstra.getPath(rm);
+    			rn.addRoute(rm.getID(), path.get(1).getID());
+        	}
             
-            	
 		}
+		
+//		for (int i = 0; i < Network.size(); i++) {
+//			Node n = (Node) g.getNode(i);
+//            RenaterNode rn = (RenaterNode)n.getProtocol(pid);
+//            if(rn.isGateway()){
+//            	dijkstra.execute(rn);
+//            	for (int j = 0; j < Network.size(); j++) {
+//            		Node m = (Node) g.getNode(j);
+//                    RenaterNode rm = (RenaterNode)m.getProtocol(pid);
+//            		if (rm.isGateway() && !n.equals(m)){
+//            			LinkedList<RenaterNode> path = dijkstra.getPath(rm);
+//            			rn.addRoute(rm.getID(), path.get(1).getID());
+//            		}
+//            	}
+//            }
+//		}
 	         
 
 	}
@@ -139,7 +153,9 @@ public class WireRenater extends WireGraph {
 			
 			for (int j = 0; j < kn.degree(); j++) {
 				RenaterNode km = (RenaterNode) kn.getNeighbor(j).getProtocol(pid);
-				dg.addEdge(i+":"+j, kn, km, NodeUtilities.getPhysicalDistance(kn, km));
+				RenaterEdge re = kn.getEdge(km.getID());
+//				dg.addEdge(i+":"+j, kn, km, NodeUtilities.getPhysicalDistance(kn, km));
+				dg.addEdge(i+":"+j, kn, km, re.getLatency());
 			}
 		}
 		

@@ -77,7 +77,7 @@ public class NodeUtilities {
     	return new Integer(getDCID(id1)).compareTo(new Integer(getDCID(id2)));
     }
 
-	public static double normalizeLatency(int totDistance, int latency) {
+	public static double normalizeLatency(int totDistance, double latency) {
 		double x1 = 1;
         double y1 = 1;
         double x2 = NodeUtilities.MAX_INTER_LATENCY;

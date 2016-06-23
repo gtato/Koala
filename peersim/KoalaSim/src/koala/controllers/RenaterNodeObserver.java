@@ -24,7 +24,7 @@ public class RenaterNodeObserver extends NodeObserver {
 
 	@Override
 	public boolean execute() {
-		updateGraph();
+		//updateGraph();
 		super.g = new RenaterGraph(pid,false);
 		graphToFile();
 		plotIt();
@@ -50,8 +50,8 @@ public class RenaterNodeObserver extends NodeObserver {
                 	double[] middle = NodeUtilities.getCoordinatesBetweenTwoPoints(p1,p2); 
                 	double distance = NodeUtilities.getPhysicalDistance(current, n);
                 	RenaterEdge re = (RenaterEdge) ((RenaterGraph)g).getEdge(i, index);
-//                	secondLine += " " + middle[0] + " " + middle[1] + " " + re.getLatency();
-                	secondLine += " " + middle[0] + " " + middle[1] + " " + distance;
+                	secondLine += " " + middle[0] + " " + middle[1] + " " + re.getLatency();
+//                	secondLine += " " + middle[0] + " " + middle[1] + " " + distance;
                 }
                 ps.println(secondLine);
                 ps.println();

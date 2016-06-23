@@ -14,7 +14,7 @@ public class RenaterNode extends TopologyNode{
 	private String gateway;
 	
 	private ArrayList<Node> neighbors;
-	private HashMap<Integer, RenaterEdge> edges;
+	private HashMap<String, RenaterEdge> edges;
 	private HashMap<String, String> routes;
 	
 	
@@ -23,7 +23,7 @@ public class RenaterNode extends TopologyNode{
 		super(prefix);
 		neighbors = new ArrayList<Node>();
         routes = new  HashMap<String, String>();
-        edges = new  HashMap<Integer, RenaterEdge>();
+        edges = new  HashMap<String, RenaterEdge>();
 	}
 	
 	public Object clone() {
@@ -31,6 +31,7 @@ public class RenaterNode extends TopologyNode{
         inp = (RenaterNode) super.clone();
         neighbors = new ArrayList<Node>();
         routes = new  HashMap<String, String>();
+        edges = new  HashMap<String, RenaterEdge>();
         return inp;
     }
 	
@@ -53,7 +54,7 @@ public class RenaterNode extends TopologyNode{
 			return routes.get(dest);
 		for(String key : routes.keySet()){
 			if(key.split("-")[0].equals(dest.split("-")[0]))
-				return routes.get(dest);
+				return routes.get(key);
 		}
 		if(!isGateway())
 			return gateway;
@@ -73,12 +74,12 @@ public class RenaterNode extends TopologyNode{
 		return false;
 	}
 
-	public boolean addEdge(int index, RenaterEdge edge) {
-		edges.put(index, edge);
+	public boolean addEdge(String nodeID, RenaterEdge edge) {
+		edges.put(nodeID, edge);
 		return true;
 	}
 	
-	public RenaterEdge getEdge(int index) {
+	public RenaterEdge getEdge(String index) {
 		if(edges.containsKey(index))
 			return edges.get(index);
 		return null;

@@ -49,6 +49,7 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 
 	@Override
 	protected void intializeMyNode(Node node) {
+		super.intializeMyNode(node);
 		myNode = (RenaterNode) (Linkable) node.getProtocol(linkPid);
 	}
 	
