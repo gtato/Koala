@@ -85,16 +85,21 @@ public class KoalaPlanner extends GraphObserver {
 		
 		for(int i = 0; i < count; i++){
 			Node src = sources.get(i);
+			TopologyNode sourc = koaProtPid >= 0 ? (KoalaNode)sources.get(i).getProtocol(koaNodePid) : (RenaterNode)sources.get(i).getProtocol(renNodePid);
 			TopologyNode dest = koaProtPid >= 0 ? (KoalaNode)dests.get(i).getProtocol(koaNodePid) : (RenaterNode)dests.get(i).getProtocol(renNodePid);
 			
 			if(koaProtPid > 0){
 				KoalaProtocol koatProt = (KoalaProtocol) src.getProtocol(koaProtPid);
-				koatProt.registerMsg(new KoalaMessage("", new KoalaRouteMsgContent(dest.getID())));
+				KoalaMessage msg = new KoalaMessage("", new KoalaRouteMsgContent(dest.getID()));
+	        	msg.addToPath(sourc.getID());
+				koatProt.registerMsg(msg);
 			}
 			
 			if(renProtPid > 0){
 	        	RenaterProtocol retProt = (RenaterProtocol) src.getProtocol(renProtPid);
-	        	retProt.registerMsg(new KoalaMessage("", new KoalaRouteMsgContent(dest.getID())));
+	        	KoalaMessage msg = new KoalaMessage("", new KoalaRouteMsgContent(dest.getID()));
+	        	msg.addToPath(sourc.getID());
+	        	retProt.registerMsg(msg);
 			}
 		}
 		

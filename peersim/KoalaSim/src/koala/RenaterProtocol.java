@@ -30,9 +30,13 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 	@Override
 	protected void onRoute(KoalaMessage msg) {
 		String nid = ((KoalaRouteMsgContent)msg.getContent()).getId();
-		if(nid != myNode.getID())
+		if(!nid.equals(myNode.getID()))
             send(myNode.getRoute(nid), msg);
-		myNode.getRoute(nid);
+		else{
+			System.out.println("yey, I ("+myNode.getID()+") got a message");
+			System.out.println("came to me using this path: " + msg.pathToString());
+			System.out.println("it's latency is: " + msg.getLatency());
+		}
 //		myNode.degree();
 	}
 

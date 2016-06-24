@@ -10,6 +10,7 @@ import peersim.core.Network;
 import peersim.core.Node;
 import koala.utility.ErrorDetection;
 import koala.utility.KoalaJsonParser;
+import koala.utility.LatencyProvider;
 import messaging.KoalaMessage;
 
 public abstract class TopologyProtocol implements CDProtocol {
@@ -98,9 +99,14 @@ public abstract class TopologyProtocol implements CDProtocol {
 				System.out.println("problems in horizont");
 				
 //			System.out.println(me.getID() +"->"+ destinationID);
-			msg.setRandomLatency(myNode.getID(), destinationID);
+//			msg.setRandomLatency(myNode.getID(), destinationID);
+			double l = LatencyProvider.getLatency(myNode.getID(), destinationID);
+//			double l = 1;
+			if(l <= 0)
+				System.out.println("someone invented time traveling!");
+			msg.setLatency(msg.getLatency() + l);
 			msg.addToPath(destinationID);
-			registerMsg(msg);
+			((TopologyProtocol)each.getProtocol(myPid)).registerMsg(msg);
 			/*TODO: uncomment this later*/
 //			((KoalaProtocol)each.getProtocol(koalaPid)).receive();
 		}

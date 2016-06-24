@@ -13,6 +13,7 @@ import koala.KoalaNode;
 import koala.RenaterEdge;
 import koala.RenaterNode;
 import koala.utility.Dijkstra;
+import koala.utility.LatencyProvider;
 import koala.utility.NodeUtilities;
 import koala.utility.Dijkstra.Edge;
 import peersim.config.Configuration;
@@ -47,19 +48,19 @@ public class WireRenater extends WireGraph {
 		int centerIndex = -1;
 		ArrayList<RenaterNode> gateways = new ArrayList<RenaterNode>();
 		ArrayList<Integer> gateway_indexes = new ArrayList<Integer>();
+		RenaterNode lastGW = null;
 		for (int i = Network.size()-1; i >= 0; i--) {
             Node n = (Node) g.getNode(i);            
             RenaterNode rn = (RenaterNode)n.getProtocol(pid);
             if(rn.isGateway()){
             	gateways.add(rn);
+            	LatencyProvider.addGatewayID(rn.getID());
             	gateway_indexes.add(i);
             	centerIndex = i;
+            	lastGW = rn;
             }else{
-            	Node m = (Node) g.getNode(centerIndex);
-                RenaterNode rm = (RenaterNode)m.getProtocol(pid);
-//                rn.addNeighbor(m);
-//				rm.addNeighbor(n);
-            	((RenaterGraph)g).setEdge(i, centerIndex, new RenaterEdge(2e-2,getBitRate(), getSpeed()));
+            	lastGW.addRoute(rn.getID(), rn.getID());
+            	((RenaterGraph)g).setEdge(i, centerIndex, new RenaterEdge(LatencyProvider.getIntraDCLatency(NodeUtilities.getDCID(rn.getID()))));
             }
 		}
 		
@@ -83,18 +84,10 @@ public class WireRenater extends WireGraph {
 			}
 			});
 			
-			Node n = (Node)g.getNode(gateway_indexes.get(i));
-			RenaterNode kn = (RenaterNode) n.getProtocol(pid);
-			
 			for(int j=0; j < dists.size() && j<k; j++)
 			{
-				Node m = (Node)g.getNode(dists.get(j).getKey());
-				RenaterNode km = (RenaterNode) m.getProtocol(pid);
-				//kn.addNeighbor(m);
-				//km.addNeighbor(n);
 				RenaterEdge re = new RenaterEdge(dists.get(j).getValue(), getBitRate(), getSpeed());
 				((RenaterGraph)g).setEdge(gateway_indexes.get(i), dists.get(j).getKey(), re);
-				
 			}
 		}
 		
@@ -108,29 +101,13 @@ public class WireRenater extends WireGraph {
         		if (i==j) continue;
         		Node m = (Node) g.getNode(gateway_indexes.get(j));
                 RenaterNode rm = (RenaterNode)m.getProtocol(pid);
-        		
     			LinkedList<RenaterNode> path = dijkstra.getPath(rm);
+    			LatencyProvider.addLatency(rn.getID(), rm.getID(), dijkstra.getShortestDistance(rm));
     			rn.addRoute(rm.getID(), path.get(1).getID());
         	}
             
 		}
 		
-//		for (int i = 0; i < Network.size(); i++) {
-//			Node n = (Node) g.getNode(i);
-//            RenaterNode rn = (RenaterNode)n.getProtocol(pid);
-//            if(rn.isGateway()){
-//            	dijkstra.execute(rn);
-//            	for (int j = 0; j < Network.size(); j++) {
-//            		Node m = (Node) g.getNode(j);
-//                    RenaterNode rm = (RenaterNode)m.getProtocol(pid);
-//            		if (rm.isGateway() && !n.equals(m)){
-//            			LinkedList<RenaterNode> path = dijkstra.getPath(rm);
-//            			rn.addRoute(rm.getID(), path.get(1).getID());
-//            		}
-//            	}
-//            }
-//		}
-	         
 
 	}
 	

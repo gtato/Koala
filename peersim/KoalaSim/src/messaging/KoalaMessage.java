@@ -17,6 +17,7 @@ import com.google.gson.JsonSerializer;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import koala.utility.KoalaJsonParser;
+import koala.utility.LatencyProvider;
 import koala.utility.NodeUtilities;
 
 public class KoalaMessage {
@@ -41,7 +42,7 @@ public class KoalaMessage {
 		this.source = source;
 		this.type = content.getMsgType();
 		this.content = content;
-		
+		latency = 0;
 	}
 
 	public KoalaMessage(String source, KoalaMsgContent content, boolean confidential){
@@ -76,7 +77,7 @@ public class KoalaMessage {
 	}
 	
 	public double getLatency() {
-		return latency;
+		return LatencyProvider.round(latency);
 	}
 
 	public void setLatency(double latency) {
@@ -92,7 +93,8 @@ public class KoalaMessage {
 	}
 
 	public void addToPath(String destID){
-		path.add(destID);
+		if (destID != null)
+			path.add(destID);
 	}
 	
 	public ArrayList<String> getPath(){
@@ -103,22 +105,29 @@ public class KoalaMessage {
 		path = p;
 	}
 	
-	public void setRandomLatency(String sourceID, String destID){
-        int sDC = NodeUtilities.getDCID(sourceID);
-        int dDC = NodeUtilities.getDCID(destID);
-
-        Random random = new Random(sDC*dDC);
-        int min, max;
-         
-        if (sDC == dDC){
-            min = 5; max = NodeUtilities.MAX_INTRA_LATENCY;
-        }else{
-        	min = NodeUtilities.MAX_INTRA_LATENCY; max = NodeUtilities.MAX_INTER_LATENCY;
-        }
-        
-        latency = random.nextInt((max - min) + 1) + min;
-        
+	public String pathToString(){
+		String pathstr = "";
+		for(String p : path)
+			pathstr += p+" ";
+		return pathstr;
 	}
+	
+//	public void setRandomLatency(String sourceID, String destID){
+//        int sDC = NodeUtilities.getDCID(sourceID);
+//        int dDC = NodeUtilities.getDCID(destID);
+//
+//        Random random = new Random(sDC*dDC);
+//        int min, max;
+//         
+//        if (sDC == dDC){
+//            min = 5; max = NodeUtilities.MAX_INTRA_LATENCY;
+//        }else{
+//        	min = NodeUtilities.MAX_INTRA_LATENCY; max = NodeUtilities.MAX_INTER_LATENCY;
+//        }
+//        
+//        latency = random.nextInt((max - min) + 1) + min;
+//        
+//	}
 	
 	public Class<? extends KoalaMsgContent> getContentClassFromType(){		
 		switch(type){

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import koala.utility.NodeUtilities;
 import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.core.Protocol;
@@ -53,7 +54,7 @@ public class RenaterNode extends TopologyNode{
 		if(routes.containsKey(dest))
 			return routes.get(dest);
 		for(String key : routes.keySet()){
-			if(key.split("-")[0].equals(dest.split("-")[0]))
+			if(NodeUtilities.getDCID(key) == NodeUtilities.getDCID(dest))
 				return routes.get(key);
 		}
 		if(!isGateway())

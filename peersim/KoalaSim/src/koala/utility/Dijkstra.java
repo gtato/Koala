@@ -97,7 +97,7 @@ public class Dijkstra {
 		return settledNodes.contains(vertex);
 	}
 
-	private double getShortestDistance(RenaterNode destination) {
+	public double getShortestDistance(RenaterNode destination) {
 		Double d = distance.get(destination);
 		if (d == null) {
 			return Double.MAX_VALUE;

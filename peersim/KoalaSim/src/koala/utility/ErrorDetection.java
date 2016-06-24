@@ -18,7 +18,8 @@ public class ErrorDetection {
 		}
 		if(communication.size() > 3)
 			communication.remove(0);
-		communication.add(new String[]{src, dst});
+		if(src != null && dst != null)
+			communication.add(new String[]{src, dst});
 		return false;
 	}
 	

@@ -10,6 +10,7 @@ import koala.KoalaNode;
 import koala.RenaterEdge;
 import koala.RenaterGraph;
 import koala.RenaterNode;
+import koala.utility.LatencyProvider;
 import koala.utility.NodeUtilities;
 
 public class RenaterNodeObserver extends NodeObserver {
@@ -28,6 +29,7 @@ public class RenaterNodeObserver extends NodeObserver {
 		super.g = new RenaterGraph(pid,false);
 		graphToFile();
 		plotIt();
+//		LatencyProvider.printLatencies();
 		return false;
 	}
 
@@ -48,7 +50,7 @@ public class RenaterNodeObserver extends NodeObserver {
                 	double[] p1 = new double[]{x_from,  y_from};
                 	double[] p2 = new double[]{x_to,  y_to};
                 	double[] middle = NodeUtilities.getCoordinatesBetweenTwoPoints(p1,p2); 
-                	double distance = NodeUtilities.getPhysicalDistance(current, n);
+//                	double distance = NodeUtilities.getPhysicalDistance(current, n);
                 	RenaterEdge re = (RenaterEdge) ((RenaterGraph)g).getEdge(i, index);
                 	secondLine += " " + middle[0] + " " + middle[1] + " " + re.getLatency();
 //                	secondLine += " " + middle[0] + " " + middle[1] + " " + distance;
