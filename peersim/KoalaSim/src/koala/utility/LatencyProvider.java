@@ -27,6 +27,9 @@ public class LatencyProvider {
 	}
 	
 	public static double getLatency(String src, String dst){
+		if(src.equals(dst))
+			return 0;
+		
 		int srcDC = NodeUtilities.getDCID(src); 
 		int dstDC = NodeUtilities.getDCID(dst);
 		if(srcDC == dstDC){
@@ -37,7 +40,15 @@ public class LatencyProvider {
 		}
 		if(latencies.containsKey(getKeyID(src, dst)))
 			return latencies.get(getKeyID(src, dst));
-		return -1;
+		else{
+			String gwSrc = getGW(src);
+			String gwDst = getGW(dst);
+			return getLatency(src, gwSrc) +
+				   getLatency(gwSrc, gwDst) +
+				   getLatency(gwDst, dst);
+					
+		}
+		
 	}
 	
 	public static double getIntraDCLatency(int dcID){
@@ -57,5 +68,14 @@ public class LatencyProvider {
 	
 	public static double round(double tr){
 		return Math.round(tr * 100.0 ) / 100.0;
+	}
+
+	
+	private static String getGW(String id){
+		for(String gw : gatewayIDs){
+			if(NodeUtilities.getDCID(gw) == NodeUtilities.getDCID(id))
+				return gw;
+		}
+		return null;
 	}
 }

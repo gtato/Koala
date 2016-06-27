@@ -35,6 +35,9 @@ public class KoalaMessage {
 	private double latency;
 	private String source;
 	private ArrayList<String> path = new ArrayList<String>();	
+	private int id;
+	
+	
 	
 	public KoalaMessage(){}
 	
@@ -66,6 +69,14 @@ public class KoalaMessage {
 
 	public void setType(int msgType) {
 		this.type = msgType;
+	}
+
+	public int getID() {
+		return id;
+	}
+
+	public void setID(int id) {
+		this.id = id;
 	}
 
 	public KoalaMsgContent getContent() {
@@ -109,6 +120,8 @@ public class KoalaMessage {
 		String pathstr = "";
 		for(String p : path)
 			pathstr += p+" ";
+		pathstr = pathstr.trim().replace(" ", ", ");
+		
 		return pathstr;
 	}
 	
@@ -154,6 +167,7 @@ public class KoalaMessage {
 			}
 			
 			JsonObject obj = new JsonObject();
+			obj.addProperty("id", src.getID());
 			obj.addProperty("source", src.getSource());
 			obj.addProperty("type", src.getType());
 			obj.addProperty("confidential", src.isConfidential());
@@ -170,6 +184,7 @@ public class KoalaMessage {
 		public KoalaMessage deserialize(JsonElement src, Type typeOfSrc, JsonDeserializationContext context) throws JsonParseException {
 			JsonObject srcJO = src.getAsJsonObject();
 			KoalaMessage km = new KoalaMessage();
+			km.setID(srcJO.get("id").getAsInt());
 			km.setSource(srcJO.get("source").getAsString());
 			km.setType(srcJO.get("type").getAsInt());
 			km.setConfidential(srcJO.get("confidential").getAsBoolean());

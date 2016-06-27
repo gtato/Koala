@@ -290,13 +290,20 @@ public class KoalaNode extends TopologyNode{
     	String ret = null;
     	double v, max = 0;
     	Set<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
+    	KoalaNeighbor lastRE = null;
     	for(KoalaNeighbor re : rt){
+    		lastRE = re;
     		v = getRouteValue(dest, re);
     	    if (v > max){
     	    	max = v;
     	    	ret = re.getNodeID();
     	    }
     	}
+    	
+    	//if the node does not have yet enough contacts
+    	//send to the one it has with the hope that that one will know better
+    	if(ret == null && lastRE != null)
+    		ret = lastRE.getNodeID();
     	return ret;
 	}
 

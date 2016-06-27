@@ -33,9 +33,7 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 		if(!nid.equals(myNode.getID()))
             send(myNode.getRoute(nid), msg);
 		else{
-			System.out.println("yey, I ("+myNode.getID()+") got a message");
-			System.out.println("came to me using this path: " + msg.pathToString());
-			System.out.println("it's latency is: " + msg.getLatency());
+			onReceivedMsg(msg);
 		}
 //		myNode.degree();
 	}

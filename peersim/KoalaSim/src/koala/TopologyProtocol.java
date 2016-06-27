@@ -1,6 +1,7 @@
 package koala;
 
 import java.util.ArrayDeque;
+import java.util.HashMap;
 
 import example.hot.InetCoordinates;
 import peersim.cdsim.CDProtocol;
@@ -17,6 +18,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 	protected ArrayDeque<String> queue;
 	protected TopologyNode myNode = null;
 
+	protected HashMap<Integer, KoalaMessage> receivedMsgs;
 	
 	protected int linkPid = -1;
 	protected int myPid = -1;
@@ -30,6 +32,7 @@ public abstract class TopologyProtocol implements CDProtocol {
         try {
             inp = (TopologyProtocol) super.clone();
             inp.queue = new ArrayDeque<String>();
+            receivedMsgs = new HashMap<Integer, KoalaMessage>();
         } catch (CloneNotSupportedException e) {
         } // never happens
         return inp;
@@ -52,6 +55,23 @@ public abstract class TopologyProtocol implements CDProtocol {
 		queue.add(msgStr);
 	}
 
+	protected void onReceivedMsg(KoalaMessage msg) {
+		receivedMsgs.put(msg.getID(), msg);
+//		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
+	}
+	
+	public KoalaMessage removeReceivedMsg(int msgID) {
+		return receivedMsgs.remove(msgID);
+	}
+	
+	public boolean hasReceivedMsg(int msgID) {
+		return receivedMsgs.containsKey(msgID);
+	}
+	
+	public KoalaMessage getReceivedMsg(int msgID) {
+		return receivedMsgs.get(msgID);
+	}
+	
 	public void receive()
 	{
 		if(queue.size() == 0)

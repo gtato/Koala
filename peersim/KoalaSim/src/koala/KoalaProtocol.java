@@ -195,13 +195,18 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 	
 	protected void onRoute(KoalaMessage msg){
         String nid = ((KoalaRouteMsgContent)msg.getContent()).getId();
-        myNode.updateLatencyPerDC(msg.getSource(), msg.getLatency(), 3);
-        myNode.updateLatencies();
-        if(nid != myNode.getID())
+        if(msg.getSource() != null && msg.getSource().length() > 0){
+	        myNode.updateLatencyPerDC(msg.getSource(), msg.getLatency(), 3);
+	        myNode.updateLatencies();
+        }
+        if(!nid.equals(myNode.getID()))
             send(myNode.getRoute(nid), msg);
-        
+        else
+        	onReceivedMsg(msg);
 	}
 	
+	
+
 	public boolean hasJoined() {
 		return joined;
 	}
