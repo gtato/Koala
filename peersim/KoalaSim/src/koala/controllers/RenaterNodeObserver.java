@@ -10,7 +10,7 @@ import koala.KoalaNode;
 import koala.RenaterEdge;
 import koala.RenaterGraph;
 import koala.RenaterNode;
-import koala.utility.LatencyProvider;
+import koala.utility.PhysicalDataProvider;
 import koala.utility.NodeUtilities;
 
 public class RenaterNodeObserver extends NodeObserver {
@@ -30,6 +30,7 @@ public class RenaterNodeObserver extends NodeObserver {
 		graphToFile();
 		plotIt();
 //		LatencyProvider.printLatencies();
+//		PhysicalDataProvider.printPaths();
 		return false;
 	}
 

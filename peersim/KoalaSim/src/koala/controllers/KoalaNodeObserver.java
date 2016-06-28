@@ -32,7 +32,7 @@ public class KoalaNodeObserver extends NodeObserver {
 	@Override
 	public boolean execute() {
 		updateGraph();
-		simpleReport();
+//		simpleReport();
 		generateGraph();
 		plotIt();
 //		System.out.println("");
@@ -115,6 +115,8 @@ public class KoalaNodeObserver extends NodeObserver {
                         
             KoalaNeighbor[] gneigs = {current.getRoutingTable().getGlobalPredecessor(), current.getRoutingTable().getGlobalSucessor()};
             for(int j = 0; j < gneigs.length; j++){
+            	if(NodeUtilities.isDefault(gneigs[j]))
+            		continue;
             	KoalaNode n = getNodeFromID(gneigs[j].getNodeID());
             	if(n == null) return;
             	double x_from =  n.getX();

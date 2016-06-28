@@ -2,18 +2,36 @@ package koala.utility;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Random;
 
-public class LatencyProvider {
+import koala.RenaterNode;
+
+public class PhysicalDataProvider {
 	
 	  
 	private static ArrayList<String> gatewayIDs = new ArrayList<String>();
 	private static HashMap<String, Double> latencies = new HashMap<String, Double>();
+	private static HashMap<String, String> paths= new HashMap<String, String>();
+	
 	
 	public static void addLatency(String src, String dst, double latency){
 		String id = getKeyID(src, dst);
 		if(!latencies.containsKey(id))
 			latencies.put(id, round(latency));
+	}
+	
+	public static void addPath(String src, String dst, LinkedList<RenaterNode> path){
+		String id = getKeyID(src, dst);
+		if(!paths.containsKey(id)){
+			String strPath = "";
+			for(RenaterNode rn : path){
+				strPath += rn.getID() + " ";
+			}
+			strPath = strPath.trim();
+//			strPath = strPath.trim().replace(" ", ", ");
+			paths.put(id, strPath);
+		}
 	}
 	
 	public static void addGatewayID(String gwID){
@@ -23,6 +41,12 @@ public class LatencyProvider {
 	public static void printLatencies(){
 		for(String srcdst : latencies.keySet()){
 			System.out.println(srcdst + " " + latencies.get(srcdst) );
+		}
+	}
+	
+	public static void printPaths(){
+		for(String srcdst : paths.keySet()){
+			System.out.println(srcdst + " " + paths.get(srcdst) );
 		}
 	}
 	
@@ -50,6 +74,41 @@ public class LatencyProvider {
 		}
 		
 	}
+	
+	
+	public static String getPath(String src, String dst){
+		if(src.equals(dst))
+			return src;
+		
+		int srcDC = NodeUtilities.getDCID(src); 
+		int dstDC = NodeUtilities.getDCID(dst);
+		if(srcDC == dstDC){
+			if(gatewayIDs.contains(src) || gatewayIDs.contains(dst))
+				return src + " " + dst; 
+			return src +" " + getGW(src)  + " " + dst;
+		}
+		if(paths.containsKey(getKeyID(src, dst))){
+			String path = paths.get(getKeyID(src, dst));
+			if(path.startsWith(src))
+				return path;
+			String reversePath = "";
+			String[] splitPath = path.split(" ");
+			for(int i = splitPath.length-1; i <= 0; i--)
+				reversePath = splitPath[i] + " ";
+			return reversePath.trim();
+		}else{
+			String gwSrc = getGW(src);
+			String gwDst = getGW(dst);
+			return getPath(gwSrc, gwDst) + " " + 
+				   getPath(src, gwSrc) + " " +
+				   getPath(gwDst, dst);
+					
+		}
+		
+	}
+	
+	
+	
 	
 	public static double getIntraDCLatency(int dcID){
 		Random random = new Random(dcID);

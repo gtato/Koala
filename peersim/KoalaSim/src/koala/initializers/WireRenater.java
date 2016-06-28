@@ -13,7 +13,7 @@ import koala.KoalaNode;
 import koala.RenaterEdge;
 import koala.RenaterNode;
 import koala.utility.Dijkstra;
-import koala.utility.LatencyProvider;
+import koala.utility.PhysicalDataProvider;
 import koala.utility.NodeUtilities;
 import koala.utility.Dijkstra.Edge;
 import peersim.config.Configuration;
@@ -54,13 +54,13 @@ public class WireRenater extends WireGraph {
             RenaterNode rn = (RenaterNode)n.getProtocol(pid);
             if(rn.isGateway()){
             	gateways.add(rn);
-            	LatencyProvider.addGatewayID(rn.getID());
+            	PhysicalDataProvider.addGatewayID(rn.getID());
             	gateway_indexes.add(i);
             	centerIndex = i;
             	lastGW = rn;
             }else{
             	lastGW.addRoute(rn.getID(), rn.getID());
-            	((RenaterGraph)g).setEdge(i, centerIndex, new RenaterEdge(LatencyProvider.getIntraDCLatency(NodeUtilities.getDCID(rn.getID()))));
+            	((RenaterGraph)g).setEdge(i, centerIndex, new RenaterEdge(PhysicalDataProvider.getIntraDCLatency(NodeUtilities.getDCID(rn.getID()))));
             }
 		}
 		
@@ -102,7 +102,8 @@ public class WireRenater extends WireGraph {
         		Node m = (Node) g.getNode(gateway_indexes.get(j));
                 RenaterNode rm = (RenaterNode)m.getProtocol(pid);
     			LinkedList<RenaterNode> path = dijkstra.getPath(rm);
-    			LatencyProvider.addLatency(rn.getID(), rm.getID(), dijkstra.getShortestDistance(rm));
+    			PhysicalDataProvider.addLatency(rn.getID(), rm.getID(), dijkstra.getShortestDistance(rm));
+    			PhysicalDataProvider.addPath(rn.getID(), rm.getID(), path);
     			rn.addRoute(rm.getID(), path.get(1).getID());
         	}
             

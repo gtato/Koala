@@ -17,7 +17,7 @@ import com.google.gson.JsonSerializer;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import koala.utility.KoalaJsonParser;
-import koala.utility.LatencyProvider;
+import koala.utility.PhysicalDataProvider;
 import koala.utility.NodeUtilities;
 
 public class KoalaMessage {
@@ -88,7 +88,7 @@ public class KoalaMessage {
 	}
 	
 	public double getLatency() {
-		return LatencyProvider.round(latency);
+		return PhysicalDataProvider.round(latency);
 	}
 
 	public void setLatency(double latency) {
@@ -123,6 +123,14 @@ public class KoalaMessage {
 		pathstr = pathstr.trim().replace(" ", ", ");
 		
 		return pathstr;
+	}
+	
+	public String getPhysicalPathToString(){
+		if(path.size() == 0)
+			return "";
+		else if(path.size() == 1)
+			return path.get(0);
+		return PhysicalDataProvider.getPath(path.get(0), path.get(path.size()-1));
 	}
 	
 //	public void setRandomLatency(String sourceID, String destID){

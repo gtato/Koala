@@ -41,8 +41,10 @@ public class ResultCollector extends GraphObserver {
 				KoalaMessage km = kp.getReceivedMsg(msg.getKey());
 				
 				//do stuff 
-				System.out.println(rm.getID() + ": " + rm.getLatency() + " " + rm.getPath());
-				System.out.println(km.getID() + ": " + km.getLatency() + " " + km.getPath());
+				System.out.println("(R) "+rm.getID() + ": " + rm.getLatency() + " " + rm.getPath());
+				System.out.println("(K) "+km.getID() + ": " + km.getLatency() + " " + km.getPath());
+//				System.out.println(rm.getLatency() + " " + km.getLatency() + " " +
+//				                   rm.getPath().size() + " " +rm.getPath().size());
 				System.out.println();
 				//rp.removeReceivedMsg(msg.getKey());
 				//kp.removeReceivedMsg(msg.getKey());

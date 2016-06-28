@@ -56,6 +56,8 @@ public class KoalaPlanner extends GraphObserver {
 //			return true;
 //		}
 
+		
+		
 		if (CommonState.r.nextInt() % 2 == 0)
 			joinNodes();
 		else 
