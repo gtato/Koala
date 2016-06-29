@@ -2,6 +2,8 @@ package messaging;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
@@ -125,12 +127,28 @@ public class KoalaMessage {
 		return pathstr;
 	}
 	
-	public String getPhysicalPathToString(){
-		if(path.size() == 0)
-			return "";
-		else if(path.size() == 1)
-			return path.get(0);
-		return PhysicalDataProvider.getPath(path.get(0), path.get(path.size()-1));
+	public ArrayList<String> getPhysicalPathToString(){
+		ArrayList<String> fpList = new ArrayList<String>();
+		if(path.size() < 2)
+			return path;
+		
+		String fullpath = "";
+		for(int i=0; i < path.size()-1;i++){
+			fullpath += PhysicalDataProvider.getPath(path.get(i), path.get(i+1)) + " ";
+		}
+		fullpath = fullpath.trim();
+		String[] fpStr = fullpath.split(" ");
+		
+		fullpath = "";
+		for(int i = 0; i<fpStr.length-1; i++){
+			if(!fpStr[i].equals(fpStr[i+1]))
+				fpList.add(fpStr[i]);
+				//fullpath += fpStr[i] + " "; 
+		}
+		fpList.add(fpStr[fpStr.length-1]);
+		//fullpath += fpStr[fpStr.length-1];
+		
+		return fpList;
 	}
 	
 //	public void setRandomLatency(String sourceID, String destID){

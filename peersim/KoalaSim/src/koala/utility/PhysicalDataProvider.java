@@ -93,16 +93,18 @@ public class PhysicalDataProvider {
 				return path;
 			String reversePath = "";
 			String[] splitPath = path.split(" ");
-			for(int i = splitPath.length-1; i <= 0; i--)
-				reversePath = splitPath[i] + " ";
+			for(int i = splitPath.length-1; i >= 0; i--)
+				reversePath += splitPath[i] + " ";
 			return reversePath.trim();
 		}else{
 			String gwSrc = getGW(src);
 			String gwDst = getGW(dst);
-			return getPath(gwSrc, gwDst) + " " + 
-				   getPath(src, gwSrc) + " " +
-				   getPath(gwDst, dst);
-					
+			String path1 = getPath(src, gwSrc)+ " ";
+			String path2 = getPath(gwSrc, gwDst)+ " ";
+			path2 = path2.substring(path2.indexOf(" ")+1);
+			String path3 = getPath(gwDst, dst);
+			path3 = path3.substring(path3.indexOf(" ")+1);
+			return path1 + path2 + path3; 
 		}
 		
 	}

@@ -41,10 +41,12 @@ public class ResultCollector extends GraphObserver {
 				KoalaMessage km = kp.getReceivedMsg(msg.getKey());
 				
 				//do stuff 
-				System.out.println("(R) "+rm.getID() + ": " + rm.getLatency() + " " + rm.getPath());
-				System.out.println("(K) "+km.getID() + ": " + km.getLatency() + " " + km.getPath());
-//				System.out.println(rm.getLatency() + " " + km.getLatency() + " " +
-//				                   rm.getPath().size() + " " +rm.getPath().size());
+				String ok = rm.getPath().toString().equals(rm.getPhysicalPathToString().toString()) ? " (ok) " : " (not ok) ";
+				System.out.println("(R) "+rm.getID() + ": " + rm.getLatency() + " " + rm.getPath() + " " + rm.getPhysicalPathToString() + ok);
+				System.out.println("(K) "+km.getID() + ": " + km.getLatency() + " " + km.getPath() + " " + km.getPhysicalPathToString());
+				System.out.println("(T) "+rm.getID() + ": " + ((double) km.getLatency() / rm.getLatency()) + 
+									" " + rm.getPath().size() + " " +km.getPath().size() +
+									" " +km.getPhysicalPathToString().size());
 				System.out.println();
 				//rp.removeReceivedMsg(msg.getKey());
 				//kp.removeReceivedMsg(msg.getKey());
