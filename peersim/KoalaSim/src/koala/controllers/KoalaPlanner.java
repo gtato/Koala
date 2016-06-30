@@ -29,7 +29,8 @@ public class KoalaPlanner extends GraphObserver {
 	private final int koaNodePid;
 	
 	private KoalaMessage joinMsg;
-	public int msgID;
+	private int msgID;
+	private boolean allAdded = false; 
 	
 	public KoalaPlanner(String prefix) {
 		super(prefix);
@@ -58,7 +59,7 @@ public class KoalaPlanner extends GraphObserver {
 
 		
 		
-		if (CommonState.r.nextInt() % 2 == 0)
+		if (CommonState.r.nextInt() % 2 == 0 && !allAdded)
 			joinNodes();
 		else 
 			route();
@@ -66,7 +67,9 @@ public class KoalaPlanner extends GraphObserver {
 	}
 
 	private void joinNodes() {
-		ArrayList<Node> nodes = getRandomNodes(1, false);
+		ArrayList<Node> nodes = getRandomNodes(1, false, new ArrayList<Node>());
+		if (nodes.size() == 0)
+			allAdded = true;
 		for(Node node : nodes){
 			if(koaProtPid > 0){
 				KoalaProtocol koatProt = (KoalaProtocol) node.getProtocol(koaProtPid);
@@ -83,12 +86,13 @@ public class KoalaPlanner extends GraphObserver {
 	
 	private void route() {
 		int count = 1;
-		ArrayList<Node> sources = getRandomNodes(count, true);
-		ArrayList<Node> dests = getRandomNodes(count, true);
+		ArrayList<Node> sources = getRandomNodes(count, true, new ArrayList<Node>());
+		ArrayList<Node> dests = getRandomNodes(count, true, sources);
 		
 		if(sources.size() == 0 || dests.size()==0){
 			System.err.println("Not enough nodes have joined yet, try adding a bit more");
 //			System.exit(0);
+			return;
 		}
 		
 		for(int i = 0; i < count; i++){
@@ -121,12 +125,14 @@ public class KoalaPlanner extends GraphObserver {
 	
 	
 	
-	private ArrayList<Node> getRandomNodes(int n, boolean joined){
+	private ArrayList<Node> getRandomNodes(int n, boolean joined, ArrayList<Node> except){
 		ArrayList<Node> toRet = new ArrayList<Node>();
 		ArrayList<Integer> complyingIndexes = new ArrayList<Integer>();
 		for (int i = 0; i < g.size(); i++) {
+			if(except.contains(g.getNode(i)))
+				continue;
         	int id = koaProtPid >= 0 ? koaProtPid : renProtPid;
-			TopologyProtocol currentNode = (TopologyProtocol)((Node)g.getNode(i)).getProtocol(id);
+        	TopologyProtocol currentNode = (TopologyProtocol)((Node)g.getNode(i)).getProtocol(id);
         	boolean cond = joined ? currentNode.hasJoined() : !currentNode.hasJoined();
 //        	if(cond && ((KoalaNode)((Node)g.getNode(i)).getProtocol(targetNodePid)).isGateway()  )
         	if(cond)

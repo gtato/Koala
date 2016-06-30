@@ -148,7 +148,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 			if( res == 2 || (res == 1 && isSource && sourceJoining))
 				newNeighbors.add(new KoalaNeighbor(recNeighbor.getNodeID(), l));
 			else if (res < 0 && recNeighbor.getNodeID().equals(sender.getID())){				
-				String dest = myNode.getRoute(sender.getID());
+				String dest = myNode.getRoute(sender.getID(), msg);
 				msg.setConfidential(false);
 				send(dest, msg);
 			}
@@ -200,7 +200,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 	        myNode.updateLatencies();
         }
         if(!nid.equals(myNode.getID()))
-            send(myNode.getRoute(nid), msg);
+            send(myNode.getRoute(nid, msg), msg);
         else
         	onReceivedMsg(msg);
 	}

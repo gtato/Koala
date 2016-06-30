@@ -2,10 +2,9 @@ package messaging;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+
+import koala.utility.KoalaJsonParser;
+import koala.utility.PhysicalDataProvider;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -15,12 +14,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-
-import koala.KoalaNeighbor;
-import koala.KoalaNode;
-import koala.utility.KoalaJsonParser;
-import koala.utility.PhysicalDataProvider;
-import koala.utility.NodeUtilities;
 
 public class KoalaMessage {
 	public static final int RT = 0;
@@ -149,6 +142,12 @@ public class KoalaMessage {
 		//fullpath += fpStr[fpStr.length-1];
 		
 		return fpList;
+	}
+	
+	public String getLastSenderNode(){
+		if(path.size()==0)
+			return null;
+		return path.get(path.size()-1);
 	}
 	
 //	public void setRandomLatency(String sourceID, String destID){

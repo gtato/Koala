@@ -3,18 +3,20 @@ package koala;
 
 
 import java.lang.reflect.Type;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
 import koala.utility.KoalaJsonParser;
 import koala.utility.NodeUtilities;
+import messaging.KoalaMessage;
+import peersim.core.CommonState;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -23,11 +25,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-
-import peersim.core.Linkable;
-import peersim.core.Node;
-import peersim.core.Protocol;
-import example.hot.InetCoordinates;
 
 public class KoalaNode extends TopologyNode{
 
@@ -286,26 +283,60 @@ public class KoalaNode extends TopologyNode{
     }
     	
 	
-    public String getRoute(String dest) {
+    public String getRoute(String dest, KoalaMessage msg) {
+    	String ret = null;
+    	AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
+    	double v=0;
+    	Set<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
+    	ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>(); 
+
+    	for(KoalaNeighbor re : rt){
+    		v = getRouteValue(dest, re);
+    		mre = new AbstractMap.SimpleEntry<Double, KoalaNeighbor>(v, re);
+    		potentialDests.add(mre);
+
+    	}
+    	Collections.sort(potentialDests, Collections.reverseOrder(new Comparator<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>() {
+			@Override
+			public int compare(AbstractMap.SimpleEntry<Double, KoalaNeighbor> o1, AbstractMap.SimpleEntry<Double, KoalaNeighbor> o2) {
+				return o1.getKey().compareTo(o2.getKey());
+				
+			}
+			}));
+    	
+    	if(potentialDests.size() > 1 && potentialDests.get(0).getValue().getNodeID().equals(msg.getLastSenderNode()))
+    		ret = potentialDests.get(1).getValue().getNodeID(); 
+    	else
+    		ret = potentialDests.get(0).getValue().getNodeID();
+
+    	return ret;
+	}
+    
+    //old
+    public String getRouteq(String dest, KoalaMessage msg) {
     	String ret = null;
     	double v, max = 0;
     	Set<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
+ 
     	KoalaNeighbor lastRE = null;
     	for(KoalaNeighbor re : rt){
+    		
     		lastRE = re;
     		v = getRouteValue(dest, re);
-    	    if (v > max){
+
+    		if (v > max){
     	    	max = v;
     	    	ret = re.getNodeID();
     	    }
     	}
-    	
+
     	//if the node does not have yet enough contacts
     	//send to the one it has with the hope that that one will know better
     	if(ret == null && lastRE != null)
     		ret = lastRE.getNodeID();
     	return ret;
 	}
+    
 
 	private double getRouteValue(String dest, KoalaNeighbor re) {
 		double res = 0;
@@ -323,14 +354,15 @@ public class KoalaNode extends TopologyNode{
             res = 1 + NodeUtilities.B * distance + NodeUtilities.C * norm_latency;
         }
         if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
-            res = Integer.MAX_VALUE - NodeUtilities.A * NodeUtilities.distance(re.getNodeID(), dest);
+            res = Double.MAX_VALUE - NodeUtilities.A * NodeUtilities.distance(re.getNodeID(), dest);
         return res;
 	}
 	
 	public Set<String> createRandomIDs(int nr){
         Set<String> rids = new HashSet<String>();
         while( rids.size() < nr){
-            String rand_id = this.dcID + "-" + new Random().nextInt(NodeUtilities.NR_NODE_PER_DC);
+            String rand_id = this.dcID + "-" + CommonState.r.nextInt(NodeUtilities.NR_NODE_PER_DC);
+//            String rand_id = this.dcID + "-" + new Random().nextInt(NodeUtilities.NR_NODE_PER_DC);
             if( !this.isResponsible(rand_id))
                 rids.add(rand_id);
             

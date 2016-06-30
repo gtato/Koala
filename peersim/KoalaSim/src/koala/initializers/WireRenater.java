@@ -6,10 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.LinkedBlockingDeque;
 
-import koala.KoalaNode;
 import koala.RenaterEdge;
 import koala.RenaterNode;
 import koala.utility.Dijkstra;
@@ -21,7 +18,7 @@ import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.dynamics.WireGraph;
-import peersim.graph.FastUndirGraph;
+
 import peersim.graph.Graph;
 import koala.RenaterGraph;
 

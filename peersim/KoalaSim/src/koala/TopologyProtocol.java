@@ -25,14 +25,17 @@ public abstract class TopologyProtocol implements CDProtocol {
 
 	protected boolean joined;
 	
-	public TopologyProtocol(String prefix) {}
+	public TopologyProtocol(String prefix) {
+//		queue = new ArrayDeque<String>();
+//        receivedMsgs = new HashMap<Integer, KoalaMessage>();
+	}
 	
 	public Object clone() {
 		TopologyProtocol inp = null;
         try {
             inp = (TopologyProtocol) super.clone();
             inp.queue = new ArrayDeque<String>();
-            receivedMsgs = new HashMap<Integer, KoalaMessage>();
+            inp.receivedMsgs = new HashMap<Integer, KoalaMessage>();
         } catch (CloneNotSupportedException e) {
         } // never happens
         return inp;
