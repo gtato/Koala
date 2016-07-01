@@ -57,12 +57,14 @@ public class KoalaPlanner extends GraphObserver {
 //			return true;
 //		}
 
-		
-		
-		if (CommonState.r.nextInt() % 2 == 0 && !allAdded)
-			joinNodes();
-		else 
-			route();
+		joinNodes();
+////		if (CommonState.r.nextInt() % 2 == 0 && !allAdded)
+//		if (CommonState.r.nextInt() % 2 == 0)
+////			System.out.println("(" + CommonState.getTime() + ") JOIN");
+//			joinNodes();
+//		else 
+////			System.out.println("(" + CommonState.getTime() + ") ROUTE");
+//			route();
 		return false;
 	}
 
@@ -80,6 +82,7 @@ public class KoalaPlanner extends GraphObserver {
 	        	RenaterProtocol retProt = (RenaterProtocol) node.getProtocol(renProtPid);
 	        	retProt.registerMsg(joinMsg);
 			}
+			System.out.println("(" + CommonState.getTime() + ") JOIN: " + ((RenaterNode) node.getProtocol(renNodePid)).getID());
 		}
 	}
 	
@@ -92,6 +95,7 @@ public class KoalaPlanner extends GraphObserver {
 		if(sources.size() == 0 || dests.size()==0){
 			System.err.println("Not enough nodes have joined yet, try adding a bit more");
 //			System.exit(0);
+			System.out.println("(" + CommonState.getTime() + ") NOTHING TO ROUTE ");
 			return;
 		}
 		
@@ -105,7 +109,7 @@ public class KoalaPlanner extends GraphObserver {
 				KoalaMessage msg = new KoalaMessage("", new KoalaRouteMsgContent(dest.getID()));
 	        	msg.addToPath(sourc.getID());
 	        	msg.setID(msgID);
-				koatProt.registerMsg(msg);
+//				koatProt.registerMsg(msg);
 			}
 			
 			if(renProtPid > 0){
@@ -113,8 +117,9 @@ public class KoalaPlanner extends GraphObserver {
 	        	KoalaMessage msg = new KoalaMessage("", new KoalaRouteMsgContent(dest.getID()));
 	        	msg.addToPath(sourc.getID());
 	        	msg.setID(msgID);
-	        	retProt.registerMsg(msg);
+//	        	retProt.registerMsg(msg);
 			}
+			System.out.println("(" + CommonState.getTime() + ") ROUTE: " + sourc.getID() + " -> " + dest.getID());
 			ResultCollector.addSentMsg(msgID, dests.get(i));
 			msgID++;
 			

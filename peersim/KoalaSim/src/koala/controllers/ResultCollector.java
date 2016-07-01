@@ -8,6 +8,7 @@ import messaging.KoalaMessage;
 import koala.KoalaProtocol;
 import koala.RenaterProtocol;
 import koala.TopologyProtocol;
+import koala.utility.PhysicalDataProvider;
 import peersim.config.Configuration;
 import peersim.core.Node;
 import peersim.reports.GraphObserver;
@@ -45,15 +46,16 @@ public class ResultCollector extends GraphObserver {
 				
 				renaterTotalLatency += rm.getLatency();
 				koalaTotalLatency += km.getLatency();
-				
+				renaterTotalLatency = PhysicalDataProvider.round(renaterTotalLatency);
+				koalaTotalLatency = PhysicalDataProvider.round(koalaTotalLatency);
 				//do stuff 
-				String ok = rm.getPath().toString().equals(rm.getPhysicalPathToString().toString()) ? " (ok) " : " (not ok) ";
-				System.out.println("(R) "+rm.getID() + ": " + rm.getLatency() + " " + rm.getPath() + " " + rm.getPhysicalPathToString() + ok);
-				System.out.println("(K) "+km.getID() + ": " + km.getLatency() + " " + km.getPath() + " " + km.getPhysicalPathToString());
-				System.out.println("(T) "+rm.getID() + ": " + ((double) km.getLatency() / rm.getLatency()) + 
-									" " + rm.getPath().size() + " " +km.getPath().size() +
-									" " +km.getPhysicalPathToString().size() + " " + ((double) koalaTotalLatency / renaterTotalLatency));
-				System.out.println();
+//				String ok = rm.getPath().toString().equals(rm.getPhysicalPathToString().toString()) ? " (ok) " : " (not ok) ";
+//				System.out.println("(R) "+rm.getID() + ": " + rm.getLatency() + " " + rm.getPath() + " " + rm.getPhysicalPathToString() + ok);
+//				System.out.println("(K) "+km.getID() + ": " + km.getLatency() + " " + km.getPath() + " " + km.getPhysicalPathToString());
+//				System.out.println("(T) "+rm.getID() + ": " + ((double) km.getLatency() / rm.getLatency()) + 
+//									" " + rm.getPath().size() + " " +km.getPath().size() +
+//									" " +km.getPhysicalPathToString().size() + " " + PhysicalDataProvider.round((double) koalaTotalLatency / renaterTotalLatency));
+//				System.out.println();
 				//rp.removeReceivedMsg(msg.getKey());
 				//kp.removeReceivedMsg(msg.getKey());
 				entriesToRemove.add(msg.getKey());

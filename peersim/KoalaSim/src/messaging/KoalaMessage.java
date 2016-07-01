@@ -99,7 +99,11 @@ public class KoalaMessage {
 	}
 
 	public void addToPath(String destID){
-		if (destID != null)
+		boolean alreadythere = false;
+		if(path.size() > 0 && path.get(path.size()-1).equals(destID))
+			alreadythere = true;
+		
+		if (destID != null && !alreadythere)
 			path.add(destID);
 	}
 	
@@ -150,6 +154,12 @@ public class KoalaMessage {
 		return path.get(path.size()-1);
 	}
 	
+	public String getSecondLastSenderNode(){
+		if(path.size()<=1)
+			return null;
+		return path.get(path.size()-2);
+	}
+	
 //	public void setRandomLatency(String sourceID, String destID){
 //        int sDC = NodeUtilities.getDCID(sourceID);
 //        int dDC = NodeUtilities.getDCID(destID);
@@ -167,6 +177,19 @@ public class KoalaMessage {
 //        
 //	}
 	
+	public String getTypeName(){
+		switch(type){
+		case RT:
+			return "RT";
+		case NGN:
+			return "NGN";
+		case ROUTE:
+			return "ROUTE";
+		case JOIN:
+			return "JOIN";
+	}
+	return null;
+	}
 	public Class<? extends KoalaMsgContent> getContentClassFromType(){		
 		switch(type){
 			case RT:

@@ -182,7 +182,10 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 
 	private void broadcastGlobalNeighbor(KoalaNeighbor newNeig) {
         Set<String> candidates = myNode.createRandomIDs(NodeUtilities.MAGIC);
-        KoalaNeighbor[] localNeigs = {myNode.getRoutingTable().getLocalSucessor(), myNode.getRoutingTable().getLocalPredecessor()};
+        ArrayList<KoalaNeighbor> localNeigs = new ArrayList<KoalaNeighbor>(); 
+        localNeigs.add(myNode.getRoutingTable().getLocalSucessor());
+        if(!myNode.getRoutingTable().getLocalPredecessor().getNodeID().equals(myNode.getRoutingTable().getLocalSucessor().getNodeID()))
+        	localNeigs.add(myNode.getRoutingTable().getLocalPredecessor());
         
         KoalaNGNMsgContent msgContent = new KoalaNGNMsgContent(candidates.toArray(new String[candidates.size()]), newNeig); 
         KoalaMessage newMsg = new KoalaMessage(myNode.getID(), msgContent);        

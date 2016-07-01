@@ -1,6 +1,8 @@
 package koala.initializers;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -105,6 +107,13 @@ public class RenaterInitializer implements Control {
             	}
             }
         }
+        
+        
+        System.setErr(new PrintStream(new OutputStream() {
+            public void write(int b) {
+                //DO NOTHING
+            }
+        }));
         
         return false;
 	}

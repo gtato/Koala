@@ -6,6 +6,7 @@ import java.util.HashMap;
 import example.hot.InetCoordinates;
 import peersim.cdsim.CDProtocol;
 import peersim.config.FastConfig;
+import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Network;
 import peersim.core.Node;
@@ -13,6 +14,7 @@ import koala.utility.ErrorDetection;
 import koala.utility.KoalaJsonParser;
 import koala.utility.PhysicalDataProvider;
 import messaging.KoalaMessage;
+import messaging.KoalaNGNMsgContent;
 
 public abstract class TopologyProtocol implements CDProtocol {
 	protected ArrayDeque<String> queue;
@@ -82,6 +84,8 @@ public abstract class TopologyProtocol implements CDProtocol {
 		
 		String msgStr = queue.remove();
 		KoalaMessage msg = KoalaJsonParser.jsonToObject(msgStr, KoalaMessage.class);
+		String logmsg = myNode.getID() + " received a message from " + msg.getSecondLastSenderNode()  + " a msg of type: " + msg.getTypeName();
+		
 		switch(msg.getType()){
 			case KoalaMessage.RT:
 				onRoutingTable(msg);
@@ -90,12 +94,15 @@ public abstract class TopologyProtocol implements CDProtocol {
 				onRoute(msg);
 				break;
 			case KoalaMessage.NGN:
+				logmsg += " " + ((KoalaNGNMsgContent )msg.getContent()).getNeighbor().getNodeID() ; 
 				onNewGlobalNeighbours(msg);
 				break;
 			case KoalaMessage.JOIN:
 				join();
 				break;
 		}
+		if(CommonState.getTime() <= 69)
+			System.out.println(logmsg);
 	}
 	protected abstract void join();
 
@@ -128,6 +135,8 @@ public abstract class TopologyProtocol implements CDProtocol {
 			if(l <= 0)
 				System.out.println("someone invented time traveling!");
 			msg.setLatency(msg.getLatency() + l);
+			if(msg.getLastSenderNode() == null)
+				msg.addToPath(myNode.getID());
 			msg.addToPath(destinationID);
 			((TopologyProtocol)each.getProtocol(myPid)).registerMsg(msg);
 			/*TODO: uncomment this later*/
@@ -142,8 +151,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 		linkPid = FastConfig.getLinkable(protocolID);
 		intializeMyNode(node);
 		
-//		me = (TopologyProtocol) (Linkable) node.getProtocol(myPid);
-		//System.out.print(me.getID() + "  ");
+//		System.out.print(myNode.getID() + "  ");
 		receive();
 	}
 	
