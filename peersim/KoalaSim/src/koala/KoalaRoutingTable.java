@@ -3,6 +3,7 @@ package koala;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import koala.utility.NodeUtilities;
@@ -126,7 +127,7 @@ public class KoalaRoutingTable {
 
 	public Set<String> getNeighboursIDs(){
         KoalaNeighbor[] neighs = {this.localPredecessor, this.localSucessor, this.globalPredecessor, this.globalSucessor};
-        Set<String> hs = new HashSet<String>();
+        Set<String> hs = new LinkedHashSet<String>();
         
         for(int i = 0; i < neighs.length; i++)
             if(!NodeUtilities.isDefault(neighs[i]))
@@ -137,7 +138,7 @@ public class KoalaRoutingTable {
 	
 	public Set<KoalaNeighbor> getNeighbors(){
         KoalaNeighbor[] neighs = {this.localPredecessor, this.localSucessor, this.globalPredecessor, this.globalSucessor};
-        Set<KoalaNeighbor> hs = new HashSet<KoalaNeighbor>();
+        Set<KoalaNeighbor> hs = new LinkedHashSet<KoalaNeighbor>();
         
         for(int i = 0; i < neighs.length; i++)
             if(!NodeUtilities.isDefault(neighs[i]))

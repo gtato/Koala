@@ -158,6 +158,8 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		myNode.updateLatencies();
 
 		Set<String> neighborsAfter = myNode.getRoutingTable().getNeighboursIDs();
+//		if(myNode.getID().equals("5-1"))
+//			System.out.println("before: " + neighborsBefore + " after:" + neighborsAfter + " received: " + receivedNeighbors);
 		for(KoalaNeighbor newNeig : newNeighbors){
 			if(neighborsAfter.contains(newNeig.getNodeID()) && !neighborsBefore.contains(newNeig.getNodeID()) || newNeig.getNodeID().equals(sender.getID()))
 			{

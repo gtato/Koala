@@ -283,7 +283,7 @@ public class KoalaNode extends TopologyNode{
     }
     	
 	
-    public String getRoute(String dest, KoalaMessage msg) {
+    public String getRouteq(String dest, KoalaMessage msg) {
     	String ret = null;
     	AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
     	double v=0;
@@ -313,7 +313,7 @@ public class KoalaNode extends TopologyNode{
 	}
     
     //old
-    public String getRouteq(String dest, KoalaMessage msg) {
+    public String getRoute(String dest, KoalaMessage msg) {
     	String ret = null;
     	double v, max = 0;
     	Set<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
