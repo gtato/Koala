@@ -18,13 +18,16 @@ public class PhysicalDataProvider {
 	
 	
 	public static void addLatency(String src, String dst, double latency){
-		String id = getKeyID(src, dst);
+		String id = NodeUtilities.getKeyID(src, dst);
 		if(!latencies.containsKey(id))
 			latencies.put(id, round(latency));
 	}
 	
 	public static void addPath(String src, String dst, LinkedList<RenaterNode> path){
-		String id = getKeyID(src, dst);
+		if(path == null)
+			return;
+		
+		String id = NodeUtilities.getKeyID(src, dst);
 		if(!paths.containsKey(id)){
 			String strPath = "";
 			for(RenaterNode rn : path){
@@ -64,8 +67,8 @@ public class PhysicalDataProvider {
 				return intraLatency;
 			return round(2 * intraLatency);
 		}
-		if(latencies.containsKey(getKeyID(src, dst)))
-			return latencies.get(getKeyID(src, dst));
+		if(latencies.containsKey(NodeUtilities.getKeyID(src, dst)))
+			return latencies.get(NodeUtilities.getKeyID(src, dst));
 		else{
 			String gwSrc = getGW(src);
 			String gwDst = getGW(dst);
@@ -89,8 +92,8 @@ public class PhysicalDataProvider {
 				return src + " " + dst; 
 			return src +" " + getGW(src)  + " " + dst;
 		}
-		if(paths.containsKey(getKeyID(src, dst))){
-			String path = paths.get(getKeyID(src, dst));
+		if(paths.containsKey(NodeUtilities.getKeyID(src, dst))){
+			String path = paths.get(NodeUtilities.getKeyID(src, dst));
 			if(path.startsWith(src))
 				return path;
 			String reversePath = "";
@@ -125,12 +128,6 @@ public class PhysicalDataProvider {
 //		return CommonState.r.nextDouble() * (max - min) + min;
 	}
 	
-	private static String getKeyID(String src, String dst){
-		if (NodeUtilities.compare(src, dst) < 0)
-			return src+"|"+dst;
-		else
-			return dst+"|"+src;
-	}
 	
 	public static double round(double tr){
 		return Math.round(tr * 100.0 ) / 100.0;

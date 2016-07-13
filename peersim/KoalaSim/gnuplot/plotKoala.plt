@@ -14,7 +14,7 @@ i = 5
 
 # path from terminal: ../out/koalaToplogy00000000.dat
 # this is for plotting the logical topology (using KoalaNodeObserver)
-plot 'out/koalaToplogy00000000.dat' with lines lc rgb "forest-green" ,\
+plot 'out/koalaToplogy00000000.dat' with lines lc rgb "#0091ea" ,\
      'out/koalaToplogy00000000.dat' u ($1):($2):($3) with labels point pt 7 offset char 0,0.5 lc rgb "black"
 
 

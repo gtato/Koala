@@ -24,7 +24,8 @@ public class NodeUtilities {
 		A = B = C = 1;
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
 		NR_DC = Configuration.getInt("NR_DC");
-		A = (double) 1 / NR_DC;
+//		A = (double) 1 / NR_DC;
+		A = (double) 1 / NR_NODE_PER_DC;
 	}
 	
 	public static int getDCID(String id){
@@ -76,6 +77,26 @@ public class NodeUtilities {
     		return new Integer(getNodeID(id1)).compareTo(new Integer(getNodeID(id2)));
     	return new Integer(getDCID(id1)).compareTo(new Integer(getDCID(id2)));
     }
+	
+	public static String getKeyID(String src, String dst){
+		if (NodeUtilities.compare(src, dst) < 0)
+			return src+"|"+dst;
+		else
+			return dst+"|"+src;
+	}
+	
+	public static String getKeyID(int src, int dst){
+		if (src < dst)
+			return src+"|"+dst;
+		else
+			return dst+"|"+src;
+	}
+	
+	public static int[] getIDsFromKey(String key){
+		String[] sp = key.split("\\|");
+		return new int[]{Integer.parseInt(sp[0]), Integer.parseInt(sp[1])};
+	}
+	
 
 	public static double normalizeLatency(int totDistance, double latency) {
 		double x1 = 1;

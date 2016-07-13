@@ -142,7 +142,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 			msg.addToPath(destinationID);
 			((TopologyProtocol)each.getProtocol(myPid)).registerMsg(msg);
 			/*TODO: uncomment this later*/
-//			((KoalaProtocol)each.getProtocol(koalaPid)).receive();
+			((KoalaProtocol)each.getProtocol(myPid)).receive();
 		}
 	}
 	

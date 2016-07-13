@@ -56,19 +56,19 @@ public class KoalaPlanner extends GraphObserver {
 //			System.out.println("simulation probably finished at: " + CommonState.getTime());
 //			return true;
 //		}
-
+		
+		joinNodes(g.size());
 	
-		if (CommonState.r.nextInt() % 2 == 0 && !allAdded)
-//			System.out.println("(" + CommonState.getTime() + ") JOIN");
-			joinNodes();
-		else 
-//			System.out.println("(" + CommonState.getTime() + ") ROUTE");
-			route();
+//		if (CommonState.r.nextInt() % 2 == 0 && !allAdded)
+////		if(true)
+//			joinNodes();
+//		else 
+//			route();
 		return false;
 	}
 
-	private void joinNodes() {
-		ArrayList<Node> nodes = getRandomNodes(1, false, new ArrayList<Node>());
+	private void joinNodes(int count) {
+		ArrayList<Node> nodes = getRandomNodes(count, false, new ArrayList<Node>());
 		if (nodes.size() == 0){
 			allAdded = true;
 //			System.out.println("(" + CommonState.getTime() + ") NOTHING TO JOIN ");
@@ -147,8 +147,11 @@ public class KoalaPlanner extends GraphObserver {
         }
 		
 		int max = Math.min(n, complyingIndexes.size());
+		
 		for(int i = 0; i< max; i++){
 			int sel = CommonState.r.nextInt(complyingIndexes.size());
+			//TODO: remove this later
+			sel = i;
 			toRet.add((Node)g.getNode(complyingIndexes.get(sel)));
 		}
 		return toRet;
