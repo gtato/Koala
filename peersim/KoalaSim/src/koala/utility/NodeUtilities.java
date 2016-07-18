@@ -2,6 +2,7 @@ package koala.utility;
 
 import koala.KoalaNeighbor;
 import koala.RenaterNode;
+import koala.TopologyNode;
 import peersim.config.Configuration;
 import peersim.core.Node;
 
@@ -34,6 +35,12 @@ public class NodeUtilities {
 	
 	public static int getNodeID(String id){
 		return Integer.parseInt(id.split("-")[1]);
+	}
+	
+	public static boolean sameDC(TopologyNode tp1, TopologyNode tp2){
+		if(getDCID(tp1.getID()) == getDCID(tp2.getID()))
+			return true;
+		return false;
 	}
 	
 	public static int distance(String srcID, String targetID){

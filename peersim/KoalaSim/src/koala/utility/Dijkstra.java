@@ -12,21 +12,29 @@ public class Dijkstra {
 	private Set<RenaterNode> unSettledNodes;
 	private Map<RenaterNode, RenaterNode> predecessors;
 	private Map<RenaterNode, Double> distance;
+	private Map<String, Double> allDistance;
 
 	public Dijkstra() {
 //		this.nodes = new ArrayList<RenaterNode>();
 		this.edges = new ArrayList<Edge>();
+		this.allDistance = new HashMap<String, Double>();
 	}
 	
 	public Dijkstra(Graph graph) {
 		// create a copy of the array so that we can operate on this array
 //		this.nodes = new ArrayList<RenaterNode>(graph.getVertexes());
 		this.edges = new ArrayList<Edge>(graph.getEdges());
+		this.allDistance = new HashMap<String, Double>();
 	}
 
 	public void setGraph(Graph graph){
 //		this.nodes = new ArrayList<RenaterNode>(graph.getVertexes());
 		this.edges = new ArrayList<Edge>(graph.getEdges());
+		this.allDistance = new HashMap<String, Double>();
+	}
+	
+	public void setDistance(RenaterNode src, RenaterNode dst, double dist){
+		allDistance.put(NodeUtilities.getKeyID(src.getID(), dst.getID()), dist);
 	}
 	
 	public void execute(RenaterNode source) {
@@ -35,6 +43,7 @@ public class Dijkstra {
 		distance = new HashMap<RenaterNode, Double>();
 		predecessors = new HashMap<RenaterNode, RenaterNode>();
 		distance.put(source, 0.0);
+//		allDistance.put(NodeUtilities.getKeyID(source.getID(), source.getID()), 0.0);
 		unSettledNodes.add(source);
 		while (unSettledNodes.size() > 0) {
 			RenaterNode node = getMinimum(unSettledNodes);
@@ -49,8 +58,8 @@ public class Dijkstra {
 		for (RenaterNode target : adjacentNodes) {
 			if (getShortestDistance(target) > getShortestDistance(node)
 					+ getDistance(node, target)) {
-				distance.put(target,
-						getShortestDistance(node) + getDistance(node, target));
+				double dist = getShortestDistance(node) + getDistance(node, target);
+				distance.put(target, dist);
 				predecessors.put(target, node);
 				unSettledNodes.add(target);
 			}
@@ -79,6 +88,13 @@ public class Dijkstra {
 		return neighbors;
 	}
 
+	public double getShortestDistanceBetween(RenaterNode src, RenaterNode dst){
+		String key = NodeUtilities.getKeyID(src.getID(), dst.getID());
+		if(allDistance.containsKey(key))
+			return allDistance.get(key);
+		return Double.MAX_VALUE;
+	}
+	
 	private RenaterNode getMinimum(Set<RenaterNode> vertexes) {
 		RenaterNode minimum = null;
 		for (RenaterNode vertex : vertexes) {
