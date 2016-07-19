@@ -57,13 +57,13 @@ public class KoalaPlanner extends GraphObserver {
 //			return true;
 //		}
 		
-		joinNodes(g.size());
+//		joinNodes(g.size());
 	
 //		if (CommonState.r.nextInt() % 2 == 0 && !allAdded)
-////		if(true)
-//			joinNodes();
-//		else 
-//			route();
+		if(true)
+			joinNodes(1);
+		else 
+			route();
 		return false;
 	}
 

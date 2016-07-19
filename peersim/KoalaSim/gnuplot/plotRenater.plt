@@ -14,7 +14,7 @@ i = 5
 
 # path from terminal: ../out/graph00000000.dat
 # this is for plotting physical (renater) topology (using InetObserver) 
-plot 'out/renaterTopology00000000.dat' with lines lc rgb "forest-green" ,\
+plot 'out/renaterTopology00000000.dat' with lines lc rgb "#0091ea" ,\
 	 'out/renaterTopology00000000.dat' u ($1):($2):($3) with labels point pt 7 offset char 0,0.5 lc rgb "black" ,\
      'out/renaterTopology00000000.dat' u ($4):($5):6 with labels offset char 0,0.5
      

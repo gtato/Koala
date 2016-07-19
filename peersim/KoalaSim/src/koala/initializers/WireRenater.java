@@ -203,15 +203,12 @@ public class WireRenater extends WireGraph {
 		
 		ArrayList<Integer> linked = new ArrayList<Integer>();
 		linked.add(closestCenterIndex);
-//		System.out.println("first: " + gateways.get(closestCenterIndex));
 		for(int i = 0; i < gateways.size(); i++){
 			if(i == closestCenterIndex) continue;
-//			System.out.println("linking: " + gateways.get(i));
 			minDistance = Double.MAX_VALUE;
 			int closestNode = -1;
 			for(int j = 0; j < linked.size();j++){
 				distance = NodeUtilities.getPhysicalDistance(gateways.get(i), gateways.get(linked.get(j)));
-//				System.out.println("distance between " + gateways.get(i).getID() + " and "+gateways.get(linked.get(j)).getID() + " is " + distance);
 				if(distance < minDistance){
 					minDistance = distance;
 					closestNode = linked.get(j);
@@ -219,10 +216,18 @@ public class WireRenater extends WireGraph {
 			}
 			RenaterEdge re = new RenaterEdge(minDistance, getBitRate(), getSpeed());
 			((RenaterGraph)g).setEdge(gateway_indexes.get(i), gateway_indexes.get(closestNode), re);
-//			System.out.println("setting link between " + gateways.get(i).getID() + " and " + gateways.get(closestNode));
 			linked.add(i);
 		}
 		
+		for(int i =0; i < 8; i++)
+			addExtraLinks(gateway_indexes, gateways);
+		
+		computeDijsktra(g, gateway_indexes);
+		
+	}
+	
+	
+	private void addExtraLinks(ArrayList<Integer> gateway_indexes, ArrayList<RenaterNode> gateways){
 		Dijkstra dijsktra = computeDijsktra(g, gateway_indexes);
 		
 		ArrayList<Integer> singleNeighborIndexes = new ArrayList<Integer>();
@@ -310,7 +315,7 @@ public class WireRenater extends WireGraph {
 		
 		
 		ArrayList<Integer> linkd = new ArrayList<Integer>();
-		int n = 10;
+		int n = 1;
 		int j = 0;
 		for(int i = 0; i < probabilites.size() && j < n; i++){
 			if(linkd.contains(probabilites.get(i).getSrc()) || linkd.contains(probabilites.get(i).getDst()))
@@ -324,7 +329,7 @@ public class WireRenater extends WireGraph {
 			((RenaterGraph)g).setEdge(probabilites.get(i).getSrc(), probabilites.get(i).getDst(), re);
 			
 			j++;
-			System.out.println(probabilites.get(i).getSrc() + "-" + probabilites.get(i).getDst() + " " + probabilites.get(i).getRatio());
+//			System.out.println(probabilites.get(i).getSrc() + "-" + probabilites.get(i).getDst() + " " + probabilites.get(i).getRatio());
 		}
 			
 		

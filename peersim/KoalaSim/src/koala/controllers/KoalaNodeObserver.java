@@ -32,7 +32,7 @@ public class KoalaNodeObserver extends NodeObserver {
 	@Override
 	public boolean execute() {
 		updateGraph();
-		simpleReport();
+//		simpleReport();
 		generateGraph();
 		plotIt();
 //		System.out.println("");

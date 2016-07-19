@@ -84,7 +84,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 		
 		String msgStr = queue.remove();
 		KoalaMessage msg = KoalaJsonParser.jsonToObject(msgStr, KoalaMessage.class);
-//		String logmsg = myNode.getID() + " received a message from " + msg.getSecondLastSenderNode()  + " a msg of type: " + msg.getTypeName();
+		String logmsg = myNode.getID() + " received a message from " + msg.getSecondLastSenderNode()  + " a msg of type: " + msg.getTypeName();
 		
 		switch(msg.getType()){
 			case KoalaMessage.RT:
@@ -94,7 +94,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 				onRoute(msg);
 				break;
 			case KoalaMessage.NGN:
-//				logmsg += " " + ((KoalaNGNMsgContent )msg.getContent()).getNeighbor().getNodeID() ; 
+				logmsg += " " + ((KoalaNGNMsgContent )msg.getContent()).getNeighbor().getNodeID() ; 
 				onNewGlobalNeighbours(msg);
 				break;
 			case KoalaMessage.JOIN:
@@ -102,7 +102,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 				break;
 		}
 		//if(CommonState.getTime() <= 69)
-//			System.out.println(logmsg);
+			System.out.println(logmsg);
 	}
 	protected abstract void join();
 
@@ -128,8 +128,8 @@ public abstract class TopologyProtocol implements CDProtocol {
 			if(ErrorDetection.hasLoopCommunication(myNode.getID(),destinationID))
 				System.out.println("problems in horizont");
 				
-//			String logmsg = myNode.getID() + " sending a message to " + destinationID  + " a msg of type: " + msg.getTypeName();
-//			System.out.println(logmsg);
+			String logmsg = myNode.getID() + " sending a message to " + destinationID  + " a msg of type: " + msg.getTypeName();
+			System.out.println(logmsg);
 			//			System.out.println(me.getID() +"->"+ destinationID);
 //			msg.setRandomLatency(myNode.getID(), destinationID);
 			double l = PhysicalDataProvider.getLatency(myNode.getID(), destinationID);
@@ -141,8 +141,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 				msg.addToPath(myNode.getID());
 			msg.addToPath(destinationID);
 			((TopologyProtocol)each.getProtocol(myPid)).registerMsg(msg);
-			/*TODO: uncomment this later*/
-			((KoalaProtocol)each.getProtocol(myPid)).receive();
+//			((KoalaProtocol)each.getProtocol(myPid)).receive();
 		}
 	}
 	
