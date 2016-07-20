@@ -43,6 +43,12 @@ public class NodeUtilities {
 		return false;
 	}
 	
+	public static boolean sameDC(String nodeID1, String nodeID2){
+		if(getDCID(nodeID1) == getDCID(nodeID2))
+			return true;
+		return false;
+	}
+	
 	public static int distance(String srcID, String targetID){
 		return distance(srcID, targetID, false);
 	}

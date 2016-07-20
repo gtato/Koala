@@ -110,7 +110,12 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 	}
 
 	protected void onRoutingTable(KoalaMessage msg) {
+		
 		KoalaNode sender = ((KoalaRTMsgConent)msg.getContent()).getNode();
+		boolean isForeverAlone = knowSenderLocalNeighs(sender);
+		boolean sourceJoining = sender.getJoining();
+		boolean selfJoining = myNode.isJoining();
+		
 		ArrayList<KoalaNeighbor> senderOldNeighbors = sender.getRoutingTable().getOldNeighborsContainer();
 		ArrayList<KoalaNeighbor> newNeighbors = new ArrayList<KoalaNeighbor>();
 		ArrayList<KoalaNeighbor> receivedNeighbors = sender.getRoutingTable().getNeighborsContainer();
@@ -126,8 +131,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 			dcsBefore.add(NodeUtilities.getDCID(neighID));
 		dcsBefore.add(myNode.getDCID());
 		
-		boolean sourceJoining = sender.getJoining();
-		boolean selfJoining = myNode.isJoining();
+		
 		ArrayList<KoalaNeighbor> myOldNeighbors = new ArrayList<KoalaNeighbor>();
 		for(KoalaNeighbor recNeighbor: receivedNeighbors){
 			boolean isSource = recNeighbor.getNodeID().equals(sender.getID());
@@ -171,7 +175,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 					boolean newDC = !dcsBefore.contains(NodeUtilities.getDCID(newNeig.getNodeID()));
 					if(newDC && !selfJoining)
 						broadcastGlobalNeighbor(newNeig);
-					if(!myNode.isLocal(sender.getID())  && (!msg.isConfidential() || newDC) )
+					if(!myNode.isLocal(sender.getID())  && (!msg.isConfidential() || newDC || isForeverAlone) )
 					{
 						newMsg.setConfidential(true); 
 						send(newNeig.getNodeID(), newMsg);
@@ -182,6 +186,23 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		
 	}
 
+	private boolean knowSenderLocalNeighs(KoalaNode sender){
+		ArrayList<KoalaNeighbor> senderNeighbors = sender.getRoutingTable().getNeighborsContainer();
+		boolean hasLocalNeigs = false;
+		for(KoalaNeighbor kn : senderNeighbors){
+			if(NodeUtilities.sameDC(kn.getNodeID(), sender.getID()) && !kn.getNodeID().equals(sender.getID()))
+				hasLocalNeigs = true;
+		}
+		if(hasLocalNeigs)
+			return false;
+		Set<String> neighborsBefore = myNode.getRoutingTable().getNeighboursIDs();
+		for(String knID : neighborsBefore){
+			if(NodeUtilities.sameDC(knID, sender.getID()) && !knID.equals(sender.getID()))
+				return true;
+		}
+		return false;
+	}
+	
 	private void broadcastGlobalNeighbor(KoalaNeighbor newNeig) {
         Set<String> candidates = myNode.createRandomIDs(NodeUtilities.MAGIC);
         ArrayList<KoalaNeighbor> localNeigs = new ArrayList<KoalaNeighbor>(); 
