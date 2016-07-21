@@ -102,7 +102,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 				break;
 		}
 		//if(CommonState.getTime() <= 69)
-			System.out.println(logmsg);
+//			System.out.println(logmsg);
 	}
 	protected abstract void join();
 
@@ -129,7 +129,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 				System.out.println("problems in horizont");
 				
 			String logmsg = myNode.getID() + " sending a message to " + destinationID  + " a msg of type: " + msg.getTypeName();
-			System.out.println(logmsg);
+//			System.out.println(logmsg);
 			//			System.out.println(me.getID() +"->"+ destinationID);
 //			msg.setRandomLatency(myNode.getID(), destinationID);
 			double l = PhysicalDataProvider.getLatency(myNode.getID(), destinationID);

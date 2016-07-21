@@ -24,7 +24,7 @@ public class KoalaRoutingTable {
 	
 	public KoalaRoutingTable(/*String nodeID*/){
 //		this.nodeID = nodeID;
-		KoalaNeighbor defaultNeighbor = new KoalaNeighbor(NodeUtilities.DEFAULTID);
+		KoalaNeighbor defaultNeighbor = new KoalaNeighbor(NodeUtilities.DEFAULTID, true);
 		localPredecessor = defaultNeighbor;
 		localSucessor = defaultNeighbor;
 		globalPredecessor = defaultNeighbor;
@@ -40,8 +40,7 @@ public class KoalaRoutingTable {
 		
 		if(this.localPredecessor.equals(kn)){
 			//update
-			if(kn.getLatencyQuality() >= this.localPredecessor.getLatencyQuality())
-				this.localPredecessor.update(kn);
+			this.localPredecessor.update(kn);
 		}else{
 			oldEntry = this.localPredecessor; 
 			this.localPredecessor = kn;
@@ -57,8 +56,7 @@ public class KoalaRoutingTable {
 		KoalaNeighbor oldEntry = null;
 		if(this.localSucessor.equals(kn)){
 			//update
-			if(kn.getLatencyQuality() >= this.localSucessor.getLatencyQuality())
-				this.localSucessor.update(kn);
+			this.localSucessor.update(kn);
 		}else{
 			oldEntry = this.localSucessor; 
 			this.localSucessor = kn;
@@ -74,8 +72,7 @@ public class KoalaRoutingTable {
 		KoalaNeighbor oldEntry = null;
 		if(this.globalPredecessor.equals(kn)){
 			//update
-			if(kn.getLatencyQuality() >= this.globalPredecessor.getLatencyQuality())
-				this.globalPredecessor.update(kn);
+			this.globalPredecessor.update(kn);
 		}else{
 			oldEntry = this.globalPredecessor; 
 			this.globalPredecessor = kn;
@@ -91,8 +88,7 @@ public class KoalaRoutingTable {
 		KoalaNeighbor oldEntry = null;
 		if(this.globalSucessor.equals(kn)){
 			//update
-			if(kn.getLatencyQuality() >= this.globalSucessor.getLatencyQuality())
-				this.globalSucessor.update(kn);
+			this.globalSucessor.update(kn);
 		}else{
 			oldEntry = this.globalSucessor; 
 			this.globalSucessor = kn;

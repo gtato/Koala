@@ -39,7 +39,7 @@ public class KoalaNode extends TopologyNode{
 
 	private boolean isJoining;
 	private KoalaRoutingTable routingTable;
-	        
+	
 	private HashMap<Integer, Double> latencyPerDC = new HashMap<Integer, Double>(); 
 	
 	public KoalaNode(String prefix) {
@@ -381,7 +381,9 @@ public class KoalaNode extends TopologyNode{
 		
 	}
 
-		
+	
+
+
 	public static class KoalaNodeSerializer implements JsonSerializer<KoalaNode> {
 
 		@Override
@@ -401,6 +403,7 @@ public class KoalaNode extends TopologyNode{
 			JsonObject obj = new JsonObject();
 			obj.addProperty("id", src.getID());
 			obj.addProperty("joining", src.isJoining());
+			
 			obj.add("neighbors", (JsonElement)neighbors);
 			obj.add("oldNeighbors", (JsonElement)oldNeighbors);
 			return obj;
@@ -420,6 +423,7 @@ public class KoalaNode extends TopologyNode{
 			KoalaNode kn = (KoalaNode) sample.clone();
 			kn.setID(srcJO.get("id").getAsString());
 			kn.setJoining(srcJO.get("joining").getAsBoolean());
+		
 			JsonArray neigs = srcJO.getAsJsonArray("neighbors");
 			ArrayList<KoalaNeighbor> neighbors = new ArrayList<KoalaNeighbor>();
 			for(JsonElement neig : neigs)
