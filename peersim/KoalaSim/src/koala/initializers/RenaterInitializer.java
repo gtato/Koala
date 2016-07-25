@@ -61,8 +61,10 @@ public class RenaterInitializer implements Control {
         
         if(Files.exists(Paths.get(dc_file))){
         	 lines = getDcCordsFromFile();
-        	 if(lines != null)
+        	 if(lines != null){
         		 nrDC = lines.size();
+        		 NodeUtilities.NR_DC = nrDC;
+        	 }
         }
         
         

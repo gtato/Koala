@@ -24,7 +24,7 @@ public class KoalaRoutingTable {
 	
 	public KoalaRoutingTable(/*String nodeID*/){
 //		this.nodeID = nodeID;
-		KoalaNeighbor defaultNeighbor = new KoalaNeighbor(NodeUtilities.DEFAULTID, true);
+		KoalaNeighbor defaultNeighbor = new KoalaNeighbor(NodeUtilities.DEFAULTID);
 		localPredecessor = defaultNeighbor;
 		localSucessor = defaultNeighbor;
 		globalPredecessor = defaultNeighbor;

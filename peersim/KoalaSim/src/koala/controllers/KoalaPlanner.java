@@ -60,7 +60,8 @@ public class KoalaPlanner extends GraphObserver {
 //		joinNodes(g.size());
 	
 //		if (CommonState.r.nextInt() % 2 == 0 && !allAdded)
-		if(true)
+//		if(true)
+		if(!allAdded)
 			joinNodes(1);
 		else 
 			route();
@@ -141,6 +142,8 @@ public class KoalaPlanner extends GraphObserver {
         	int id = koaProtPid >= 0 ? koaProtPid : renProtPid;
         	TopologyProtocol currentNode = (TopologyProtocol)((Node)g.getNode(i)).getProtocol(id);
         	boolean cond = joined ? currentNode.hasJoined() : !currentNode.hasJoined();
+//        	if(id == renProtPid)
+//        		cond = true;
 //        	if(cond && ((KoalaNode)((Node)g.getNode(i)).getProtocol(targetNodePid)).isGateway()  )
         	if(cond)
             	complyingIndexes.add(i);
@@ -151,7 +154,7 @@ public class KoalaPlanner extends GraphObserver {
 		for(int i = 0; i< max; i++){
 			int sel = CommonState.r.nextInt(complyingIndexes.size());
 			//TODO: remove this later
-			sel = i;
+//			sel = i;
 			toRet.add((Node)g.getNode(complyingIndexes.get(sel)));
 		}
 		return toRet;

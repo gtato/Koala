@@ -17,8 +17,7 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 
 	@Override
 	protected void join() {
-		// TODO Auto-generated method stub
-		
+		setJoined(true);
 	}
 
 	@Override
@@ -44,15 +43,21 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 		
 	}
 
-	@Override
-	public boolean hasJoined() {
-		return true;
-	}
+//	@Override
+//	public boolean hasJoined() {
+//		return true;
+//	}
 
 	@Override
 	protected void intializeMyNode(Node node) {
 		super.intializeMyNode(node);
 		myNode = (RenaterNode) (Linkable) node.getProtocol(linkPid);
+	}
+
+	@Override
+	protected void checkPiggybacked(KoalaMessage msg) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

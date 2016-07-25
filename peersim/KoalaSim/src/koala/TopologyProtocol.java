@@ -10,8 +10,10 @@ import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Network;
 import peersim.core.Node;
+import koala.controllers.ResultCollector;
 import koala.utility.ErrorDetection;
 import koala.utility.KoalaJsonParser;
+import koala.utility.NodeUtilities;
 import koala.utility.PhysicalDataProvider;
 import messaging.KoalaMessage;
 import messaging.KoalaNGNMsgContent;
@@ -43,8 +45,10 @@ public abstract class TopologyProtocol implements CDProtocol {
         return inp;
     }
 	
-	public abstract boolean hasJoined();
-	
+//	public abstract boolean hasJoined();
+	public boolean hasJoined() {
+		return joined;
+	}
 
 	public void setJoined(boolean joined) {
 		this.joined = joined;
@@ -101,11 +105,16 @@ public abstract class TopologyProtocol implements CDProtocol {
 				join();
 				break;
 		}
+		
+		checkPiggybacked(msg);
+		
 		//if(CommonState.getTime() <= 69)
 //			System.out.println(logmsg);
 	}
 	protected abstract void join();
 
+	protected abstract void checkPiggybacked(KoalaMessage msg);
+	
 	protected abstract void onNewGlobalNeighbours(KoalaMessage msg);
 
 	protected abstract void onRoute(KoalaMessage msg);
@@ -141,6 +150,12 @@ public abstract class TopologyProtocol implements CDProtocol {
 				msg.addToPath(myNode.getID());
 			msg.addToPath(destinationID);
 			((TopologyProtocol)each.getProtocol(myPid)).registerMsg(msg);
+			
+			if(NodeUtilities.getDCID(myNode.getID()) == NodeUtilities.getDCID(destinationID))
+				ResultCollector.countIntra();
+			else
+				ResultCollector.countInter();
+			
 //			((KoalaProtocol)each.getProtocol(myPid)).receive();
 		}
 	}

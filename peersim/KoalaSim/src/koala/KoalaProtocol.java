@@ -42,7 +42,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 			KoalaNode bootstrapRn = (KoalaNode)bootstrap.getProtocol(linkPid);
 			String bootstrapID = bootstrapRn.getID();
 			myNode.setBootstrapID( bootstrapID );
-			KoalaNeighbor first = new KoalaNeighbor(bootstrapID, nodeIsForeverAlone(bootstrapRn));
+			KoalaNeighbor first = new KoalaNeighbor(bootstrapID);
 			myNode.tryAddNeighbour(first);
 			
 			setJoined(true);
@@ -121,7 +121,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		ArrayList<KoalaNeighbor> receivedNeighbors = sender.getRoutingTable().getNeighborsContainer();
 		receivedNeighbors.addAll(senderOldNeighbors);
 		
-		receivedNeighbors.add(new KoalaNeighbor(sender.getID(), nodeIsForeverAlone(sender)));
+		receivedNeighbors.add(new KoalaNeighbor(sender.getID()));
 		
 		
 		
@@ -143,7 +143,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 			double l = isSource ? msg.getLatency() : recNeighbor.getLatency();
 			int lq = myNode.getLatencyQuality(isSource, sender.getID(), recNeighbor);
 			
-            int res  = myNode.tryAddNeighbour(new KoalaNeighbor(recNeighbor.getNodeID(), l, lq, recNeighbor.isForeverAlone()));
+            int res  = myNode.tryAddNeighbour(new KoalaNeighbor(recNeighbor.getNodeID(), l, lq));
 			ArrayList<KoalaNeighbor> oldies = myNode.getRoutingTable().getOldNeighborsContainer();
 			myOldNeighbors.addAll(oldies);
 
@@ -162,7 +162,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		myNode.updateLatencies();
 
 		Set<String> neighborsAfter = myNode.getRoutingTable().getNeighboursIDs();
-		System.out.println();
+//		System.out.println();
 //		if(myNode.getID().equals("5-1"))
 //			System.out.println("before: " + neighborsBefore + " after:" + neighborsAfter + " received: " + receivedNeighbors);
 		for(KoalaNeighbor newNeig : newNeighbors){
@@ -185,19 +185,19 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 			}
 		}
 		
-		sendToForeverAlone(myOldNeighbors);
+//		sendToForeverAlone(myOldNeighbors);
 		
 	}
 
-	private void sendToForeverAlone(ArrayList<KoalaNeighbor> myOldNeighbors) {
-		KoalaMessage newMsg = new KoalaMessage(myNode.getID(), new KoalaRTMsgConent(myNode));
-		for(KoalaNeighbor oldie: myOldNeighbors){
-			if(oldie.isForeverAlone())
-//				System.out.println(oldie.getNodeID() + " is forever alone maybe " + myNode.getID() +" should introduce it to new people");
-				send(oldie.getNodeID(), newMsg);
-		}
-		
-	}
+//	private void sendToForeverAlone(ArrayList<KoalaNeighbor> myOldNeighbors) {
+//		KoalaMessage newMsg = new KoalaMessage(myNode.getID(), new KoalaRTMsgConent(myNode));
+//		for(KoalaNeighbor oldie: myOldNeighbors){
+//			if(oldie.isForeverAlone())
+////				System.out.println(oldie.getNodeID() + " is forever alone maybe " + myNode.getID() +" should introduce it to new people");
+//				send(oldie.getNodeID(), newMsg);
+//		}
+//		
+//	}
 
 //	private boolean knowSenderLocalNeighs(KoalaNode sender){
 //		ArrayList<KoalaNeighbor> senderNeighbors = sender.getRoutingTable().getNeighborsContainer();
@@ -258,14 +258,35 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 	
 	
 
-	public boolean hasJoined() {
-		return joined;
-	}
+//	public boolean hasJoined() {
+//		return joined;
+//	}
 
 	@Override
 	protected void intializeMyNode(Node node) {
 		super.intializeMyNode(node);
 		myNode = (KoalaNode) (Linkable) node.getProtocol(linkPid);
+		
+	}
+
+	@Override
+	protected void checkPiggybacked(KoalaMessage msg) {
+		ArrayList<KoalaNeighbor> receivedNeighbors = new ArrayList<KoalaNeighbor>();
+		for(String p : msg.getPath())
+			receivedNeighbors.add(new KoalaNeighbor(p));
+		
+		
+		for(KoalaNeighbor recNeighbor: receivedNeighbors){
+			if(recNeighbor.getNodeID().equals(myNode.getID())) continue;
+			int res  = myNode.tryAddNeighbour(recNeighbor);
+			
+			if( res == 2){
+				KoalaMessage newMsg = new KoalaMessage(myNode.getID(), new KoalaRTMsgConent(myNode));
+//				send(recNeighbor.getNodeID(), newMsg);
+//				System.out.println("### " + myNode.getID() + " found " + recNeighbor.getNodeID());
+			}
+				
+		}
 		
 	}
 }

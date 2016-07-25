@@ -219,9 +219,9 @@ public class WireRenater extends WireGraph {
 			linked.add(i);
 		}
 		
-		for(int i =0; i < 8; i++)
-			addExtraLinks(gateway_indexes, gateways);
-		
+//		for(int i =0; i < 8; i++)
+//			addExtraLinks(gateway_indexes, gateways);
+//		
 		computeDijsktra(g, gateway_indexes);
 		
 	}

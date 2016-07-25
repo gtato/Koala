@@ -32,7 +32,7 @@ public class KoalaNodeObserver extends NodeObserver {
 	@Override
 	public boolean execute() {
 		updateGraph();
-//		simpleReport();
+		simpleReport();
 		generateGraph();
 		plotIt();
 //		System.out.println("");
@@ -66,24 +66,56 @@ public class KoalaNodeObserver extends NodeObserver {
 	}
 
 	private void simpleReport() {
+		ArrayList<String> withoutLocalNeighs = new ArrayList<String>();
+		ArrayList<String> withOneLocalNeigh = new ArrayList<String>();
+		ArrayList<String> withTwoLocalNeigh = new ArrayList<String>();
+		ArrayList<String> unknown = new ArrayList<String>();
 		for (int i = 0; i < g.size(); i++) 
 		{
+			boolean neighborToSomeone=false;
 			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
-			System.out.println("ID: " + current.getID() + ", bootstrap: " + current.getBootstrapID());
-			System.out.println("my neighbours are: ");
+			System.out.print("ID: " + current.getID() + ", bootstrap: " + current.getBootstrapID());
+			System.out.print(", neighbours: ");
 			Set<String> neigs = current.getRoutingTable().getNeighboursIDs(); 
 			
+			int ln=0;
 			for(String n : neigs ){
-				System.out.println("\t" + n);
+				if(NodeUtilities.sameDC(current.getID(), n))
+					ln++;
+				System.out.print("\t" + n);
 			}
+			if(ln == 0)
+				withoutLocalNeighs.add(current.getID());
+			else if (ln == 1)
+				withOneLocalNeigh.add(current.getID());
+			else if (ln == 2)
+				withTwoLocalNeigh.add(current.getID());
+			System.out.println();
+			
+			
+			for (int j = 0; j < g.size(); j++) 
+			{
+				if (i == j) continue;
+				if (((KoalaNode) ((Node)g.getNode(j)).getProtocol(pid)).getRoutingTable().getNeighboursIDs().contains(current.getID()))
+					neighborToSomeone = true;
+			}
+			
+			if(!neighborToSomeone)
+				unknown.add(current.getID());
+			
 		}
+		System.out.println("Without local neighbors: ("+ withoutLocalNeighs.size()+ ") "  +withoutLocalNeighs +
+				           "\nWith one local neighbor: ("+ withOneLocalNeigh.size()+ ") " +withOneLocalNeigh +
+				           "\nWith two local neighbors: ("+ withTwoLocalNeigh.size()+ ") " +withTwoLocalNeigh +
+				           "\nUnknown: (" +unknown.size() +  ") "+unknown           
+				);
 	}
 	
 	private double[] getNextCoordinate(String id){
 		int dc_id = koala.utility.NodeUtilities.getDCID(id);
 		double radius = 0.5;
 		double[] center = {radius, radius};
-		double unitangle = 2*Math.PI/Configuration.getInt("NR_DC");
+		double unitangle = 2*Math.PI/NodeUtilities.NR_DC;
 		double[] entry = new double[2];
 		double angle = 0;
 		if(cords.containsKey(dc_id)){

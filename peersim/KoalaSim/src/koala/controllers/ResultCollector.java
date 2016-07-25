@@ -26,6 +26,9 @@ public class ResultCollector extends GraphObserver {
 	private double renaterTotalLatency = 0;
 	private double koalaTotalLatency = 0;
 	
+	private static int nrInterDCMsg = 0;
+	private static int nrIntraDCMsg = 0;
+	
 	public ResultCollector(String prefix) {
 		super(prefix);
 		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
@@ -35,6 +38,16 @@ public class ResultCollector extends GraphObserver {
 	@Override
 	public boolean execute() {
 		updateGraph();
+		if(koaProtPid > 0)
+			compare();
+		else
+			reportRenater();
+		
+		System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg));
+		return false;
+	}
+	
+	private void compare(){
 		ArrayList<Integer> entriesToRemove = new ArrayList<Integer>();
 		for(Map.Entry<Integer, Node> msg : sentMgs.entrySet()){
 			RenaterProtocol rp = (RenaterProtocol) msg.getValue().getProtocol(renProtPid);
@@ -66,15 +79,43 @@ public class ResultCollector extends GraphObserver {
 		
 		for(Integer rem: entriesToRemove)
 			sentMgs.remove(rem);
-		
-		
-		return false;
 	}
+	
+	private void reportRenater(){
+		ArrayList<Integer> entriesToRemove = new ArrayList<Integer>();
+		for(Map.Entry<Integer, Node> msg : sentMgs.entrySet()){
+			RenaterProtocol rp = (RenaterProtocol) msg.getValue().getProtocol(renProtPid);
+			if(rp.hasReceivedMsg(msg.getKey())){
+				KoalaMessage rm = rp.getReceivedMsg(msg.getKey());
+				renaterTotalLatency += rm.getLatency();
+				renaterTotalLatency = PhysicalDataProvider.round(renaterTotalLatency);
+				
+				//do stuff 
+				String ok = rm.getPath().toString().equals(rm.getPhysicalPathToString().toString()) ? " (ok) " : " (not ok) ";
+				System.out.println("(R) "+rm.getID() + ": " + rm.getLatency() + " " + rm.getPath() + " " + rm.getPhysicalPathToString() + ok);
+				System.out.println();
+				rp.removeReceivedMsg(msg.getKey());
+				entriesToRemove.add(msg.getKey());
+			}
+				
+		}
+		
+		for(Integer rem: entriesToRemove)
+			sentMgs.remove(rem);
+	}
+	
 	
 	public static void addSentMsg(int msgID, Node dest ){
 		sentMgs.put(msgID, dest);
 	}
 	
+	public static void countInter(){
+		nrInterDCMsg++;
+	}
+	
+	public static void countIntra(){
+		nrIntraDCMsg++;
+	}
 	
 //	public static class MsgEntry{
 //		Node dest;

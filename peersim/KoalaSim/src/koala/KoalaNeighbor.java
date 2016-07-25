@@ -8,21 +8,17 @@ public class KoalaNeighbor{
 	private String nodeID;
 	private double latency = -1;
 	private int latencyQuality = -1;
-	private boolean foreverAlone; //probably has not found it's DC
-
-	public KoalaNeighbor(String nodeID, boolean foreverAlone) {
+	
+	public KoalaNeighbor(String nodeID) {
 		super();
 		this.nodeID = nodeID;
-		this.foreverAlone = foreverAlone;
 	}
 	
-	public KoalaNeighbor(String nodeID, double latency, int latencyQuality, boolean foreverAlone) {
+	public KoalaNeighbor(String nodeID, double latency, int latencyQuality) {
 		super();
 		this.nodeID = nodeID;
 		this.latency = latency;
 		this.latencyQuality = latencyQuality;
-		this.foreverAlone = foreverAlone;
-		
 	}
 	
 	public KoalaNeighbor(String nodeID, double latency) {
@@ -56,8 +52,6 @@ public class KoalaNeighbor{
 			setLatency(updated.getLatency());
 			setLatencyQuality(updated.getLatencyQuality());
 		}
-		 
-		setForeverAlone(updated.isForeverAlone());
 	}
 	
 	public boolean equals(KoalaNeighbor n){
@@ -75,15 +69,8 @@ public class KoalaNeighbor{
 	
 	
 	public String toString(){
-		String alone = isForeverAlone() ? "(alone)" : "(not alone)";
-		return getNodeID() + ": ["+getLatency()+", " + getLatencyQuality()+"] " + alone ;
+
+		return getNodeID() + ": ["+getLatency()+", " + getLatencyQuality()+"]";
 	}
 
-	public boolean isForeverAlone() {
-		return foreverAlone;
-	}
-
-	public void setForeverAlone(boolean foreverAlone) {
-		this.foreverAlone = foreverAlone;
-	}
 }
