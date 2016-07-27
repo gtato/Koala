@@ -122,8 +122,19 @@ public class KoalaRoutingTable {
 	}
 
 	public Set<String> getNeighboursIDs(){
-        KoalaNeighbor[] neighs = {this.localPredecessor, this.localSucessor, this.globalPredecessor, this.globalSucessor};
-        Set<String> hs = new LinkedHashSet<String>();
+		return getNeighboursIDs(0);
+	}
+	
+	public Set<String> getNeighboursIDs(int which){
+		KoalaNeighbor[] neighs;
+		if(which == 1) 
+			neighs = new KoalaNeighbor[]{this.localPredecessor, this.localSucessor};
+		else if (which == 2)
+			neighs = new KoalaNeighbor[]{this.globalPredecessor, this.globalSucessor};
+		else 
+			neighs = new KoalaNeighbor[]{this.localPredecessor, this.localSucessor, this.globalPredecessor, this.globalSucessor};
+		
+		Set<String> hs = new LinkedHashSet<String>();
         
         for(int i = 0; i < neighs.length; i++)
             if(!NodeUtilities.isDefault(neighs[i]))

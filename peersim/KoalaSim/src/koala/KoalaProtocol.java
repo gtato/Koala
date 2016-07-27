@@ -31,13 +31,13 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		
 	public void join()
 	{
-		if(hasJoined())
+		if(myNode.hasJoined())
 			return;
 		
 		Node bootstrap = getBootstrap();
 		
 		if (bootstrap == null)
-			setJoined(true);
+			myNode.setJoined(true);
 		else{
 			KoalaNode bootstrapRn = (KoalaNode)bootstrap.getProtocol(linkPid);
 			String bootstrapID = bootstrapRn.getID();
@@ -45,7 +45,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 			KoalaNeighbor first = new KoalaNeighbor(bootstrapID);
 			myNode.tryAddNeighbour(first);
 			
-			setJoined(true);
+			myNode.setJoined(true);
 			KoalaMessage km = new KoalaMessage(myNode.getID(), new KoalaRTMsgConent(myNode));
 			send(bootstrapID, km);
 		}
@@ -53,10 +53,12 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 	
 	private Node getBootstrap()
 	{
-		KoalaProtocol each;
+//		KoalaProtocol each;
+		KoalaNode each;
 		ArrayList<Node> joined = new ArrayList<Node>();
 		for (int i = 0; i < Network.size(); i++) {
-            each = (KoalaProtocol) Network.get(i).getProtocol(myPid);
+//            each = (KoalaProtocol) Network.get(i).getProtocol(myPid);
+            each = (KoalaNode) Network.get(i).getProtocol(linkPid);
             if(each.hasJoined())
             	joined.add(Network.get(i));   	
 		}
@@ -282,10 +284,25 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 			
 			if( res == 2){
 				KoalaMessage newMsg = new KoalaMessage(myNode.getID(), new KoalaRTMsgConent(myNode));
-//				send(recNeighbor.getNodeID(), newMsg);
+				send(recNeighbor.getNodeID(), newMsg);
 //				System.out.println("### " + myNode.getID() + " found " + recNeighbor.getNodeID());
 			}
 				
+		}
+		
+	}
+
+	@Override
+	protected void checkStatus() {
+		long age = myNode.getAge(); 
+		if(age >=  1000){
+			Set<String> localNeigs =  myNode.getRoutingTable().getNeighboursIDs(1);
+			if(localNeigs.size() < 2){
+				System.out.println("("+CommonState.getTime()+") "+ myNode.getID() + " is " +age +" cycles old and has "+ localNeigs.size() +" friends");
+				myNode.setJoined(false);
+				myNode.resetRoutingTable();
+				join();
+			}
 		}
 		
 	}

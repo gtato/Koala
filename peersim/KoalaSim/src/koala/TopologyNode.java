@@ -1,5 +1,6 @@
 package koala;
 
+import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.core.Protocol;
@@ -8,6 +9,33 @@ import example.hot.InetCoordinates;
 public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 
 	private String id;
+	private long birthday;
+	protected boolean joined;
+	
+	public long getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(long birthday) {
+		this.birthday = birthday;
+	}
+
+	public boolean hasJoined() {
+		return joined;
+	}
+
+	public void setJoined(boolean joined) {
+		this.joined = joined;
+		if(joined)
+			this.setBirthday(CommonState.getTime());
+	}
+	
+	public long getAge(){
+		if(!joined)
+			return -1;
+		return CommonState.getTime() - getBirthday();
+	}
+
 	
 	public TopologyNode(String prefix) {
 		super(prefix);

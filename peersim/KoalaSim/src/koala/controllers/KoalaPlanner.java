@@ -60,8 +60,8 @@ public class KoalaPlanner extends GraphObserver {
 //		joinNodes(g.size());
 	
 //		if (CommonState.r.nextInt() % 2 == 0 && !allAdded)
-//		if(true)
-		if(!allAdded)
+		if(true)
+//		if(!allAdded)
 			joinNodes(1);
 		else 
 			route();
@@ -85,7 +85,7 @@ public class KoalaPlanner extends GraphObserver {
 	        	RenaterProtocol retProt = (RenaterProtocol) node.getProtocol(renProtPid);
 	        	retProt.registerMsg(joinMsg);
 			}
-			System.out.println("(" + CommonState.getTime() + ") JOIN: " + ((RenaterNode) node.getProtocol(renNodePid)).getID());
+//			System.out.println("(" + CommonState.getTime() + ") JOIN: " + ((RenaterNode) node.getProtocol(renNodePid)).getID());
 		}
 	}
 	
@@ -122,7 +122,7 @@ public class KoalaPlanner extends GraphObserver {
 	        	msg.setID(msgID);
 	        	retProt.registerMsg(msg);
 			}
-			System.out.println("(" + CommonState.getTime() + ") ROUTE: " + sourc.getID() + " -> " + dest.getID());
+//			System.out.println("(" + CommonState.getTime() + ") ROUTE: " + sourc.getID() + " -> " + dest.getID());
 			ResultCollector.addSentMsg(msgID, dests.get(i));
 			msgID++;
 			
@@ -139,9 +139,12 @@ public class KoalaPlanner extends GraphObserver {
 		for (int i = 0; i < g.size(); i++) {
 			if(except.contains(g.getNode(i)))
 				continue;
-        	int id = koaProtPid >= 0 ? koaProtPid : renProtPid;
-        	TopologyProtocol currentNode = (TopologyProtocol)((Node)g.getNode(i)).getProtocol(id);
-        	boolean cond = joined ? currentNode.hasJoined() : !currentNode.hasJoined();
+        	//int id = koaProtPid >= 0 ? koaProtPid : renProtPid;
+        	int nid = koaProtPid >= 0 ? koaNodePid : renNodePid;
+        	//TopologyProtocol currentNode = (TopologyProtocol)((Node)g.getNode(i)).getProtocol(id);
+        	TopologyNode ncurrentNode = (TopologyNode)((Node)g.getNode(i)).getProtocol(nid);
+        	//boolean cond = joined ? currentNode.hasJoined() : !currentNode.hasJoined();
+        	boolean cond = joined ? ncurrentNode.hasJoined() : !ncurrentNode.hasJoined();
 //        	if(id == renProtPid)
 //        		cond = true;
 //        	if(cond && ((KoalaNode)((Node)g.getNode(i)).getProtocol(targetNodePid)).isGateway()  )

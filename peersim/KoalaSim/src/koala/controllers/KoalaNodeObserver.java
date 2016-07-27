@@ -20,10 +20,11 @@ public class KoalaNodeObserver extends NodeObserver {
     
     HashMap<Integer, double[]> cords = new HashMap<Integer, double[]>();
     ArrayList<KoalaNode> orderedGraph = new ArrayList<KoalaNode>(); 
-    
+    int logNodes;
 	public KoalaNodeObserver(String prefix) {
 		super(prefix);
 		plotScript = "gnuplot/plotKoala.plt";
+		logNodes = Configuration.getInt("logging.nodes");
 	}
 
 	
@@ -32,6 +33,7 @@ public class KoalaNodeObserver extends NodeObserver {
 	@Override
 	public boolean execute() {
 		updateGraph();
+		
 		simpleReport();
 		generateGraph();
 		plotIt();
@@ -74,15 +76,16 @@ public class KoalaNodeObserver extends NodeObserver {
 		{
 			boolean neighborToSomeone=false;
 			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
-			System.out.print("ID: " + current.getID() + ", bootstrap: " + current.getBootstrapID());
-			System.out.print(", neighbours: ");
+			String log = "ID: " + current.getID() + ", bootstrap: " + current.getBootstrapID();
+			log += ", neighbours: ";
+			
 			Set<String> neigs = current.getRoutingTable().getNeighboursIDs(); 
 			
 			int ln=0;
 			for(String n : neigs ){
 				if(NodeUtilities.sameDC(current.getID(), n))
 					ln++;
-				System.out.print("\t" + n);
+				log += "\t" + n;
 			}
 			if(ln == 0)
 				withoutLocalNeighs.add(current.getID());
@@ -90,7 +93,8 @@ public class KoalaNodeObserver extends NodeObserver {
 				withOneLocalNeigh.add(current.getID());
 			else if (ln == 2)
 				withTwoLocalNeigh.add(current.getID());
-			System.out.println();
+			if (logNodes == 2)
+				System.out.println(log);
 			
 			
 			for (int j = 0; j < g.size(); j++) 
@@ -104,7 +108,8 @@ public class KoalaNodeObserver extends NodeObserver {
 				unknown.add(current.getID());
 			
 		}
-		System.out.println("Without local neighbors: ("+ withoutLocalNeighs.size()+ ") "  +withoutLocalNeighs +
+		if(logNodes == 1)
+			System.out.println("Without local neighbors: ("+ withoutLocalNeighs.size()+ ") "  +withoutLocalNeighs +
 				           "\nWith one local neighbor: ("+ withOneLocalNeigh.size()+ ") " +withOneLocalNeigh +
 				           "\nWith two local neighbors: ("+ withTwoLocalNeigh.size()+ ") " +withTwoLocalNeigh +
 				           "\nUnknown: (" +unknown.size() +  ") "+unknown           

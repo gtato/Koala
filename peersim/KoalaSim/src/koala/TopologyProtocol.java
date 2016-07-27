@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import example.hot.InetCoordinates;
 import peersim.cdsim.CDProtocol;
+import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Linkable;
@@ -27,11 +28,12 @@ public abstract class TopologyProtocol implements CDProtocol {
 	protected int linkPid = -1;
 	protected int myPid = -1;
 
-	protected boolean joined;
+	protected boolean logMsg;
 	
 	public TopologyProtocol(String prefix) {
 		queue = new ArrayDeque<String>();
         receivedMsgs = new HashMap<Integer, KoalaMessage>();
+        logMsg = Configuration.getInt("logging.msg") == 1;
 	}
 	
 	public Object clone() {
@@ -46,13 +48,6 @@ public abstract class TopologyProtocol implements CDProtocol {
     }
 	
 //	public abstract boolean hasJoined();
-	public boolean hasJoined() {
-		return joined;
-	}
-
-	public void setJoined(boolean joined) {
-		this.joined = joined;
-	}
 
 	
 	public boolean hasEmptyQueue(){
@@ -88,8 +83,9 @@ public abstract class TopologyProtocol implements CDProtocol {
 		
 		String msgStr = queue.remove();
 		KoalaMessage msg = KoalaJsonParser.jsonToObject(msgStr, KoalaMessage.class);
-		String logmsg = myNode.getID() + " received a message from " + msg.getSecondLastSenderNode()  + " a msg of type: " + msg.getTypeName();
-		
+		String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " received a message from " + msg.getSecondLastSenderNode()  + " a msg of type: " + msg.getTypeName();
+		if(logMsg)
+			System.out.println(logmsg);
 		switch(msg.getType()){
 			case KoalaMessage.RT:
 				onRoutingTable(msg);
@@ -98,7 +94,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 				onRoute(msg);
 				break;
 			case KoalaMessage.NGN:
-				logmsg += " " + ((KoalaNGNMsgContent )msg.getContent()).getNeighbor().getNodeID() ; 
+//				logmsg += " " + ((KoalaNGNMsgContent )msg.getContent()).getNeighbor().getNodeID() ; 
 				onNewGlobalNeighbours(msg);
 				break;
 			case KoalaMessage.JOIN:
@@ -106,7 +102,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 				break;
 		}
 		
-		checkPiggybacked(msg);
+//		checkPiggybacked(msg);
 		
 		//if(CommonState.getTime() <= 69)
 //			System.out.println(logmsg);
@@ -114,6 +110,8 @@ public abstract class TopologyProtocol implements CDProtocol {
 	protected abstract void join();
 
 	protected abstract void checkPiggybacked(KoalaMessage msg);
+	
+	protected abstract void checkStatus();
 	
 	protected abstract void onNewGlobalNeighbours(KoalaMessage msg);
 
@@ -137,8 +135,9 @@ public abstract class TopologyProtocol implements CDProtocol {
 			if(ErrorDetection.hasLoopCommunication(myNode.getID(),destinationID))
 				System.out.println("problems in horizont");
 				
-			String logmsg = myNode.getID() + " sending a message to " + destinationID  + " a msg of type: " + msg.getTypeName();
-//			System.out.println(logmsg);
+			String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " sending a message to " + destinationID  + " a msg of type: " + msg.getTypeName();
+			if(logMsg)
+			System.out.println(logmsg);
 			//			System.out.println(me.getID() +"->"+ destinationID);
 //			msg.setRandomLatency(myNode.getID(), destinationID);
 			double l = PhysicalDataProvider.getLatency(myNode.getID(), destinationID);
@@ -169,6 +168,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 		
 //		System.out.print(myNode.getID() + "  ");
 		receive();
+		checkStatus();
 	}
 	
 

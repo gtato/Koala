@@ -1,5 +1,6 @@
 package koala.controllers;
 
+import java.awt.color.CMMException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +11,7 @@ import koala.RenaterProtocol;
 import koala.TopologyProtocol;
 import koala.utility.PhysicalDataProvider;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Node;
 import peersim.reports.GraphObserver;
 
@@ -42,8 +44,8 @@ public class ResultCollector extends GraphObserver {
 			compare();
 		else
 			reportRenater();
-		
-		System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg));
+		if(CommonState.getTime() == CommonState.getEndTime()-1)
+			System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg));
 		return false;
 	}
 	
