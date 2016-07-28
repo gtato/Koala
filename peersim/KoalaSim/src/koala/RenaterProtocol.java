@@ -16,7 +16,7 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 	}
 
 	@Override
-	protected void join() {
+	public void join() {
 		myNode.setJoined(true);
 	}
 
@@ -49,7 +49,7 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 //	}
 
 	@Override
-	protected void intializeMyNode(Node node) {
+	public void intializeMyNode(Node node) {
 		super.intializeMyNode(node);
 		myNode = (RenaterNode) (Linkable) node.getProtocol(linkPid);
 	}
@@ -59,12 +59,12 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	protected void checkStatus() {
-		// TODO Auto-generated method stub
-		
-	}
+//
+//	@Override
+//	protected void checkStatus() {
+//		// TODO Auto-generated method stub
+//		
+//	}
 	
 	
 

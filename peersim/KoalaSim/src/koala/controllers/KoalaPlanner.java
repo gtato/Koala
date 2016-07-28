@@ -59,11 +59,13 @@ public class KoalaPlanner extends GraphObserver {
 		
 //		joinNodes(g.size());
 	
-//		if (CommonState.r.nextInt() % 2 == 0 && !allAdded)
-		if(true)
+//	if (CommonState.r.nextInt() % 2 == 0 && !allAdded)
+		//if(true)
 //		if(!allAdded)
-			joinNodes(1);
-		else 
+//			joinNodes(1);
+//		else 
+//			route();
+		if(CommonState.getTime() % 100 == 0)
 			route();
 		return false;
 	}
@@ -122,7 +124,7 @@ public class KoalaPlanner extends GraphObserver {
 	        	msg.setID(msgID);
 	        	retProt.registerMsg(msg);
 			}
-//			System.out.println("(" + CommonState.getTime() + ") ROUTE: " + sourc.getID() + " -> " + dest.getID());
+			System.out.println("(" + CommonState.getTime() + ") ROUTE: " + sourc.getID() + " -> " + dest.getID());
 			ResultCollector.addSentMsg(msgID, dests.get(i));
 			msgID++;
 			

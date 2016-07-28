@@ -108,7 +108,7 @@ public class KoalaNodeObserver extends NodeObserver {
 				unknown.add(current.getID());
 			
 		}
-		if(logNodes == 1)
+		if(logNodes >= 1)
 			System.out.println("Without local neighbors: ("+ withoutLocalNeighs.size()+ ") "  +withoutLocalNeighs +
 				           "\nWith one local neighbor: ("+ withOneLocalNeigh.size()+ ") " +withOneLocalNeigh +
 				           "\nWith two local neighbors: ("+ withTwoLocalNeigh.size()+ ") " +withTwoLocalNeigh +

@@ -51,13 +51,12 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		}
 	}
 	
-	private Node getBootstrap()
+	private Node getBootstrap_old()
 	{
-//		KoalaProtocol each;
+
 		KoalaNode each;
 		ArrayList<Node> joined = new ArrayList<Node>();
 		for (int i = 0; i < Network.size(); i++) {
-//            each = (KoalaProtocol) Network.get(i).getProtocol(myPid);
             each = (KoalaNode) Network.get(i).getProtocol(linkPid);
             if(each.hasJoined())
             	joined.add(Network.get(i));   	
@@ -68,6 +67,28 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		return joined.get(CommonState.r.nextInt(joined.size()));
 	}
 	
+	private Node getBootstrap()
+	{
+
+		KoalaNode each;
+		ArrayList<Node> joined = new ArrayList<Node>();
+		ArrayList<Node> joinedInMyDC = new ArrayList<Node>();
+		for (int i = 0; i < Network.size(); i++) {
+            each = (KoalaNode) Network.get(i).getProtocol(linkPid);
+            if(each.hasJoined()){
+            	joined.add(Network.get(i));
+            	if(myNode.isLocal(each.getID()))
+            		joinedInMyDC.add(Network.get(i));
+            }
+		}
+		if(joined.size() == 0)
+			return null;
+		
+		if(joinedInMyDC.size() > 0)
+			return joinedInMyDC.get(CommonState.r.nextInt(joinedInMyDC.size()));
+		
+		return joined.get(CommonState.r.nextInt(joined.size()));
+	}
 	
 
 	
@@ -265,7 +286,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 //	}
 
 	@Override
-	protected void intializeMyNode(Node node) {
+	public void intializeMyNode(Node node) {
 		super.intializeMyNode(node);
 		myNode = (KoalaNode) (Linkable) node.getProtocol(linkPid);
 		
@@ -292,18 +313,18 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		
 	}
 
-	@Override
-	protected void checkStatus() {
-		long age = myNode.getAge(); 
-		if(age >=  1000){
-			Set<String> localNeigs =  myNode.getRoutingTable().getNeighboursIDs(1);
-			if(localNeigs.size() < 2){
-				System.out.println("("+CommonState.getTime()+") "+ myNode.getID() + " is " +age +" cycles old and has "+ localNeigs.size() +" friends");
-				myNode.setJoined(false);
-				myNode.resetRoutingTable();
-				join();
-			}
-		}
-		
-	}
+//	@Override
+//	protected void checkStatus() {
+//		long age = myNode.getAge(); 
+//		if(age >=  1000){
+//			Set<String> localNeigs =  myNode.getRoutingTable().getNeighboursIDs(1);
+//			if(localNeigs.size() < 2){
+//				System.out.println("("+CommonState.getTime()+") "+ myNode.getID() + " is " +age +" cycles old and has "+ localNeigs.size() +" friends");
+//				myNode.setJoined(false);
+//				myNode.resetRoutingTable();
+//				join();
+//			}
+//		}
+//		
+//	}
 }

@@ -29,6 +29,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 	protected int myPid = -1;
 
 	protected boolean logMsg;
+	private static boolean initializeMode;
 	
 	public TopologyProtocol(String prefix) {
 		queue = new ArrayDeque<String>();
@@ -48,7 +49,15 @@ public abstract class TopologyProtocol implements CDProtocol {
     }
 	
 //	public abstract boolean hasJoined();
-
+	
+	public static void setInitializeMode(boolean initMode){
+		initializeMode = initMode;
+	}
+	
+	public void setPids(int mypid, int lpid){
+		myPid = mypid;
+		linkPid = lpid;
+	}
 	
 	public boolean hasEmptyQueue(){
 		return queue.size() == 0;
@@ -107,11 +116,11 @@ public abstract class TopologyProtocol implements CDProtocol {
 		//if(CommonState.getTime() <= 69)
 //			System.out.println(logmsg);
 	}
-	protected abstract void join();
+	public abstract void join();
 
 	protected abstract void checkPiggybacked(KoalaMessage msg);
 	
-	protected abstract void checkStatus();
+//	protected abstract void checkStatus();
 	
 	protected abstract void onNewGlobalNeighbours(KoalaMessage msg);
 
@@ -119,7 +128,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 
 	protected abstract void onRoutingTable(KoalaMessage msg);
 	
-	protected void intializeMyNode(Node node){
+	public void intializeMyNode(Node node){
 		myNode = (TopologyNode) (Linkable) node.getProtocol(linkPid);
 	}
 
@@ -154,8 +163,8 @@ public abstract class TopologyProtocol implements CDProtocol {
 				ResultCollector.countIntra();
 			else
 				ResultCollector.countInter();
-			
-//			((KoalaProtocol)each.getProtocol(myPid)).receive();
+			if(initializeMode)
+				((KoalaProtocol)each.getProtocol(myPid)).receive();
 		}
 	}
 	
@@ -168,7 +177,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 		
 //		System.out.print(myNode.getID() + "  ");
 		receive();
-		checkStatus();
+//		checkStatus();
 	}
 	
 

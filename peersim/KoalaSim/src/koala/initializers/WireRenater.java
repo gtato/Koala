@@ -44,6 +44,7 @@ public class WireRenater extends WireGraph {
 
 	@Override
 	public void wire(Graph g) {
+		System.out.println("Wiring up renater nodes: setting up paths according to Dijktra (requires some time...)");
 		
 		int centerIndex = -1;
 		ArrayList<RenaterNode> gateways = new ArrayList<RenaterNode>();
