@@ -27,24 +27,26 @@ public class KoalaMessage {
 	private KoalaMsgContent content;
 	/*if set to true, it means that you shouldn't share it with the rest of the DC*/
 	private boolean confidential;
-	private double latency;
-	private String source;
+//	private double latency;
+	private ArrayList<Double> latencies = new ArrayList<Double>();
+	
+//	private String source;
 	private ArrayList<String> path = new ArrayList<String>();	
 	private int id;
-	
+
 	
 	
 	public KoalaMessage(){}
 	
-	public KoalaMessage(String source, KoalaMsgContent content){
-		this.source = source;
+	public KoalaMessage(/*String source,*/ KoalaMsgContent content){
+		//this.source = source;
 		this.type = content.getMsgType();
 		this.content = content;
-		latency = 0;
+//		latency = 0;
 	}
 
-	public KoalaMessage(String source, KoalaMsgContent content, boolean confidential){
-		this.source = source;
+	public KoalaMessage(/*String source,*/ KoalaMsgContent content, boolean confidential){
+		//this.source = source;
 		this.type = content.getMsgType();
 		this.content = content;
 		this.confidential = confidential;
@@ -82,22 +84,41 @@ public class KoalaMessage {
 		this.content = msgContent;
 	}
 	
+	
 	public double getLatency() {
-		return PhysicalDataProvider.round(latency);
-	}
-
-	public void setLatency(double latency) {
-		this.latency = latency;
+		if(this.latencies.size() == 0)
+			return -1;
+		return this.latencies.get(this.latencies.size()-1);
 	}
 	
-	public String getSource() {
-		return source;
+	public double getTotalLatency() {
+		double tl = 0;
+		for(Double l : this.latencies)
+			tl += l;
+		return PhysicalDataProvider.round(tl);
 	}
 
-	public void setSource(String source) {
-		this.source = source;
+	public void addLatency(double latency) {
+		double l = PhysicalDataProvider.round(latency);
+		this.latencies.add(l);
+		
 	}
+	
+	public ArrayList<Double> getLatencies() {
+		return latencies;
+	}
+	
+	public void setLatencies(ArrayList<Double> lats) {
+		this.latencies = lats;
+	}
+	
+	
 
+//	public void setSource(String source) {
+//		this.source = source;
+//	}
+
+	
 	public void addToPath(String destID){
 		boolean alreadythere = false;
 		if(path.size() > 0 && path.get(path.size()-1).equals(destID))
@@ -147,18 +168,25 @@ public class KoalaMessage {
 		
 		return fpList;
 	}
+	public String getFirstSender() {
+		if(path.size() > 0)
+			return path.get(0);
+		return null;
+	}
 	
-	public String getLastSenderNode(){
+	public String getLastSender(){
 		if(path.size()==0)
 			return null;
-		return path.get(path.size()-1);
-	}
-	
-	public String getSecondLastSenderNode(){
-		if(path.size()<=1)
-			return null;
+		if(path.size()==1)
+			return path.get(0);
 		return path.get(path.size()-2);
 	}
+	
+//	public String getSecondLastSenderNode(){
+//		if(path.size()<=1)
+//			return null;
+//		return path.get(path.size()-2);
+//	}
 	
 //	public void setRandomLatency(String sourceID, String destID){
 //        int sDC = NodeUtilities.getDCID(sourceID);
@@ -190,6 +218,7 @@ public class KoalaMessage {
 	}
 	return null;
 	}
+	
 	public Class<? extends KoalaMsgContent> getContentClassFromType(){		
 		switch(type){
 			case RT:
@@ -203,7 +232,7 @@ public class KoalaMessage {
 		}
 		return null;
 	}
-	
+
 	public static class KoalaMessageSerializer implements JsonSerializer<KoalaMessage> {
 
 		@Override
@@ -214,13 +243,20 @@ public class KoalaMessage {
 				pathEntries.add(neig);
 			}
 			
+			JsonArray latencyEntries = new JsonArray();
+			ArrayList<Double> mlatency= src.getLatencies();
+			for(Double lat : mlatency)
+				latencyEntries.add(lat);
+			
+			
 			JsonObject obj = new JsonObject();
 			obj.addProperty("id", src.getID());
-			obj.addProperty("source", src.getSource());
+//			obj.addProperty("source", src.getSource());
 			obj.addProperty("type", src.getType());
 			obj.addProperty("confidential", src.isConfidential());
-			obj.addProperty("latency", src.getLatency());
+//			obj.addProperty("latency", src.getLatency());
 			obj.add("path", (JsonElement)pathEntries);
+			obj.add("latencies", (JsonElement)latencyEntries);
 			obj.add("content", KoalaJsonParser.toJsonTree(src.getContent()));
 			return obj;
 		}
@@ -233,10 +269,10 @@ public class KoalaMessage {
 			JsonObject srcJO = src.getAsJsonObject();
 			KoalaMessage km = new KoalaMessage();
 			km.setID(srcJO.get("id").getAsInt());
-			km.setSource(srcJO.get("source").getAsString());
+//			km.setSource(srcJO.get("source").getAsString());
 			km.setType(srcJO.get("type").getAsInt());
 			km.setConfidential(srcJO.get("confidential").getAsBoolean());
-			km.setLatency(srcJO.get("latency").getAsDouble());
+//			km.addLatency(srcJO.get("latency").getAsDouble());
 			
 			
 			JsonArray jpath = srcJO.getAsJsonArray("path");
@@ -245,6 +281,13 @@ public class KoalaMessage {
 				path.add(entry.getAsString());
 
 			km.setPath(path);
+			
+			JsonArray jlat = srcJO.getAsJsonArray("latencies");
+			ArrayList<Double> latencies = new ArrayList<Double>();
+			for(JsonElement entry : jlat)
+				latencies.add(entry.getAsDouble());
+			km.setLatencies(latencies);
+			
 			km.setContent(KoalaJsonParser.jsonTreeToObject(srcJO.get("content"), km.getContentClassFromType()));
 			
 			return km;

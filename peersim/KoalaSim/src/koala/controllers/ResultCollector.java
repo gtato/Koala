@@ -65,9 +65,9 @@ public class ResultCollector extends GraphObserver {
 				koalaTotalLatency = PhysicalDataProvider.round(koalaTotalLatency);
 				//do stuff 
 				String ok = rm.getPath().toString().equals(rm.getPhysicalPathToString().toString()) ? " (ok) " : " (not ok) ";
-				System.out.println("(R) "+rm.getID() + ": " + rm.getLatency() + " " + rm.getPath() + " " + rm.getPhysicalPathToString() + ok);
-				System.out.println("(K) "+km.getID() + ": " + km.getLatency() + " " + km.getPath() + " " + km.getPhysicalPathToString());
-				System.out.println("(T) "+rm.getID() + ": " + ((double) km.getLatency() / rm.getLatency()) + 
+				System.out.println("(R) "+rm.getID() + ": " + rm.getTotalLatency() + " " + rm.getPath() + " " + rm.getPhysicalPathToString() + ok);
+				System.out.println("(K) "+km.getID() + ": " + km.getTotalLatency() + " " + km.getPath() + " " + km.getPhysicalPathToString());
+				System.out.println("(T) "+rm.getID() + ": " + ((double) km.getTotalLatency() / rm.getTotalLatency()) + 
 									" " + rm.getPath().size() + " " +km.getPath().size() +
 									" " +km.getPhysicalPathToString().size() + " " + PhysicalDataProvider.round((double) koalaTotalLatency / renaterTotalLatency));
 				System.out.println();

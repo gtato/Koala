@@ -65,6 +65,11 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 //		// TODO Auto-generated method stub
 //		
 //	}
+
+	@Override
+	protected String getProtocolName() {
+		return "renater";
+	}
 	
 	
 

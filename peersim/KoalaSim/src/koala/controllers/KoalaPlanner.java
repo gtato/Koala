@@ -44,7 +44,7 @@ public class KoalaPlanner extends GraphObserver {
 		else
 			koaNodePid = -1;
 		
-		joinMsg = new KoalaMessage("", new KoalaMsgContent(KoalaMessage.JOIN));
+		joinMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.JOIN));
 		msgID = 0;
 	}
 
@@ -65,8 +65,10 @@ public class KoalaPlanner extends GraphObserver {
 //			joinNodes(1);
 //		else 
 //			route();
-		if(CommonState.getTime() % 100 == 0)
-			route();
+//		if(CommonState.getTime() % 100 == 0)
+	//		route();
+		if(CommonState.getTime() == 100)
+			joinNodes(1);
 		return false;
 	}
 
@@ -111,7 +113,7 @@ public class KoalaPlanner extends GraphObserver {
 			
 			if(koaProtPid > 0){
 				KoalaProtocol koatProt = (KoalaProtocol) src.getProtocol(koaProtPid);
-				KoalaMessage msg = new KoalaMessage("", new KoalaRouteMsgContent(dest.getID()));
+				KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(dest.getID()));
 	        	msg.addToPath(sourc.getID());
 	        	msg.setID(msgID);
 				koatProt.registerMsg(msg);
@@ -119,7 +121,7 @@ public class KoalaPlanner extends GraphObserver {
 			
 			if(renProtPid > 0){
 	        	RenaterProtocol retProt = (RenaterProtocol) src.getProtocol(renProtPid);
-	        	KoalaMessage msg = new KoalaMessage("", new KoalaRouteMsgContent(dest.getID()));
+	        	KoalaMessage msg = new KoalaMessage( new KoalaRouteMsgContent(dest.getID()));
 	        	msg.addToPath(sourc.getID());
 	        	msg.setID(msgID);
 	        	retProt.registerMsg(msg);

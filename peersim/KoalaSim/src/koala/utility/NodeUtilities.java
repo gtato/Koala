@@ -20,6 +20,8 @@ public class NodeUtilities {
 	
 	public static int NR_NODE_PER_DC = 0; //Configuration.getInt("NR_NODE_PER_DC")
 	public static int NR_DC = 0; //Configuration.getInt("NR_DC")
+	public static int ACTUAL_NR_DC = 0;
+	
 	
 	public static void initialize(){
 		A = B = C = 1;

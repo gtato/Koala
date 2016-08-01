@@ -17,11 +17,14 @@ public class KoalaInitializer implements Control {
 	
 	private static final String PAR_KOALA_PROTOCOL= "kprotocol";
 	private static final String PAR_RENATER_PROTOCOL= "protocol";
+	private static final String PAR_KOALA_NR= "nr";
 	
 	private final int renProtPid;
 	private final int renNodePid;
 	private final int koaProtPid;
 	private final int koaNodePid;
+	
+	private final int nr;
 	
 	public KoalaInitializer(String prefix) {
 		
@@ -34,6 +37,7 @@ public class KoalaInitializer implements Control {
 		else
 			koaNodePid = -1;
 		
+		nr = Configuration.getInt(prefix + "." + PAR_KOALA_NR, Network.size());
 	}
 	
 	@Override
@@ -42,13 +46,13 @@ public class KoalaInitializer implements Control {
 		TopologyProtocol.setInitializeMode(true);
 		
 		ArrayList<Integer> inx = new ArrayList<Integer>();
-		for(int i = 0; i < Network.size(); i++)
+		for(int i = 0; i < nr; i++)
 			inx.add(i);
 		
 		Collections.shuffle(inx, CommonState.r);
 		
 		
-		for (int i = 0; i < Network.size(); i++) {
+		for (int i = 0; i < nr; i++) {
 			Node n = Network.get(inx.get(i));
 			
 			RenaterProtocol rp = (RenaterProtocol )n.getProtocol(renProtPid);

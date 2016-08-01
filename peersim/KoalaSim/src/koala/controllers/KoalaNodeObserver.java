@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import koala.KoalaNeighbor;
@@ -12,6 +13,7 @@ import koala.KoalaNode;
 import koala.utility.NodeUtilities;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
+import peersim.core.Network;
 import peersim.core.Node;
 
 
@@ -48,7 +50,8 @@ public class KoalaNodeObserver extends NodeObserver {
 	private void generateGraph(){
 		for (int i = 0; i < g.size(); i++) {
 			KoalaNode each = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
-        	orderedGraph.add(each);
+        	if (each.hasJoined())
+				orderedGraph.add(each);
 		}
 		
 		Collections.sort(orderedGraph, new Comparator<KoalaNode>(){
@@ -76,6 +79,7 @@ public class KoalaNodeObserver extends NodeObserver {
 		{
 			boolean neighborToSomeone=false;
 			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+			if(!current.hasJoined()) continue;
 			String log = "ID: " + current.getID() + ", bootstrap: " + current.getBootstrapID();
 			log += ", neighbours: ";
 			
@@ -99,8 +103,9 @@ public class KoalaNodeObserver extends NodeObserver {
 			
 			for (int j = 0; j < g.size(); j++) 
 			{
-				if (i == j) continue;
-				if (((KoalaNode) ((Node)g.getNode(j)).getProtocol(pid)).getRoutingTable().getNeighboursIDs().contains(current.getID()))
+				KoalaNode kn = (KoalaNode) ((Node)g.getNode(j)).getProtocol(pid);
+				if (i == j || !kn.hasJoined()) continue;
+				if (kn.getRoutingTable().getNeighboursIDs().contains(current.getID()))
 					neighborToSomeone = true;
 			}
 			
@@ -120,7 +125,7 @@ public class KoalaNodeObserver extends NodeObserver {
 		int dc_id = koala.utility.NodeUtilities.getDCID(id);
 		double radius = 0.5;
 		double[] center = {radius, radius};
-		double unitangle = 2*Math.PI/NodeUtilities.NR_DC;
+		double unitangle = 2*Math.PI/getNrOnlineDC();
 		double[] entry = new double[2];
 		double angle = 0;
 		if(cords.containsKey(dc_id)){
@@ -141,7 +146,17 @@ public class KoalaNodeObserver extends NodeObserver {
 	}
 
 
-
+	public int getNrOnlineDC(){
+		Set<Integer> onlineDCs = new HashSet<Integer>();
+		for (int i = 0; i < g.size(); i++) 
+		{
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+			if(current.hasJoined())
+				onlineDCs.add(current.getDCID());
+		}
+		return onlineDCs.size();
+			
+	}
 
 	@Override
 	protected void printGraph(PrintStream ps) {

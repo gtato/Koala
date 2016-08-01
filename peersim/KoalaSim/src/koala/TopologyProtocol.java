@@ -85,47 +85,22 @@ public abstract class TopologyProtocol implements CDProtocol {
 		return receivedMsgs.get(msgID);
 	}
 	
-	public void receive()
-	{
-		if(queue.size() == 0)
-			return;
-		
-		String msgStr = queue.remove();
-		KoalaMessage msg = KoalaJsonParser.jsonToObject(msgStr, KoalaMessage.class);
-		String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " received a message from " + msg.getSecondLastSenderNode()  + " a msg of type: " + msg.getTypeName();
-		if(logMsg)
-			System.out.println(logmsg);
-		switch(msg.getType()){
-			case KoalaMessage.RT:
-				onRoutingTable(msg);
-				break;
-			case KoalaMessage.ROUTE:
-				onRoute(msg);
-				break;
-			case KoalaMessage.NGN:
-//				logmsg += " " + ((KoalaNGNMsgContent )msg.getContent()).getNeighbor().getNodeID() ; 
-				onNewGlobalNeighbours(msg);
-				break;
-			case KoalaMessage.JOIN:
-				join();
-				break;
-		}
-		
-//		checkPiggybacked(msg);
-		
-		//if(CommonState.getTime() <= 69)
-//			System.out.println(logmsg);
+	public String toString(){
+		return "("+ getProtocolName()+") " +  myNode.getID();
 	}
+	
 	public abstract void join();
 
 	protected abstract void checkPiggybacked(KoalaMessage msg);
+	
+	protected abstract String getProtocolName();
 	
 //	protected abstract void checkStatus();
 	
 	protected abstract void onNewGlobalNeighbours(KoalaMessage msg);
 
 	protected abstract void onRoute(KoalaMessage msg);
-
+	
 	protected abstract void onRoutingTable(KoalaMessage msg);
 	
 	public void intializeMyNode(Node node){
@@ -153,10 +128,11 @@ public abstract class TopologyProtocol implements CDProtocol {
 //			double l = 1;
 			if(l <= 0)
 				System.out.println("someone invented time traveling!");
-			msg.setLatency(msg.getLatency() + l);
-			if(msg.getLastSenderNode() == null)
+			msg.addLatency(l);
+			if(msg.getLastSender() == null)
 				msg.addToPath(myNode.getID());
 			msg.addToPath(destinationID);
+			
 			((TopologyProtocol)each.getProtocol(myPid)).registerMsg(msg);
 			
 			if(NodeUtilities.getDCID(myNode.getID()) == NodeUtilities.getDCID(destinationID))
@@ -167,7 +143,40 @@ public abstract class TopologyProtocol implements CDProtocol {
 				((KoalaProtocol)each.getProtocol(myPid)).receive();
 		}
 	}
-	
+
+	public void receive()
+	{
+		if(queue.size() == 0)
+			return;
+		
+		String msgStr = queue.remove();
+		KoalaMessage msg = KoalaJsonParser.jsonToObject(msgStr, KoalaMessage.class);
+		String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " received a message from " + msg.getLastSender()  + " a msg of type: " + msg.getTypeName();
+		if(logMsg)
+			System.out.println(logmsg);
+		
+		switch(msg.getType()){
+			case KoalaMessage.RT:
+				onRoutingTable(msg);
+				break;
+			case KoalaMessage.ROUTE:
+				onRoute(msg);
+				break;
+			case KoalaMessage.NGN:
+//				logmsg += " " + ((KoalaNGNMsgContent )msg.getContent()).getNeighbor().getNodeID() ; 
+				onNewGlobalNeighbours(msg);
+				break;
+			case KoalaMessage.JOIN:
+				join();
+				break;
+		}
+		
+//		checkPiggybacked(msg);
+		
+		//if(CommonState.getTime() <= 69)
+//			System.out.println(logmsg);
+	}
+
 	
 	@Override
 	public void nextCycle(Node node, int protocolID) {
@@ -180,7 +189,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 //		checkStatus();
 	}
 	
-
+	
 
 	
 }

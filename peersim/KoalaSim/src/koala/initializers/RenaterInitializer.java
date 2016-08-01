@@ -64,10 +64,13 @@ public class RenaterInitializer implements Control {
         	 lines = getDcCordsFromFile();
         	 if(lines != null){
         		 nrDC = lines.size();
-        		 NodeUtilities.NR_DC = nrDC;
         	 }
         }
         
+        if(Network.size() < nrDC)
+        	nrDC = Network.size();
+        
+        NodeUtilities.ACTUAL_NR_DC = nrDC;
         
         double[][] centerPerDC = getCenterPerDC(lines);
         int[] nodesPerDC = getNodesPerDC(true, lines);
