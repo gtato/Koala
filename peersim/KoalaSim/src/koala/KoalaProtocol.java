@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import messaging.KoalaMsgContent;
 import messaging.KoalaNGNMsgContent;
 import messaging.KoalaMessage;
 import messaging.KoalaRTMsgConent;
@@ -268,17 +269,31 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 	
 	protected void onRoute(KoalaMessage msg){
         String nid = ((KoalaRouteMsgContent)msg.getContent()).getId();
-        if(msg.getLastSender() != null && msg.getLastSender().length() > 0){
+        if(msg.getLastSender() != null && msg.getLastSender().length() > 0 && !msg.getLastSender().equals(myNode.getID())){
 	        myNode.updateLatencyPerDC(msg.getLastSender(), msg.getLatency(), 3);
 	        myNode.updateLatencies();
         }
         if(!nid.equals(myNode.getID()))
             send(myNode.getRoute(nid, msg), msg);
-        else
+        else{
         	onReceivedMsg(msg);
+        	
+        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), 0, 0);
+        	myNode.getRoutingTable().addLongLink(ll);
+        	
+        	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
+        	send(msg.getFirstSender(), newMsg);
+        }
 	}
 	
-	
+	@Override
+	protected void onLongLink(KoalaMessage msg) {
+		KoalaNeighbor ll = new KoalaNeighbor(msg.getLastSender(), msg.getLatency(), 3);
+		boolean added = myNode.getRoutingTable().addLongLink(ll);
+		if(added)
+			send(ll.getNodeID(), msg);
+			
+	}
 
 //	public boolean hasJoined() {
 //		return joined;
@@ -316,6 +331,8 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 	protected String getProtocolName() {
 		return "koala";
 	}
+
+	
 
 //	@Override
 //	protected void checkStatus() {

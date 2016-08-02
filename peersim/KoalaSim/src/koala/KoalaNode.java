@@ -40,11 +40,12 @@ public class KoalaNode extends TopologyNode{
 	private boolean isJoining;
 	private KoalaRoutingTable routingTable;
 	
-	private HashMap<Integer, Double> latencyPerDC = new HashMap<Integer, Double>(); 
+	private HashMap<Integer, Double> latencyPerDC;
 	
 	public KoalaNode(String prefix) {
 		super(prefix);
 		resetRoutingTable();
+		resetLatencyPerDC();
 	}
 	
 	
@@ -53,9 +54,14 @@ public class KoalaNode extends TopologyNode{
 		KoalaNode inp = null;
         inp = (KoalaNode) super.clone();
         inp.resetRoutingTable();
+        inp.resetLatencyPerDC();
         return inp;
     }
 
+	public void resetLatencyPerDC(){
+		this.latencyPerDC = new HashMap<Integer, Double>();
+	}
+	
 	public int getDCID() {
         return dcID;
     }
@@ -255,7 +261,8 @@ public class KoalaNode extends TopologyNode{
 	
 	
     public void updateLatencyPerDC(String id, double l, int lq){    	
-    
+    	if(this.getID().equals(id))
+    		return;
         if (lq > 1)
             latencyPerDC.put(NodeUtilities.getDCID(id), l);
 

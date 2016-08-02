@@ -2,6 +2,7 @@ package koala;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -16,6 +17,8 @@ public class KoalaRoutingTable {
 	private KoalaNeighbor localSucessor;
 	private KoalaNeighbor globalPredecessor;
 	private KoalaNeighbor globalSucessor;
+	
+	private ArrayList<KoalaNeighbor> longLinks = new ArrayList<KoalaNeighbor>();
 	
 	/*these two are supposed to be used only when the object is transmitted*/
 	private ArrayList<KoalaNeighbor> neighborsContainer = new ArrayList<KoalaNeighbor>();
@@ -96,7 +99,20 @@ public class KoalaRoutingTable {
 		return oldEntry;
 	}
 
+	public boolean addLongLink(KoalaNeighbor kn){
+		for(KoalaNeighbor ll : longLinks){
+			if(ll.getNodeID().equals(kn.getNodeID())){
+				if(kn.getLatencyQuality() >= ll.getLatencyQuality()){
+					ll.setLatency(ll.getLatency());
+					ll.setLatencyQuality(ll.getLatencyQuality());
+				}
+				return false;
+			}
+		}
 		
+		longLinks.add(kn);
+		return true;
+	}	
 	
 	
 	/*
@@ -126,30 +142,45 @@ public class KoalaRoutingTable {
 	}
 	
 	public Set<String> getNeighboursIDs(int which){
-		KoalaNeighbor[] neighs;
-		if(which == 1) 
-			neighs = new KoalaNeighbor[]{this.localPredecessor, this.localSucessor};
-		else if (which == 2)
-			neighs = new KoalaNeighbor[]{this.globalPredecessor, this.globalSucessor};
-		else 
-			neighs = new KoalaNeighbor[]{this.localPredecessor, this.localSucessor, this.globalPredecessor, this.globalSucessor};
 		
+		ArrayList<KoalaNeighbor> neighs = new ArrayList<KoalaNeighbor>();
+//		KoalaNeighbor[] neighs;
+		if(which == 1){ //only locals 
+			neighs.add(this.localPredecessor); neighs.add(this.localSucessor); 
+		}else if (which == 2){ //only globals
+			neighs.add(this.globalPredecessor); neighs.add(this.globalSucessor);
+		}else if (which == 3){ //globals and long links
+			neighs.add(this.globalPredecessor); neighs.add(this.globalSucessor);
+			for(KoalaNeighbor ll : longLinks)
+				neighs.add(ll);
+		}else{ //everything 
+			neighs.add(this.localPredecessor); neighs.add(this.localSucessor);
+			neighs.add(this.globalPredecessor); neighs.add(this.globalSucessor);
+			
+			for(KoalaNeighbor ll : longLinks)
+				neighs.add(ll);
+		}
 		Set<String> hs = new LinkedHashSet<String>();
         
-        for(int i = 0; i < neighs.length; i++)
-            if(!NodeUtilities.isDefault(neighs[i]))
-            	hs.add(neighs[i].getNodeID());
+        for(int i = 0; i < neighs.size(); i++)
+            if(!NodeUtilities.isDefault(neighs.get(i)))
+            	hs.add(neighs.get(i).getNodeID());
                 
         return hs;
 	}
 	
 	public Set<KoalaNeighbor> getNeighbors(){
-        KoalaNeighbor[] neighs = {this.localPredecessor, this.localSucessor, this.globalPredecessor, this.globalSucessor};
-        Set<KoalaNeighbor> hs = new LinkedHashSet<KoalaNeighbor>();
+		ArrayList<KoalaNeighbor> neighs = new ArrayList<KoalaNeighbor>();
+		neighs.add(this.localPredecessor); neighs.add(this.localSucessor);
+		neighs.add(this.globalPredecessor); neighs.add(this.globalSucessor);
+		
+		for(KoalaNeighbor ll : longLinks)
+			neighs.add(ll);
         
-        for(int i = 0; i < neighs.length; i++)
-            if(!NodeUtilities.isDefault(neighs[i]))
-            	hs.add(neighs[i]);
+        Set<KoalaNeighbor> hs = new LinkedHashSet<KoalaNeighbor>();
+        for(int i = 0; i < neighs.size(); i++)
+            if(!NodeUtilities.isDefault(neighs.get(i)))
+            	hs.add(neighs.get(i));
         
         for(int i = 0; i < neighborsContainer.size(); i++)
             if(!NodeUtilities.isDefault(neighborsContainer.get(i)))

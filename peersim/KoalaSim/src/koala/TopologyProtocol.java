@@ -103,6 +103,8 @@ public abstract class TopologyProtocol implements CDProtocol {
 	
 	protected abstract void onRoutingTable(KoalaMessage msg);
 	
+	protected abstract void onLongLink(KoalaMessage msg);
+	
 	public void intializeMyNode(Node node){
 		myNode = (TopologyNode) (Linkable) node.getProtocol(linkPid);
 	}
@@ -169,6 +171,9 @@ public abstract class TopologyProtocol implements CDProtocol {
 			case KoalaMessage.JOIN:
 				join();
 				break;
+			case KoalaMessage.LL:
+				onLongLink(msg);
+				break;
 		}
 		
 //		checkPiggybacked(msg);
@@ -178,6 +183,7 @@ public abstract class TopologyProtocol implements CDProtocol {
 	}
 
 	
+
 	@Override
 	public void nextCycle(Node node, int protocolID) {
 		myPid = protocolID;

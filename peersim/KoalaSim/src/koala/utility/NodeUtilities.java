@@ -77,7 +77,11 @@ public class NodeUtilities {
 	}
 	
 	public static boolean isDefault(KoalaNeighbor n){
-		return n == null || n.getNodeID() == NodeUtilities.DEFAULTID;
+		return n == null || n.getNodeID().equals(NodeUtilities.DEFAULTID);
+	}
+	
+	public static boolean isDefault(String n){
+		return n == null || n.equals(NodeUtilities.DEFAULTID);
 	}
 	
 	public static int compare(String id1, String id2){

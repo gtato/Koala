@@ -158,30 +158,56 @@ public class KoalaNodeObserver extends NodeObserver {
 			
 	}
 
+//
+//	protected void printGraph_old(PrintStream ps) {
+//		for (int i = 0; i < g.size(); i++) {
+//        	KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+//            double x_to = current.getX();
+//            double y_to = current.getY();
+//             
+//            KoalaNeighbor[] gneigs = {current.getRoutingTable().getGlobalPredecessor(), current.getRoutingTable().getGlobalSucessor()};
+//            for(int j = 0; j < gneigs.length; j++){
+//            	if(NodeUtilities.isDefault(gneigs[j]))
+//            		continue;
+//            	KoalaNode n = getNodeFromID(gneigs[j].getNodeID());
+//            	if(n == null) return;
+//            	double x_from =  n.getX();
+//                double y_from =   n.getY();
+//                String label = j==0 ? current.getID() : "";
+//                ps.println(x_from + " " + y_from);
+//                ps.println(x_to + " " + y_to + " " + label);
+//                ps.println();
+//            }
+//        }
+//		
+//	}
+	
+	
 	@Override
 	protected void printGraph(PrintStream ps) {
+		boolean first;
 		for (int i = 0; i < g.size(); i++) {
         	KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
             double x_to = current.getX();
             double y_to = current.getY();
-                        
-            KoalaNeighbor[] gneigs = {current.getRoutingTable().getGlobalPredecessor(), current.getRoutingTable().getGlobalSucessor()};
-            for(int j = 0; j < gneigs.length; j++){
-            	if(NodeUtilities.isDefault(gneigs[j]))
-            		continue;
-            	KoalaNode n = getNodeFromID(gneigs[j].getNodeID());
+            
+            Set<String> gneigs = current.getRoutingTable().getNeighboursIDs(3);
+            first = true;
+            for(String gnID : gneigs){
+            	if(NodeUtilities.isDefault(gnID)) continue;
+            	KoalaNode n = getNodeFromID(gnID);
             	if(n == null) return;
             	double x_from =  n.getX();
                 double y_from =   n.getY();
-                String label = j==0 ? current.getID() : "";
+                String label = first ? current.getID() : "";
                 ps.println(x_from + " " + y_from);
                 ps.println(x_to + " " + y_to + " " + label);
                 ps.println();
+                first = false;
             }
+            
         }
 		
 	}
-	
-	
 	
 }

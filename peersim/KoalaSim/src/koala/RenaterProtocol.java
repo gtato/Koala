@@ -70,7 +70,10 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 	protected String getProtocolName() {
 		return "renater";
 	}
-	
-	
+
+	@Override
+	protected void onLongLink(KoalaMessage msg) {
+		// do nothing 
+	}
 
 }
