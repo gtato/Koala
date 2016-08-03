@@ -1,6 +1,9 @@
 package koala.controllers;
 
 import java.awt.color.CMMException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,10 +18,11 @@ import peersim.core.CommonState;
 import peersim.core.Node;
 import peersim.reports.GraphObserver;
 
-public class ResultCollector extends GraphObserver {
+public class ResultCollector extends NodeObserver {
 
 	private static final String PAR_KOALA_PROTOCOL= "kprotocol";
 	private static final String PAR_RENATER_PROTOCOL= "protocol";
+	
 	
 	private final int renProtPid;
 	private final int koaProtPid;
@@ -31,21 +35,29 @@ public class ResultCollector extends GraphObserver {
 	private static int nrInterDCMsg = 0;
 	private static int nrIntraDCMsg = 0;
 	
+	ArrayList<String> toPrint = new ArrayList<String>();
+	
 	public ResultCollector(String prefix) {
 		super(prefix);
 		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
 		koaProtPid = Configuration.getPid(prefix + "." + PAR_KOALA_PROTOCOL, -1);
+		plotScript = "gnuplot/plotResults.plt";
 	}
 
 	@Override
 	public boolean execute() {
 		updateGraph();
+		
 		if(koaProtPid > 0)
 			compare();
 		else
 			reportRenater();
-		if(CommonState.getTime() == CommonState.getEndTime()-1)
+		if(CommonState.getTime() == CommonState.getEndTime()-1){
 			System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg));
+		
+			graphToFile();
+			plotIt();
+		}
 		return false;
 	}
 	
@@ -64,13 +76,22 @@ public class ResultCollector extends GraphObserver {
 				renaterTotalLatency = PhysicalDataProvider.round(renaterTotalLatency);
 				koalaTotalLatency = PhysicalDataProvider.round(koalaTotalLatency);
 				//do stuff 
-				String ok = rm.getPath().toString().equals(rm.getPhysicalPathToString().toString()) ? " (ok) " : " (not ok) ";
-				System.out.println("(R) "+rm.getID() + ": " + rm.getTotalLatency() + " " + rm.getPath() + " " + rm.getPhysicalPathToString() + ok);
-				System.out.println("(K) "+km.getID() + ": " + km.getTotalLatency() + " " + km.getPath() + " " + km.getPhysicalPathToString());
-				System.out.println("(T) "+rm.getID() + ": " + ((double) km.getTotalLatency() / rm.getTotalLatency()) + 
-									" " + rm.getPath().size() + " " +km.getPath().size() +
-									" " +km.getPhysicalPathToString().size() + " " + PhysicalDataProvider.round((double) koalaTotalLatency / renaterTotalLatency));
-				System.out.println();
+//				String ok = rm.getPath().toString().equals(rm.getPhysicalPathToString().toString()) ? " (ok) " : " (not ok) ";
+//				System.out.println("(R) "+rm.getID() + ": " + rm.getTotalLatency() + " " + rm.getPath() + " " + rm.getPhysicalPathToString() + ok);
+//				System.out.println("(K) "+km.getID() + ": " + km.getTotalLatency() + " " + km.getPath() + " " + km.getPhysicalPathToString());
+//				System.out.println("(T) "+rm.getID() + ": " + ((double) km.getTotalLatency() / rm.getTotalLatency()) + 
+//									" " + rm.getPath().size() + " " +km.getPath().size() +
+//									" " +km.getPhysicalPathToString().size() + " " + PhysicalDataProvider.round((double) koalaTotalLatency / renaterTotalLatency));
+//				
+//				
+//				System.out.println();
+				
+//				toPrint.add(km.getTotalLatency()+"");
+				toPrint.add(km.getTotalLatency()+" " + rm.getTotalLatency());
+//				toPrint.add(((double) km.getTotalLatency() / rm.getTotalLatency())+"");
+				//toPrint.add(km.getPath().size()+"");
+
+				
 				rp.removeReceivedMsg(msg.getKey());
 				kp.removeReceivedMsg(msg.getKey());
 				entriesToRemove.add(msg.getKey());
@@ -117,6 +138,15 @@ public class ResultCollector extends GraphObserver {
 	
 	public static void countIntra(){
 		nrIntraDCMsg++;
+	}
+
+	@Override
+	protected void printGraph(PrintStream ps) {
+		for(String line : toPrint){
+			ps.println(line);
+		}
+			
+		
 	}
 	
 //	public static class MsgEntry{

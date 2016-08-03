@@ -65,7 +65,7 @@ public class KoalaPlanner extends GraphObserver {
 //			joinNodes(1);
 //		else 
 //			route();
-		if(CommonState.getTime() % 10 == 0)
+	//	if(CommonState.getTime() % 5 == 0)
 			route();
 //		if(CommonState.getTime() == 100)
 //			joinNodes(1);
