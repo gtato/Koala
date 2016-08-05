@@ -3,10 +3,7 @@ package koala.utility;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Random;
 
-
-import peersim.core.CommonState;
 import koala.RenaterNode;
 
 public class PhysicalDataProvider {
@@ -120,9 +117,9 @@ public class PhysicalDataProvider {
 	public static double getIntraDCLatency(int dcID){
 		//Random random = new Random(dcID);
 		
-		double min, max;
-		max = 2.5;
-		min = 0.2;
+//		double min, max;
+//		max = 2.5;
+//		min = 0.2;
 		return 1.8;
 //		return random.nextDouble() * (max - min) + min;
 //		return CommonState.r.nextDouble() * (max - min) + min;

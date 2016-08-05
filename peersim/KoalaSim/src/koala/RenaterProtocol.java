@@ -1,17 +1,15 @@
 package koala;
 
-
 import messaging.KoalaMessage;
 import messaging.KoalaRouteMsgContent;
-import peersim.cdsim.CDProtocol;
-import peersim.config.FastConfig;
 import peersim.core.Linkable;
 import peersim.core.Node;
 
-public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
+public class RenaterProtocol extends TopologyProtocol {
 
 	RenaterNode myNode;
-	public RenaterProtocol(String prefix){
+
+	public RenaterProtocol(String prefix) {
 		super(prefix);
 	}
 
@@ -23,48 +21,45 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 	@Override
 	protected void onNewGlobalNeighbours(KoalaMessage msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	protected void onRoute(KoalaMessage msg) {
-		String nid = ((KoalaRouteMsgContent)msg.getContent()).getId();
-		if(!nid.equals(myNode.getID()))
-            send(myNode.getRoute(nid), msg);
-		else{
+		String nid = ((KoalaRouteMsgContent) msg.getContent()).getId();
+		if (!nid.equals(myNode.getID()))
+			send(myNode.getRoute(nid), msg);
+		else {
 			onReceivedMsg(msg);
 		}
-//		myNode.degree();
+		
 	}
 
 	@Override
 	protected void onRoutingTable(KoalaMessage msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-//	@Override
-//	public boolean hasJoined() {
-//		return true;
-//	}
 
 	@Override
-	public void intializeMyNode(Node node) {
-		super.intializeMyNode(node);
+	public void intializeMyNode(Node node, int pid) {
+		super.intializeMyNode(node, pid);
 		myNode = (RenaterNode) (Linkable) node.getProtocol(linkPid);
 	}
 
 	@Override
 	protected void checkPiggybacked(KoalaMessage msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
-//
-//	@Override
-//	protected void checkStatus() {
-//		// TODO Auto-generated method stub
-//		
-//	}
+
+	//
+	// @Override
+	// protected void checkStatus() {
+	// // TODO Auto-generated method stub
+	//
+	// }
 
 	@Override
 	protected String getProtocolName() {
@@ -73,7 +68,9 @@ public class RenaterProtocol extends TopologyProtocol implements CDProtocol {
 
 	@Override
 	protected void onLongLink(KoalaMessage msg) {
-		// do nothing 
+		// do nothing
 	}
+
+
 
 }

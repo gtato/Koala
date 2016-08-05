@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import peersim.config.Configuration;
 import peersim.core.Node;
@@ -50,7 +49,8 @@ public abstract class NodeObserver extends GraphObserver {
 	
 	protected void plotIt(){
 		try {
-			Process p = new ProcessBuilder("gnuplot", "-persistent", plotScript).start();
+			new ProcessBuilder("gnuplot", "-persistent", plotScript).start();
+//			Process p = new ProcessBuilder("gnuplot", "-persistent", plotScript).start();
 //			BufferedReader reader = new BufferedReader (new InputStreamReader(p.getErrorStream()));
 //			String line;
 //			while ((line = reader.readLine ()) != null) {

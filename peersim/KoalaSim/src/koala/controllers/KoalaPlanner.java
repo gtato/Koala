@@ -3,19 +3,18 @@ package koala.controllers;
 import java.util.ArrayList;
 
 import messaging.KoalaMessage;
-import messaging.KoalaMsgContent;
 import messaging.KoalaRouteMsgContent;
 import koala.KoalaNode;
 import koala.KoalaProtocol;
 import koala.RenaterNode;
 import koala.RenaterProtocol;
 import koala.TopologyNode;
-import koala.TopologyProtocol;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Node;
 import peersim.reports.GraphObserver;
+import peersim.transport.Transport;
 
 public class KoalaPlanner extends GraphObserver {
 
@@ -28,7 +27,6 @@ public class KoalaPlanner extends GraphObserver {
 	private final int koaProtPid;
 	private final int koaNodePid;
 	
-	private KoalaMessage joinMsg;
 	private int msgID;
 	private boolean allAdded = false; 
 	
@@ -44,7 +42,6 @@ public class KoalaPlanner extends GraphObserver {
 		else
 			koaNodePid = -1;
 		
-		joinMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.JOIN));
 		msgID = 0;
 	}
 
@@ -82,12 +79,14 @@ public class KoalaPlanner extends GraphObserver {
 		for(Node node : nodes){
 			if(koaProtPid > 0){
 				KoalaProtocol koatProt = (KoalaProtocol) node.getProtocol(koaProtPid);
-				koatProt.registerMsg(joinMsg);
+				koatProt.join();
+//				koatProt.registerMsg(joinMsg);
 			}
 			
 			if(renProtPid > 0){
 	        	RenaterProtocol retProt = (RenaterProtocol) node.getProtocol(renProtPid);
-	        	retProt.registerMsg(joinMsg);
+	        	retProt.join();
+//	        	retProt.registerMsg(joinMsg);
 			}
 //			System.out.println("(" + CommonState.getTime() + ") JOIN: " + ((RenaterNode) node.getProtocol(renNodePid)).getID());
 		}
@@ -112,26 +111,27 @@ public class KoalaPlanner extends GraphObserver {
 			TopologyNode dest = koaProtPid >= 0 ? (KoalaNode)dests.get(i).getProtocol(koaNodePid) : (RenaterNode)dests.get(i).getProtocol(renNodePid);
 			
 			if(koaProtPid > 0){
-				KoalaProtocol koatProt = (KoalaProtocol) src.getProtocol(koaProtPid);
 				KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(dest.getID()));
 	        	msg.addToPath(sourc.getID());
 	        	msg.setID(msgID);
-				koatProt.registerMsg(msg);
+	        	
+	        	Transport tr = (Transport)src.getProtocol(FastConfig.getTransport(koaProtPid));
+	        	tr.send(null, src, msg, koaProtPid);
 			}
 			
 			if(renProtPid > 0){
-	        	RenaterProtocol retProt = (RenaterProtocol) src.getProtocol(renProtPid);
 	        	KoalaMessage msg = new KoalaMessage( new KoalaRouteMsgContent(dest.getID()));
 	        	msg.addToPath(sourc.getID());
 	        	msg.setID(msgID);
-	        	retProt.registerMsg(msg);
+	        
+	        	Transport tr = (Transport)src.getProtocol(FastConfig.getTransport(renProtPid));
+	        	tr.send(null, src, msg, renProtPid);
+	        	
 			}
 			System.out.println("(" + CommonState.getTime() + ") ROUTE: " + sourc.getID() + " -> " + dest.getID());
 			ResultCollector.addSentMsg(msgID, dests.get(i));
 			msgID++;
-			
 		}
-		
 	}
 	
 	

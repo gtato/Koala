@@ -4,7 +4,6 @@ import koala.KoalaNeighbor;
 import koala.RenaterNode;
 import koala.TopologyNode;
 import peersim.config.Configuration;
-import peersim.core.Node;
 
 public class NodeUtilities {
 	public static final String DEFAULTID = "xxx";

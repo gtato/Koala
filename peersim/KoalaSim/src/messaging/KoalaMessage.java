@@ -27,10 +27,7 @@ public class KoalaMessage {
 	private KoalaMsgContent content;
 	/*if set to true, it means that you shouldn't share it with the rest of the DC*/
 	private boolean confidential;
-//	private double latency;
 	private ArrayList<Double> latencies = new ArrayList<Double>();
-	
-//	private String source;
 	private ArrayList<String> path = new ArrayList<String>();	
 	private int id;
 
@@ -38,15 +35,12 @@ public class KoalaMessage {
 	
 	public KoalaMessage(){}
 	
-	public KoalaMessage(/*String source,*/ KoalaMsgContent content){
-		//this.source = source;
+	public KoalaMessage( KoalaMsgContent content){
 		this.type = content.getMsgType();
 		this.content = content;
-//		latency = 0;
 	}
 
-	public KoalaMessage(/*String source,*/ KoalaMsgContent content, boolean confidential){
-		//this.source = source;
+	public KoalaMessage(KoalaMsgContent content, boolean confidential){
 		this.type = content.getMsgType();
 		this.content = content;
 		this.confidential = confidential;
@@ -113,12 +107,6 @@ public class KoalaMessage {
 	}
 	
 	
-
-//	public void setSource(String source) {
-//		this.source = source;
-//	}
-
-	
 	public void addToPath(String destID){
 		boolean alreadythere = false;
 		if(path.size() > 0 && path.get(path.size()-1).equals(destID))
@@ -161,10 +149,10 @@ public class KoalaMessage {
 		for(int i = 0; i<fpStr.length-1; i++){
 			if(!fpStr[i].equals(fpStr[i+1]))
 				fpList.add(fpStr[i]);
-				//fullpath += fpStr[i] + " "; 
+				
 		}
 		fpList.add(fpStr[fpStr.length-1]);
-		//fullpath += fpStr[fpStr.length-1];
+		
 		
 		return fpList;
 	}
@@ -182,29 +170,7 @@ public class KoalaMessage {
 		return path.get(path.size()-2);
 	}
 	
-//	public String getSecondLastSenderNode(){
-//		if(path.size()<=1)
-//			return null;
-//		return path.get(path.size()-2);
-//	}
-	
-//	public void setRandomLatency(String sourceID, String destID){
-//        int sDC = NodeUtilities.getDCID(sourceID);
-//        int dDC = NodeUtilities.getDCID(destID);
-//
-//        Random random = new Random(sDC*dDC);
-//        int min, max;
-//         
-//        if (sDC == dDC){
-//            min = 5; max = NodeUtilities.MAX_INTRA_LATENCY;
-//        }else{
-//        	min = NodeUtilities.MAX_INTRA_LATENCY; max = NodeUtilities.MAX_INTER_LATENCY;
-//        }
-//        
-//        latency = random.nextInt((max - min) + 1) + min;
-//        
-//	}
-	
+
 	public String getTypeName(){
 		switch(type){
 		case RT:
@@ -255,10 +221,8 @@ public class KoalaMessage {
 			
 			JsonObject obj = new JsonObject();
 			obj.addProperty("id", src.getID());
-//			obj.addProperty("source", src.getSource());
 			obj.addProperty("type", src.getType());
 			obj.addProperty("confidential", src.isConfidential());
-//			obj.addProperty("latency", src.getLatency());
 			obj.add("path", (JsonElement)pathEntries);
 			obj.add("latencies", (JsonElement)latencyEntries);
 			obj.add("content", KoalaJsonParser.toJsonTree(src.getContent()));
@@ -273,10 +237,8 @@ public class KoalaMessage {
 			JsonObject srcJO = src.getAsJsonObject();
 			KoalaMessage km = new KoalaMessage();
 			km.setID(srcJO.get("id").getAsInt());
-//			km.setSource(srcJO.get("source").getAsString());
 			km.setType(srcJO.get("type").getAsInt());
 			km.setConfidential(srcJO.get("confidential").getAsBoolean());
-//			km.addLatency(srcJO.get("latency").getAsDouble());
 			
 			
 			JsonArray jpath = srcJO.getAsJsonArray("path");

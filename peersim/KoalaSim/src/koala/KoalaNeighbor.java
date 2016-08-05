@@ -8,15 +8,7 @@ public class KoalaNeighbor{
 	private String nodeID;
 	private double latency = -1;
 	private int latencyQuality = -1;
-//	private int nrLocalNeighbors = 0;
-//	
-//	public int getNrLocalNeighbors() {
-//		return nrLocalNeighbors;
-//	}
-//	
-//	public void setNrLocalNeighbors(int nrLocalNeighbors) {
-//		this.nrLocalNeighbors = nrLocalNeighbors;
-//	}
+
 	
 	public KoalaNeighbor(String nodeID) {
 		super();

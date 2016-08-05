@@ -4,7 +4,7 @@
 # set output 'circles.5.png'
 unset key
 set size ratio -1 1,1
-set title "Peersim generated topology" 
+set title "Koala topology" 
 r = 0.01
 types = 6
 keyx = -137.0

@@ -7,7 +7,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import koala.KoalaNode;
 import koala.RenaterNode;
@@ -26,7 +28,7 @@ public class RenaterInitializer implements Control {
 	private static final String PAR_DC_FILE = "dc_file";
 	private static final String PAR_DC_DISTANCE = "distance";
 	
-	
+	public static Map<String, Node> Nodes =  new HashMap<String, Node>(); 
 
     private static int pid;
     private static int phid;
@@ -52,7 +54,7 @@ public class RenaterInitializer implements Control {
     	
 	@Override
 	public boolean execute() {
-		System.out.println("Setting up renater nodes: positioning and gateways ");
+		System.out.println("\nSetting up renater nodes: positioning and gateways ");
 		//initialize the gson parser
 		KoalaJsonParser.intitialize();
 		NodeUtilities.initialize();
@@ -89,10 +91,11 @@ public class RenaterInitializer implements Control {
             nodesPerDC[j]--;
             koalaNode.setID(j, k);
             renaterNode.setID(j+"-"+k);
+            Nodes.put(j+"-"+k, n);
+            
             k++;
             if(nodesPerDC[j] == 0){
             	cords = new double[]{centerPerDC[j][0], centerPerDC[j][1]};
-            	//renaterNode.setGateway(true);
             	gateways.add(renaterNode);
             	j++;
             	k=0;
@@ -100,6 +103,7 @@ public class RenaterInitializer implements Control {
             	cords = this.getRandomCirclePoint(centerPerDC[j][0], centerPerDC[j][1], distance);       
             renaterNode.setX(cords[0]);
             renaterNode.setY(cords[1]);
+            
         }
         
         for (int i = 0; i < Network.size(); i++) {
@@ -108,7 +112,6 @@ public class RenaterInitializer implements Control {
             for(RenaterNode gateway: gateways){
             	if(!renaterNode.equals(gateway) && renaterNode.getID().split("-")[0].equals(gateway.getID().split("-")[0])){
             		renaterNode.setGateway(gateway.getID());
-            		//gateways.remove(gateway);
             		break;
             	}
             }

@@ -1,72 +1,58 @@
 package koala;
 
-import java.util.ArrayDeque;
 import java.util.HashMap;
 
-import example.hot.InetCoordinates;
-import peersim.cdsim.CDProtocol;
+import koala.controllers.ResultCollector;
+import koala.initializers.RenaterInitializer;
+import koala.utility.ErrorDetection;
+import koala.utility.NodeUtilities;
+import koala.utility.PhysicalDataProvider;
+import messaging.KoalaMessage;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Linkable;
-import peersim.core.Network;
 import peersim.core.Node;
-import koala.controllers.ResultCollector;
-import koala.utility.ErrorDetection;
-import koala.utility.KoalaJsonParser;
-import koala.utility.NodeUtilities;
-import koala.utility.PhysicalDataProvider;
-import messaging.KoalaMessage;
-import messaging.KoalaNGNMsgContent;
+import peersim.edsim.EDProtocol;
+import peersim.transport.Transport;
 
-public abstract class TopologyProtocol implements CDProtocol {
-	protected ArrayDeque<String> queue;
+
+public abstract class TopologyProtocol implements EDProtocol {
+	protected Node node = null;
 	protected TopologyNode myNode = null;
+	protected Transport myTransport = null;
 
 	protected HashMap<Integer, KoalaMessage> receivedMsgs;
 	
 	protected int linkPid = -1;
 	protected int myPid = -1;
-
+	protected int transId = -1;
+	
 	protected boolean logMsg;
 	private static boolean initializeMode;
 	
 	public TopologyProtocol(String prefix) {
-		queue = new ArrayDeque<String>();
+
         receivedMsgs = new HashMap<Integer, KoalaMessage>();
-        logMsg = Configuration.getInt("logging.msg") == 1;
+        logMsg = Configuration.getInt("logging.msg", 0) == 1;
 	}
 	
 	public Object clone() {
 		TopologyProtocol inp = null;
         try {
             inp = (TopologyProtocol) super.clone();
-            inp.queue = new ArrayDeque<String>();
             inp.receivedMsgs = new HashMap<Integer, KoalaMessage>();
         } catch (CloneNotSupportedException e) {
         } // never happens
         return inp;
     }
 	
-//	public abstract boolean hasJoined();
+
 	
 	public static void setInitializeMode(boolean initMode){
 		initializeMode = initMode;
 	}
 	
-	public void setPids(int mypid, int lpid){
-		myPid = mypid;
-		linkPid = lpid;
-	}
-	
-	public boolean hasEmptyQueue(){
-		return queue.size() == 0;
-	}
-	
-	public void registerMsg(KoalaMessage msg){
-		String msgStr = KoalaJsonParser.toJson(msg);
-		queue.add(msgStr);
-	}
 
 	protected void onReceivedMsg(KoalaMessage msg) {
 		receivedMsgs.put(msg.getID(), msg);
@@ -105,29 +91,30 @@ public abstract class TopologyProtocol implements CDProtocol {
 	
 	protected abstract void onLongLink(KoalaMessage msg);
 	
-	public void intializeMyNode(Node node){
+	public void intializeMyNode(Node node, int pid){
+		this.node = node;
+		myPid = pid;
+		linkPid = FastConfig.getLinkable(pid);
+		transId = FastConfig.getTransport(pid);
 		myNode = (TopologyNode) (Linkable) node.getProtocol(linkPid);
+		if(transId > 0)
+			myTransport = (Transport)node.getProtocol(transId);
 	}
 
 	public void send(String destinationID, KoalaMessage msg)
 	{
-		Node each = null;
-		for (int i = 0; i < Network.size(); i++) {
-            each =  Network.get(i);
-            if(((TopologyNode)each.getProtocol(linkPid)).getID().equals(destinationID))
-            	break;
-		}
-		if(each != null){
+		Node dest = RenaterInitializer.Nodes.get(destinationID);
+
+		if(dest != null){
 			if(ErrorDetection.hasLoopCommunication(myNode.getID(),destinationID))
 				System.out.println("problems in horizont");
 				
 			String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " sending a message to " + destinationID  + " a msg of type: " + msg.getTypeName();
 			if(logMsg)
 			System.out.println(logmsg);
-			//			System.out.println(me.getID() +"->"+ destinationID);
-//			msg.setRandomLatency(myNode.getID(), destinationID);
+
 			double l = PhysicalDataProvider.getLatency(myNode.getID(), destinationID);
-//			double l = 1;
+
 			if(l <= 0)
 				System.out.println("someone invented time traveling!");
 			msg.addLatency(l);
@@ -135,24 +122,23 @@ public abstract class TopologyProtocol implements CDProtocol {
 				msg.addToPath(myNode.getID());
 			msg.addToPath(destinationID);
 			
-			((TopologyProtocol)each.getProtocol(myPid)).registerMsg(msg);
+
 			
 			if(NodeUtilities.getDCID(myNode.getID()) == NodeUtilities.getDCID(destinationID))
 				ResultCollector.countIntra();
 			else
 				ResultCollector.countInter();
 			if(initializeMode)
-				((KoalaProtocol)each.getProtocol(myPid)).receive();
+				((KoalaProtocol)dest.getProtocol(myPid)).receive(msg);
+			else
+				myTransport.send(node, dest, msg, myPid);
 		}
 	}
 
-	public void receive()
+
+	
+	public void receive(KoalaMessage msg)
 	{
-		if(queue.size() == 0)
-			return;
-		
-		String msgStr = queue.remove();
-		KoalaMessage msg = KoalaJsonParser.jsonToObject(msgStr, KoalaMessage.class);
 		String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " received a message from " + msg.getLastSender()  + " a msg of type: " + msg.getTypeName();
 		if(logMsg)
 			System.out.println(logmsg);
@@ -178,24 +164,26 @@ public abstract class TopologyProtocol implements CDProtocol {
 		
 //		checkPiggybacked(msg);
 		
-		//if(CommonState.getTime() <= 69)
-//			System.out.println(logmsg);
 	}
 
 	
 
+//	@Override
+//	public void nextCycle(Node node, int protocolID) {
+//		myPid = protocolID;
+//		linkPid = FastConfig.getLinkable(protocolID);
+//		intializeMyNode(node);
+//		
+////		System.out.print(myNode.getID() + "  ");
+//		receive();
+////		checkStatus();
+//	}
+	
 	@Override
-	public void nextCycle(Node node, int protocolID) {
-		myPid = protocolID;
-		linkPid = FastConfig.getLinkable(protocolID);
-		intializeMyNode(node);
-		
-//		System.out.print(myNode.getID() + "  ");
-		receive();
-//		checkStatus();
+	public void processEvent(Node node, int pid, Object event) {
+		intializeMyNode(node, pid);
+		receive((KoalaMessage)event);
 	}
-	
-	
 
 	
 }

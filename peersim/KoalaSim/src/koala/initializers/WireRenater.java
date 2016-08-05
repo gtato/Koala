@@ -1,6 +1,5 @@
 package koala.initializers;
 
-import java.rmi.dgc.DGC;
 import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -9,21 +8,20 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import koala.RenaterEdge;
+import koala.RenaterGraph;
 import koala.RenaterNode;
 import koala.utility.Dijkstra;
-import koala.utility.PhysicalDataProvider;
-import koala.utility.NodeUtilities;
 import koala.utility.Dijkstra.Edge;
+import koala.utility.NodeUtilities;
+import koala.utility.PhysicalDataProvider;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.dynamics.WireGraph;
 import peersim.graph.Graph;
-import koala.RenaterGraph;
 
 public class WireRenater extends WireGraph {
 
@@ -70,25 +68,6 @@ public class WireRenater extends WireGraph {
 //		wireDC(gateway_indexes, gateways);
 //		wireDCWaxman(gateway_indexes, gateways);
 		wireGradual(gateway_indexes, gateways);
-//		for(int i = 0; i < distances.size(); i++){
-//			ArrayList<AbstractMap.SimpleEntry<Integer, Double>> dists = distances.get(i);
-//			Collections.sort(dists, new Comparator<AbstractMap.SimpleEntry<Integer, Double>>() {
-//			@Override
-//			public int compare(AbstractMap.SimpleEntry<Integer, Double> o1, AbstractMap.SimpleEntry<Integer, Double> o2) {
-//				return o1.getValue().compareTo(o2.getValue());
-//				
-//			}
-//			});
-//			
-//			for(int j=0; j < dists.size() && j<k; j++)
-//			{
-//				RenaterEdge re = new RenaterEdge(dists.get(j).getValue(), getBitRate(), getSpeed());
-//				((RenaterGraph)g).setEdge(gateway_indexes.get(i), dists.get(j).getKey(), re);
-//			}
-//		}
-		
-		
-		
 
 	}
 
@@ -142,7 +121,7 @@ public class WireRenater extends WireGraph {
 	   	double a = 0.15;
 	   	double b = 0.13;
 	   	
-//	   	HashMap<String, Double> probablities = new HashMap<String, Double>();
+
 	   	ArrayList<String> ids = new ArrayList<String>();
 	   	ArrayList<AbstractMap.SimpleEntry<String, Double>> probablities = new ArrayList<AbstractMap.SimpleEntry<String, Double>>();
 	   	

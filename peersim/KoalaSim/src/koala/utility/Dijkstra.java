@@ -6,7 +6,6 @@ import koala.RenaterNode;
 
 public class Dijkstra {
 
-//	private List<RenaterNode> nodes;
 	private List<Edge> edges;
 	private Set<RenaterNode> settledNodes;
 	private Set<RenaterNode> unSettledNodes;
@@ -15,20 +14,17 @@ public class Dijkstra {
 	private Map<String, Double> allDistance;
 
 	public Dijkstra() {
-//		this.nodes = new ArrayList<RenaterNode>();
 		this.edges = new ArrayList<Edge>();
 		this.allDistance = new HashMap<String, Double>();
 	}
 	
 	public Dijkstra(Graph graph) {
 		// create a copy of the array so that we can operate on this array
-//		this.nodes = new ArrayList<RenaterNode>(graph.getVertexes());
 		this.edges = new ArrayList<Edge>(graph.getEdges());
 		this.allDistance = new HashMap<String, Double>();
 	}
 
 	public void setGraph(Graph graph){
-//		this.nodes = new ArrayList<RenaterNode>(graph.getVertexes());
 		this.edges = new ArrayList<Edge>(graph.getEdges());
 		this.allDistance = new HashMap<String, Double>();
 	}
@@ -43,7 +39,6 @@ public class Dijkstra {
 		distance = new HashMap<RenaterNode, Double>();
 		predecessors = new HashMap<RenaterNode, RenaterNode>();
 		distance.put(source, 0.0);
-//		allDistance.put(NodeUtilities.getKeyID(source.getID(), source.getID()), 0.0);
 		unSettledNodes.add(source);
 		while (unSettledNodes.size() > 0) {
 			RenaterNode node = getMinimum(unSettledNodes);

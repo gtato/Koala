@@ -1,10 +1,6 @@
 package koala.utility;
 
 import messaging.KoalaMessage;
-import koala.KoalaNeighbor;
-import koala.KoalaNode;
-import koala.KoalaNode.KoalaNodeDeserializer;
-import koala.KoalaNode.KoalaNodeSerializer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

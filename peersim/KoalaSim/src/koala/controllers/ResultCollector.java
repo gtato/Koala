@@ -1,22 +1,17 @@
 package koala.controllers;
 
-import java.awt.color.CMMException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import messaging.KoalaMessage;
 import koala.KoalaProtocol;
 import koala.RenaterProtocol;
-import koala.TopologyProtocol;
 import koala.utility.PhysicalDataProvider;
+import messaging.KoalaMessage;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Node;
-import peersim.reports.GraphObserver;
 
 public class ResultCollector extends NodeObserver {
 
@@ -149,30 +144,4 @@ public class ResultCollector extends NodeObserver {
 		
 	}
 	
-//	public static class MsgEntry{
-//		Node dest;
-//		int msgID;
-//		
-//		public MsgEntry(Node tp, int msgID){
-//			this.dest = tp;
-//			this.msgID = msgID;
-//		}
-//
-//		public Node getDestination() {
-//			return dest;
-//		}
-//
-//		public void setDestination(Node dest) {
-//			this.dest = dest;
-//		}
-//
-//		public int getMsgID() {
-//			return msgID;
-//		}
-//
-//		public void setMsgID(int msg) {
-//			this.msgID = msg;
-//		}
-//	}
-
 }

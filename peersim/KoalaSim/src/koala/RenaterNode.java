@@ -2,13 +2,9 @@ package koala;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 import koala.utility.NodeUtilities;
-import peersim.core.Linkable;
 import peersim.core.Node;
-import peersim.core.Protocol;
-import example.hot.InetCoordinates;
 
 public class RenaterNode extends TopologyNode{
 

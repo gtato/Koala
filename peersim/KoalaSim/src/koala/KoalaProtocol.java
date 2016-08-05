@@ -1,29 +1,23 @@
 package koala;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import koala.utility.NodeUtilities;
+import messaging.KoalaMessage;
 import messaging.KoalaMsgContent;
 import messaging.KoalaNGNMsgContent;
-import messaging.KoalaMessage;
 import messaging.KoalaRTMsgConent;
 import messaging.KoalaRouteMsgContent;
-import koala.utility.ErrorDetection;
-import koala.utility.KoalaJsonParser;
-import koala.utility.NodeUtilities;
 import peersim.core.CommonState;
-import peersim.cdsim.CDProtocol;
-import peersim.config.FastConfig;
 import peersim.core.Linkable;
 import peersim.core.Network;
 import peersim.core.Node;
 
 
-public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
+public class KoalaProtocol extends TopologyProtocol{
 
 	KoalaNode myNode;
 	public KoalaProtocol(String prefix) {
@@ -135,7 +129,7 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 	protected void onRoutingTable(KoalaMessage msg) {
 		String lastSender = msg.getLastSender();
 		KoalaNode source = ((KoalaRTMsgConent)msg.getContent()).getNode();
-//		boolean isForeverAlone = knowSenderLocalNeighs(sender);
+
 		boolean sourceJoining = source.getJoining();
 		boolean selfJoining = myNode.isJoining();
 		ArrayList<KoalaNeighbor> senderOldNeighbors = source.getRoutingTable().getOldNeighborsContainer();
@@ -185,9 +179,6 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		myNode.updateLatencies();
 
 		Set<String> neighborsAfter = myNode.getRoutingTable().getNeighboursIDs();
-//		System.out.println();
-//		if(myNode.getID().equals("5-1"))
-//			System.out.println("before: " + neighborsBefore + " after:" + neighborsAfter + " received: " + receivedNeighbors);
 		for(KoalaNeighbor newNeig : newNeighbors){
 			if(neighborsAfter.contains(newNeig.getNodeID()) && !neighborsBefore.contains(newNeig.getNodeID()) || newNeig.getNodeID().equals(source.getID()))
 			{
@@ -208,47 +199,10 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 			}
 		}
 		
-//		sendToForeverAlone(myOldNeighbors);
+
 		
 	}
 
-//	private void sendToForeverAlone(ArrayList<KoalaNeighbor> myOldNeighbors) {
-//		KoalaMessage newMsg = new KoalaMessage(myNode.getID(), new KoalaRTMsgConent(myNode));
-//		for(KoalaNeighbor oldie: myOldNeighbors){
-//			if(oldie.isForeverAlone())
-////				System.out.println(oldie.getNodeID() + " is forever alone maybe " + myNode.getID() +" should introduce it to new people");
-//				send(oldie.getNodeID(), newMsg);
-//		}
-//		
-//	}
-
-//	private boolean knowSenderLocalNeighs(KoalaNode sender){
-//		ArrayList<KoalaNeighbor> senderNeighbors = sender.getRoutingTable().getNeighborsContainer();
-//		boolean hasLocalNeigs = false;
-//		for(KoalaNeighbor kn : senderNeighbors){
-//			if(NodeUtilities.sameDC(kn.getNodeID(), sender.getID()) && !kn.getNodeID().equals(sender.getID()))
-//				hasLocalNeigs = true;
-//		}
-//		if(hasLocalNeigs)
-//			return false;
-//		Set<String> neighborsBefore = myNode.getRoutingTable().getNeighboursIDs();
-//		for(String knID : neighborsBefore){
-//			if(NodeUtilities.sameDC(knID, sender.getID()) && !knID.equals(sender.getID()))
-//				return true;
-//		}
-//		return false;
-//	}
-	
-//	private boolean nodeIsForeverAlone(KoalaNode sender){
-//		ArrayList<KoalaNeighbor> senderNeighbors = sender.getRoutingTable().getNeighborsContainer();
-//		for(KoalaNeighbor kn : senderNeighbors){
-//			if(NodeUtilities.sameDC(kn.getNodeID(), sender.getID()) && !kn.getNodeID().equals(sender.getID()))
-//				return false;
-//		}
-//		
-//		return true;
-//	}
-	
 	
 	private void broadcastGlobalNeighbor(KoalaNeighbor newNeig) {
         Set<String> candidates = myNode.createRandomIDs(NodeUtilities.MAGIC);
@@ -295,13 +249,10 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 			
 	}
 
-//	public boolean hasJoined() {
-//		return joined;
-//	}
 
 	@Override
-	public void intializeMyNode(Node node) {
-		super.intializeMyNode(node);
+	public void intializeMyNode(Node node, int pid) {
+		super.intializeMyNode(node, pid);
 		myNode = (KoalaNode) (Linkable) node.getProtocol(linkPid);
 		
 	}
@@ -332,20 +283,4 @@ public class KoalaProtocol extends TopologyProtocol implements CDProtocol{
 		return "koala";
 	}
 
-	
-
-//	@Override
-//	protected void checkStatus() {
-//		long age = myNode.getAge(); 
-//		if(age >=  1000){
-//			Set<String> localNeigs =  myNode.getRoutingTable().getNeighboursIDs(1);
-//			if(localNeigs.size() < 2){
-//				System.out.println("("+CommonState.getTime()+") "+ myNode.getID() + " is " +age +" cycles old and has "+ localNeigs.size() +" friends");
-//				myNode.setJoined(false);
-//				myNode.resetRoutingTable();
-//				join();
-//			}
-//		}
-//		
-//	}
 }

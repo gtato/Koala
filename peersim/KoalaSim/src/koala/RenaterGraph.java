@@ -16,8 +16,6 @@ public class RenaterGraph extends OverlayGraph {
 		RenaterNode rnj =(RenaterNode)Network.get(j).getProtocol(protocolID);
 		rni.addEdge(rnj.getID(), edge);
 		rnj.addEdge(rni.getID(), edge);
-//		((RenaterNode)Network.get(i).getProtocol(protocolID)).addEdge(j, edge);
-//		((RenaterNode)Network.get(j).getProtocol(protocolID)).addEdge(i, edge);
 		return ret;
 	}
 

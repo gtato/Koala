@@ -149,9 +149,11 @@ public class Test {
 			strcontent.add(i+" " + content[i]);
 		printToFile( strcontent);
 	}
+	
 	protected static void plotIt(String script){
 		try {
-			Process p = new ProcessBuilder("gnuplot", "-persistent", script).start();
+//			Process p = new ProcessBuilder("gnuplot", "-persistent", script).start();
+			new ProcessBuilder("gnuplot", "-persistent", script).start();
 //			BufferedReader reader = new BufferedReader (new InputStreamReader(p.getErrorStream()));
 //			String line;
 //			while ((line = reader.readLine ()) != null) {

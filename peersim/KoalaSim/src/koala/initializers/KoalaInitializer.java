@@ -7,36 +7,28 @@ import koala.KoalaProtocol;
 import koala.RenaterProtocol;
 import koala.TopologyProtocol;
 import peersim.config.Configuration;
-import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
 
+
 public class KoalaInitializer implements Control {
-	
+		
 	private static final String PAR_KOALA_PROTOCOL= "kprotocol";
 	private static final String PAR_RENATER_PROTOCOL= "protocol";
 	private static final String PAR_KOALA_NR= "nr";
 	
 	private final int renProtPid;
-	private final int renNodePid;
+	
 	private final int koaProtPid;
-	private final int koaNodePid;
+	
 	
 	private final int nr;
 	
 	public KoalaInitializer(String prefix) {
-		
 		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
-		renNodePid = FastConfig.getLinkable(renProtPid);
-		
 		koaProtPid = Configuration.getPid(prefix + "." + PAR_KOALA_PROTOCOL, -1);
-		if(koaProtPid > -1)
-			koaNodePid = FastConfig.getLinkable(koaProtPid);
-		else
-			koaNodePid = -1;
-		
 		nr = Configuration.getInt(prefix + "." + PAR_KOALA_NR, Network.size());
 	}
 	
@@ -56,14 +48,12 @@ public class KoalaInitializer implements Control {
 			Node n = Network.get(inx.get(i));
 			
 			RenaterProtocol rp = (RenaterProtocol )n.getProtocol(renProtPid);
-			rp.setPids(renProtPid, renNodePid);
-			rp.intializeMyNode(n);
+			rp.intializeMyNode(n, renProtPid);
 			rp.join();
 			
 			if(koaProtPid > -1){
 				KoalaProtocol kp = (KoalaProtocol )n.getProtocol(koaProtPid);
-				kp.setPids(koaProtPid, koaNodePid);
-				kp.intializeMyNode(n);
+				kp.intializeMyNode(n, koaProtPid);
 				kp.join();
 			}
 			
