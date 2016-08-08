@@ -3,8 +3,8 @@ package messaging;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import koala.utility.KoalaJsonParser;
-import koala.utility.PhysicalDataProvider;
+import utilities.KoalaJsonParser;
+import utilities.PhysicalDataProvider;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;

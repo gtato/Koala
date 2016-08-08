@@ -1,4 +1,4 @@
-package koala;
+package topology;
 
 import peersim.core.CommonState;
 import peersim.core.Linkable;
@@ -11,6 +11,7 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 	private String id;
 	private long birthday;
 	protected boolean joined;
+	private Node node;
 	
 	public long getBirthday() {
 		return birthday;
@@ -84,5 +85,21 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 	public void pack() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public Node getNode() {
+		return node;
+	}
+
+	public void setNode(Node node) {
+		this.node = node;
+	}
+	
+	public boolean isUp(){
+		return this.node.isUp();
+	}
+	
+	public long getSimNodeID(){
+		return this.node.getID();
 	}
 }

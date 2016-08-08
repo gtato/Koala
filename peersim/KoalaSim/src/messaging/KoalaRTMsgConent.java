@@ -5,9 +5,9 @@ package messaging;
 import java.util.ArrayList;
 import java.util.Set;
 
+import utilities.KoalaJsonParser;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
-import koala.utility.KoalaJsonParser;
 
 public class KoalaRTMsgConent extends KoalaMsgContent {
 

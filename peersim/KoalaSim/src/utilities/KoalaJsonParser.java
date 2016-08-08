@@ -1,4 +1,4 @@
-package koala.utility;
+package utilities;
 
 import messaging.KoalaMessage;
 

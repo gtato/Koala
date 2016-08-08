@@ -11,10 +11,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import koala.utility.KoalaJsonParser;
-import koala.utility.NodeUtilities;
 import messaging.KoalaMessage;
 import peersim.core.CommonState;
+import topology.TopologyNode;
+import utilities.KoalaJsonParser;
+import utilities.NodeUtilities;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;

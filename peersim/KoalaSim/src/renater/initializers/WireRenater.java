@@ -1,4 +1,4 @@
-package koala.initializers;
+package renater.initializers;
 
 import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
@@ -9,19 +9,19 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import koala.RenaterEdge;
-import koala.RenaterGraph;
-import koala.RenaterNode;
-import koala.utility.Dijkstra;
-import koala.utility.Dijkstra.Edge;
-import koala.utility.NodeUtilities;
-import koala.utility.PhysicalDataProvider;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.dynamics.WireGraph;
 import peersim.graph.Graph;
+import renater.RenaterEdge;
+import renater.RenaterGraph;
+import renater.RenaterNode;
+import utilities.Dijkstra;
+import utilities.NodeUtilities;
+import utilities.PhysicalDataProvider;
+import utilities.Dijkstra.Edge;
 
 public class WireRenater extends WireGraph {
 

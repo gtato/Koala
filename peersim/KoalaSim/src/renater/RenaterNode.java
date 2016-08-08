@@ -1,10 +1,11 @@
-package koala;
+package renater;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import koala.utility.NodeUtilities;
 import peersim.core.Node;
+import topology.TopologyNode;
+import utilities.NodeUtilities;
 
 public class RenaterNode extends TopologyNode{
 

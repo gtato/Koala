@@ -1,8 +1,8 @@
-package koala.utility;
+package utilities;
 
 import java.util.*;
 
-import koala.RenaterNode;
+import renater.RenaterNode;
 
 public class Dijkstra {
 

@@ -1,9 +1,10 @@
-package koala;
+package renater;
 
 import messaging.KoalaMessage;
 import messaging.KoalaRouteMsgContent;
 import peersim.core.Linkable;
 import peersim.core.Node;
+import topology.TopologyProtocol;
 
 public class RenaterProtocol extends TopologyProtocol {
 

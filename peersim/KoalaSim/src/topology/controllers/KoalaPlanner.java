@@ -1,31 +1,37 @@
-package koala.controllers;
+package topology.controllers;
 
 import java.util.ArrayList;
 
+import chord.ChordNode;
 import messaging.KoalaMessage;
 import messaging.KoalaRouteMsgContent;
 import koala.KoalaNode;
 import koala.KoalaProtocol;
-import koala.RenaterNode;
-import koala.RenaterProtocol;
-import koala.TopologyNode;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Node;
 import peersim.reports.GraphObserver;
 import peersim.transport.Transport;
+import renater.RenaterNode;
+import renater.RenaterProtocol;
+import topology.TopologyNode;
 
 public class KoalaPlanner extends GraphObserver {
 
 
 	private static final String PAR_KOALA_PROTOCOL= "kprotocol";
+	private static final String PAR_CHORD_PROTOCOL= "cprotocol";
 	private static final String PAR_RENATER_PROTOCOL= "protocol";
 	
 	private final int renProtPid;
 	private final int renNodePid;
+	
 	private final int koaProtPid;
 	private final int koaNodePid;
+	
+	private final int chordProtPid;
+	private final int chordNodePid;
 	
 	private int msgID;
 	private boolean allAdded = false; 
@@ -41,6 +47,9 @@ public class KoalaPlanner extends GraphObserver {
 			koaNodePid = FastConfig.getLinkable(koaProtPid);
 		else
 			koaNodePid = -1;
+		
+		chordProtPid = Configuration.getPid(prefix + "." + PAR_CHORD_PROTOCOL, -1);
+		chordNodePid =  chordProtPid > -1 ? FastConfig.getLinkable(chordProtPid) : -1;
 		
 		msgID = 0;
 	}
@@ -107,29 +116,35 @@ public class KoalaPlanner extends GraphObserver {
 		
 		for(int i = 0; i < count; i++){
 			Node src = sources.get(i);
+			Node dst = dests.get(i);
 			TopologyNode sourc = koaProtPid >= 0 ? (KoalaNode)sources.get(i).getProtocol(koaNodePid) : (RenaterNode)sources.get(i).getProtocol(renNodePid);
 			TopologyNode dest = koaProtPid >= 0 ? (KoalaNode)dests.get(i).getProtocol(koaNodePid) : (RenaterNode)dests.get(i).getProtocol(renNodePid);
 			
-			if(koaProtPid > 0){
-				KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(dest.getID()));
-	        	msg.addToPath(sourc.getID());
+			Transport tr = (Transport)src.getProtocol(FastConfig.getTransport(renProtPid));
+			
+			if(renProtPid >= 0){
+	        	KoalaMessage msg = new KoalaMessage( new KoalaRouteMsgContent(dest.getID()));
 	        	msg.setID(msgID);
-	        	
-	        	Transport tr = (Transport)src.getProtocol(FastConfig.getTransport(koaProtPid));
+	        
+	        	tr.send(null, src, msg, renProtPid);
+			}
+			
+			if(koaProtPid >= 0){
+				KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(dest.getID()));
+	        	msg.setID(msgID);
 	        	tr.send(null, src, msg, koaProtPid);
 			}
 			
-			if(renProtPid > 0){
-	        	KoalaMessage msg = new KoalaMessage( new KoalaRouteMsgContent(dest.getID()));
-	        	msg.addToPath(sourc.getID());
+			if(chordProtPid >= 0){
+				ChordNode destCn = (ChordNode)dst.getProtocol(chordNodePid);
+				KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(destCn.chordId.toString()));
 	        	msg.setID(msgID);
-	        
-	        	Transport tr = (Transport)src.getProtocol(FastConfig.getTransport(renProtPid));
-	        	tr.send(null, src, msg, renProtPid);
-	        	
+	        	tr.send(null, src, msg, chordProtPid);
 			}
+			
+			
 			System.out.println("(" + CommonState.getTime() + ") ROUTE: " + sourc.getID() + " -> " + dest.getID());
-			ResultCollector.addSentMsg(msgID, dests.get(i));
+			ResultCollector.addSentMsg(msgID, dst);
 			msgID++;
 		}
 	}

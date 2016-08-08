@@ -1,31 +1,35 @@
-package koala.controllers;
+package topology.controllers;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import chord.ChordProtocol;
 import koala.KoalaProtocol;
-import koala.RenaterProtocol;
-import koala.utility.PhysicalDataProvider;
 import messaging.KoalaMessage;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Node;
+import renater.RenaterProtocol;
+import utilities.PhysicalDataProvider;
 
 public class ResultCollector extends NodeObserver {
 
+	private static final String PAR_CHORD_PROTOCOL= "cprotocol";
 	private static final String PAR_KOALA_PROTOCOL= "kprotocol";
 	private static final String PAR_RENATER_PROTOCOL= "protocol";
 	
 	
 	private final int renProtPid;
 	private final int koaProtPid;
+	private final int chordProtPid;
 	
 	private static HashMap<Integer, Node> sentMgs = new HashMap<Integer, Node>(); 
 	
 	private double renaterTotalLatency = 0;
 	private double koalaTotalLatency = 0;
+	private double chordTotalLatency = 0;
 	
 	private static int nrInterDCMsg = 0;
 	private static int nrIntraDCMsg = 0;
@@ -36,6 +40,7 @@ public class ResultCollector extends NodeObserver {
 		super(prefix);
 		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
 		koaProtPid = Configuration.getPid(prefix + "." + PAR_KOALA_PROTOCOL, -1);
+		chordProtPid = Configuration.getPid(prefix + "." + PAR_CHORD_PROTOCOL, -1);
 		plotScript = "gnuplot/plotResults.plt";
 	}
 
@@ -61,15 +66,22 @@ public class ResultCollector extends NodeObserver {
 		for(Map.Entry<Integer, Node> msg : sentMgs.entrySet()){
 			RenaterProtocol rp = (RenaterProtocol) msg.getValue().getProtocol(renProtPid);
 			KoalaProtocol kp = (KoalaProtocol) msg.getValue().getProtocol(koaProtPid);
+			ChordProtocol cp = (ChordProtocol) msg.getValue().getProtocol(chordProtPid);
 			
-			if(rp.hasReceivedMsg(msg.getKey()) && kp.hasReceivedMsg(msg.getKey())){
+			if(rp.hasReceivedMsg(msg.getKey()) 
+			&& kp.hasReceivedMsg(msg.getKey())
+			&& cp.hasReceivedMsg(msg.getKey())
+					){
 				KoalaMessage rm = rp.getReceivedMsg(msg.getKey());
 				KoalaMessage km = kp.getReceivedMsg(msg.getKey());
+				KoalaMessage cm = cp.getReceivedMsg(msg.getKey());
 				
 				renaterTotalLatency += rm.getLatency();
 				koalaTotalLatency += km.getLatency();
+				chordTotalLatency += cm.getLatency();
 				renaterTotalLatency = PhysicalDataProvider.round(renaterTotalLatency);
 				koalaTotalLatency = PhysicalDataProvider.round(koalaTotalLatency);
+				chordTotalLatency = PhysicalDataProvider.round(chordTotalLatency);
 				//do stuff 
 //				String ok = rm.getPath().toString().equals(rm.getPhysicalPathToString().toString()) ? " (ok) " : " (not ok) ";
 //				System.out.println("(R) "+rm.getID() + ": " + rm.getTotalLatency() + " " + rm.getPath() + " " + rm.getPhysicalPathToString() + ok);
@@ -82,13 +94,14 @@ public class ResultCollector extends NodeObserver {
 //				System.out.println();
 				
 //				toPrint.add(km.getTotalLatency()+"");
-				toPrint.add(km.getTotalLatency()+" " + rm.getTotalLatency());
+				toPrint.add(km.getTotalLatency()+" " + rm.getTotalLatency() + " " + cm.getTotalLatency());
 //				toPrint.add(((double) km.getTotalLatency() / rm.getTotalLatency())+"");
 				//toPrint.add(km.getPath().size()+"");
 
 				
 				rp.removeReceivedMsg(msg.getKey());
 				kp.removeReceivedMsg(msg.getKey());
+				cp.removeReceivedMsg(msg.getKey());
 				entriesToRemove.add(msg.getKey());
 			}
 				

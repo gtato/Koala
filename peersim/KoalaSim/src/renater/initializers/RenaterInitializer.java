@@ -1,4 +1,4 @@
-package koala.initializers;
+package renater.initializers;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,20 +11,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chord.ChordNode;
 import koala.KoalaNode;
-import koala.RenaterNode;
-import koala.utility.KoalaJsonParser;
-import koala.utility.NodeUtilities;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
+import renater.RenaterNode;
+import utilities.KoalaJsonParser;
+import utilities.NodeUtilities;
 
 public class RenaterInitializer implements Control {
 
 	private static final String PAR_PROT = "protocol";
+	private static final String PAR_CHORD_PROT = "cprotocol";
 	private static final String PAR_DC_FILE = "dc_file";
 	private static final String PAR_DC_DISTANCE = "distance";
 	
@@ -32,6 +34,7 @@ public class RenaterInitializer implements Control {
 
     private static int pid;
     private static int phid;
+    private static int cpid;
     
     private final String dc_file;
     
@@ -42,6 +45,7 @@ public class RenaterInitializer implements Control {
     public RenaterInitializer(String prefix) {
         pid = Configuration.getPid(prefix + "." + PAR_PROT);
         phid  = FastConfig.getLinkable(pid);
+        cpid = Configuration.getPid(prefix + "." + PAR_CHORD_PROT);
         
         nrDC = Configuration.getInt("NR_DC", 1);
         nrNodePerDC = Configuration.getInt("NR_NODE_PER_DC", 1);
@@ -60,7 +64,7 @@ public class RenaterInitializer implements Control {
 		NodeUtilities.initialize();
 		
 		List<String> lines = null;
-		Node n; KoalaNode koalaNode; RenaterNode renaterNode; 
+		Node n; KoalaNode koalaNode; RenaterNode renaterNode; ChordNode chordNode;
         
         if(Files.exists(Paths.get(dc_file))){
         	 lines = getDcCordsFromFile();
@@ -87,10 +91,12 @@ public class RenaterInitializer implements Control {
             n = Network.get(i);
             koalaNode = (KoalaNode) n.getProtocol(pid);
             renaterNode = (RenaterNode) n.getProtocol(phid);
+            chordNode = (ChordNode) n.getProtocol(cpid);
             
             nodesPerDC[j]--;
             koalaNode.setID(j, k);
             renaterNode.setID(j+"-"+k);
+            chordNode.setID(j+"-"+k);
             Nodes.put(j+"-"+k, n);
             
             k++;

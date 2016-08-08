@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import koala.KoalaProtocol;
-import koala.RenaterProtocol;
-import koala.TopologyProtocol;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
+import renater.RenaterProtocol;
+import topology.TopologyProtocol;
 
 
 public class KoalaInitializer implements Control {

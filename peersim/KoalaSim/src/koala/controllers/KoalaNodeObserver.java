@@ -9,9 +9,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import koala.KoalaNode;
-import koala.utility.NodeUtilities;
 import peersim.config.Configuration;
 import peersim.core.Node;
+import topology.controllers.NodeObserver;
+import utilities.NodeUtilities;
 
 
 public class KoalaNodeObserver extends NodeObserver {
@@ -116,7 +117,7 @@ public class KoalaNodeObserver extends NodeObserver {
 	}
 	
 	private double[] getNextCoordinate(String id){
-		int dc_id = koala.utility.NodeUtilities.getDCID(id);
+		int dc_id = utilities.NodeUtilities.getDCID(id);
 		double radius = 0.5;
 		double[] center = {radius, radius};
 		double unitangle = 2*Math.PI/getNrOnlineDC();

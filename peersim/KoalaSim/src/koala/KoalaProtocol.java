@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import koala.utility.NodeUtilities;
 import messaging.KoalaMessage;
 import messaging.KoalaMsgContent;
 import messaging.KoalaNGNMsgContent;
@@ -15,6 +14,8 @@ import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Network;
 import peersim.core.Node;
+import topology.TopologyProtocol;
+import utilities.NodeUtilities;
 
 
 public class KoalaProtocol extends TopologyProtocol{

@@ -1,4 +1,4 @@
-package koala;
+package renater;
 
 public class RenaterEdge {
 

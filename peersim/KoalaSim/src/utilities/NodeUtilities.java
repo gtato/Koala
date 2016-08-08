@@ -1,9 +1,9 @@
-package koala.utility;
+package utilities;
 
 import koala.KoalaNeighbor;
-import koala.RenaterNode;
-import koala.TopologyNode;
 import peersim.config.Configuration;
+import renater.RenaterNode;
+import topology.TopologyNode;
 
 public class NodeUtilities {
 	public static final String DEFAULTID = "xxx";

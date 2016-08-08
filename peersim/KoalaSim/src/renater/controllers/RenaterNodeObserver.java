@@ -1,12 +1,13 @@
-package koala.controllers;
+package renater.controllers;
 
 import java.io.PrintStream;
 
-import koala.RenaterEdge;
-import koala.RenaterGraph;
-import koala.RenaterNode;
-import koala.utility.NodeUtilities;
 import peersim.core.Node;
+import renater.RenaterEdge;
+import renater.RenaterGraph;
+import renater.RenaterNode;
+import topology.controllers.NodeObserver;
+import utilities.NodeUtilities;
 
 public class RenaterNodeObserver extends NodeObserver {
 

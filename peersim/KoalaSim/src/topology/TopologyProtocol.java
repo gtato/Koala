@@ -1,12 +1,8 @@
-package koala;
+package topology;
 
 import java.util.HashMap;
 
-import koala.controllers.ResultCollector;
-import koala.initializers.RenaterInitializer;
-import koala.utility.ErrorDetection;
-import koala.utility.NodeUtilities;
-import koala.utility.PhysicalDataProvider;
+import koala.KoalaProtocol;
 import messaging.KoalaMessage;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
@@ -15,6 +11,11 @@ import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.edsim.EDProtocol;
 import peersim.transport.Transport;
+import renater.initializers.RenaterInitializer;
+import topology.controllers.ResultCollector;
+import utilities.ErrorDetection;
+import utilities.NodeUtilities;
+import utilities.PhysicalDataProvider;
 
 
 public abstract class TopologyProtocol implements EDProtocol {
@@ -72,7 +73,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	}
 	
 	public String toString(){
-		return "("+ getProtocolName()+") " +  myNode.getID();
+		return "("+ getProtocolName()+") " +  myNode.toString();
 	}
 	
 	public abstract void join();
