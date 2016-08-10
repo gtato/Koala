@@ -69,6 +69,9 @@ public class WireRenater extends WireGraph {
 //		wireDCWaxman(gateway_indexes, gateways);
 		wireGradual(gateway_indexes, gateways);
 
+		//set max latency (according to Dijkstra)
+		NodeUtilities.MAX_INTER_LATENCY = PhysicalDataProvider.getMaxLatency();
+		
 	}
 
 	

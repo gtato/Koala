@@ -14,8 +14,8 @@ public class NodeUtilities {
 	
 	public static int MAGIC = 2;
 	
-	public static int MAX_INTER_LATENCY = 2000;
-	public static int MAX_INTRA_LATENCY = 500;
+	public static double MAX_INTER_LATENCY = 2000;
+	public static double MAX_INTRA_LATENCY = 500;
 	
 	public static int NR_NODE_PER_DC = 0; //Configuration.getInt("NR_NODE_PER_DC")
 	public static int NR_DC = 0; //Configuration.getInt("NR_DC")

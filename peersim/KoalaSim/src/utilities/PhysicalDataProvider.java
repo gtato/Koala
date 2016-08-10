@@ -12,12 +12,15 @@ public class PhysicalDataProvider {
 	private static ArrayList<String> gatewayIDs = new ArrayList<String>();
 	private static HashMap<String, Double> latencies = new HashMap<String, Double>();
 	private static HashMap<String, String> paths= new HashMap<String, String>();
-	
+	private static double maxLatency = 0;
 	
 	public static void addLatency(String src, String dst, double latency){
 		String id = NodeUtilities.getKeyID(src, dst);
-		if(!latencies.containsKey(id))
+		if(!latencies.containsKey(id)){
 			latencies.put(id, round(latency));
+			if(latency > maxLatency)
+				maxLatency = latency;
+		}
 	}
 	
 	public static void addPath(String src, String dst, LinkedList<RenaterNode> path){
@@ -77,6 +80,9 @@ public class PhysicalDataProvider {
 		
 	}
 	
+	public static double getMaxLatency(){
+		return maxLatency;
+	}
 	
 	public static String getPath(String src, String dst){
 		if(src.equals(dst))
