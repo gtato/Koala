@@ -233,7 +233,8 @@ public class KoalaProtocol extends TopologyProtocol{
         else{
         	onReceivedMsg(msg);
         	
-        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), 0, 0);
+//        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), 0, 0);
+        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), NodeUtilities.MAX_INTER_LATENCY, 0);
         	myNode.getRoutingTable().addLongLink(ll);
         	
         	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
@@ -260,22 +261,29 @@ public class KoalaProtocol extends TopologyProtocol{
 
 	@Override
 	protected void checkPiggybacked(KoalaMessage msg) {
-//		ArrayList<KoalaNeighbor> receivedNeighbors = new ArrayList<KoalaNeighbor>();
-//		for(String p : msg.getPath())
-//			receivedNeighbors.add(new KoalaNeighbor(p));
-//		
-//		
-//		for(KoalaNeighbor recNeighbor: receivedNeighbors){
-//			if(recNeighbor.getNodeID().equals(myNode.getID())) continue;
-//			int res  = myNode.tryAddNeighbour(recNeighbor);
-//			
-//			if( res == 2){
-//				KoalaMessage newMsg = new KoalaMessage(myNode.getID(), new KoalaRTMsgConent(myNode));
-//				send(recNeighbor.getNodeID(), newMsg);
-////				System.out.println("### " + myNode.getID() + " found " + recNeighbor.getNodeID());
-//			}
-//				
-//		}
+		ArrayList<KoalaNeighbor> pathNodes = new ArrayList<KoalaNeighbor>();
+		double latency = myNode.isLocal(msg.getLastSender()) ? NodeUtilities.MAX_INTRA_LATENCY : NodeUtilities.MAX_INTER_LATENCY;
+		int latencyQuality = 0;
+		for(String p : msg.getPath()){
+			if(p.equals(msg.getLastSender())){
+				latency = msg.getLatency();
+				latencyQuality = 3;
+			}
+			pathNodes.add(new KoalaNeighbor(p, latency, latencyQuality));
+		}
+		
+		for(KoalaNeighbor recNeighbor: pathNodes){
+			if(recNeighbor.getNodeID().equals(myNode.getID())) continue;
+			int res  = myNode.tryAddNeighbour(recNeighbor);
+			
+			if( res == 2){
+				KoalaMessage newMsg = new KoalaMessage(new KoalaRTMsgConent(myNode));
+				send(recNeighbor.getNodeID(), newMsg);
+			}
+				
+			if(res == -1)
+				myNode.getRoutingTable().addLongLink(recNeighbor);
+		}
 		
 	}
 

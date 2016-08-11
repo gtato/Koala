@@ -163,7 +163,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 				break;
 		}
 		
-//		checkPiggybacked(msg);
+		checkPiggybacked(msg);
 		
 	}
 
