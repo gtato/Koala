@@ -125,7 +125,6 @@ public class KoalaPlanner extends GraphObserver {
 			if(renProtPid >= 0){
 	        	KoalaMessage msg = new KoalaMessage( new KoalaRouteMsgContent(dest.getID()));
 	        	msg.setID(msgID);
-	        
 	        	tr.send(null, src, msg, renProtPid);
 			}
 			

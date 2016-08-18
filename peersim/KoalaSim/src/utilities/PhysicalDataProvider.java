@@ -3,6 +3,7 @@ package utilities;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Random;
 
 import renater.RenaterNode;
 
@@ -12,14 +13,15 @@ public class PhysicalDataProvider {
 	private static ArrayList<String> gatewayIDs = new ArrayList<String>();
 	private static HashMap<String, Double> latencies = new HashMap<String, Double>();
 	private static HashMap<String, String> paths= new HashMap<String, String>();
-	private static double maxLatency = 0;
+	private static double maxInterLatency = 0;
+	private static double maxInraLatency = 0;
 	
 	public static void addLatency(String src, String dst, double latency){
 		String id = NodeUtilities.getKeyID(src, dst);
 		if(!latencies.containsKey(id)){
 			latencies.put(id, round(latency));
-			if(latency > maxLatency)
-				maxLatency = latency;
+			if(latency > maxInterLatency)
+				maxInterLatency = latency;
 		}
 	}
 	
@@ -80,8 +82,12 @@ public class PhysicalDataProvider {
 		
 	}
 	
-	public static double getMaxLatency(){
-		return maxLatency;
+	public static double getMaxInterLatency(){
+		return maxInterLatency;
+	}
+	
+	public static double getMaxIntraLatency(){
+		return maxInraLatency * NodeUtilities.NR_NODE_PER_DC;
 	}
 	
 	public static String getPath(String src, String dst){
@@ -121,14 +127,18 @@ public class PhysicalDataProvider {
 	
 	
 	public static double getIntraDCLatency(int dcID){
-		//Random random = new Random(dcID);
-		
-//		double min, max;
-//		max = 2.5;
-//		min = 0.2;
-		return 1.8;
-//		return random.nextDouble() * (max - min) + min;
-//		return CommonState.r.nextDouble() * (max - min) + min;
+		Random random = new Random(dcID);
+		double latency;
+		double min, max;
+		max = 0.5;
+		min = 0.05;
+//		latency = 1.8;
+		latency  = random.nextDouble() * (max - min) + min;
+		if (latency > maxInraLatency)
+			maxInraLatency = latency;
+		return latency;
+	
+
 	}
 	
 	

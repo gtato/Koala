@@ -262,7 +262,8 @@ public class KoalaProtocol extends TopologyProtocol{
 	@Override
 	protected void checkPiggybacked(KoalaMessage msg) {
 		ArrayList<KoalaNeighbor> pathNodes = new ArrayList<KoalaNeighbor>();
-		double latency = myNode.isLocal(msg.getLastSender()) ? NodeUtilities.MAX_INTRA_LATENCY : NodeUtilities.MAX_INTER_LATENCY;
+		double latency = myNode.isLocal(msg.getLastSender()) ?
+				NodeUtilities.MAX_INTRA_LATENCY : NodeUtilities.MAX_INTER_LATENCY;
 		int latencyQuality = 0;
 		for(String p : msg.getPath()){
 			if(p.equals(msg.getLastSender())){
