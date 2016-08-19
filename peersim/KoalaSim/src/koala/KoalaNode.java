@@ -344,25 +344,27 @@ public class KoalaNode extends TopologyNode{
     	return ret;
 	}
     
-
+    //TODO: maybe put if elses rather than only ifs??? 
 	private double getRouteValue(String dest, KoalaNeighbor re) {
 		double res = 0;
 
-        if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
-            res = -1;
-
-        if( this.dcID == NodeUtilities.getDCID(re.getNodeID()))
+		if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
+            res = Double.MAX_VALUE - NodeUtilities.A * NodeUtilities.distance(re.getNodeID(), dest);
+        
+		else if( this.dcID == NodeUtilities.getDCID(re.getNodeID()))
             res = NodeUtilities.A * NodeUtilities.distance(this.getID(), re.getNodeID());
-
-        if( NodeUtilities.distance(this.getID(), dest) > NodeUtilities.distance(re.getNodeID(), dest)){
+        
+		else if( NodeUtilities.distance(this.getID(), dest) > NodeUtilities.distance(re.getNodeID(), dest)){
             int tot_distance = NodeUtilities.distance(this.getID(), dest);
             double distance = (double) NodeUtilities.distance(this.getID(), re.getNodeID()) / tot_distance;
             double norm_latency = NodeUtilities.normalizeLatency(tot_distance, re.getLatency());
             res = 1 + NodeUtilities.B * distance + NodeUtilities.C * norm_latency;
         }
-        if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
-            res = Double.MAX_VALUE - NodeUtilities.A * NodeUtilities.distance(re.getNodeID(), dest);
-        return res;
+        
+		else if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
+            res = -1; 
+        
+		return res;
 	}
 	
 	public Set<String> createRandomIDs(int nr){

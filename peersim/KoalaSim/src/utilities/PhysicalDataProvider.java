@@ -137,8 +137,6 @@ public class PhysicalDataProvider {
 		if (latency > maxInraLatency)
 			maxInraLatency = latency;
 		return latency;
-	
-
 	}
 	
 	

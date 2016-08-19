@@ -43,7 +43,8 @@ public class KoalaInitializer implements Control {
 		
 		Collections.shuffle(inx, CommonState.r);
 		
-		
+		double perc,prevPerc;
+		prevPerc = 0;
 		for (int i = 0; i < nr; i++) {
 			Node n = Network.get(inx.get(i));
 			
@@ -57,7 +58,15 @@ public class KoalaInitializer implements Control {
 				kp.join();
 			}
 			
+			perc = (double)100*i/nr;
+			String txt = i < nr-1 ? perc + "%, " : perc + "%"; 
+			if(perc - prevPerc > 10){
+				System.out.print(txt);
+				prevPerc = perc;
+			}
+			
 		}
+		System.out.println("Done.");
 		
 		TopologyProtocol.setInitializeMode(false);
 		

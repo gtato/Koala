@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chord.ChordProtocol;
+import koala.KoalaNode;
 import koala.KoalaProtocol;
 import messaging.KoalaMessage;
 import peersim.config.Configuration;
@@ -69,7 +70,7 @@ public class ResultCollector extends NodeObserver {
 		
 		int rps, kps, cps, nr; rps = kps = cps = nr = 0;
 		int rl, kl, cl; rl = kl = cl = 0;
-		
+		int rtSize = 0;
 		for(Map.Entry<Integer, Node> msg : sentMgs.entrySet()){
 			RenaterProtocol rp = (RenaterProtocol) msg.getValue().getProtocol(renProtPid);
 			KoalaProtocol kp = (KoalaProtocol) msg.getValue().getProtocol(koaProtPid);
@@ -110,6 +111,7 @@ public class ResultCollector extends NodeObserver {
 
 				rps += rm.getPath().size(); cps += cm.getPath().size(); kps += km.getPath().size(); 
 				rl += rm.getTotalLatency(); cl += cm.getTotalLatency(); kl += km.getTotalLatency();
+				rtSize += ((KoalaNode)kp.getMyNode()).getRoutingTable().getSize();
 				
 				rp.removeReceivedMsg(msg.getKey());
 				kp.removeReceivedMsg(msg.getKey());
@@ -119,13 +121,21 @@ public class ResultCollector extends NodeObserver {
 			}
 				
 		}
-		
+
+
 		if(nr > 0){
-			if(toPrint.size() == 0)
+			if(toPrint.size() == 0){
+				toPrint.add("Size: " + Configuration.getInt("SIZE") + 
+						   ", DCs: " + Configuration.getInt("NR_DC") + 
+						   ", NodeXDC: " +Configuration.getInt("NR_NODE_PER_DC") + 
+						   ", Cycles: " + Configuration.getLong("simulation.endtime"));
 				toPrint.add("Latency");
 //				toPrint.add("Hops");
+				
+			}
 //			toPrint.add((double)kps/nr+" " + (double)rps/nr + " " + (double)cps/nr);
 			toPrint.add((double)kl/nr+" " + (double)rl/nr + " " + (double)cl/nr);
+//			System.out.println(rtSize/nr);
 		}
 		
 		for(Integer rem: entriesToRemove)

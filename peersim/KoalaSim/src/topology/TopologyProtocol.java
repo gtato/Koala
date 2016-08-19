@@ -60,6 +60,10 @@ public abstract class TopologyProtocol implements EDProtocol {
 //		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
 	}
 	
+	public TopologyNode getMyNode(){
+		return myNode;
+	}
+	
 	public KoalaMessage removeReceivedMsg(int msgID) {
 		return receivedMsgs.remove(msgID);
 	}
@@ -129,6 +133,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 				ResultCollector.countIntra();
 			else
 				ResultCollector.countInter();
+			
 			if(initializeMode)
 				((KoalaProtocol)dest.getProtocol(myPid)).receive(msg);
 			else
@@ -163,10 +168,12 @@ public abstract class TopologyProtocol implements EDProtocol {
 				break;
 		}
 		
-		checkPiggybacked(msg);
+		if(!initializeMode)
+			checkPiggybacked(msg);
 		
 	}
 
+	
 	
 
 //	@Override

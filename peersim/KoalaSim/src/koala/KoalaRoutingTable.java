@@ -134,6 +134,10 @@ public class KoalaRoutingTable {
 		this.oldNeighborsContainer = oldNeighbors;
 	}
 
+	public int getSize(){
+		return getNeighboursIDs(0).size();
+	}
+	
 	public Set<String> getNeighboursIDs(){
 		return getNeighboursIDs(0);
 	}
