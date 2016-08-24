@@ -69,12 +69,28 @@ public class KoalaProtocol extends TopologyProtocol{
 		KoalaNode each;
 		ArrayList<Node> joined = new ArrayList<Node>();
 		ArrayList<Node> joinedInMyDC = new ArrayList<Node>();
+		
+		//next two lines are only for initialization phase
+		ArrayList<Node> joinedClosestToMyDC = new ArrayList<Node>();
+		Node closestJoined; int minDist = NodeUtilities.NR_DC;
+		
 		for (int i = 0; i < Network.size(); i++) {
             each = (KoalaNode) Network.get(i).getProtocol(linkPid);
             if(each.hasJoined()){
             	joined.add(Network.get(i));
             	if(myNode.isLocal(each.getID()))
             		joinedInMyDC.add(Network.get(i));
+            	else{//this else is useful only for the initialization phase
+            		int dist = NodeUtilities.distance(myNode.getID(), each.getID()); 
+            		if(dist < minDist){
+            			minDist = dist;
+            			closestJoined = Network.get(i);
+            			joinedClosestToMyDC = new ArrayList<Node>();
+            			joinedClosestToMyDC.add(closestJoined);
+            		}if(dist == minDist)
+            			joinedClosestToMyDC.add(Network.get(i));
+            	}	
+            	
             }
 		}
 		if(joined.size() == 0)
@@ -83,6 +99,10 @@ public class KoalaProtocol extends TopologyProtocol{
 		if(joinedInMyDC.size() > 0)
 			return joinedInMyDC.get(CommonState.r.nextInt(joinedInMyDC.size()));
 		
+		if(initializeMode)
+			if(joinedClosestToMyDC.size() > 0)
+				return joinedClosestToMyDC.get(CommonState.r.nextInt(joinedClosestToMyDC.size()));
+			
 		return joined.get(CommonState.r.nextInt(joined.size()));
 	}
 	
@@ -234,9 +254,9 @@ public class KoalaProtocol extends TopologyProtocol{
         	onReceivedMsg(msg);
         	
 //        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), 0, 0);
-        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), NodeUtilities.MAX_INTER_LATENCY, 0);
-        	myNode.getRoutingTable().addLongLink(ll);
-        	
+//        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), NodeUtilities.MAX_INTER_LATENCY, 0);
+//        	myNode.getRoutingTable().addLongLink(ll);
+//        	
         	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
         	send(msg.getFirstSender(), newMsg);
         }

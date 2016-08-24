@@ -130,8 +130,10 @@ public class PhysicalDataProvider {
 		Random random = new Random(dcID);
 		double latency;
 		double min, max;
-		max = 0.5;
-		min = 0.05;
+//		max = 0.5;
+//		min = 0.05;
+		max = 0.0005;
+		min = 0.00005;
 //		latency = 1.8;
 		latency  = random.nextDouble() * (max - min) + min;
 		if (latency > maxInraLatency)
@@ -141,7 +143,9 @@ public class PhysicalDataProvider {
 	
 	
 	public static double round(double tr){
-		return Math.round(tr * 100.0 ) / 100.0;
+//		return Math.round(tr * 100.0 ) / 100.0;
+		
+		return Math.round(tr * 100000.0 ) / 100000.0;
 	}
 
 	

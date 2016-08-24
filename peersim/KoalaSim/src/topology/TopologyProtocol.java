@@ -30,7 +30,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	protected int transId = -1;
 	
 	protected boolean logMsg;
-	private static boolean initializeMode;
+	protected static boolean initializeMode;
 	
 	public TopologyProtocol(String prefix) {
 
