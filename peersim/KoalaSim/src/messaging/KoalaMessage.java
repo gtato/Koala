@@ -30,8 +30,9 @@ public class KoalaMessage {
 	private ArrayList<Double> latencies = new ArrayList<Double>();
 	private ArrayList<String> path = new ArrayList<String>();	
 	private int id;
-
 	
+	private long sentCycle;
+	private long receivedCycle;
 	
 	public KoalaMessage(){}
 	
@@ -56,6 +57,22 @@ public class KoalaMessage {
 
 	public int getType() {
 		return type;
+	}
+
+	public long getSentCycle() {
+		return sentCycle;
+	}
+
+	public void setSentCycle(long sentCycle) {
+		this.sentCycle = sentCycle;
+	}
+
+	public long getReceivedCycle() {
+		return receivedCycle;
+	}
+
+	public void setReceivedCycle(long receivedCycle) {
+		this.receivedCycle = receivedCycle;
 	}
 
 	public void setType(int msgType) {

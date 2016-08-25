@@ -29,7 +29,9 @@ public class RenaterNodeObserver extends NodeObserver {
 	}
 
 	@Override
-	protected void printGraph(PrintStream ps) {
+	protected void printGraph(PrintStream ps, int psIndex) {
+		if (psIndex != 0)
+			return;
 		for (int i = 0; i < g.size(); i++) {
 			RenaterNode current = (RenaterNode)((Node) g.getNode(i)).getProtocol(pid);
             double x_to = current.getX();

@@ -56,6 +56,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 
 	protected void onReceivedMsg(KoalaMessage msg) {
+		msg.setReceivedCycle(CommonState.getTime());
 		receivedMsgs.put(msg.getID(), msg);
 //		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
 	}
@@ -111,8 +112,8 @@ public abstract class TopologyProtocol implements EDProtocol {
 		Node dest = RenaterInitializer.Nodes.get(destinationID);
 
 		if(dest != null){
-			if(ErrorDetection.hasLoopCommunication(myNode.getID(),destinationID))
-				System.out.println("problems in horizont");
+			if(ErrorDetection.hasLoopCommunication(msg,destinationID))
+				System.out.println("problems in horizon");
 				
 			String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " sending a message to " + destinationID  + " a msg of type: " + msg.getTypeName();
 			if(logMsg)

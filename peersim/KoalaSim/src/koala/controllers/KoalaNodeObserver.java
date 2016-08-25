@@ -6,10 +6,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import javax.swing.event.ListSelectionEvent;
 
 import koala.KoalaNode;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Node;
 import topology.controllers.NodeObserver;
 import utilities.NodeUtilities;
@@ -19,11 +23,13 @@ public class KoalaNodeObserver extends NodeObserver {
 
     
     HashMap<Integer, double[]> cords = new HashMap<Integer, double[]>();
-    ArrayList<KoalaNode> orderedGraph = new ArrayList<KoalaNode>(); 
-    int logNodes;
+    ArrayList<KoalaNode> orderedGraph = new ArrayList<KoalaNode>();
+    ArrayList<String> simpleReport = new ArrayList<String>();
+    int logNodes; boolean ended = false;
 	public KoalaNodeObserver(String prefix) {
 		super(prefix);
 		plotScript = "gnuplot/plotKoala.plt";
+//		plotScript = "gnuplot/plotKoala.plt";
 		logNodes = Configuration.getInt("logging.nodes", -1);
 	}
 
@@ -33,10 +39,14 @@ public class KoalaNodeObserver extends NodeObserver {
 	@Override
 	public boolean execute() {
 		updateGraph();
-		
-		simpleReport();
-		generateGraph();
-		plotIt();
+		simplestReport();
+		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
+			graphToFile();
+			ended = true;
+		}
+//		simpleReport();
+//		generateGraph();
+//		plotIt();
 
 		
 		return false;
@@ -63,6 +73,38 @@ public class KoalaNodeObserver extends NodeObserver {
 		
 		graphToFile();
 
+	}
+	
+	private void simplestReport() {
+		
+		int size = 0;
+		ArrayList<Integer> sizes = new ArrayList<Integer>();
+		for (int i = 0; i < g.size(); i++) 
+		{	
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+			size += current.getRoutingTable().getSize();
+			sizes.add(current.getRoutingTable().getSize());
+		}
+		
+		Collections.sort(sizes);
+		
+		double mean = (double) size/g.size();
+		double sum=0;
+		for (int i = 0; i < g.size(); i++) 
+		{	
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+			sum += Math.pow(current.getRoutingTable().getSize() - mean, 2);
+		}
+		
+		double std = Math.sqrt(sum/g.size());
+		int q1 = sizes.get(sizes.size()/4);
+		int q3 = sizes.get(sizes.size()/2 + sizes.size()/4);
+		int median = sizes.get(sizes.size()/2);
+		int min = sizes.get(0);
+		int max = sizes.get(sizes.size()-1);
+		
+		simpleReport.add(mean +" " + std + " " + min + " "  + q1 + " " + median + " " + q3 + " " + max  );
+		
 	}
 
 	private void simpleReport() {
@@ -154,32 +196,44 @@ public class KoalaNodeObserver extends NodeObserver {
 	}
 
 
+//	
+//	@Override
+//	protected void printGraph(PrintStream ps, int psIndex) {
+//		if (psIndex != 0)
+//			return;
+//		boolean first;
+//		for (int i = 0; i < g.size(); i++) {
+//        	KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+//            double x_to = current.getX();
+//            double y_to = current.getY();
+//            
+//            Set<String> gneigs = current.getRoutingTable().getNeighboursIDs(3);
+//            first = true;
+//            for(String gnID : gneigs){
+//            	if(NodeUtilities.isDefault(gnID)) continue;
+//            	KoalaNode n = getNodeFromID(gnID);
+//            	if(n == null) return;
+//            	double x_from =  n.getX();
+//                double y_from =   n.getY();
+//                String label = first ? current.getID() : "";
+//                ps.println(x_from + " " + y_from);
+//                ps.println(x_to + " " + y_to + " " + label);
+//                ps.println();
+//                first = false;
+//            }
+//            
+//        }
+//		
+//	}
 	
 	@Override
-	protected void printGraph(PrintStream ps) {
-		boolean first;
-		for (int i = 0; i < g.size(); i++) {
-        	KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
-            double x_to = current.getX();
-            double y_to = current.getY();
-            
-            Set<String> gneigs = current.getRoutingTable().getNeighboursIDs(3);
-            first = true;
-            for(String gnID : gneigs){
-            	if(NodeUtilities.isDefault(gnID)) continue;
-            	KoalaNode n = getNodeFromID(gnID);
-            	if(n == null) return;
-            	double x_from =  n.getX();
-                double y_from =   n.getY();
-                String label = first ? current.getID() : "";
-                ps.println(x_from + " " + y_from);
-                ps.println(x_to + " " + y_to + " " + label);
-                ps.println();
-                first = false;
-            }
+	protected void printGraph(PrintStream ps, int psIndex) {
+		if (psIndex != 0)
+			return;
+		for(String line : simpleReport)
+			ps.println(line);
             
         }
 		
-	}
 	
 }

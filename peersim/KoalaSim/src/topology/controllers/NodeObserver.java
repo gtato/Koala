@@ -15,18 +15,21 @@ public abstract class NodeObserver extends GraphObserver {
 
 	private static final String PAR_PROT = "protocol";
     private static final String PAR_FILENAME_BASE = "file_base";
+    private static final String PAR_NR_FILES= "nr_files";
 
     protected final int pid;
     private final String graph_filename;
     private final FileNameGenerator fng;
+    private final int nrFiles;
     protected String plotScript;
     boolean dumpToStd = false;
     
 	protected NodeObserver(String prefix) {
 		super(prefix);
 		pid = Configuration.getPid(prefix + "." + PAR_PROT);
+		nrFiles = Configuration.getInt(prefix + "."+ PAR_NR_FILES, 1);
 		graph_filename = Configuration.getString(prefix + "."+ PAR_FILENAME_BASE, "graph_dump");
-        if(graph_filename.equals("graph_dump"))
+		if(graph_filename.equals("graph_dump"))
         	dumpToStd = true;
 		fng = new FileNameGenerator(graph_filename, ".dat");
 	}
@@ -34,14 +37,15 @@ public abstract class NodeObserver extends GraphObserver {
 	protected void graphToFile() {
 		try {
             
-            String fname = fng.nextCounterName();
-            FileOutputStream fos = new FileOutputStream(fname);
-            PrintStream ps = dumpToStd ? System.out : new PrintStream(fos);
-
-            printGraph(ps);
-            
-            fos.close();
-            ps.close();
+			for(int i= 0; i < nrFiles; i++){
+				FileOutputStream fos = new FileOutputStream(fng.nextCounterName());
+	            PrintStream ps = dumpToStd ? System.out : new PrintStream(fos);
+	
+	            printGraph(ps, i);
+	            
+	            fos.close();
+	            ps.close();
+			}
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -75,5 +79,5 @@ public abstract class NodeObserver extends GraphObserver {
 		return null;
 	}
 
-	protected abstract void printGraph(PrintStream ps);
+	protected abstract void printGraph(PrintStream ps, int psIndex);
 }

@@ -143,9 +143,16 @@ public class PhysicalDataProvider {
 	
 	
 	public static double round(double tr){
+		for(double i=100.0; i <= 100000.0; i*=10){
+			double ret = Math.round(tr * i ) / i;
+			if(ret != 0)
+				return ret;
+		}
+		return 0;
+		
 //		return Math.round(tr * 100.0 ) / 100.0;
 		
-		return Math.round(tr * 100000.0 ) / 100000.0;
+//		return Math.round(tr * 100000.0 ) / 100000.0;
 	}
 
 	

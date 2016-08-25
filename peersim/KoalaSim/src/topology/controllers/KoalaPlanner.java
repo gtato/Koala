@@ -124,20 +124,20 @@ public class KoalaPlanner extends GraphObserver {
 			
 			if(renProtPid >= 0){
 	        	KoalaMessage msg = new KoalaMessage( new KoalaRouteMsgContent(dest.getID()));
-	        	msg.setID(msgID);
+	        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
 	        	tr.send(null, src, msg, renProtPid);
 			}
 			
 			if(koaProtPid >= 0){
 				KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(dest.getID()));
-	        	msg.setID(msgID);
+	        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
 	        	tr.send(null, src, msg, koaProtPid);
 			}
 			
 			if(chordProtPid >= 0){
 				ChordNode destCn = (ChordNode)dst.getProtocol(chordNodePid);
 				KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(destCn.chordId.toString()));
-	        	msg.setID(msgID);
+	        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
 	        	tr.send(null, src, msg, chordProtPid);
 			}
 			
@@ -174,8 +174,6 @@ public class KoalaPlanner extends GraphObserver {
 		
 		for(int i = 0; i< max; i++){
 			int sel = CommonState.r.nextInt(complyingIndexes.size());
-			//TODO: remove this later
-//			sel = i;
 			toRet.add((Node)g.getNode(complyingIndexes.get(sel)));
 		}
 		return toRet;

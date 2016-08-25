@@ -35,8 +35,10 @@ public class ResultCollector extends NodeObserver {
 	private static int nrInterDCMsg = 0;
 	private static int nrIntraDCMsg = 0;
 	private int step;
+	private boolean ended = false;
 	private ArrayList<ArrayList<Integer>> aggregated = new ArrayList<ArrayList<Integer>>(); 
 	ArrayList<String> toPrint = new ArrayList<String>();
+	ArrayList<String> msgToPrint = new ArrayList<String>();
 	
 	public ResultCollector(String prefix) {
 		super(prefix);
@@ -48,6 +50,7 @@ public class ResultCollector extends NodeObserver {
 		plotScript = "gnuplot/plotResults.plt";
 	}
 
+	
 	@Override
 	public boolean execute() {
 		updateGraph();
@@ -56,11 +59,13 @@ public class ResultCollector extends NodeObserver {
 			compare();
 		else
 			reportRenater();
-		if(CommonState.getTime() == CommonState.getEndTime()-1){
+		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
 			System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg));
-		
+			
 			graphToFile();
-			plotIt();
+			
+//			plotIt();
+			ended = true;
 		}
 		return false;
 	}
@@ -111,32 +116,42 @@ public class ResultCollector extends NodeObserver {
 
 				rps += rm.getPath().size(); cps += cm.getPath().size(); kps += km.getPath().size(); 
 				rl += rm.getTotalLatency(); cl += cm.getTotalLatency(); kl += km.getTotalLatency();
-				rtSize += ((KoalaNode)kp.getMyNode()).getRoutingTable().getSize();
+//				rtSize += ((KoalaNode)kp.getMyNode()).getRoutingTable().getSize();
 				
 				rp.removeReceivedMsg(msg.getKey());
 				kp.removeReceivedMsg(msg.getKey());
 				cp.removeReceivedMsg(msg.getKey());
 				entriesToRemove.add(msg.getKey());
 				nr++;
+
+				if(msgToPrint.size() == 0){
+					//add header
+					msgToPrint.add("sc\trl\tcl\tkl\trh\tch\tkh");
+				}
+				String printstr = rm.getSentCycle()+""; 
+				printstr +=	"\t"+rm.getTotalLatency()+"\t"+cm.getTotalLatency()+"\t"+km.getTotalLatency();
+				printstr += "\t"+ rm.getPath().size() + "\t"+ cm.getPath().size() + "\t"+ km.getPath().size(); 
+				msgToPrint.add(printstr);
+
 			}
 				
 		}
 
 
-		if(nr > 0){
-			if(toPrint.size() == 0){
-				toPrint.add("Size: " + Configuration.getInt("SIZE") + 
-						   ", DCs: " + Configuration.getInt("NR_DC") + 
-						   ", NodeXDC: " +Configuration.getInt("NR_NODE_PER_DC") + 
-						   ", Cycles: " + Configuration.getLong("simulation.endtime"));
-				toPrint.add("Latency");
-//				toPrint.add("Hops");
-				
-			}
-//			toPrint.add((double)kps/nr+" " + (double)rps/nr + " " + (double)cps/nr);
-			toPrint.add((double)kl/nr+" " + (double)rl/nr + " " + (double)cl/nr);
-//			System.out.println(rtSize/nr);
-		}
+//		if(nr > 0){
+//			if(toPrint.size() == 0){
+//				toPrint.add("Size: " + Configuration.getInt("SIZE") + 
+//						   ", DCs: " + Configuration.getInt("NR_DC") + 
+//						   ", NodeXDC: " +Configuration.getInt("NR_NODE_PER_DC") + 
+//						   ", Cycles: " + Configuration.getLong("simulation.endtime"));
+//				toPrint.add("Latency");
+////				toPrint.add("Hops");
+//				
+//			}
+////			toPrint.add((double)kps/nr+" " + (double)rps/nr + " " + (double)cps/nr);
+//			toPrint.add((double)kl/nr+" " + (double)rl/nr + " " + (double)cl/nr);
+////			System.out.println(rtSize/nr);
+//		}
 		
 		for(Integer rem: entriesToRemove)
 			sentMgs.remove(rem);
@@ -181,11 +196,14 @@ public class ResultCollector extends NodeObserver {
 	}
 
 	@Override
-	protected void printGraph(PrintStream ps) {
-		for(String line : toPrint){
-			ps.println(line);
-		}
-			
+	protected void printGraph(PrintStream ps, int psIndex) {
+		if(psIndex == 0) 
+			for(String line : toPrint)
+				ps.println(line);
+		
+		if(psIndex == 1) 
+			for(String line : msgToPrint)
+				ps.println(line);
 		
 	}
 	
