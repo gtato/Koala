@@ -21,4 +21,4 @@ plot "<(tail -n +3  ".datafile.")"  using 1 title "Koala" smooth csplines with l
 #	 datafile using 2 title "Physical" with lines  lc rgb "forest-green", \
 #	 datafile using 3 title "Chord" with lines  lc rgb "blue"
 	 
-pause -1 "Hit any key to continue"
+pause mouse close

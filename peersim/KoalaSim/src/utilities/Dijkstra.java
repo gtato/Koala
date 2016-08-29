@@ -30,7 +30,7 @@ public class Dijkstra {
 	}
 	
 	public void setDistance(RenaterNode src, RenaterNode dst, double dist){
-		allDistance.put(NodeUtilities.getKeyID(src.getID(), dst.getID()), dist);
+		allDistance.put(NodeUtilities.getKeyStrID(src.getID(), dst.getID()), dist);
 	}
 	
 	public void execute(RenaterNode source) {
@@ -84,7 +84,7 @@ public class Dijkstra {
 	}
 
 	public double getShortestDistanceBetween(RenaterNode src, RenaterNode dst){
-		String key = NodeUtilities.getKeyID(src.getID(), dst.getID());
+		String key = NodeUtilities.getKeyStrID(src.getID(), dst.getID());
 		if(allDistance.containsKey(key))
 			return allDistance.get(key);
 		return Double.MAX_VALUE;

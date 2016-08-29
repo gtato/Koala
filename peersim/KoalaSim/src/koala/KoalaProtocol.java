@@ -253,10 +253,10 @@ public class KoalaProtocol extends TopologyProtocol{
         else{
         	onReceivedMsg(msg);
         	
-//        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), 0, 0);
-        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), NodeUtilities.MAX_INTER_LATENCY, 0);
-        	myNode.getRoutingTable().addLongLink(ll);
-        	
+        	if(!initializeMode){
+	        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), NodeUtilities.MAX_INTER_LATENCY, 0);
+	        	myNode.getRoutingTable().addLongLink(ll);
+        	}
         	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
         	send(msg.getFirstSender(), newMsg);
         }
@@ -302,7 +302,7 @@ public class KoalaProtocol extends TopologyProtocol{
 				send(recNeighbor.getNodeID(), newMsg);
 			}
 				
-			if(res == -1)
+			if(res == -1 && !initializeMode)
 				myNode.getRoutingTable().addLongLink(recNeighbor);
 		}
 		

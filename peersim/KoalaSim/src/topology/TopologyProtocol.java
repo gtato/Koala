@@ -30,7 +30,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	protected int transId = -1;
 	
 	protected boolean logMsg;
-	protected static boolean initializeMode;
+	protected static boolean initializeMode; //true only when the koala ring is being statically initialized (false during the simulation)
 	
 	public TopologyProtocol(String prefix) {
 

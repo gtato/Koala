@@ -53,7 +53,8 @@ public abstract class NodeObserver extends GraphObserver {
 	
 	protected void plotIt(){
 		try {
-			new ProcessBuilder("gnuplot", "-persistent", plotScript).start();
+//			new ProcessBuilder("gnuplot", "-persistent", plotScript).start();
+			new ProcessBuilder("gnuplot", plotScript).start();
 //			Process p = new ProcessBuilder("gnuplot", "-persistent", plotScript).start();
 //			BufferedReader reader = new BufferedReader (new InputStreamReader(p.getErrorStream()));
 //			String line;

@@ -96,11 +96,16 @@ public class NodeUtilities {
     	return new Integer(getDCID(id1)).compareTo(new Integer(getDCID(id2)));
     }
 	
-	public static String getKeyID(String src, String dst){
+	public static String getKeyStrID(String src, String dst){
 		if (NodeUtilities.compare(src, dst) < 0)
 			return src+"|"+dst;
 		else
 			return dst+"|"+src;
+	}
+	
+	public static String[] getStrIDsFromKey(String key){
+		String[] sp = key.split("\\|");
+		return new String[]{sp[0], sp[1]};
 	}
 	
 	public static String getKeyID(int src, int dst){
@@ -115,7 +120,8 @@ public class NodeUtilities {
 		return new int[]{Integer.parseInt(sp[0]), Integer.parseInt(sp[1])};
 	}
 	
-
+	
+	
 	public static double normalizeLatency(int totDistance, double latency) {
 		double x1 = 1;
         double y1 = 1;
@@ -128,20 +134,7 @@ public class NodeUtilities {
         return y;
 	}
 	
-	public static double getPhysicalDistance(RenaterNode first, RenaterNode second) {
-        double x1 = first.getX();
-        double x2 = second.getX();
-        double y1 = first.getY();
-        double y2 = second.getY();
-        if (x1 == -1 || x2 == -1 || y1 == -1 || y2 == -1)
-        // NOTE: in release 1.0 the line above incorrectly contains
-        // |-s instead of ||. Use latest CVS version, or fix it by hand.
-            throw new RuntimeException(
-                    "Found un-initialized coordinate. Use e.g.,InetInitializer class in the config file.");
-        double distance = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-        distance = Math.round(distance * 100000.0) / 100.0; //in km
-        return distance; 
-    }
+	
 	
 	public static double[] getCoordinatesBetweenTwoPoints(double[] p1, double[] p2){
 		double[] cords = new double[2];

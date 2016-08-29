@@ -6,6 +6,7 @@ import java.util.HashMap;
 import peersim.core.Node;
 import topology.TopologyNode;
 import utilities.NodeUtilities;
+import utilities.PhysicalDataProvider;
 
 public class RenaterNode extends TopologyNode{
 
@@ -48,6 +49,8 @@ public class RenaterNode extends TopologyNode{
 	}
 
 	public String getRoute(String dest){
+//		String path = PhysicalDataProvider.getPath(this.getID(), dest);
+//		return path.split(" ")[1];
 		if(routes.containsKey(dest))
 			return routes.get(dest);
 		for(String key : routes.keySet()){

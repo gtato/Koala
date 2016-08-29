@@ -18,3 +18,4 @@ plot 'out/koalaToplogy00000000.dat' with lines lc rgb "#0091ea" ,\
      'out/koalaToplogy00000000.dat' u ($1):($2):($3) with labels point pt 7 offset char 0,0.5 lc rgb "black"
 
 
+pause mouse close

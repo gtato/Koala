@@ -121,6 +121,7 @@ public class RenaterInitializer implements Control {
             		break;
             	}
             }
+            renaterNode.setJoined(true);
         }
         
         
