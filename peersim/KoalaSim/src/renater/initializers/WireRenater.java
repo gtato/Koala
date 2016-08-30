@@ -105,7 +105,7 @@ public class WireRenater extends WireGraph {
 			
 			for(int j=0; j < dists.size() && j<k; j++)
 			{
-				RenaterEdge re = new RenaterEdge(dists.get(j).getValue(), getBitRate(), getSpeed());
+				RenaterEdge re = new RenaterEdge(dists.get(j).getValue(), PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
 				((RenaterGraph)g).setEdge(gateway_indexes.get(i), dists.get(j).getKey(), re);
 			}
 		}
@@ -162,7 +162,7 @@ public class WireRenater extends WireGraph {
 	   		
 	   		if(entry.getValue() > CommonState.r.nextDouble()){
 		   		int[] inds = NodeUtilities.getIDsFromKey(entry.getKey());
-		   		RenaterEdge re = new RenaterEdge(distances.get(entry.getKey()), getBitRate(), getSpeed());
+		   		RenaterEdge re = new RenaterEdge(distances.get(entry.getKey()), PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
 		   		((RenaterGraph)g).setEdge(gateway_indexes.get(inds[0]), gateway_indexes.get(inds[1]), re);
 				
 	//	   		System.out.println(entry.getKey() + " " + entry.getValue());
@@ -203,7 +203,7 @@ public class WireRenater extends WireGraph {
 					closestNode = linked.get(j);
 				}
 			}
-			RenaterEdge re = new RenaterEdge(minDistance, getBitRate(), getSpeed());
+			RenaterEdge re = new RenaterEdge(minDistance, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
 			((RenaterGraph)g).setEdge(gateway_indexes.get(i), gateway_indexes.get(closestNode), re);
 			linked.add(i);
 		}
@@ -314,7 +314,7 @@ public class WireRenater extends WireGraph {
 			linkd.add(probabilites.get(i).getDst());
 			
 
-			RenaterEdge re = new RenaterEdge(probabilites.get(i).getGeoDist(), getBitRate(), getSpeed());
+			RenaterEdge re = new RenaterEdge(probabilites.get(i).getGeoDist(), PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
 			((RenaterGraph)g).setEdge(probabilites.get(i).getSrc(), probabilites.get(i).getDst(), re);
 			
 			j++;
@@ -333,9 +333,10 @@ public class WireRenater extends WireGraph {
 	
 	
 	private Dijkstra computeDijsktra(Graph g, ArrayList<Integer> gateway_indexes) {
+		long startTime = System.currentTimeMillis();
 		boolean file_exists = Files.exists(Paths.get(PhysicalDataProvider.DijsktraFile)); 
 		if(file_exists) { 
-		    System.out.println("Found dijstra file!");
+		    System.out.println("Found Dijsktra file!");
 		    PhysicalDataProvider.loadRoutes();
 		    
 		}
@@ -350,8 +351,8 @@ public class WireRenater extends WireGraph {
             RenaterNode rn = (RenaterNode)n.getProtocol(pid);
             if(!file_exists)
             	dijkstra.execute(rn);
-        	for (int j = 0; j < gateway_indexes.size(); j++) {
-        		if (i==j) continue;
+        	for (int j = i+1; j < gateway_indexes.size(); j++) {
+//        		if (i==j) continue;
         		Node m = (Node) g.getNode(gateway_indexes.get(j));
                 RenaterNode rm = (RenaterNode)m.getProtocol(pid);
     			String nextonPath = "";
@@ -373,8 +374,12 @@ public class WireRenater extends WireGraph {
         	}
             
 		}
+		if(!file_exists)
+			PhysicalDataProvider.saveRoutes();
 		
-		PhysicalDataProvider.saveRoutes();
+		long endTime   = System.currentTimeMillis();
+		long totalTime = endTime - startTime;
+		System.out.println("# "+totalTime);
 		return dijkstra;
 	}
 	
@@ -407,21 +412,7 @@ public class WireRenater extends WireGraph {
 		return new Dijkstra(dg);
 	}
 	
-	private double getBitRate(){
-		double[] bitrates = {1e9, 2.5e9, 10e9};
-		int rand = CommonState.r.nextInt(100);
-		if(rand < 90)
-			return bitrates[2];
-		else if(rand >= 90 && rand < 97)
-			return bitrates[1];
-		else
-			return bitrates[0];
-	}
-	
-	private double getSpeed(){
-		double[] speeds = {2e8, 3e8};
-		return speeds[1];
-	}
+
 
 //	public static void main(String[] args){
 //		ArrayList<AbstractMap.SimpleEntry<Integer, Double>> dists = new ArrayList<AbstractMap.SimpleEntry<Integer, Double>>();

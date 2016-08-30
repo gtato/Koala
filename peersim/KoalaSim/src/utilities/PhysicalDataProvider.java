@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.Set;
 
+import peersim.core.CommonState;
 import peersim.core.Network;
 import renater.RenaterNode;
 
@@ -243,4 +244,20 @@ public class PhysicalDataProvider {
 		
 	}
 	
+	
+	public static double getBitRate(){
+		double[] bitrates = {1e9, 2.5e9, 10e9};
+		int rand = CommonState.r.nextInt(100);
+		if(rand < 90)
+			return bitrates[2];
+		else if(rand >= 90 && rand < 97)
+			return bitrates[1];
+		else
+			return bitrates[0];
+	}
+	
+	public static double getSpeed(){
+		double[] speeds = {2e8, 3e8};
+		return speeds[1];
+	}
 }
