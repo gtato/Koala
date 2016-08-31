@@ -142,7 +142,7 @@ public class KoalaPlanner extends GraphObserver {
 			}
 			
 			
-			System.out.println("(" + CommonState.getTime() + ") ROUTE: " + sourc.getID() + " -> " + dest.getID());
+			System.out.println("(" + CommonState.getTime() + ") ROUTE " + sourc.getID() + " -> " + dest.getID());
 			ResultCollector.addSentMsg(msgID, dst);
 			msgID++;
 		}

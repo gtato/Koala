@@ -47,7 +47,7 @@ public class ResultCollector extends NodeObserver {
 		chordProtPid = Configuration.getPid(prefix + "." + PAR_CHORD_PROTOCOL, -1);
 		
 		step  = Configuration.getInt(prefix + ".step", 1);
-		plotScript = "gnuplot/plotResults.plt";
+//		plotScript = "gnuplot/plotResults.plt";
 	}
 
 	

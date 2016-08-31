@@ -28,7 +28,7 @@ public class KoalaNodeObserver extends NodeObserver {
     int logNodes; boolean ended = false;
 	public KoalaNodeObserver(String prefix) {
 		super(prefix);
-		plotScript = "gnuplot/plotKoala.plt";
+//		plotScript = "gnuplot/plotKoala.plt";
 //		plotScript = "gnuplot/plotKoala.plt";
 		logNodes = Configuration.getInt("logging.nodes", -1);
 	}
@@ -233,7 +233,18 @@ public class KoalaNodeObserver extends NodeObserver {
 		for(String line : simpleReport)
 			ps.println(line);
             
-        }
+    }
+	
+	@Override
+	protected String getOutputFileBase() {
+		return super.getOutputFileBase() +  "koala/";
+	}
+
+	@Override
+	protected String[] getOutputFileNames() {
+		return new String[]{"topology"};
+	}
+	
 		
 	
 }

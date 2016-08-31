@@ -125,11 +125,11 @@ public class RenaterInitializer implements Control {
         }
         
         
-        System.setErr(new PrintStream(new OutputStream() {
-            public void write(int b) {
-                //DO NOTHING
-            }
-        }));
+//        System.setErr(new PrintStream(new OutputStream() {
+//            public void write(int b) {
+//                //DO NOTHING
+//            }
+//        }));
         
         return false;
 	}

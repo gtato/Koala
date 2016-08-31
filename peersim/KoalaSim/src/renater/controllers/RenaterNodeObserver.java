@@ -15,7 +15,7 @@ public class RenaterNodeObserver extends NodeObserver {
 
 	public RenaterNodeObserver(String name) {
 		super(name);
-		plotScript = "gnuplot/plotRenater.plt";
+//		plotScript = "gnuplot/plotRenater.plt";
 		
 	}
 
@@ -24,7 +24,7 @@ public class RenaterNodeObserver extends NodeObserver {
 		//updateGraph();
 		super.g = new RenaterGraph(pid,false);
 		graphToFile();
-		plotIt();
+//		plotIt();
 		return false;
 	}
 
@@ -55,6 +55,16 @@ public class RenaterNodeObserver extends NodeObserver {
                 ps.println();
             }
         }
+	}
+
+	@Override
+	protected String getOutputFileBase() {
+		return super.getOutputFileBase() +  "renater/";
+	}
+
+	@Override
+	protected String[] getOutputFileNames() {
+		return new String[]{"topology"};
 	}
 	
 	
