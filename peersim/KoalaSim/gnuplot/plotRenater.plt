@@ -1,7 +1,7 @@
-#this is supposed to be called from a controller, change the paths if you use terminal
+#!/usr/bin/gnuplot
 
-# set terminal pngcairo  background "#ffffff" font "arial,10" fontscale 1.0 size 500, 300 
-# set output 'circles.5.png'
+if (!exists("filename")) filename=''
+
 unset key
 set size square
 set title "Physical topology" 
@@ -15,10 +15,12 @@ set title "Physical topology"
 set xrange [ 0 : * ]
 set yrange [ 0 : * ]
 
+datafile = '../out/renater/topology'.filename.'.dat'
+
 # path from terminal: ../out/graph00000000.dat
 # this is for plotting physical (renater) topology (using InetObserver) 
-plot 'out/renaterTopology00000000.dat' with lines lc rgb "#0091ea" ,\
-	 'out/renaterTopology00000000.dat' u ($1):($2):($3) with labels point pt 7 offset char 0,0.5 lc rgb "black" ,\
-     'out/renaterTopology00000000.dat' u ($4):($5):6 with labels offset char 0,0.5
+plot datafile with lines lc rgb "#0091ea" ,\
+	 datafile u ($1):($2):($3) with labels point pt 7 offset char 0,0.5 lc rgb "black" ,\
+     datafile u ($4):($5):6 with labels offset char 0,0.5
      
 pause mouse close

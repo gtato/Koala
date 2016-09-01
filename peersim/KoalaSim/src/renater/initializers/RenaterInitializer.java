@@ -58,7 +58,7 @@ public class RenaterInitializer implements Control {
     	
 	@Override
 	public boolean execute() {
-		System.out.println("\nSetting up renater nodes: positioning and gateways ");
+		System.out.println("\nSetting up renater nodes, positioning and gateways ");
 		//initialize the gson parser
 		KoalaJsonParser.intitialize();
 		NodeUtilities.initialize();

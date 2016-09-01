@@ -26,7 +26,7 @@ public class PhysicalDataProvider {
 	private static HashMap<String, String> paths= new HashMap<String, String>();
 	private static double maxInterLatency = 0;
 	private static double maxInraLatency = 0;
-	public static String DijsktraFile = "out/dijsktra"+Network.size()+".dat";
+	public static String DijsktraFile = "out/dijkstra/dijsktra"+Network.size()+".dat";
 	
 	public static void addLatency(String src, String dst, double latency){
 		gatewayIDs.add(src);

@@ -25,7 +25,7 @@ public abstract class NodeObserver extends GraphObserver {
 //    private final int nrFiles;
 //    protected String plotScript;
     boolean dumpToStd = false;
-   
+    String fileCounter = "";
     
 	protected NodeObserver(String prefix) {
 		super(prefix);
@@ -35,7 +35,14 @@ public abstract class NodeObserver extends GraphObserver {
 //		if(graph_filename.equals("graph_dump"))
 //        	dumpToStd = true;
 //		fng = new FileNameGenerator(graph_filename, ".dat");
-		
+		int exp = Configuration.getInt("EXP", -1);
+		double alpha = Configuration.getDouble("ALPHA", -1.0);
+		if(exp >= 0 && alpha >= 0)
+			fileCounter = "E"+exp+"A"+alpha;
+		else if(exp >= 0)
+			fileCounter = "E"+exp;
+		else if(alpha >= 0)
+			fileCounter = "A"+alpha;
 	}
 
 	protected void graphToFile() {
@@ -44,9 +51,11 @@ public abstract class NodeObserver extends GraphObserver {
 			File file;
 			String[] filenames = getOutputFileNames();
 			
+			
+			
 			for(int i= 0; i < filenames.length; i++){
 				//file = new File(getOutputFileBase()+ filenames[i]);
-				file = new File(getOutputFileBase()+ filenames[i]+ ".dat");
+				file = new File(getOutputFileBase()+ filenames[i]+ fileCounter+".dat");
 				
 				file.getParentFile().mkdirs();
 				file.createNewFile();

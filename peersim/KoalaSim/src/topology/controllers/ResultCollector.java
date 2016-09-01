@@ -34,10 +34,10 @@ public class ResultCollector extends NodeObserver {
 	
 	private static int nrInterDCMsg = 0;
 	private static int nrIntraDCMsg = 0;
-	private int step;
+//	private int step;
 	private boolean ended = false;
-	private ArrayList<ArrayList<Integer>> aggregated = new ArrayList<ArrayList<Integer>>(); 
-	ArrayList<String> toPrint = new ArrayList<String>();
+//	private ArrayList<ArrayList<Integer>> aggregated = new ArrayList<ArrayList<Integer>>(); 
+//	ArrayList<String> toPrint = new ArrayList<String>();
 	ArrayList<String> msgToPrint = new ArrayList<String>();
 	
 	public ResultCollector(String prefix) {
@@ -46,7 +46,7 @@ public class ResultCollector extends NodeObserver {
 		koaProtPid = Configuration.getPid(prefix + "." + PAR_KOALA_PROTOCOL, -1);
 		chordProtPid = Configuration.getPid(prefix + "." + PAR_CHORD_PROTOCOL, -1);
 		
-		step  = Configuration.getInt(prefix + ".step", 1);
+//		step  = Configuration.getInt(prefix + ".step", 1);
 //		plotScript = "gnuplot/plotResults.plt";
 	}
 
@@ -198,13 +198,21 @@ public class ResultCollector extends NodeObserver {
 	@Override
 	protected void printGraph(PrintStream ps, int psIndex) {
 		if(psIndex == 0) 
-			for(String line : toPrint)
-				ps.println(line);
-		
-		if(psIndex == 1) 
 			for(String line : msgToPrint)
 				ps.println(line);
 		
 	}
+	
+	@Override
+	protected String getOutputFileBase() {
+		return super.getOutputFileBase() +  "results/";
+	}
+
+	@Override
+	protected String[] getOutputFileNames() {
+		return new String[]{"results"};
+	}
+	
+	
 	
 }

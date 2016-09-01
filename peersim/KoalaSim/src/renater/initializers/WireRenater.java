@@ -46,7 +46,7 @@ public class WireRenater extends WireGraph {
 
 	@Override
 	public void wire(Graph g) {
-		System.out.println("Wiring up renater nodes: setting up paths according to Dijkstra");
+		System.out.println("Wiring up renater nodes. Setting up paths according to Dijkstra");
 		
 		int centerIndex = -1;
 		ArrayList<RenaterNode> gateways = new ArrayList<RenaterNode>();
@@ -355,22 +355,29 @@ public class WireRenater extends WireGraph {
 //        		if (i==j) continue;
         		Node m = (Node) g.getNode(gateway_indexes.get(j));
                 RenaterNode rm = (RenaterNode)m.getProtocol(pid);
-    			String nextonPath = "";
+    			String nextonPath1 = "";
+    			String nextonPath2 = "";
                 if(!file_exists){
     				LinkedList<RenaterNode> path = dijkstra.getPath(rm);
 	    			double dist = dijkstra.getShortestDistance(rm);
 	    			dijkstra.setDistance(rn, rm, dist);
 	    			PhysicalDataProvider.addLatency(rn.getID(), rm.getID(), dist );
 	    			PhysicalDataProvider.addPath(rn.getID(), rm.getID(), path);
-	    			nextonPath = path.get(1).getID();
+	    			nextonPath1 = path.get(1).getID();
+	    			nextonPath2 = path.get(path.size()-2).getID();
     			}else{
-    				nextonPath = PhysicalDataProvider.getPath(rn.getID(), rm.getID());
-    				if(nextonPath.split(" ").length > 0)
-    					nextonPath = nextonPath.split(" ")[1];
+    				String[] split = PhysicalDataProvider.getPath(rn.getID(), rm.getID()).split(" ");
+    				if(split.length > 0){
+    					 
+    					nextonPath1 = split[1];
+    					nextonPath2 = split[split.length-2];
+    				}
     			}
     			
-    			if(nextonPath != null)
-    				rn.addRoute(rm.getID(), nextonPath);
+    			if(nextonPath1.length() > 0 && nextonPath2.length()>0){
+    				rn.addRoute(rm.getID(), nextonPath1);
+    				rm.addRoute(rn.getID(), nextonPath2);
+    			}
         	}
             
 		}

@@ -9,8 +9,8 @@ public class NodeUtilities {
 	public static final String DEFAULTID = "xxx";
 	
 	public static double A = 0;
-	public static double B = 0;
-	public static double C = 0;
+	public static double B = 0; //a.k.a alpha
+	public static double C = 0; //a.k.a beta 
 	
 	public static int MAGIC = 2;
 	
@@ -23,11 +23,13 @@ public class NodeUtilities {
 	
 	
 	public static void initialize(){
-		A = B = C = 1;
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
 		NR_DC = Configuration.getInt("NR_DC");
 //		A = (double) 1 / NR_DC;
 		A = (double) 1 / NR_NODE_PER_DC;
+		B = Configuration.getDouble("ALPHA", 0.5);
+		C = 1-B;
+		
 	}
 	
 	public static int getDCID(String id){
