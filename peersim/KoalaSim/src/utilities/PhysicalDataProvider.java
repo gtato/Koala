@@ -25,6 +25,7 @@ public class PhysicalDataProvider {
 	private static HashMap<String, Double> latencies = new HashMap<String, Double>();
 	private static HashMap<String, String> paths= new HashMap<String, String>();
 	private static double maxInterLatency = 0;
+	private static double minInterLatency = Double.MAX_VALUE;
 	private static double maxInraLatency = 0;
 	public static String DijsktraFile = "out/dijkstra/dijsktra"+Network.size()+".dat";
 	
@@ -36,6 +37,8 @@ public class PhysicalDataProvider {
 			latencies.put(id, round(latency));
 			if(latency > maxInterLatency)
 				maxInterLatency = latency;
+			if(!src.equals(dst) && latency < minInterLatency)
+				minInterLatency = latency;
 		}
 	}
 	
@@ -112,6 +115,10 @@ public class PhysicalDataProvider {
 		return maxInraLatency * NodeUtilities.NR_NODE_PER_DC;
 	}
 	
+	public static double getMinInterLatency(){
+		return minInterLatency;
+	}
+	
 	public static String getPath(String src, String dst){
 		if(src.equals(dst))
 			return src;
@@ -147,7 +154,7 @@ public class PhysicalDataProvider {
 	
 	public static void saveRoutes(){
 		try {
-			FileOutputStream fos = new FileOutputStream("out/dijsktra"+Network.size()+".dat");
+			FileOutputStream fos = new FileOutputStream(DijsktraFile);
             PrintStream ps =  new PrintStream(fos);
 			for(String srcdst : latencies.keySet()){
 				ps.println(srcdst + " " + latencies.get(srcdst) + " (" + paths.get(srcdst) + ")" );

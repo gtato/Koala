@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import utilities.KoalaJsonParser;
+import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
 
 import com.google.gson.JsonArray;
@@ -187,6 +188,41 @@ public class KoalaMessage {
 		return path.get(path.size()-2);
 	}
 	
+	public String getReceiver() {
+		if(path.size() > 0)
+			return path.get(path.size()-1);
+		return null;
+	}
+	
+	public int getHopCategory(){
+		int hops = NodeUtilities.distance(getFirstSender(), getReceiver());
+		
+		if(hops <= NodeUtilities.hopCategories[0])
+			return 1;
+		if(hops > NodeUtilities.hopCategories[NodeUtilities.hopCategories.length-1])
+			return NodeUtilities.hopCategories.length+1;
+		
+		for(int i = 1; i < NodeUtilities.hopCategories.length; i++){
+			if(NodeUtilities.hopCategories[i-1] < hops && hops <= NodeUtilities.hopCategories[i])
+				return i+1;
+		}
+		return 0;
+	}
+	
+	
+	public int getLatencyCategory(){
+		double lat = PhysicalDataProvider.getLatency(getFirstSender(), getReceiver());
+		if(lat <= NodeUtilities.latencyCategories[0])
+			return 1;
+		if(lat > NodeUtilities.latencyCategories[NodeUtilities.latencyCategories.length-1])
+			return NodeUtilities.latencyCategories.length+1;
+		
+		for(int i = 1; i < NodeUtilities.latencyCategories.length; i++){
+			if(NodeUtilities.latencyCategories[i-1] < lat && lat <= NodeUtilities.latencyCategories[i])
+				return i+1;
+		}
+		return 0;
+	}
 
 	public String getTypeName(){
 		switch(type){

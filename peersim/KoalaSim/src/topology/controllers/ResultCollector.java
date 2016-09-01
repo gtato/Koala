@@ -126,11 +126,12 @@ public class ResultCollector extends NodeObserver {
 
 				if(msgToPrint.size() == 0){
 					//add header
-					msgToPrint.add("sc\trl\tcl\tkl\trh\tch\tkh");
+					msgToPrint.add("cycle\trlat\tclat\tklat\trhop\tchop\tkhop\thopcat\tlatcat");
 				}
 				String printstr = rm.getSentCycle()+""; 
 				printstr +=	"\t"+rm.getTotalLatency()+"\t"+cm.getTotalLatency()+"\t"+km.getTotalLatency();
-				printstr += "\t"+ rm.getPath().size() + "\t"+ cm.getPath().size() + "\t"+ km.getPath().size(); 
+				printstr += "\t"+ rm.getPath().size() + "\t"+ cm.getPath().size() + "\t"+ km.getPath().size();
+ 				printstr += "\t"+ rm.getHopCategory() + "\t"+ rm.getLatencyCategory();
 				msgToPrint.add(printstr);
 
 			}

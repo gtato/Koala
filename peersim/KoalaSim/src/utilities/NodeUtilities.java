@@ -21,6 +21,8 @@ public class NodeUtilities {
 	public static int NR_DC = 0; //Configuration.getInt("NR_DC")
 	public static int ACTUAL_NR_DC = 0;
 	
+	public static double[] hopCategories;
+	public static double[] latencyCategories;
 	
 	public static void initialize(){
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
@@ -30,6 +32,29 @@ public class NodeUtilities {
 		B = Configuration.getDouble("ALPHA", 0.5);
 		C = 1-B;
 		
+	}
+	
+	public static void initializeCategories()
+	{
+		int nrCategories = Configuration.getInt("msg.categories",1);
+		double latDiff = PhysicalDataProvider.getMaxInterLatency() - PhysicalDataProvider.getMinInterLatency();
+		double latUnit = (double)latDiff/nrCategories;
+		
+		double hopUnit = (double)NR_DC/(2*nrCategories);
+		
+		hopCategories = new double[nrCategories-1];
+		latencyCategories = new double[nrCategories-1];
+		
+		for(int i=0; i < latencyCategories.length;i++){
+			if(i==0){
+				latencyCategories[i] = latUnit;
+				hopCategories[i] = hopUnit;
+			}else{
+				latencyCategories[i] = latencyCategories[i-1] + latUnit;
+				hopCategories[i] = hopCategories[i-1] + hopUnit;
+			}
+		}
+		System.out.println();
 	}
 	
 	public static int getDCID(String id){
