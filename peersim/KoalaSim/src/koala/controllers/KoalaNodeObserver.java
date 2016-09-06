@@ -37,6 +37,7 @@ public class KoalaNodeObserver extends NodeObserver {
 		rtReport();
 		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
 			graphToFile();
+			countRoutedMsgs();
 			ended = true;
 		}
 		
@@ -44,10 +45,26 @@ public class KoalaNodeObserver extends NodeObserver {
 	}
 
 	
+	private void countRoutedMsgs() {
+		int totalMsgRouted = 0;
+		int totalMsgRoutedbyLatency = 0;
+		for (int i = 0; i < g.size(); i++) 
+		{	
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+			totalMsgRouted += current.nrMsgRouted;
+			totalMsgRoutedbyLatency += current.nrMsgRoutedByLatency;
+		}
+		System.out.println("total routed: " + totalMsgRouted + ", based on latency: "+ totalMsgRoutedbyLatency+ " ratio: " + (double)totalMsgRoutedbyLatency/totalMsgRouted );
+	}
+
+
+
+
 	private void rtReport() {
 		
 		int size = 0;
 		ArrayList<Integer> sizes = new ArrayList<Integer>();
+
 		for (int i = 0; i < g.size(); i++) 
 		{	
 			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
