@@ -17,7 +17,6 @@ public class RenaterNode extends TopologyNode{
 	private HashMap<String, String> routes;
 	
 	
-	
 	public RenaterNode(String prefix) {
 		super(prefix);
 		neighbors = new ArrayList<Node>();
