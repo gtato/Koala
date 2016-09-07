@@ -15,6 +15,10 @@
 group=100
 rm -f /tmp/*.mpl
 
+#plot occurrences in message paths
+./path_occurrences.py -f '../out/results/resultsA0.5.dat' -n 5 > /tmp/oc.mpl ; gnuplot -e "filename='/tmp/oc.mpl'" plotPathOccurrence.plt &
+
+
 #comparision of latency for the 3 protocols 
 #./group.py -f '../out/results/resultsA0.5.dat' -n $group > /tmp/lt.mpl ; gnuplot -e "filename='/tmp/lt.mpl'" plotLatency.plt &
 

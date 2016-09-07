@@ -1,6 +1,6 @@
 #!/usr/bin/gnuplot
 
-if (!exists("filename")) filename='../out/results/results.dat'
+if (!exists("filename")) filename='../out/results/results0.5.dat'
 
 
 set title "Comparison of hops"
