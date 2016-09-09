@@ -16,7 +16,7 @@ group=100
 rm -f /tmp/*.mpl
 
 #plot occurrences in message paths
-./path_occurrences.py -f '../out/results/resultsA0.5.dat' -n 5 > /tmp/oc.mpl ; gnuplot -e "filename='/tmp/oc.mpl'" plotPathOccurrence.plt &
+#./path_occurrences.py -f '../out/results/resultsA0.5.dat' -n 5 > /tmp/oc.mpl ; gnuplot -e "filename='/tmp/oc.mpl'" plotPathOccurrence.plt &
 
 
 #comparision of latency for the 3 protocols 
@@ -29,6 +29,12 @@ rm -f /tmp/*.mpl
 #./group.py -f '../out/results/resultsA0.0.dat' -n $group > /tmp/la1.mpl ;\
 #./group.py -f '../out/results/resultsA0.5.dat' -n $group > /tmp/la2.mpl ;\
 #./group.py -f '../out/results/resultsA1.0.dat' -n $group > /tmp/la3.mpl ;\
+#gnuplot -e "filename1='/tmp/la1.mpl'; filename2='/tmp/la2.mpl'; filename3='/tmp/la3.mpl'" plotLatencyComparison.plt &
+
+#comparision of latency when ALPHA changes (averaged)
+#./group.py -f '../out/results/AVGA0.0.dat' -n $group > /tmp/la1.mpl ;\
+#./group.py -f '../out/results/AVGA0.5.dat' -n $group > /tmp/la2.mpl ;\
+#./group.py -f '../out/results/AVGA1.0.dat' -n $group > /tmp/la3.mpl ;\
 #gnuplot -e "filename1='/tmp/la1.mpl'; filename2='/tmp/la2.mpl'; filename3='/tmp/la3.mpl'" plotLatencyComparison.plt &
 
 
@@ -47,6 +53,15 @@ rm -f /tmp/*.mpl
 #./group.py -f '../out/results/resultsA0.5.dat' -n $group > /tmp/ha2.mpl ;\
 #./group.py -f '../out/results/resultsA1.0.dat' -n $group > /tmp/ha3.mpl ;\
 #gnuplot -e "filename1='/tmp/ha1.mpl'; filename2='/tmp/ha2.mpl'; filename3='/tmp/ha3.mpl'" plotHopsComparison.plt &
+
+
+#comparision of hops when ALPHA changes (averages)
+./group.py -f '../out/results/AVGA0.0.dat' -n $group > /tmp/ha1.mpl ;\
+./group.py -f '../out/results/AVGA0.5.dat' -n $group > /tmp/ha2.mpl ;\
+./group.py -f '../out/results/AVGA1.0.dat' -n $group > /tmp/ha3.mpl ;\
+gnuplot -e "filename1='/tmp/ha1.mpl'; filename2='/tmp/ha2.mpl'; filename3='/tmp/ha3.mpl'" plotHopsComparison.plt &
+
+
 
 lastn=2000
 

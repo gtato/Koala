@@ -51,6 +51,7 @@ public class CreateNw implements Control {
 	 */
 
 	public boolean execute() {
+		ChordGlobalInfo.network.clear();
 		for (int i = 0; i < Network.size(); i++) {
 			Node node = (Node) Network.get(i);
 			ChordNode cp = (ChordNode) node.getProtocol(pid);

@@ -43,6 +43,8 @@ public abstract class NodeObserver extends GraphObserver {
 			fileCounter = "E"+exp;
 		else if(alpha >= 0)
 			fileCounter = "A"+alpha;
+		
+//		fileCounter += System.currentTimeMillis() ;
 	}
 
 	protected void graphToFile() {

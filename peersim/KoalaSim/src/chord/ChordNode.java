@@ -39,7 +39,11 @@ private ArrayList<Integer> lookupMessage;
 	
 	public ChordNode(String prefix) {
 		super(prefix);
-		// TODO Auto-generated constructor stub
+		String val = BigInteger.ZERO.toString();
+		chordId = new BigInteger(val);
+		fingerTable = new ChordNode[m];
+		successorList = new ChordNode[succLSize];
+		currentNode = 0;
 	}
 	
 	

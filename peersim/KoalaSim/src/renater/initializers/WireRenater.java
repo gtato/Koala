@@ -382,8 +382,8 @@ public class WireRenater extends WireGraph {
         	}
             
 		}
-		if(!file_exists)
-			PhysicalDataProvider.saveRoutes();
+//		if(!file_exists)
+//			PhysicalDataProvider.saveRoutes();
 		
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;

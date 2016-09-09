@@ -13,15 +13,14 @@ options, args = parser.parse_args()
 
 groupby = 100
 data = {'rlat':0,'clat':0, 'klat':0, 'rhop':0, 'chop':0, 'khop':0}
-i = -1;
+i = 0;
  
 with open(options.file) as f:
     for line in f:
-        i += 1
         words = line.split('\t')
-        if len(words) <= 1 or i == 0:
+        if len(words) <= 1 or 'rlat' in line:
             continue
-         
+        i += 1 
         data['rlat'] += float(words[1])
         data['clat'] += float(words[2])
         data['klat'] += float(words[3])
