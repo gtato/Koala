@@ -9,15 +9,14 @@
 
 
 #plot the koala topology (there are some problems with this one)
-#gnuplot -e "filename='../out/koala/topologyA0.5.dat'" plotKoala.plt &
+gnuplot -e "filename='../out/koala/topologyA0.5.dat'" plotKoala.plt &
 
 
 group=100
 rm -f /tmp/*.mpl
 
 #plot occurrences in message paths
-#./path_occurrences.py -f '../out/results/resultsA0.5.dat' -n 5 > /tmp/oc.mpl ; gnuplot -e "filename='/tmp/oc.mpl'" plotPathOccurrence.plt &
-
+./path_occurrences.py -f '../out/results/resultsA0.5.dat' -n 5 > /tmp/oc.mpl ; gnuplot -e "filename='/tmp/oc.mpl'" plotPathOccurrence.plt &
 
 #comparision of latency for the 3 protocols 
 #./group.py -f '../out/results/resultsA0.5.dat' -n $group > /tmp/lt.mpl ; gnuplot -e "filename='/tmp/lt.mpl'" plotLatency.plt &
@@ -56,10 +55,10 @@ rm -f /tmp/*.mpl
 
 
 #comparision of hops when ALPHA changes (averages)
-./group.py -f '../out/results/AVGA0.0.dat' -n $group > /tmp/ha1.mpl ;\
-./group.py -f '../out/results/AVGA0.5.dat' -n $group > /tmp/ha2.mpl ;\
-./group.py -f '../out/results/AVGA1.0.dat' -n $group > /tmp/ha3.mpl ;\
-gnuplot -e "filename1='/tmp/ha1.mpl'; filename2='/tmp/ha2.mpl'; filename3='/tmp/ha3.mpl'" plotHopsComparison.plt &
+#./group.py -f '../out/results/AVGA0.0.dat' -n $group > /tmp/ha1.mpl ;\
+#./group.py -f '../out/results/AVGA0.5.dat' -n $group > /tmp/ha2.mpl ;\
+#./group.py -f '../out/results/AVGA1.0.dat' -n $group > /tmp/ha3.mpl ;\
+#gnuplot -e "filename1='/tmp/ha1.mpl'; filename2='/tmp/ha2.mpl'; filename3='/tmp/ha3.mpl'" plotHopsComparison.plt &
 
 
 

@@ -7,6 +7,9 @@ parser.add_option('-f', '--file', action="store", dest="file",
     help="data file", default="../out/results/resultsA0.5.dat")
 parser.add_option('-n', '--n', action="store", dest="n", type=int,
     help="goup by", default=5)
+parser.add_option('-d', '--debug', action="store", dest="debug", type=int,
+    help="debug", default=0)
+
 options, args = parser.parse_args()
 
 data = {}
@@ -30,8 +33,8 @@ final = { c : 0 for c in cats[:-1] }
 
 for k in data:
     prc = float(data[k]*100/nr)
-#     if prc > 60:
-#         print k
+    if options.debug and prc > 50:
+        print k
     for c in range(len(cats)-1):
         if prc >= cats[c] and prc < cats[c+1]:
             final[cats[c]] += 1

@@ -257,9 +257,10 @@ public class KoalaProtocol extends TopologyProtocol{
         	if(!initializeMode){
 	        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), NodeUtilities.MAX_INTER_LATENCY, 0);
 	        	myNode.getRoutingTable().addLongLink(ll);
+	        	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
+	        	send(msg.getFirstSender(), newMsg);
         	}
-        	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
-        	send(msg.getFirstSender(), newMsg);
+        	
         }
 	}
 	
