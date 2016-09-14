@@ -61,6 +61,11 @@ public class RenaterNode extends TopologyNode{
 		return null;
 	}
 
+	
+	public ArrayList<Node> getNeighbors() {
+		return neighbors;
+	}
+	
 	@Override
 	public void onKill() {
 		// TODO Auto-generated method stub

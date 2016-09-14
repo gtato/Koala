@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import peersim.config.Configuration;
 import peersim.core.CommonState;
@@ -68,10 +70,10 @@ public class WireRenater extends WireGraph {
 		}
 		
 		
-		
+//		wireGradual(gateway_indexes, gateways);
 //		wireDC(gateway_indexes, gateways);
-//		wireDCWaxman(gateway_indexes, gateways);
-		wireGradual(gateway_indexes, gateways);
+		wireDCWaxman(gateway_indexes, gateways);
+		ArrayList<HashSet<String>> groups = checkConnectivity(gateways);
 
 		setRenaterRoutes(gateway_indexes);
 		
@@ -112,50 +114,46 @@ public class WireRenater extends WireGraph {
 		}
 		
 		computeDijsktra(g, gateway_indexes);
+		
 	}
 	
 	private void  wireDCWaxman(ArrayList<Integer> gateway_indexes, ArrayList<RenaterNode> gateways){
 		HashMap<String, Double> distances = new HashMap<String, Double>();
-		
+		double maxDist = 0;
 		for(int i = 0; i < gateway_indexes.size(); i++){
-			for(int j = 0; j < gateway_indexes.size(); j++){
-				if(i!=j){
-					String id = NodeUtilities.getKeyID(i,j);
-					if(!distances.containsKey(id))
-						distances.put(id, PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j), worldSize));
-				}
+			for(int j = i+1; j < gateway_indexes.size(); j++){
+				String id = NodeUtilities.getKeyID(i,j);
+				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j), worldSize);
+				distances.put(id, dist);
+				if(dist > maxDist)
+					maxDist = dist;
 			}
 		}
 		
-		double L = Collections.max(distances.values()); 
-	   	double a = 0.15;
-	   	double b = 0.13;
+		double L = maxDist; 
+	   	double a = 0.05;
+	   	double b = 0.1;
 	   	
 
-	   	ArrayList<String> ids = new ArrayList<String>();
+	   
 	   	ArrayList<AbstractMap.SimpleEntry<String, Double>> probablities = new ArrayList<AbstractMap.SimpleEntry<String, Double>>();
 	   	
 	   	for(int i = 0; i < gateway_indexes.size(); i++){
-			for(int j = 0; j < gateway_indexes.size(); j++){
-				if(i!=j){
-					String id = NodeUtilities.getKeyID(i, j);
-					if(!ids.contains(id)){
-						double p = b * Math.pow(Math.E, -distances.get(id)/L*a);
-						probablities.add(new AbstractMap.SimpleEntry<String, Double>(id, p));
-						ids.add(id);
-					}
-				}
+			for(int j = i+1; j < gateway_indexes.size(); j++){
+				String id = NodeUtilities.getKeyID(i, j);
+				double p = b * Math.pow(Math.E, -distances.get(id)/(L*a));
+				probablities.add(new AbstractMap.SimpleEntry<String, Double>(id, p));
 			}
 		}
 
-	   	Collections.sort(probablities, new Comparator<AbstractMap.SimpleEntry<String, Double>>() {
-
-			@Override
-			public int compare(SimpleEntry<String, Double> o1,
-					SimpleEntry<String, Double> o2) {
-				return -1*o1.getValue().compareTo(o2.getValue());
-			}
-		} );
+//	   	Collections.sort(probablities, new Comparator<AbstractMap.SimpleEntry<String, Double>>() {
+//
+//			@Override
+//			public int compare(SimpleEntry<String, Double> o1,
+//					SimpleEntry<String, Double> o2) {
+//				return -1*o1.getValue().compareTo(o2.getValue());
+//			}
+//		} );
 	   	
 	   	
 	   	for(int i =0; i < probablities.size(); i++){
@@ -167,11 +165,11 @@ public class WireRenater extends WireGraph {
 		   		((RenaterGraph)g).setEdge(gateway_indexes.get(inds[0]), gateway_indexes.get(inds[1]), re);
 				
 	//	   		System.out.println(entry.getKey() + " " + entry.getValue());
-		   		System.out.println(gateways.get(inds[0]).getID() +"|"+ gateways.get(inds[1]).getID() + " " + entry.getValue());
+//		   		System.out.println(gateways.get(inds[0]).getID() +"|"+ gateways.get(inds[1]).getID() + " " + entry.getValue());
 	   		}
 	   	}
 	   	
-	   	computeDijsktra(g, gateway_indexes);
+//	   	computeDijsktra(g, gateway_indexes);
 	   	
 	}
 	
@@ -325,6 +323,45 @@ public class WireRenater extends WireGraph {
 		
 	}
 	
+	
+	private ArrayList<HashSet<String>>  checkConnectivity(ArrayList<RenaterNode> gateways){
+		ArrayList<HashSet<String>> groups = new ArrayList<HashSet<String>>();
+		
+		for(int i = 0; i < gateways.size(); i++){
+			boolean skip = false;
+			RenaterNode rn = gateways.get(i);
+			for(HashSet<String> set : groups){
+				if(set.contains(rn.getID())){
+					skip = true; break;
+				}
+			}
+			if(skip)
+				continue;
+			HashSet<String> s = new HashSet<String>();
+			addNeighborsToSet(rn, s);
+			groups.add(s);
+
+		}
+		return groups; 
+	}
+	private boolean addNeighborsToSet(RenaterNode rn, HashSet<String> s){
+		boolean addedSmth = false;
+		s.add(rn.getID());
+		ArrayList<RenaterNode> rneigs = new ArrayList<RenaterNode>();
+		for(Node neighbor : rn.getNeighbors()){
+			RenaterNode rneighbor = (RenaterNode)neighbor.getProtocol(pid);
+			if (s.add(rneighbor.getID())){
+				addedSmth = true;
+				rneigs.add(rneighbor);
+			}
+		}
+		
+		for(RenaterNode neighbor : rneigs){
+			addNeighborsToSet(neighbor, s);
+		}
+		
+		return addedSmth;
+	}
 	
 	private void setRenaterRoutes(ArrayList<Integer> gateway_indexes){
 		for (int i = 0; i < gateway_indexes.size(); i++) {
