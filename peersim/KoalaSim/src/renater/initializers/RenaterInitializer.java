@@ -96,6 +96,7 @@ public class RenaterInitializer implements Control {
             nodesPerDC[j]--;
             koalaNode.setID(j, k);
             renaterNode.setID(j+"-"+k);
+            renaterNode.setNode(n);
             chordNode.setID(j+"-"+k);
             Nodes.put(j+"-"+k, n);
             

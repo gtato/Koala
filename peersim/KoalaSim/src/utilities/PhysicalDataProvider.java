@@ -16,6 +16,7 @@ import java.util.Set;
 
 import peersim.core.CommonState;
 import peersim.core.Network;
+import peersim.core.Node;
 import renater.RenaterNode;
 
 public class PhysicalDataProvider {
@@ -28,6 +29,7 @@ public class PhysicalDataProvider {
 	private static double minInterLatency = Double.MAX_VALUE;
 	private static double maxInraLatency = 0;
 	public static String DijsktraFile = "out/dijkstra/dijsktra"+Network.size()+".dat";
+	
 	
 	public static void addLatency(String src, String dst, double latency){
 		gatewayIDs.add(src);

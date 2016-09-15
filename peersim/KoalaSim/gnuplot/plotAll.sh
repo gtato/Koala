@@ -5,7 +5,7 @@
 
 
 #plot the renater (physical) topology
-gnuplot -e "filename='../out/renater/topologyA0.5.dat'" plotRenater.plt &
+#gnuplot -e "filename='../out/renater/topologyA0.5.dat'" plotRenater.plt &
 
 
 #plot the koala topology (there are some problems with this one)
@@ -34,13 +34,13 @@ rm -f /tmp/*.mpl
 #gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyComparison.plt &
 
 #comparision of latency when ALPHA changes (averaged)
-#f1="/tmp/$RANDOM.mpl"
-#f2="/tmp/$RANDOM.mpl"
-#f3="/tmp/$RANDOM.mpl"
-#./group.py -f '../out/results/AVGA0.0.dat' -n $group > $f1 ;\
-#./group.py -f '../out/results/AVGA0.5.dat' -n $group > $f2 ;\
-#./group.py -f '../out/results/AVGA1.0.dat' -n $group > $f3 ;\
-#gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyComparison.plt &
+f1="/tmp/$RANDOM.mpl"
+f2="/tmp/$RANDOM.mpl"
+f3="/tmp/$RANDOM.mpl"
+./group.py -f '../out/results/AVGA0.0.dat' -n $group > $f1 ;\
+./group.py -f '../out/results/AVGA0.5.dat' -n $group > $f2 ;\
+./group.py -f '../out/results/AVGA1.0.dat' -n $group > $f3 ;\
+gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyComparison.plt &
 
 
 #comparision of latency when ALPHA changes with 5 alphas
