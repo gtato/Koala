@@ -1,7 +1,13 @@
 #!/bin/bash
 
+rm -f /tmp/*.mpl
+
 #plot the size of the routing table
 #gnuplot  -e "filename='../out/koala/rtA0.5.dat'" plotRT.plt &
+
+#plot how many nodes know a certain percentage of other nodes
+#f1="/tmp/$RANDOM.mpl"
+#./ll_knowledge.py -f '../out/koala/rt_fineA0.5' -n 10 > $f1 ; gnuplot -e "filename='$f1'" plotLLKnowledge.plt
 
 
 #plot the renater (physical) topology
@@ -13,7 +19,7 @@
 
 
 group=200
-rm -f /tmp/*.mpl
+
 
 #plot occurrences in message paths
 f1="/tmp/$RANDOM.mpl"
@@ -30,22 +36,23 @@ f1="/tmp/$RANDOM.mpl"
 group=500
 
 #comparision of latency when ALPHA changes
-f1="/tmp/$RANDOM.mpl"
-f2="/tmp/$RANDOM.mpl"
-f3="/tmp/$RANDOM.mpl"
-./group.py -f '../out/results/resultsA0.0.dat' -n $group > $f1 ;\
-./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f2 ;\
-./group.py -f '../out/results/resultsA1.0.dat' -n $group > $f3 ;\
-gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyComparison.plt &
-
-#comparision of latency when ALPHA changes (averaged)
 #f1="/tmp/$RANDOM.mpl"
 #f2="/tmp/$RANDOM.mpl"
 #f3="/tmp/$RANDOM.mpl"
-#./group.py -f '../out/results/AVGA0.0.dat' -n $group > $f1 ;\
-#./group.py -f '../out/results/AVGA0.5.dat' -n $group > $f2 ;\
-#./group.py -f '../out/results/AVGA1.0.dat' -n $group > $f3 ;\
+#./group.py -f '../out/results/resultsA0.0.dat' -n $group > $f1 ;\
+#./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f2 ;\
+#./group.py -f '../out/results/resultsA1.0.dat' -n $group > $f3 ;\
 #gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyComparison.plt &
+
+#comparision of latency when ALPHA changes (averaged)
+f1="/tmp/$RANDOM.mpl"
+f2="/tmp/$RANDOM.mpl"
+f3="/tmp/$RANDOM.mpl"
+#./average.py ../out/results/*.dat
+./group.py -f '../out/results/AVGA0.0.dat' -n $group > $f1 ;\
+./group.py -f '../out/results/AVGA0.5.dat' -n $group > $f2 ;\
+./group.py -f '../out/results/AVGA1.0.dat' -n $group > $f3 ;\
+gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyComparison.plt &
 
 
 #comparision of latency when ALPHA changes with 5 alphas
@@ -64,23 +71,24 @@ gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyCompar
 
 
 #comparision of hops when ALPHA changes
-f1="/tmp/$RANDOM.mpl"
-f2="/tmp/$RANDOM.mpl"
-f3="/tmp/$RANDOM.mpl"
-./group.py -f '../out/results/resultsA0.0.dat' -n $group > $f1 ;\
-./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f2 ;\
-./group.py -f '../out/results/resultsA1.0.dat' -n $group > $f3 ;\
-gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotHopsComparison.plt &
-
-
-#comparision of hops when ALPHA changes (averages)
 #f1="/tmp/$RANDOM.mpl"
 #f2="/tmp/$RANDOM.mpl"
 #f3="/tmp/$RANDOM.mpl"
-#./group.py -f '../out/results/AVGA0.0.dat' -n $group > $f1 ;\
-#./group.py -f '../out/results/AVGA0.5.dat' -n $group > $f2 ;\
-#./group.py -f '../out/results/AVGA1.0.dat' -n $group > $f3 ;\
+#./group.py -f '../out/results/resultsA0.0.dat' -n $group > $f1 ;\
+#./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f2 ;\
+#./group.py -f '../out/results/resultsA1.0.dat' -n $group > $f3 ;\
 #gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotHopsComparison.plt &
+
+
+#comparision of hops when ALPHA changes (averages)
+f1="/tmp/$RANDOM.mpl"
+f2="/tmp/$RANDOM.mpl"
+f3="/tmp/$RANDOM.mpl"
+#./average.py ../out/results/*.dat
+./group.py -f '../out/results/AVGA0.0.dat' -n $group > $f1 ;\
+./group.py -f '../out/results/AVGA0.5.dat' -n $group > $f2 ;\
+./group.py -f '../out/results/AVGA1.0.dat' -n $group > $f3 ;\
+gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotHopsComparison.plt &
 
 
 

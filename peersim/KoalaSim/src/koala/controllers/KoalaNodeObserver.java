@@ -23,6 +23,7 @@ public class KoalaNodeObserver extends NodeObserver {
 
     
     ArrayList<String> rtReport = new ArrayList<String>();
+    ArrayList<String> anotherRtReport = new ArrayList<String>();
     boolean ended = false;
 	public KoalaNodeObserver(String prefix) {
 		super(prefix);
@@ -36,6 +37,7 @@ public class KoalaNodeObserver extends NodeObserver {
 		updateGraph();
 		rtReport();
 		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
+			finalRTReport();
 			graphToFile();
 			countRoutedMsgs();
 			ended = true;
@@ -45,6 +47,18 @@ public class KoalaNodeObserver extends NodeObserver {
 	}
 
 	
+	private void finalRTReport() {
+		for (int i = 0; i < g.size(); i++) 
+		{	
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+			anotherRtReport.add((double)current.getRoutingTable().getSize()/g.size() + "");
+		}
+		
+	}
+
+
+
+
 	private void countRoutedMsgs() {
 		int totalMsgRouted = 0;
 		int totalMsgRoutedbyLatency = 0;
@@ -149,11 +163,13 @@ public class KoalaNodeObserver extends NodeObserver {
 
 	@Override
 	protected void printGraph(PrintStream ps, int psIndex) {
-		if (psIndex != 0)
-			return;
-		for(String line : rtReport)
-			ps.println(line);
-            
+		if (psIndex == 0){
+			for(String line : rtReport)
+				ps.println(line);
+		}else if (psIndex == 1){
+			for(String line : anotherRtReport)
+				ps.println(line);
+		}
     }
 	
 	@Override
@@ -163,7 +179,7 @@ public class KoalaNodeObserver extends NodeObserver {
 
 	@Override
 	protected String[] getOutputFileNames() {
-		return new String[]{"rt"};
+		return new String[]{"rt", "rt_fine"};
 	}
 	
 		

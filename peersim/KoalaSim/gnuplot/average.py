@@ -5,13 +5,15 @@ import fileinput
 ext = '.dat'
 exp = 'E'
 key = 'AVG'
+alpha = 'A'
 # files=[]
 cats={}
 path=''
 for arg in sys.argv:
-    if ext in arg and key not in arg:
+    if ext in arg and alpha in arg and key not in arg:
 #         files.append(arg)
-        a = arg[arg.index('A'):arg.index(ext)]
+        
+        a = arg[arg.index(alpha):arg.index(ext)]
         path = arg[0:arg.rfind('/')+1]
         if a not in cats:
             cats[a] = []

@@ -402,6 +402,9 @@ public class KoalaNode extends TopologyNode{
             double distance = (double) NodeUtilities.distance(this.getID(), re.getNodeID()) / tot_distance;
             double norm_latency = NodeUtilities.normalizeLatency(tot_distance, re.getLatency());
             res = 1 + alpha * distance + (1-alpha) * norm_latency;
+            
+            if(alpha == -1)
+            	res = CommonState.r.nextInt(100);
         }
         
 		else if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
