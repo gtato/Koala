@@ -12,38 +12,48 @@
 #gnuplot -e "filename='../out/koala/topologyA0.5.dat'" plotKoala.plt &
 
 
-group=500
+group=200
 rm -f /tmp/*.mpl
 
 #plot occurrences in message paths
-#./path_occurrences.py -f '../out/results/resultsA0.5.dat' -n 5 > /tmp/oc.mpl ; gnuplot -e "filename='/tmp/oc.mpl'" plotPathOccurrence.plt &
+f1="/tmp/$RANDOM.mpl"
+#./path_occurrences.py -f '../out/results/resultsA0.5.dat' -n 1 > $f1 ; gnuplot -e "filename='$f1'" plotPathOccurrence.plt &
 
 #comparision of latency for the 3 protocols 
-#./group.py -f '../out/results/resultsA0.5.dat' -n $group > /tmp/lt.mpl ; gnuplot -e "filename='/tmp/lt.mpl'" plotLatency.plt &
+f1="/tmp/$RANDOM.mpl"
+#./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
 
-#comparision of hops for the 3 protocols 
-#./group.py -f '../out/results/resultsA0.5.dat' -n $group > /tmp/hop.mpl ; gnuplot -e "filename='/tmp/hop.mpl'" plotHops.plt &
+#comparision of hops for the 3 protocols
+f1="/tmp/$RANDOM.mpl" 
+#./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotHops.plt &
+
+group=500
 
 #comparision of latency when ALPHA changes
-#f1="/tmp/$RANDOM.mpl"
-#f2="/tmp/$RANDOM.mpl"
-#f3="/tmp/$RANDOM.mpl"
-#./group.py -f '../out/results/resultsA0.0.dat' -n $group > $f1 ;\
-#./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f2 ;\
-#./group.py -f '../out/results/resultsA1.0.dat' -n $group > $f3 ;\
-#gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyComparison.plt &
-
-#comparision of latency when ALPHA changes (averaged)
 f1="/tmp/$RANDOM.mpl"
 f2="/tmp/$RANDOM.mpl"
 f3="/tmp/$RANDOM.mpl"
-./group.py -f '../out/results/AVGA0.0.dat' -n $group > $f1 ;\
-./group.py -f '../out/results/AVGA0.5.dat' -n $group > $f2 ;\
-./group.py -f '../out/results/AVGA1.0.dat' -n $group > $f3 ;\
+./group.py -f '../out/results/resultsA0.0.dat' -n $group > $f1 ;\
+./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f2 ;\
+./group.py -f '../out/results/resultsA1.0.dat' -n $group > $f3 ;\
 gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyComparison.plt &
+
+#comparision of latency when ALPHA changes (averaged)
+#f1="/tmp/$RANDOM.mpl"
+#f2="/tmp/$RANDOM.mpl"
+#f3="/tmp/$RANDOM.mpl"
+#./group.py -f '../out/results/AVGA0.0.dat' -n $group > $f1 ;\
+#./group.py -f '../out/results/AVGA0.5.dat' -n $group > $f2 ;\
+#./group.py -f '../out/results/AVGA1.0.dat' -n $group > $f3 ;\
+#gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyComparison.plt &
 
 
 #comparision of latency when ALPHA changes with 5 alphas
+#f1="/tmp/$RANDOM.mpl"
+#f2="/tmp/$RANDOM.mpl"
+#f3="/tmp/$RANDOM.mpl"
+#f4="/tmp/$RANDOM.mpl"
+#f5="/tmp/$RANDOM.mpl"
 #./group.py -f '../out/results/resultsA0.0.dat' -n $group > /tmp/la1.mpl ;\
 #./group.py -f '../out/results/resultsA0.5.dat' -n $group > /tmp/la2.mpl ;\
 #./group.py -f '../out/results/resultsA1.0.dat' -n $group > /tmp/la3.mpl ;\
@@ -54,17 +64,23 @@ gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyCompar
 
 
 #comparision of hops when ALPHA changes
-#./group.py -f '../out/results/resultsA0.0.dat' -n $group > /tmp/ha1.mpl ;\
-#./group.py -f '../out/results/resultsA0.5.dat' -n $group > /tmp/ha2.mpl ;\
-#./group.py -f '../out/results/resultsA1.0.dat' -n $group > /tmp/ha3.mpl ;\
-#gnuplot -e "filename1='/tmp/ha1.mpl'; filename2='/tmp/ha2.mpl'; filename3='/tmp/ha3.mpl'" plotHopsComparison.plt &
+f1="/tmp/$RANDOM.mpl"
+f2="/tmp/$RANDOM.mpl"
+f3="/tmp/$RANDOM.mpl"
+./group.py -f '../out/results/resultsA0.0.dat' -n $group > $f1 ;\
+./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f2 ;\
+./group.py -f '../out/results/resultsA1.0.dat' -n $group > $f3 ;\
+gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotHopsComparison.plt &
 
 
 #comparision of hops when ALPHA changes (averages)
-#./group.py -f '../out/results/AVGA0.0.dat' -n $group > /tmp/ha1.mpl ;\
-#./group.py -f '../out/results/AVGA0.5.dat' -n $group > /tmp/ha2.mpl ;\
-#./group.py -f '../out/results/AVGA1.0.dat' -n $group > /tmp/ha3.mpl ;\
-#gnuplot -e "filename1='/tmp/ha1.mpl'; filename2='/tmp/ha2.mpl'; filename3='/tmp/ha3.mpl'" plotHopsComparison.plt &
+#f1="/tmp/$RANDOM.mpl"
+#f2="/tmp/$RANDOM.mpl"
+#f3="/tmp/$RANDOM.mpl"
+#./group.py -f '../out/results/AVGA0.0.dat' -n $group > $f1 ;\
+#./group.py -f '../out/results/AVGA0.5.dat' -n $group > $f2 ;\
+#./group.py -f '../out/results/AVGA1.0.dat' -n $group > $f3 ;\
+#gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotHopsComparison.plt &
 
 
 

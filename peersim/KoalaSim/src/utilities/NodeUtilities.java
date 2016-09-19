@@ -14,8 +14,8 @@ public class NodeUtilities {
 	
 	public static int MAGIC = 2;
 	
-	public static double MAX_INTER_LATENCY = 2000;
-	public static double MAX_INTRA_LATENCY = 500;
+//	public static double MAX_INTER_LATENCY = 2000;
+//	public static double MAX_INTRA_LATENCY = 500;
 	
 	public static int NR_NODE_PER_DC = 0; //Configuration.getInt("NR_NODE_PER_DC")
 	public static int NR_DC = 0; //Configuration.getInt("NR_DC")
@@ -152,7 +152,7 @@ public class NodeUtilities {
 	public static double normalizeLatency(int totDistance, double latency) {
 		double x1 = 1;
         double y1 = 1;
-        double x2 = NodeUtilities.MAX_INTER_LATENCY;
+        double x2 = PhysicalDataProvider.getMaxInterLatency();
         double y2 = (double) 1 / totDistance;
 
         double sl = (double) (y2-y1)/(x2 - x1);

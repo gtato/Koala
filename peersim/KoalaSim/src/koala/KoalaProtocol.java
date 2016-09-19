@@ -10,19 +10,24 @@ import messaging.KoalaMsgContent;
 import messaging.KoalaNGNMsgContent;
 import messaging.KoalaRTMsgConent;
 import messaging.KoalaRouteMsgContent;
+import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Network;
 import peersim.core.Node;
 import topology.TopologyProtocol;
 import utilities.NodeUtilities;
+import utilities.PhysicalDataProvider;
 
 
 public class KoalaProtocol extends TopologyProtocol{
 
+	private static final String PAR_LEARN= "learn";
 	KoalaNode myNode;
+	private final boolean learn;
 	public KoalaProtocol(String prefix) {
 		super(prefix);
+		learn = Configuration.getBoolean(prefix + "." +PAR_LEARN, true); 
 	}
 		
 	public void join()
@@ -254,8 +259,8 @@ public class KoalaProtocol extends TopologyProtocol{
         }else{
         	onReceivedMsg(msg);
         	
-        	if(!initializeMode){
-	        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), NodeUtilities.MAX_INTER_LATENCY, 0);
+        	if(!initializeMode && learn){
+	        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), Double.MAX_VALUE, 0);
 	        	myNode.getRoutingTable().addLongLink(ll);
 	        	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
 	        	send(msg.getFirstSender(), newMsg);
@@ -285,7 +290,7 @@ public class KoalaProtocol extends TopologyProtocol{
 	protected void checkPiggybacked(KoalaMessage msg) {
 		ArrayList<KoalaNeighbor> pathNodes = new ArrayList<KoalaNeighbor>();
 		double latency = myNode.isLocal(msg.getLastSender()) ?
-				NodeUtilities.MAX_INTRA_LATENCY : NodeUtilities.MAX_INTER_LATENCY/16;
+			PhysicalDataProvider.getMaxIntraLatency() : PhysicalDataProvider.getDefaultInterLatency();
 		int latencyQuality = 0;
 		for(String p : msg.getPath()){
 			if(p.equals(msg.getLastSender())){
@@ -304,7 +309,7 @@ public class KoalaProtocol extends TopologyProtocol{
 				send(recNeighbor.getNodeID(), newMsg);
 			}
 				
-			if(res == -1 && !initializeMode)
+			if(res == -1 && !initializeMode && learn)
 				myNode.getRoutingTable().addLongLink(recNeighbor);
 		}
 		

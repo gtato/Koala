@@ -84,8 +84,6 @@ public class WireRenater extends WireGraph {
 //		setRenaterRoutes(gateway_indexes);
 		
 		//set max latency (according to Dijkstra)
-		NodeUtilities.MAX_INTER_LATENCY = PhysicalDataProvider.getMaxInterLatency();
-		NodeUtilities.MAX_INTRA_LATENCY = PhysicalDataProvider.getMaxIntraLatency();
 		NodeUtilities.initializeCategories();
 	}
 

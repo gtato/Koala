@@ -28,6 +28,8 @@ public class PhysicalDataProvider {
 	private static double maxInterLatency = 0;
 	private static double minInterLatency = Double.MAX_VALUE;
 	private static double maxInraLatency = 0;
+//	private static double defaultInterLatency = 0;
+//	private static double defaultIntraLatency = 0;
 	public static String DijsktraFile = "out/dijkstra/dijsktra"+Network.size()+".dat";
 	
 	
@@ -119,6 +121,14 @@ public class PhysicalDataProvider {
 	
 	public static double getMinInterLatency(){
 		return minInterLatency;
+	}
+	
+	public static double getDefaultInterLatency(){
+		return getMaxIntraLatency()/16;
+	}
+	
+	public static double getDefaultIntraLatency(){
+		return getMaxIntraLatency()/16;
 	}
 	
 	public static String getPath(String src, String dst){
