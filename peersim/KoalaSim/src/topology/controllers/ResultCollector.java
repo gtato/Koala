@@ -132,8 +132,8 @@ public class ResultCollector extends NodeObserver {
 				printstr +=	"\t"+rm.getTotalLatency()+"\t"+cm.getTotalLatency()+"\t"+km.getTotalLatency();
 				printstr += "\t"+ rm.getPath().size() + "\t"+ cm.getPath().size() + "\t"+ km.getPath().size();
  				printstr += "\t"+ rm.getHopCategory() + "\t"+ rm.getLatencyCategory();
+ 				printstr += "\t"+ rm.getPath();
  				printstr += "\t"+ km.getPath();
-// 				printstr += "\t"+ rm.getPath();
 				msgToPrint.add(printstr);
 
 			}

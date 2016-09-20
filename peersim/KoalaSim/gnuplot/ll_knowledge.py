@@ -19,7 +19,7 @@ with open(options.file) as f:
     for line in f:
         if len(line.strip()) == 0 :
             continue
-        data.append(line.strip('\n'))
+        data.append(float(line.strip('\n'))*100)
 
 cats = range(0, 100+options.n, options.n)
 final = { c : 0 for c in cats[:-1] }

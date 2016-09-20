@@ -36,12 +36,12 @@ public abstract class NodeObserver extends GraphObserver {
 //        	dumpToStd = true;
 //		fng = new FileNameGenerator(graph_filename, ".dat");
 		int exp = Configuration.getInt("EXP", -1);
-		double alpha = Configuration.getDouble("ALPHA", -1.0);
-		if(exp >= 0 && alpha >= 0)
+		double alpha = Configuration.getDouble("ALPHA", -2.0);
+		if(exp >= 0 && alpha >= -1)
 			fileCounter = "E"+exp+"A"+alpha;
 		else if(exp >= 0)
 			fileCounter = "E"+exp;
-		else if(alpha >= 0)
+		else if(alpha >= -1)
 			fileCounter = "A"+alpha;
 		
 //		fileCounter += System.currentTimeMillis() ;

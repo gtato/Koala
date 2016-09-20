@@ -24,7 +24,7 @@ plot filename1 using 2 title "Renater" smooth csplines with lines lc rgb "forest
 	 filename1 using 4 title "Koala A=0" smooth csplines with lines lc rgb "web-blue" , \
 	 filename2 using 4 title "Koala A=0.5" smooth csplines with lines lc rgb "blue" , \
 	 filename3 using 4 title "Koala A=1" smooth csplines with lines lc rgb "violet" ,\
-	 #filename4 using 4 title "Koala A=0.25" smooth csplines with lines lc rgb "green" , \
+	 filename4 using 4 title "Koala random" smooth csplines with lines lc rgb "green" #, \
 	 #filename5 using 4 title "Koala A=0.75" smooth csplines with lines lc rgb "yellow"
 	 
 pause mouse close
