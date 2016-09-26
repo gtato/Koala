@@ -1,7 +1,11 @@
 package utilities;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import koala.KoalaNeighbor;
 import peersim.config.Configuration;
+import peersim.core.Node;
 import renater.RenaterNode;
 import topology.TopologyNode;
 
@@ -23,6 +27,8 @@ public class NodeUtilities {
 	
 	public static double[] hopCategories;
 	public static double[] latencyCategories;
+	
+	public static Map<String, Node> Nodes =  new HashMap<String, Node>();
 	
 	public static void initialize(){
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
@@ -147,7 +153,22 @@ public class NodeUtilities {
 		return new int[]{Integer.parseInt(sp[0]), Integer.parseInt(sp[1])};
 	}
 	
-	
+	public static String[] getIDFromDistance(String id, int distance, boolean local){
+		String[] ids = new String[2];
+		if(local){
+			int retid1 = (getNodeID(id) + distance) % NR_NODE_PER_DC;
+			int retid2 = getNodeID(id) - distance >= 0 ? getNodeID(id) - distance : getNodeID(id) - distance + NR_NODE_PER_DC;
+			ids[0] =  getDCID(id) + "-" + retid1;
+			ids[1] =  getDCID(id) + "-" + retid2;
+		}else{
+			int retid1 = (getDCID(id) + distance) % NR_DC;
+			int retid2 = getDCID(id) - distance >= 0 ? getDCID(id) - distance : getDCID(id) - distance + NR_DC;
+			ids[0] =  retid1  + "-" + getNodeID(id);
+			ids[1] =  retid2  + "-" + getNodeID(id);
+		}
+		
+		return ids;
+	}
 	
 	public static double normalizeLatency(int totDistance, double latency) {
 		double x1 = 1;

@@ -245,7 +245,7 @@ public class WireRenater extends WireGraph {
 		ArrayList<RenaterNode> ambassadors = new ArrayList<RenaterNode>(); 
 		for(HashSet<String> s : groups){
 			for(String n : s){
-				ambassadors.add((RenaterNode)RenaterInitializer.Nodes.get(n).getProtocol(pid));
+				ambassadors.add((RenaterNode)NodeUtilities.Nodes.get(n).getProtocol(pid));
 				break;
 			}
 		}

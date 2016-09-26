@@ -351,9 +351,9 @@ public class KoalaNode extends TopologyNode{
     
     public String getRoute(String dest, KoalaMessage msg) {
     	String normal = getRoute_temp(dest, msg, NodeUtilities.B);
-    	String no_latency = getRoute_temp(dest, msg, 1);
-    	if(!normal.equals(no_latency))
-    		this.nrMsgRoutedByLatency++;
+//    	String no_latency = getRoute_temp(dest, msg, 1);
+//    	if(!normal.equals(no_latency))
+//    		this.nrMsgRoutedByLatency++;
     	return normal;
     }
     
@@ -399,7 +399,13 @@ public class KoalaNode extends TopologyNode{
         
 		else if( NodeUtilities.distance(this.getID(), dest) > NodeUtilities.distance(re.getNodeID(), dest)){
             int tot_distance = NodeUtilities.distance(this.getID(), dest);
-            double distance = (double) NodeUtilities.distance(this.getID(), re.getNodeID()) / tot_distance;
+            int distNext = NodeUtilities.distance(this.getID(), re.getNodeID());
+            double distance;
+            if (distNext < tot_distance)
+            	distance = (double) distNext / tot_distance;
+            else 
+            	distance = (double)( 2*tot_distance - distNext) / tot_distance;
+            	
             double norm_latency = NodeUtilities.normalizeLatency(tot_distance, re.getLatency());
             res = 1 + alpha * distance + (1-alpha) * norm_latency;
             

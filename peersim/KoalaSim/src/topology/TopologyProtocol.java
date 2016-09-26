@@ -109,7 +109,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 
 	public void send(String destinationID, KoalaMessage msg)
 	{
-		Node dest = RenaterInitializer.Nodes.get(destinationID);
+		Node dest = NodeUtilities.Nodes.get(destinationID);
 
 		if(dest != null){
 			if(ErrorDetection.hasLoopCommunication(msg,destinationID))

@@ -30,7 +30,7 @@ public class RenaterInitializer implements Control {
 	private static final String PAR_DC_FILE = "dc_file";
 	private static final String PAR_DC_DISTANCE = "distance";
 	
-	public static Map<String, Node> Nodes =  new HashMap<String, Node>(); 
+//	public static Map<String, Node> Nodes =  new HashMap<String, Node>(); 
 
     private static int pid;
     private static int phid;
@@ -95,10 +95,11 @@ public class RenaterInitializer implements Control {
             
             nodesPerDC[j]--;
             koalaNode.setID(j, k);
+            koalaNode.setNode(n);
             renaterNode.setID(j+"-"+k);
             renaterNode.setNode(n);
             chordNode.setID(j+"-"+k);
-            Nodes.put(j+"-"+k, n);
+            NodeUtilities.Nodes.put(j+"-"+k, n);
             
             k++;
             if(nodesPerDC[j] == 0){
