@@ -36,6 +36,8 @@ public class KoalaPlanner extends GraphObserver {
 	private int msgID;
 	private boolean allAdded = false; 
 	
+	private ArrayList<Node[]> routes = new ArrayList<Node[]>();
+	
 	public KoalaPlanner(String prefix) {
 		super(prefix);
 		
@@ -102,7 +104,7 @@ public class KoalaPlanner extends GraphObserver {
 	}
 	
 	
-	private void route() {
+	private void route_old() {
 		int count = 1;
 		ArrayList<Node> sources = getRandomNodes(count, true, new ArrayList<Node>());
 		ArrayList<Node> dests = getRandomNodes(count, true, sources);
@@ -147,6 +149,61 @@ public class KoalaPlanner extends GraphObserver {
 			msgID++;
 		}
 	}
+	
+	private void route() {
+		if(CommonState.getTime() == 0){
+			initilizeRoutes();
+		}
+		
+		if(routes.size() == 0)
+			return;
+		
+		Node[] srcdst = routes.remove(0); 
+		Node src = srcdst[0];
+		Node dst = srcdst[1];
+		
+		
+		TopologyNode sourc = koaProtPid >= 0 ? (KoalaNode)src.getProtocol(koaNodePid) : (RenaterNode)src.getProtocol(renNodePid);
+		TopologyNode dest = koaProtPid >= 0 ? (KoalaNode)dst.getProtocol(koaNodePid) : (RenaterNode)dst.getProtocol(renNodePid);
+		
+		Transport tr = (Transport)src.getProtocol(FastConfig.getTransport(renProtPid));
+		
+		if(renProtPid >= 0){
+        	KoalaMessage msg = new KoalaMessage( new KoalaRouteMsgContent(dest.getID()));
+        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
+        	tr.send(null, src, msg, renProtPid);
+		}
+		
+		if(koaProtPid >= 0){
+			KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(dest.getID()));
+        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
+        	tr.send(null, src, msg, koaProtPid);
+		}
+		
+		if(chordProtPid >= 0){
+			ChordNode destCn = (ChordNode)dst.getProtocol(chordNodePid);
+			KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(destCn.chordId.toString()));
+        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
+        	tr.send(null, src, msg, chordProtPid);
+		}
+		
+		
+		System.out.println("(" + CommonState.getTime() + ") ROUTE " + sourc.getID() + " -> " + dest.getID());
+		ResultCollector.addSentMsg(msgID, dst);
+		msgID++;
+		
+	}
+	
+	private void initilizeRoutes(){
+		for(int i = 0; i < CommonState.getEndTime(); i++){
+			int count = 1;
+			ArrayList<Node> sources = getRandomNodes(count, true, new ArrayList<Node>());
+			ArrayList<Node> dests = getRandomNodes(count, true, sources);
+			routes.add(new Node[]{sources.get(0), dests.get(0)});
+		}
+	}
+	
+	
 	
 	
 	

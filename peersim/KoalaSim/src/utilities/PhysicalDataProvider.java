@@ -124,7 +124,8 @@ public class PhysicalDataProvider {
 	}
 	
 	public static double getDefaultInterLatency(){
-		return getMaxIntraLatency()/16;
+//		return getMaxIntraLatency()/16;
+		return getMaxIntraLatency()/32;
 	}
 	
 	public static double getDefaultIntraLatency(){

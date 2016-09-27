@@ -351,9 +351,9 @@ public class KoalaNode extends TopologyNode{
     
     public String getRoute(String dest, KoalaMessage msg) {
     	String normal = getRoute_temp(dest, msg, NodeUtilities.B);
-//    	String no_latency = getRoute_temp(dest, msg, 1);
-//    	if(!normal.equals(no_latency))
-//    		this.nrMsgRoutedByLatency++;
+    	String no_latency = getRoute_temp(dest, msg, 1);
+    	if(!normal.equals(no_latency))
+    		this.nrMsgRoutedByLatency++;
     	return normal;
     }
     

@@ -84,9 +84,9 @@ public class KoalaInitializer implements Control {
 				Node n = Network.get(inx.get(i));
 				if(koaProtPid > -1){
 					KoalaNode kn = (KoalaNode )n.getProtocol(FastConfig.getLinkable( koaProtPid));
-//					setLongLinksKlein(totalNrLongLinks, kn);
+					setLongLinksKlein(totalNrLongLinks, kn);
 //					setLongLinksRand(totalNrLongLinks, kn);
-					setLongLinks(100, kn);
+//					setLongLinks(100, kn);
 				}
 				
 			}
@@ -108,7 +108,8 @@ public class KoalaInitializer implements Control {
 		for(int i =0; i < n; i++){
 			Node node = Network.get(CommonState.r.nextInt(Network.size()));
 			KoalaNode kn = (KoalaNode )node.getProtocol(FastConfig.getLinkable( koaProtPid));
-			KoalaNeighbor kneigh = new KoalaNeighbor(kn.getID(), PhysicalDataProvider.getDefaultInterLatency());
+//			KoalaNeighbor kneigh = new KoalaNeighbor(kn.getID(), PhysicalDataProvider.getDefaultInterLatency());
+			KoalaNeighbor kneigh = new KoalaNeighbor(kn.getID(), PhysicalDataProvider.getLatency(k.getID(), kn.getID()));
 			pll.add(kneigh);
 		}
 		
@@ -157,6 +158,7 @@ public class KoalaInitializer implements Control {
 		while(nids.size() != k){
 			int nid = (int)(Math.exp(Math.log(n) * (CommonState.r.nextDouble()-1.0))*n);
 			nids.add(nid);
+//			System.out.println(nids.size());
 		}
 		
 		for(Integer dist : nids){
