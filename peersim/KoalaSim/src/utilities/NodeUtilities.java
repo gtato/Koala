@@ -170,18 +170,41 @@ public class NodeUtilities {
 		return ids;
 	}
 	
+//	public static double normalizeLatency(int totDistance, double latency) {
+//		double x1 = PhysicalDataProvider.getMinInterLatency();
+//        double y1 = 1;
+//        double x2 = PhysicalDataProvider.getMaxInterLatency();
+//        double y2 = (double) 1 / totDistance;
+//
+//        double sl = (double) (y2-y1)/(x2 - x1);
+//
+//        double y = (double) sl * (latency - x1) + y1;
+//        return y;
+//	}
+	
+	
+//	marin's normalization
+//	public static double normalizeLatency(int totDistance, double latency) {
+//		return 1 - (latency/PhysicalDataProvider.getMaxInterLatency()); 
+//	}
+	
 	public static double normalizeLatency(int totDistance, double latency) {
-		double x1 = 1;
+		double x1 = PhysicalDataProvider.getAvgInterLatency() - 2*PhysicalDataProvider.getStdInterLatency();
         double y1 = 1;
-        double x2 = PhysicalDataProvider.getMaxInterLatency();
+        double x2 = PhysicalDataProvider.getAvgInterLatency() + 2*PhysicalDataProvider.getStdInterLatency();
         double y2 = (double) 1 / totDistance;
 
+        if(latency > x2)
+        	latency = x2;
+        
+        if(latency < x1)
+        	latency = x1;
+        
         double sl = (double) (y2-y1)/(x2 - x1);
 
         double y = (double) sl * (latency - x1) + y1;
         return y;
-	}
-	
+	}	
 	
 	
 	public static double[] getCoordinatesBetweenTwoPoints(double[] p1, double[] p2){

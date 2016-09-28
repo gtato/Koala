@@ -195,7 +195,7 @@ public class KoalaProtocol extends TopologyProtocol{
 			if( res == 2 || (res == 1 && isSource && sourceJoining))
 				newNeighbors.add(new KoalaNeighbor(recNeighbor.getNodeID(), l));
 			else if (res < 0 && recNeighbor.getNodeID().equals(source.getID())){				
-				String dest = myNode.getRoute(source.getID(), msg);
+				String dest = myNode.getRoute(source.getID(), msg).getNodeID();
 				msg.setConfidential(false);
 				send(dest, msg);
 			}
@@ -249,13 +249,19 @@ public class KoalaProtocol extends TopologyProtocol{
 	
 	protected void onRoute(KoalaMessage msg){
         String nid = ((KoalaRouteMsgContent)msg.getContent()).getId();
+        boolean wantsToUpdateLatency = ((KoalaRouteMsgContent)msg.getContent()).wantsToUpdateLatency();
         if(msg.getLastSender() != null && msg.getLastSender().length() > 0 && !msg.getLastSender().equals(myNode.getID())){
 	        myNode.updateLatencyPerDC(msg.getLastSender(), msg.getLatency(), 3);
 	        myNode.updateLatencies();
         }
         if(!nid.equals(myNode.getID())){
         	myNode.nrMsgRouted++;
-            send(myNode.getRoute(nid, msg), msg);
+            KoalaNeighbor kn = myNode.getRoute(nid, msg);
+            //TODO: maybe ask to update latency even in other cases (for the moment ask only if quality is really bad)
+            boolean updateLat = kn.getLatencyQuality() == 0? true:false;
+            updateLat = false; //TODO:disabled for the moment 
+            ((KoalaRouteMsgContent)msg.getContent()).setUpdateLatency(updateLat);
+        	send(kn.getNodeID(), msg);
         }else{
         	onReceivedMsg(msg);
         	
@@ -264,9 +270,14 @@ public class KoalaProtocol extends TopologyProtocol{
 	        	myNode.getRoutingTable().addLongLink(ll);
 	        	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
 	        	send(msg.getFirstSender(), newMsg);
-        	}
-        	
+        	}        	
         }
+        
+        if(!initializeMode && wantsToUpdateLatency){
+        	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
+        	send(msg.getLastSender(), newMsg);
+        }
+        	
 	}
 	
 	@Override

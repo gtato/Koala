@@ -79,7 +79,7 @@ public class KoalaInitializer implements Control {
 		}
 		
 		if(longlinks){
-			int totalNrLongLinks = 20;
+			int totalNrLongLinks = 100;
 			for (int i = 0; i < nr; i++) {
 				Node n = Network.get(inx.get(i));
 				if(koaProtPid > -1){
@@ -90,7 +90,7 @@ public class KoalaInitializer implements Control {
 				}
 				
 			}
-			System.out.println("Average nr of long links: " + (double)totalNrLongLinks/nr);
+			System.out.println("Average nr of long links: " + (double)totalNrLongLinks);
 		}
 		
 		
@@ -163,8 +163,13 @@ public class KoalaInitializer implements Control {
 		
 		for(Integer dist : nids){
 			String[] ids = NodeUtilities.getIDFromDistance(kn.getID(), dist, false);
-			KoalaNeighbor kneigh1 = new KoalaNeighbor(ids[0], PhysicalDataProvider.getDefaultInterLatency());
-			KoalaNeighbor kneigh2 = new KoalaNeighbor(ids[1], PhysicalDataProvider.getDefaultInterLatency());
+//			KoalaNeighbor kneigh1 = new KoalaNeighbor(ids[0], PhysicalDataProvider.getDefaultInterLatency());
+//			KoalaNeighbor kneigh2 = new KoalaNeighbor(ids[1], PhysicalDataProvider.getDefaultInterLatency());
+//			
+			KoalaNeighbor kneigh1 = new KoalaNeighbor(ids[0], PhysicalDataProvider.getLatency(ids[0], kn.getID()));
+			KoalaNeighbor kneigh2 = new KoalaNeighbor(ids[1], PhysicalDataProvider.getLatency(ids[1], kn.getID()));
+			
+			
 			if(CommonState.r.nextInt() % 2 == 0)
 				kn.getRoutingTable().addLongLink(kneigh1);
 			else

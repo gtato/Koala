@@ -85,6 +85,8 @@ public class WireRenater extends WireGraph {
 		
 		//set max latency (according to Dijkstra)
 		NodeUtilities.initializeCategories();
+//		PhysicalDataProvider.printLatencyStats();
+		PhysicalDataProvider.setLatencyStats();
 	}
 
 	

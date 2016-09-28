@@ -58,6 +58,9 @@ public class RenaterInitializer implements Control {
     	
 	@Override
 	public boolean execute() {
+		double alpha = Configuration.getDouble("ALPHA", -2.0);
+		System.out.println("ALPHA set to " + alpha);
+		
 		System.out.println("\nSetting up renater nodes, positioning and gateways ");
 		//initialize the gson parser
 		KoalaJsonParser.intitialize();

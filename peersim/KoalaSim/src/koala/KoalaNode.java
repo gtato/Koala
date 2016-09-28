@@ -349,16 +349,16 @@ public class KoalaNode extends TopologyNode{
 //		return res;
 //	}
     
-    public String getRoute(String dest, KoalaMessage msg) {
-    	String normal = getRoute_temp(dest, msg, NodeUtilities.B);
-    	String no_latency = getRoute_temp(dest, msg, 1);
-    	if(!normal.equals(no_latency))
+    public KoalaNeighbor getRoute(String dest, KoalaMessage msg) {
+    	KoalaNeighbor normal = getRoute_temp(dest, msg, NodeUtilities.B);
+    	KoalaNeighbor no_latency = getRoute_temp(dest, msg, 1);
+    	if(!normal.getNodeID().equals(no_latency.getNodeID()))
     		this.nrMsgRoutedByLatency++;
     	return normal;
     }
     
-  public String getRoute_temp(String dest, KoalaMessage msg, double alpha) {
-	String ret = null;
+  public KoalaNeighbor getRoute_temp(String dest, KoalaMessage msg, double alpha) {
+	KoalaNeighbor ret = null;
 	AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
 	double v=0;
 	Set<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
@@ -379,9 +379,9 @@ public class KoalaNode extends TopologyNode{
 		}));
 	
 	if(potentialDests.size() > 1 && potentialDests.get(0).getValue().getNodeID().equals(msg.getLastSender()))
-		ret = potentialDests.get(1).getValue().getNodeID(); 
+		ret = potentialDests.get(1).getValue(); 
 	else
-		ret = potentialDests.get(0).getValue().getNodeID();
+		ret = potentialDests.get(0).getValue();
 
 	return ret;
 }

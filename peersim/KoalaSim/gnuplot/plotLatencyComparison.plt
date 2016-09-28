@@ -7,6 +7,7 @@ if (!exists("filename3")) filename3='../out/results/resultsA1.0.dat'
 
 if (!exists("filename4")) filename4='../out/results/resultsA0.25.dat'
 if (!exists("filename5")) filename5='../out/results/resultsA0.75.dat'
+if (!exists("filename6")) filename6='../out/results/resultsA-1.0.dat'
 
 set title "Comparison of latencies"
 set xlabel "Time"
@@ -24,7 +25,8 @@ plot filename1 using 2 title "Renater" smooth csplines with lines lc rgb "forest
 	 filename1 using 4 title "Koala A=0" smooth csplines with lines lc rgb "web-blue" , \
 	 filename2 using 4 title "Koala A=0.5" smooth csplines with lines lc rgb "blue" , \
 	 filename3 using 4 title "Koala A=1" smooth csplines with lines lc rgb "violet" ,\
-	 filename4 using 4 title "Koala random" smooth csplines with lines lc rgb "green" #, \
-	 #filename5 using 4 title "Koala A=0.75" smooth csplines with lines lc rgb "yellow"
+	 filename4 using 4 title "Koala A=0.25" smooth csplines with lines lc rgb "green" ,\
+	 filename5 using 4 title "Koala A=0.75" smooth csplines with lines lc rgb "brown" ,\
+	 filename6 using 4 title "Koala random" smooth csplines with lines lc rgb "orange"
 	 
 pause mouse close

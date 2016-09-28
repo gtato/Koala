@@ -8,12 +8,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Set;
 
+import koala.KoalaNode;
 import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
@@ -27,7 +29,11 @@ public class PhysicalDataProvider {
 	private static HashMap<String, String> paths= new HashMap<String, String>();
 	private static double maxInterLatency = 0;
 	private static double minInterLatency = Double.MAX_VALUE;
+	private static double avgInterLatency = 0;
+	private static double stdInterLatency = 0;
+	
 	private static double maxInraLatency = 0;
+	
 //	private static double defaultInterLatency = 0;
 //	private static double defaultIntraLatency = 0;
 	public static String DijsktraFile = "out/dijkstra/dijsktra"+Network.size()+".dat";
@@ -111,8 +117,85 @@ public class PhysicalDataProvider {
 		
 	}
 	
+	
+	public static void setLatencyStats(){
+//		double avg, std, tot;
+		double tot = 0;
+		int i = 0;
+		ArrayList<Double> lats = new ArrayList<Double>(latencies.values());
+		for(Double lat : latencies.values()){
+			tot += lat;
+			i++;
+		}
+		avgInterLatency = tot/i;
+		
+		double sum=0;
+		for (Double lat : latencies.values()) 
+			sum += Math.pow(lat - avgInterLatency, 2);
+		
+		stdInterLatency = Math.sqrt(sum/latencies.size());
+		
+//		int betweenStd = 0;
+//		for(Double lat : latencies.values()){
+//			if(lat < avg + 2*std && lat > avg -2*std)
+//				betweenStd++; 
+//		}
+//		
+//		
+//		System.out.println("min: "+ minInterLatency + ", avg: " + avg + ", max: "
+//		+ maxInterLatency + ", std: " + std + ", bettwen +-std: " + ((double)betweenStd/latencies.size())*100 + "%" );
+//		
+//		Collections.sort(lats);
+//		for(int j=0; j < lats.size(); j++){
+//			System.out.println(j+" " + lats.get(j));
+//		}
+			
+	}
+	
+	public static void printLatencyStats(){
+		double avg, std, tot;
+		tot = 0;
+		int i = 0;
+		ArrayList<Double> lats = new ArrayList<Double>(latencies.values());
+		for(Double lat : latencies.values()){
+			tot += lat;
+			i++;
+		}
+		avg = tot/i;
+		
+		double sum=0;
+		for (Double lat : latencies.values()) 
+			sum += Math.pow(lat - avg, 2);
+		
+		std = Math.sqrt(sum/latencies.size());
+		
+		int betweenStd = 0;
+		for(Double lat : latencies.values()){
+			if(lat < avg + 2*std && lat > avg -2*std)
+				betweenStd++; 
+		}
+		
+		
+		System.out.println("min: "+ minInterLatency + ", avg: " + avg + ", max: "
+		+ maxInterLatency + ", std: " + std + ", bettwen +-std: " + ((double)betweenStd/latencies.size())*100 + "%" );
+		
+//		Collections.sort(lats);
+//		for(int j=0; j < lats.size(); j++){
+//			System.out.println(j+" " + lats.get(j));
+//		}
+			
+	}
+	
 	public static double getMaxInterLatency(){
 		return maxInterLatency;
+	}
+	
+	public static double getAvgInterLatency(){
+		return avgInterLatency;
+	}
+
+	public static double getStdInterLatency(){
+		return stdInterLatency;
 	}
 	
 	public static double getMaxIntraLatency(){
@@ -124,8 +207,9 @@ public class PhysicalDataProvider {
 	}
 	
 	public static double getDefaultInterLatency(){
-//		return getMaxIntraLatency()/16;
-		return getMaxIntraLatency()/32;
+		return getMaxIntraLatency()/16;
+//		return getMaxIntraLatency()/32;
+//		return getMaxIntraLatency()/64;
 	}
 	
 	public static double getDefaultIntraLatency(){
