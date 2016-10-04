@@ -16,6 +16,7 @@ import peersim.transport.Transport;
 import renater.RenaterNode;
 import renater.RenaterProtocol;
 import topology.TopologyNode;
+import utilities.NodeUtilities;
 
 public class KoalaPlanner extends GraphObserver {
 
@@ -153,6 +154,7 @@ public class KoalaPlanner extends GraphObserver {
 	private void route() {
 		if(CommonState.getTime() == 0){
 			initilizeRoutes();
+//			routes.add(0, new Node[]{NodeUtilities.Nodes.get("0-0"), NodeUtilities.Nodes.get("400-0")});
 		}
 		
 		if(routes.size() == 0)

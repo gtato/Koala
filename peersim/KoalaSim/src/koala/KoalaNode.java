@@ -295,100 +295,46 @@ public class KoalaNode extends TopologyNode{
     	}
     }
     	
-	
-//    public String getRoute(String dest, KoalaMessage msg) {
-//    	String ret = null;
-//    	AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
-//    	double v=0;
-//    	Set<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
-//    	ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>(); 
-//
-//    	for(KoalaNeighbor re : rt){
-//    		v = getRouteValue(dest, re);
-//    		mre = new AbstractMap.SimpleEntry<Double, KoalaNeighbor>(v, re);
-//    		potentialDests.add(mre);
-//
-//    	}
-//    	Collections.sort(potentialDests, Collections.reverseOrder(new Comparator<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>() {
-//			@Override
-//			public int compare(AbstractMap.SimpleEntry<Double, KoalaNeighbor> o1, AbstractMap.SimpleEntry<Double, KoalaNeighbor> o2) {
-//				return o1.getKey().compareTo(o2.getKey());
-//				
-//			}
-//			}));
-//    	
-//    	if(potentialDests.size() > 1 && potentialDests.get(0).getValue().getNodeID().equals(msg.getLastSender()))
-//    		ret = potentialDests.get(1).getValue().getNodeID(); 
-//    	else
-//    		ret = potentialDests.get(0).getValue().getNodeID();
-//
-//    	return ret;
-//	}
-
-    
- 
-//	private double getRouteValue(String dest, KoalaNeighbor re) {
-//		double res = 0;
-//
-//		if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
-//            res = Double.MAX_VALUE - NodeUtilities.A * NodeUtilities.distance(re.getNodeID(), dest);
-//        
-//		else if( this.dcID == NodeUtilities.getDCID(re.getNodeID()))
-//            res = NodeUtilities.A * NodeUtilities.distance(this.getID(), re.getNodeID());
-//        
-//		else if( NodeUtilities.distance(this.getID(), dest) > NodeUtilities.distance(re.getNodeID(), dest)){
-//            int tot_distance = NodeUtilities.distance(this.getID(), dest);
-//            double distance = (double) NodeUtilities.distance(this.getID(), re.getNodeID()) / tot_distance;
-//            double norm_latency = NodeUtilities.normalizeLatency(tot_distance, re.getLatency());
-//            res = 1 + NodeUtilities.B * distance + NodeUtilities.C * norm_latency;
-//        }
-//        
-//		else if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
-//            res = -1; 
-//        
-//		return res;
-//	}
     
     public KoalaNeighbor getRoute(String dest, KoalaMessage msg) {
-    	KoalaNeighbor normal = getRoute_temp(dest, msg, NodeUtilities.B);
-    	KoalaNeighbor no_latency = getRoute_temp(dest, msg, 1);
+    	KoalaNeighbor normal = getRouteForAlpha(dest, msg, NodeUtilities.B);
+    	KoalaNeighbor no_latency = getRouteForAlpha(dest, msg, 1);
     	if(!normal.getNodeID().equals(no_latency.getNodeID()))
     		this.nrMsgRoutedByLatency++;
     	return normal;
     }
     
-  public KoalaNeighbor getRoute_temp(String dest, KoalaMessage msg, double alpha) {
-	KoalaNeighbor ret = null;
-	AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
-	double v=0;
-	Set<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
-	ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>(); 
-
-	for(KoalaNeighbor re : rt){
-		v = getRouteValue_temp(dest, re, alpha);
-		mre = new AbstractMap.SimpleEntry<Double, KoalaNeighbor>(v, re);
-		potentialDests.add(mre);
-
-	}
-	Collections.sort(potentialDests, Collections.reverseOrder(new Comparator<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>() {
-		@Override
-		public int compare(AbstractMap.SimpleEntry<Double, KoalaNeighbor> o1, AbstractMap.SimpleEntry<Double, KoalaNeighbor> o2) {
-			return o1.getKey().compareTo(o2.getKey());
-			
-		}
-		}));
+    public KoalaNeighbor getRouteForAlpha(String dest, KoalaMessage msg, double alpha) {
+		KoalaNeighbor ret = null;
+		AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
+		double v=0;
+		Set<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
+		ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>(); 
 	
-	if(potentialDests.size() > 1 && potentialDests.get(0).getValue().getNodeID().equals(msg.getLastSender()))
-		ret = potentialDests.get(1).getValue(); 
-	else
-		ret = potentialDests.get(0).getValue();
-
-	return ret;
-}
+		for(KoalaNeighbor re : rt){
+			v = getRouteValue(dest, re, alpha);
+			mre = new AbstractMap.SimpleEntry<Double, KoalaNeighbor>(v, re);
+			potentialDests.add(mre);
+	
+		}
+		Collections.sort(potentialDests, Collections.reverseOrder(new Comparator<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>() {
+			@Override
+			public int compare(AbstractMap.SimpleEntry<Double, KoalaNeighbor> o1, AbstractMap.SimpleEntry<Double, KoalaNeighbor> o2) {
+				return o1.getKey().compareTo(o2.getKey());
+				
+			}
+			}));
+		
+		if(potentialDests.size() > 1 && potentialDests.get(0).getValue().getNodeID().equals(msg.getLastSender()))
+			ret = potentialDests.get(1).getValue(); 
+		else
+			ret = potentialDests.get(0).getValue();
+	
+		return ret;
+    }
 
     
-	
-	private double getRouteValue_temp(String dest, KoalaNeighbor re, double alpha) {
+	private double getRouteValue(String dest, KoalaNeighbor re, double alpha) {
 		double res = 0;
 
 		if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
@@ -399,18 +345,14 @@ public class KoalaNode extends TopologyNode{
         
 		else if( NodeUtilities.distance(this.getID(), dest) > NodeUtilities.distance(re.getNodeID(), dest)){
             int tot_distance = NodeUtilities.distance(this.getID(), dest);
-            int distNext = NodeUtilities.distance(this.getID(), re.getNodeID());
-            double distance;
-            if (distNext < tot_distance)
-            	distance = (double) distNext / tot_distance;
-            else 
-            	distance = (double)( 2*tot_distance - distNext) / tot_distance;
-            	
+            int rem_distance = NodeUtilities.distance(dest, re.getNodeID());
+            
+            double norm_dist =  1 - (double)rem_distance/tot_distance;
             double norm_latency = NodeUtilities.normalizeLatency(tot_distance, re.getLatency());
-            res = 1 + alpha * distance + (1-alpha) * norm_latency;
+            res = 1 + alpha * norm_dist + (1-alpha) * norm_latency;
             
             if(alpha == -1)
-            	res = CommonState.r.nextInt(100);
+            	res = 1+CommonState.r.nextInt(100);
         }
         
 		else if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
@@ -418,7 +360,8 @@ public class KoalaNode extends TopologyNode{
         
 		return res;
 	}
-    
+	
+	
 	public Set<String> createRandomIDs(int nr){
         Set<String> rids = new HashSet<String>();
         while( rids.size() < nr){

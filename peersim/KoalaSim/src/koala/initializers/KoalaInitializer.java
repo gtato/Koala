@@ -79,12 +79,23 @@ public class KoalaInitializer implements Control {
 		}
 		
 		if(longlinks){
-			int totalNrLongLinks = 100;
+			int totalNrLongLinks = 20;
 			for (int i = 0; i < nr; i++) {
 				Node n = Network.get(inx.get(i));
 				if(koaProtPid > -1){
 					KoalaNode kn = (KoalaNode )n.getProtocol(FastConfig.getLinkable( koaProtPid));
 					setLongLinksKlein(totalNrLongLinks, kn);
+					
+//					if(kn.getID().equals("0-0")){
+//						kn.getRoutingTable().clearLongLinks();
+//						String[] newll = new String[]{"200-0", "450-0", "600-0", "700-0", "550-0" };
+//						for(int j = 0; j < newll.length; j++){
+//							KoalaNeighbor kneigh = new KoalaNeighbor(newll[j], PhysicalDataProvider.getLatency(newll[j], kn.getID()), 3);
+//							kn.getRoutingTable().addLongLink(kneigh);
+//						}
+//					}
+					
+					
 //					setLongLinksRand(totalNrLongLinks, kn);
 //					setLongLinks(100, kn);
 				}
@@ -163,11 +174,11 @@ public class KoalaInitializer implements Control {
 		
 		for(Integer dist : nids){
 			String[] ids = NodeUtilities.getIDFromDistance(kn.getID(), dist, false);
-//			KoalaNeighbor kneigh1 = new KoalaNeighbor(ids[0], PhysicalDataProvider.getDefaultInterLatency());
-//			KoalaNeighbor kneigh2 = new KoalaNeighbor(ids[1], PhysicalDataProvider.getDefaultInterLatency());
-//			
-			KoalaNeighbor kneigh1 = new KoalaNeighbor(ids[0], PhysicalDataProvider.getLatency(ids[0], kn.getID()));
-			KoalaNeighbor kneigh2 = new KoalaNeighbor(ids[1], PhysicalDataProvider.getLatency(ids[1], kn.getID()));
+			KoalaNeighbor kneigh1 = new KoalaNeighbor(ids[0], PhysicalDataProvider.getDefaultInterLatency());
+			KoalaNeighbor kneigh2 = new KoalaNeighbor(ids[1], PhysicalDataProvider.getDefaultInterLatency());
+			
+//			KoalaNeighbor kneigh1 = new KoalaNeighbor(ids[0], PhysicalDataProvider.getLatency(ids[0], kn.getID()),3);
+//			KoalaNeighbor kneigh2 = new KoalaNeighbor(ids[1], PhysicalDataProvider.getLatency(ids[1], kn.getID()),3);
 			
 			
 			if(CommonState.r.nextInt() % 2 == 0)

@@ -84,7 +84,7 @@ public class RenaterInitializer implements Control {
         double[][] centerPerDC = getCenterPerDC(lines);
         int[] nodesPerDC = getNodesPerDC(true, lines);
         
-        ArrayList<RenaterNode> gateways = new ArrayList<RenaterNode>(); 
+         
         int j, k;
         j = k = 0;
         double[] cords;
@@ -100,6 +100,7 @@ public class RenaterInitializer implements Control {
             koalaNode.setID(j, k);
             koalaNode.setNode(n);
             renaterNode.setID(j+"-"+k);
+            renaterNode.setPid(phid);
             renaterNode.setNode(n);
             chordNode.setID(j+"-"+k);
             NodeUtilities.Nodes.put(j+"-"+k, n);
@@ -107,7 +108,7 @@ public class RenaterInitializer implements Control {
             k++;
             if(nodesPerDC[j] == 0){
             	cords = new double[]{centerPerDC[j][0], centerPerDC[j][1]};
-            	gateways.add(renaterNode);
+            	NodeUtilities.Gateways.put(j+"", renaterNode);
             	j++;
             	k=0;
             }else
@@ -120,12 +121,8 @@ public class RenaterInitializer implements Control {
         for (int i = 0; i < Network.size(); i++) {
         	n = Network.get(i);
             renaterNode = (RenaterNode) n.getProtocol(phid);
-            for(RenaterNode gateway: gateways){
-            	if(!renaterNode.equals(gateway) && renaterNode.getID().split("-")[0].equals(gateway.getID().split("-")[0])){
-            		renaterNode.setGateway(gateway.getID());
-            		break;
-            	}
-            }
+            if(renaterNode.isGateway()) continue;
+            renaterNode.setGateway(NodeUtilities.Gateways.get(renaterNode.getID().split("-")[0]).getID());
             renaterNode.setJoined(true);
         }
         

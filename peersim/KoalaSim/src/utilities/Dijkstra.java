@@ -2,11 +2,12 @@ package utilities;
 
 import java.util.*;
 
+import peersim.core.Node;
 import renater.RenaterNode;
 
 public class Dijkstra {
 
-	private List<Edge> edges;
+	private Map<String, Edge> edges;
 	private Set<RenaterNode> settledNodes;
 	private Set<RenaterNode> unSettledNodes;
 	private Map<RenaterNode, RenaterNode> predecessors;
@@ -14,18 +15,18 @@ public class Dijkstra {
 	private Map<String, Double> allDistance;
 
 	public Dijkstra() {
-		this.edges = new ArrayList<Edge>();
+		this.edges = new HashMap<String, Edge>();
 		this.allDistance = new HashMap<String, Double>();
 	}
 	
 	public Dijkstra(Graph graph) {
 		// create a copy of the array so that we can operate on this array
-		this.edges = new ArrayList<Edge>(graph.getEdges());
+		this.edges = new HashMap<String, Edge>(graph.getEdges());
 		this.allDistance = new HashMap<String, Double>();
 	}
 
 	public void setGraph(Graph graph){
-		this.edges = new ArrayList<Edge>(graph.getEdges());
+		this.edges = graph.getEdges();
 		this.allDistance = new HashMap<String, Double>();
 	}
 	
@@ -49,8 +50,9 @@ public class Dijkstra {
 	}
 
 	private void findMinimalDistances(RenaterNode node) {
-		List<RenaterNode> adjacentNodes = getNeighbors(node);
-		for (RenaterNode target : adjacentNodes) {
+		ArrayList<Node> adjacentNodes = node.getNeighbors();// getNeighbors(node);
+		for (Node adjac: adjacentNodes) {
+			RenaterNode target = (RenaterNode)adjac.getProtocol(node.getPid());
 			if (getShortestDistance(target) > getShortestDistance(node)
 					+ getDistance(node, target)) {
 				double dist = getShortestDistance(node) + getDistance(node, target);
@@ -63,25 +65,27 @@ public class Dijkstra {
 	}
 
 	private double getDistance(RenaterNode node, RenaterNode target) {
-		for (Edge edge : edges) {
-			if (edge.getSource().equals(node)
-					&& edge.getDestination().equals(target)) {
-				return edge.getWeight();
-			}
-		}
-		throw new RuntimeException("Should not happen");
+		return edges.get(NodeUtilities.getKeyStrID(node.getID(), target.getID())).getWeight();
+//		for (Edge edge : edges) {
+//			if (edge.getSource().equals(node)
+//					&& edge.getDestination().equals(target)) {
+//				return edge.getWeight();
+//			}
+//		}
+//		throw new RuntimeException("Should not happen");
 	}
 
-	private List<RenaterNode> getNeighbors(RenaterNode node) {
-		List<RenaterNode> neighbors = new ArrayList<RenaterNode>();
-		for (Edge edge : edges) {
-			if (edge.getSource().equals(node)
-					&& !isSettled(edge.getDestination())) {
-				neighbors.add(edge.getDestination());
-			}
-		}
-		return neighbors;
-	}
+//	private List<RenaterNode> getNeighbors(RenaterNode node) {
+//		node.getn
+//		List<RenaterNode> neighbors = new ArrayList<RenaterNode>();
+//		for (Edge edge : edges) {
+//			if (edge.getSource().equals(node)
+//					&& !isSettled(edge.getDestination())) {
+//				neighbors.add(edge.getDestination());
+//			}
+//		}
+//		return neighbors;
+//	}
 
 	public double getShortestDistanceBetween(RenaterNode src, RenaterNode dst){
 		String key = NodeUtilities.getKeyStrID(src.getID(), dst.getID());
@@ -141,67 +145,67 @@ public class Dijkstra {
 
 	public static void main(String[] args){
 		
-		List<RenaterNode> nodes = new ArrayList<RenaterNode>();
-		List<Edge> edges = new ArrayList<Edge>();
-		Graph graph = new Graph(nodes, edges);
-		
-		for (int i = 0; i < 11; i++) {
-			RenaterNode location = new RenaterNode("xxx");
-			location.setID("1-"+i);
-			nodes.add(location);
-		}
-		
-		graph.addEdge("Edge_0", 0, 1, 85);
-		graph.addEdge("Edge_1", 0, 2, 217);
-		graph.addEdge("Edge_2", 0, 4, 173);
-		graph.addEdge("Edge_3", 2, 6, 186);
-		graph.addEdge("Edge_4", 2, 7, 103);
-		graph.addEdge("Edge_5", 3, 7, 183);
-		graph.addEdge("Edge_6", 5, 8, 250);
-		graph.addEdge("Edge_7", 8, 9, 84);
-		graph.addEdge("Edge_8", 7, 9, 167);
-		graph.addEdge("Edge_9", 4, 9, 502);
-		graph.addEdge("Edge_10", 9, 10, 40);
-		graph.addEdge("Edge_11", 1, 10, 600);
-
-		
-		Dijkstra dijkstra = new Dijkstra(graph);
-		dijkstra.execute(nodes.get(0));
-		LinkedList<RenaterNode> path = dijkstra.getPath(nodes.get(10));
-
-
-		for (RenaterNode vertex : path) {
-			System.out.println(vertex);
-		}
+//		List<RenaterNode> nodes = new ArrayList<RenaterNode>();
+//		List<Edge> edges = new ArrayList<Edge>();
+//		Graph graph = new Graph(nodes, edges);
+//		
+//		for (int i = 0; i < 11; i++) {
+//			RenaterNode location = new RenaterNode("xxx");
+//			location.setID("1-"+i);
+//			nodes.add(location);
+//		}
+//		
+//		graph.addEdge("Edge_0", 0, 1, 85);
+//		graph.addEdge("Edge_1", 0, 2, 217);
+//		graph.addEdge("Edge_2", 0, 4, 173);
+//		graph.addEdge("Edge_3", 2, 6, 186);
+//		graph.addEdge("Edge_4", 2, 7, 103);
+//		graph.addEdge("Edge_5", 3, 7, 183);
+//		graph.addEdge("Edge_6", 5, 8, 250);
+//		graph.addEdge("Edge_7", 8, 9, 84);
+//		graph.addEdge("Edge_8", 7, 9, 167);
+//		graph.addEdge("Edge_9", 4, 9, 502);
+//		graph.addEdge("Edge_10", 9, 10, 40);
+//		graph.addEdge("Edge_11", 1, 10, 600);
+//
+//		
+//		Dijkstra dijkstra = new Dijkstra(graph);
+//		dijkstra.execute(nodes.get(0));
+//		LinkedList<RenaterNode> path = dijkstra.getPath(nodes.get(10));
+//
+//
+//		for (RenaterNode vertex : path) {
+//			System.out.println(vertex);
+//		}
 	}
 
 
 
 	public static class Graph {
-		private final List<RenaterNode> vertexes;
-		private final List<Edge> edges;
+		private final HashMap<String, RenaterNode> vertexes;
+		private final HashMap<String, Edge> edges;
 
-		public Graph(List<RenaterNode> vertexes, List<Edge> edges) {
+		public Graph(HashMap<String, RenaterNode> vertexes, HashMap<String, Edge> edges) {
 			this.vertexes = vertexes;
 			this.edges = edges;
 		}
 
-		public List<RenaterNode> getVertexes() {
+		public HashMap<String, RenaterNode> getVertexes() {
 			return vertexes;
 		}
 
-		public List<Edge> getEdges() {
+		public HashMap<String, Edge> getEdges() {
 			return edges;
 		}
 		
-		public void addEdge(String laneId, int sourceLocNo, int destLocNo, int duration) {
-			Edge lane = new Edge(laneId,vertexes.get(sourceLocNo), vertexes.get(destLocNo), duration);
-			edges.add(lane);
-		}
+//		public void addEdge(String laneId, int sourceLocNo, int destLocNo, int duration) {
+//			Edge lane = new Edge(laneId,vertexes.get(sourceLocNo), vertexes.get(destLocNo), duration);
+//			edges.add(lane);
+//		}
 		
-		public void addEdge(String laneId, RenaterNode source, RenaterNode destination, double duration) {
-			Edge lane = new Edge(laneId,source, destination, duration);
-			edges.add(lane);
+		public void addEdge(RenaterNode source, RenaterNode destination, double duration) {
+			Edge lane = new Edge(NodeUtilities.getKeyStrID(source.getID(), destination.getID()),source, destination, duration);
+			edges.put(lane.getId(), lane);
 		}
 
 	

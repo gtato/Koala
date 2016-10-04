@@ -13,6 +13,17 @@ set title "Comparison of latencies"
 set xlabel "Time"
 set ylabel 'Latency'
 
+
+titler = "Renater"
+titlec = "Chord"
+title1 = "Koala A=0"
+title2 = "Koala A=0.5"
+title3 = "Koala A=1"
+title4 = "Koala A=0.25"
+title5 = "Koala A=0.75"
+title6 = "Koala random"
+
+
 #set ytics "10"
 set yrange [ 0 : * ]
 
@@ -20,13 +31,13 @@ set yrange [ 0 : * ]
 #set title substr(firstrows, 0, strstrt(firstrows, "\n"))
 #set ylabel substr(firstrows, strstrt(firstrows, "\n")+1, strlen(firstrows))
 
-plot filename1 using 2 title "Renater" smooth csplines with lines lc rgb "forest-green" , \
-	 filename1 using 3 title "Chord" smooth csplines with lines lc rgb "red" , \
-	 filename1 using 4 title "Koala A=0" smooth csplines with lines lc rgb "web-blue" , \
-	 filename2 using 4 title "Koala A=0.5" smooth csplines with lines lc rgb "blue" , \
-	 filename3 using 4 title "Koala A=1" smooth csplines with lines lc rgb "violet" ,\
-	 filename4 using 4 title "Koala A=0.25" smooth csplines with lines lc rgb "green" ,\
-	 filename5 using 4 title "Koala A=0.75" smooth csplines with lines lc rgb "brown" ,\
-	 filename6 using 4 title "Koala random" smooth csplines with lines lc rgb "orange"
+plot filename1 using 2 title titler smooth csplines with lines lc rgb "forest-green" , \
+	 filename1 using 3 title titlec smooth csplines with lines lc rgb "red" , \
+	 filename1 using 4 title title1 smooth csplines with lines lc rgb "web-blue" , \
+	 filename2 using 4 title title2 smooth csplines with lines lc rgb "blue" , \
+	 filename3 using 4 title title3 smooth csplines with lines lc rgb "violet" ,\
+	 filename4 using 4 title title4 smooth csplines with lines lc rgb "green" ,\
+	 filename5 using 4 title title5 smooth csplines with lines lc rgb "brown" ,\
+	 filename6 using 4 title title6 smooth csplines with lines lc rgb "orange"
 	 
 pause mouse close

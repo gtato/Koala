@@ -32,7 +32,7 @@ rm -f /tmp/*.mpl
 
 
 group=200
-
+group=100
 
 #plot occurrences in message paths
 f1="/tmp/$RANDOM.mpl"
@@ -51,6 +51,7 @@ f1="/tmp/$RANDOM.mpl"
 
 group=500
 #group=200
+
 #comparision of latency when ALPHA changes
 f1="/tmp/$RANDOM.mpl"
 f2="/tmp/$RANDOM.mpl"

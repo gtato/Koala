@@ -29,6 +29,7 @@ public class NodeUtilities {
 	public static double[] latencyCategories;
 	
 	public static Map<String, Node> Nodes =  new HashMap<String, Node>();
+	public static Map<String, RenaterNode> Gateways =  new HashMap<String, RenaterNode>();
 	
 	public static void initialize(){
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");

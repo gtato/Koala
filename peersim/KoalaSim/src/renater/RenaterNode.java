@@ -41,6 +41,9 @@ public class RenaterNode extends TopologyNode{
         this.gateway = gateway;
     }
 
+    public String getGateway(){
+    	return this.gateway;
+    }
     
     
 	public void addRoute(String dest, String next ){

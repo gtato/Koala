@@ -100,8 +100,8 @@ public class KoalaRoutingTable {
 		for(KoalaNeighbor ll : longLinks){
 			if(ll.getNodeID().equals(kn.getNodeID())){
 				if(kn.getLatencyQuality() >= ll.getLatencyQuality()){
-					ll.setLatency(ll.getLatency());
-					ll.setLatencyQuality(ll.getLatencyQuality());
+					ll.setLatency(kn.getLatency());
+					ll.setLatencyQuality(kn.getLatencyQuality());
 				}
 				return false;
 			}
@@ -111,6 +111,9 @@ public class KoalaRoutingTable {
 		return true;
 	}	
 	
+	public void clearLongLinks(){
+		longLinks.clear();
+	}
 	
 	/*
 	 * These are some simple utility functions
