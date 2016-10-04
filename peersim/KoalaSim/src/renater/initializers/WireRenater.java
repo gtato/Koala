@@ -1,5 +1,7 @@
 package renater.initializers;
 
+
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.AbstractMap;
@@ -24,6 +26,7 @@ import renater.RenaterEdge;
 import renater.RenaterGraph;
 import renater.RenaterNode;
 import utilities.Dijkstra;
+import utilities.DijkstraPlus;
 import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
 import utilities.Dijkstra.Edge;
@@ -72,7 +75,11 @@ public class WireRenater extends WireGraph {
 				wireDCWaxman(gateways); break;	
 		}
 		
-		computeDijsktra(gateways);
+//		computeDijsktra(gateways);
+		computeDijsktraPlus(gateways);
+		
+		
+		
 //		setRenaterRoutes(gateway_indexes);
 		
 		//set max latency (according to Dijkstra)
@@ -491,6 +498,108 @@ public class WireRenater extends WireGraph {
 		return dijkstra;
 	}
 	
+	private Dijkstra computeDijsktraPlus(ArrayList<RenaterNode> gateways) {
+		long startTime = System.currentTimeMillis();
+		boolean file_exists = Files.exists(Paths.get(PhysicalDataProvider.DijsktraFile)); 
+		if(file_exists) { 
+		    System.out.println("Found Dijkstra file!");
+		    PhysicalDataProvider.loadRoutes();
+		    
+		}
+		HashMap<String, DijkstraPlus.Vertex> vertexes = null;
+		if(!file_exists){
+		 
+			vertexes = initializeDijkstraPlus(gateways);
+			PhysicalDataProvider.clearLists();
+		}
+		
+		double perc,prevPerc;
+		prevPerc = 0; 
+		
+		for (int i = 0; i < gateways.size(); i++) {
+			
+            RenaterNode rn = gateways.get(i);
+            DijkstraPlus.Vertex vn = vertexes.get(rn.getID());
+            if(!file_exists)
+            	DijkstraPlus.computePaths(vn);
+        	for (int j = i+1; j < gateways.size(); j++) {
+//        		if (i==j) continue;
+                RenaterNode rm = gateways.get(j);
+                DijkstraPlus.Vertex vm = vertexes.get(rm.getID());
+    			String nextonPath1 = "";
+    			String nextonPath2 = "";
+                if(!file_exists){
+                	List<DijkstraPlus.Vertex> path = DijkstraPlus.getShortestPathTo(vm);
+	    			double dist = vm.minDistance;
+	    			PhysicalDataProvider.addLatency(rn.getID(), rm.getID(), dist );
+	    			PhysicalDataProvider.addPath(rn.getID(), rm.getID(), path.toString());
+	    			nextonPath1 = path.get(1).name;
+	    			nextonPath2 = path.get(path.size()-2).name;
+    			}else{
+    				String[] split = PhysicalDataProvider.getPath(rn.getID(), rm.getID()).split(" ");
+    				if(split.length > 0){
+    					 
+    					nextonPath1 = split[1];
+    					nextonPath2 = split[split.length-2];
+    				}
+    			}
+    			
+    			if(nextonPath1.length() > 0 && nextonPath2.length()>0){
+    				rn.addRoute(rm.getID(), nextonPath1);
+    				rm.addRoute(rn.getID(), nextonPath2);
+    			}
+        	}
+        	
+        	DijkstraPlus.resetVertexes(vertexes);
+        	
+        	perc = (double)100*i/gateways.size();
+			String txt = i < gateways.size()-1 ? perc + "%, " : perc + "%"; 
+			if(perc - prevPerc > 10){
+				System.out.print(txt);
+				prevPerc = perc;
+			}
+            
+		}
+		System.out.println(" Done.");
+//		if(!file_exists)
+//			PhysicalDataProvider.saveRoutes();
+		
+		long endTime   = System.currentTimeMillis();
+		long totalTime = endTime - startTime;
+		System.out.println("Dijkstra computed in "+totalTime + " ms");
+		return null;
+	}
+	
+	
+	private HashMap<String, DijkstraPlus.Vertex> initializeDijkstraPlus(ArrayList<RenaterNode> gateways){
+//		ArrayList<DijkstraPlus.Vertex> vertexes = new ArrayList<DijkstraPlus.Vertex>();
+		HashMap<String, DijkstraPlus.Vertex> vertexMap = new HashMap<String, DijkstraPlus.Vertex>();
+		for(int i = 0; i < gateways.size(); i++){
+    		RenaterNode rn = gateways.get(i);
+    		DijkstraPlus.Vertex each = new DijkstraPlus.Vertex(rn.getID());
+    		each.adjacencies = new ArrayList<DijkstraPlus.Edge>();
+//    		vertexes.add(each);
+    		vertexMap.put(each.name, each);
+    	}
+		
+		
+		for(int i = 0; i < gateways.size(); i++){
+    		RenaterNode rn = gateways.get(i);
+    		DijkstraPlus.Vertex each = vertexMap.get(rn.getID());
+    		for(int j = 0; j < rn.degree(); j++){
+    			RenaterNode rm = (RenaterNode) rn.getNeighbor(j).getProtocol(rn.getPid());
+    			RenaterEdge re = rn.getEdge(rm.getID());
+    			DijkstraPlus.Vertex other = vertexMap.get(rm.getID());
+    			
+        		each.adjacencies.add(new DijkstraPlus.Edge(other, re.getLatency()));
+        		other.adjacencies.add(new DijkstraPlus.Edge(each, re.getLatency()));
+    		}
+    	}
+		
+		return vertexMap;
+	}
+	
+	
 	private Dijkstra initializeDijkstra(ArrayList<RenaterNode> gateways){
 		HashMap<String, RenaterNode> nodes = new HashMap<String, RenaterNode>();
 		HashMap<String, Edge> edges = new HashMap<String, Edge>();
@@ -538,33 +647,33 @@ public class WireRenater extends WireGraph {
 //		}
 //	}
 
-	public class EdgeEntry{
-		int src;
-		int dst;
-		double geoDist;
-		double pathDist;
-		public EdgeEntry(int src, int dst, double geoDist, double pathDist) {
-			super();
-			this.src = src;
-			this.dst = dst;
-			this.geoDist = geoDist;
-			this.pathDist = pathDist;
-		}
-		public int getSrc() {
-			return src;
-		}
-		public int getDst() {
-			return dst;
-		}
-		public double getGeoDist() {
-			return geoDist;
-		}
-		public double getPathDist() {
-			return pathDist;
-		}
-		
-		public double getRatio() {
-			return pathDist/geoDist;
-		}
-	}
+//	public class EdgeEntry{
+//		int src;
+//		int dst;
+//		double geoDist;
+//		double pathDist;
+//		public EdgeEntry(int src, int dst, double geoDist, double pathDist) {
+//			super();
+//			this.src = src;
+//			this.dst = dst;
+//			this.geoDist = geoDist;
+//			this.pathDist = pathDist;
+//		}
+//		public int getSrc() {
+//			return src;
+//		}
+//		public int getDst() {
+//			return dst;
+//		}
+//		public double getGeoDist() {
+//			return geoDist;
+//		}
+//		public double getPathDist() {
+//			return pathDist;
+//		}
+//		
+//		public double getRatio() {
+//			return pathDist/geoDist;
+//		}
+//	}
 }

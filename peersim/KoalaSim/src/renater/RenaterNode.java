@@ -47,6 +47,8 @@ public class RenaterNode extends TopologyNode{
     
     
 	public void addRoute(String dest, String next ){
+		if(next.equals(this.getID()))
+			System.out.println("something went wrong");
 		routes.put(dest, next);
 	}
 

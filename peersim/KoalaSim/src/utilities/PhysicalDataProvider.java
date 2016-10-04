@@ -76,6 +76,16 @@ public class PhysicalDataProvider {
 		}
 	}
 	
+	public static void addPath(String src, String dst, String path){
+		if(path == null)
+			return;
+		
+		String id = NodeUtilities.getKeyStrID(src, dst);
+		if(!paths.containsKey(id)){
+			paths.put(id, path.substring(1, path.length()-1).replaceAll(", ", " " ));
+		}
+	}
+	
 //	public static void addGatewayID(String gwID){
 //		gatewayIDs.add(gwID);
 //	}
