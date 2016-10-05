@@ -27,6 +27,7 @@ import renater.RenaterGraph;
 import renater.RenaterNode;
 import utilities.Dijkstra;
 import utilities.DijkstraPlus;
+import utilities.KoaLite;
 import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
 import utilities.Dijkstra.Edge;
@@ -510,6 +511,7 @@ public class WireRenater extends WireGraph {
 		if(!file_exists){
 		 
 			vertexes = initializeDijkstraPlus(gateways);
+			KoaLite.createDB();
 			PhysicalDataProvider.clearLists();
 		}
 		
@@ -520,10 +522,12 @@ public class WireRenater extends WireGraph {
 			
             RenaterNode rn = gateways.get(i);
             DijkstraPlus.Vertex vn = vertexes.get(rn.getID());
+            System.out.println(i+ "  computing paths for " + rn.getID());
             if(!file_exists)
             	DijkstraPlus.computePaths(vn);
+            
+            ArrayList<String> entries = new ArrayList<String>();
         	for (int j = i+1; j < gateways.size(); j++) {
-//        		if (i==j) continue;
                 RenaterNode rm = gateways.get(j);
                 DijkstraPlus.Vertex vm = vertexes.get(rm.getID());
     			String nextonPath1 = "";
@@ -531,8 +535,11 @@ public class WireRenater extends WireGraph {
                 if(!file_exists){
                 	List<DijkstraPlus.Vertex> path = DijkstraPlus.getShortestPathTo(vm);
 	    			double dist = vm.minDistance;
-	    			PhysicalDataProvider.addLatency(rn.getID(), rm.getID(), dist );
-	    			PhysicalDataProvider.addPath(rn.getID(), rm.getID(), path.toString());
+//	    			PhysicalDataProvider.addLatency(rn.getID(), rm.getID(), dist );
+//	    			PhysicalDataProvider.addPath(rn.getID(), rm.getID(), path.toString());
+//	    			PhysicalDataProvider.addEntry(rn.getID(), rm.getID(), dist, path.toString());
+	    			String id = NodeUtilities.getKeyStrID(rn.getID(), rm.getID());
+	    			entries.add(id+";"+path+";"+dist);
 	    			nextonPath1 = path.get(1).name;
 	    			nextonPath2 = path.get(path.size()-2).name;
     			}else{
@@ -545,11 +552,11 @@ public class WireRenater extends WireGraph {
     			}
     			
     			if(nextonPath1.length() > 0 && nextonPath2.length()>0){
-    				rn.addRoute(rm.getID(), nextonPath1);
-    				rm.addRoute(rn.getID(), nextonPath2);
+//    				rn.addRoute(rm.getID(), nextonPath1);
+//    				rm.addRoute(rn.getID(), nextonPath2);
     			}
         	}
-        	
+        	KoaLite.insertBatch(entries);
         	DijkstraPlus.resetVertexes(vertexes);
         	
         	perc = (double)100*i/gateways.size();

@@ -13,6 +13,7 @@ import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Node;
 import renater.RenaterProtocol;
+import utilities.KoaLite;
 import utilities.PhysicalDataProvider;
 
 public class ResultCollector extends NodeObserver {
@@ -66,6 +67,7 @@ public class ResultCollector extends NodeObserver {
 			
 //			plotIt();
 			ended = true;
+			KoaLite.close();
 		}
 		return false;
 	}

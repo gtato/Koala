@@ -127,6 +127,31 @@ public class PhysicalDataProvider {
 		
 	}
 	
+//	public static double getLatency(String src, String dst){
+//		if(src.equals(dst))
+//			return 0;
+//		
+//		int srcDC = NodeUtilities.getDCID(src); 
+//		int dstDC = NodeUtilities.getDCID(dst);
+//		if(srcDC == dstDC){
+//			double intraLatency = round(getIntraDCLatency(srcDC)); 
+//			if(gatewayIDs.contains(src) || gatewayIDs.contains(dst))
+//				return intraLatency;
+//			return round(2 * intraLatency);
+//		}
+//		if(latencies.containsKey(NodeUtilities.getKeyStrID(src, dst)))
+//			return latencies.get(NodeUtilities.getKeyStrID(src, dst));
+//		else{
+//			String gwSrc = getGW(src);
+//			String gwDst = getGW(dst);
+//			return getLatency(src, gwSrc) +
+//				   getLatency(gwSrc, gwDst) +
+//				   getLatency(gwDst, dst);
+//					
+//		}
+//		
+//	}
+	
 	
 	public static void setLatencyStats(){
 //		double avg, std, tot;
@@ -374,4 +399,5 @@ public class PhysicalDataProvider {
 		double[] speeds = {2e8, 3e8};
 		return speeds[1];
 	}
+
 }
