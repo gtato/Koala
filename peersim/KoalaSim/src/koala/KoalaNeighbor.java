@@ -6,9 +6,10 @@ package koala;
 public class KoalaNeighbor{
 
 	private String nodeID;
+	private String idealID;
 	private double latency = -1;
 	private int latencyQuality = -1;
-
+	 
 	
 	public KoalaNeighbor(String nodeID) {
 		super();
@@ -70,8 +71,16 @@ public class KoalaNeighbor{
 	
 	
 	public String toString(){
+		String ideal = getIdealID() == null? "": " " + getIdealID();
+		return getNodeID() + " ["+getLatency()+", " + getLatencyQuality()+"]" + ideal;
+	}
 
-		return getNodeID() + ": ["+getLatency()+", " + getLatencyQuality()+"]";
+	public String getIdealID() {
+		return idealID;
+	}
+
+	public void setIdealID(String idealID) {
+		this.idealID = idealID;
 	}
 
 }

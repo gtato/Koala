@@ -2,6 +2,7 @@ package koala;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -15,8 +16,8 @@ public class KoalaRoutingTable {
 	private KoalaNeighbor localSucessor;
 	private KoalaNeighbor globalPredecessor;
 	private KoalaNeighbor globalSucessor;
-	
 	private ArrayList<KoalaNeighbor> longLinks = new ArrayList<KoalaNeighbor>();
+	
 	
 	/*these two are supposed to be used only when the object is transmitted*/
 	private ArrayList<KoalaNeighbor> neighborsContainer = new ArrayList<KoalaNeighbor>();
@@ -47,13 +48,13 @@ public class KoalaRoutingTable {
 		}
 		return oldEntry;
 	}
-
+	
 	public KoalaNeighbor getLocalSucessor() {
 		return localSucessor;
 	}
 
 	public KoalaNeighbor setLocalSucessor(KoalaNeighbor kn) {
-		KoalaNeighbor oldEntry = null;
+		KoalaNeighbor oldEntry = null;		
 		if(this.localSucessor.equals(kn)){
 			//update
 			this.localSucessor.update(kn);
@@ -97,7 +98,14 @@ public class KoalaRoutingTable {
 	}
 
 	public boolean addLongLink(KoalaNeighbor kn){
-		for(KoalaNeighbor ll : longLinks){
+		
+//		if(this.getNeighboursIDs(1).contains(kn.getNodeID())
+//		||this.getNeighboursIDs(2).contains(kn.getNodeID()))
+//			return false;
+		
+		boolean added = false;
+		for(int i = 0; i < longLinks.size(); i++){
+			KoalaNeighbor ll = longLinks.get(i);
 			if(ll.getNodeID().equals(kn.getNodeID())){
 				if(kn.getLatencyQuality() >= ll.getLatencyQuality()){
 					ll.setLatency(kn.getLatency());
@@ -105,11 +113,27 @@ public class KoalaRoutingTable {
 				}
 				return false;
 			}
+			else{
+				int dist = NodeUtilities.distance(ll.getIdealID(), kn.getNodeID());
+				int currentDist = NodeUtilities.distance(ll.getIdealID(), ll.getNodeID());
+				if(dist < currentDist){
+					//here there might be a situation where we would have to chose between a better id or a better latency quality
+					ll.setNodeID(kn.getNodeID());
+					ll.setLatency(kn.getLatency());
+					ll.setLatencyQuality(kn.getLatencyQuality());
+					added=true;
+				}
+			}
+			
 		}
 		
-		longLinks.add(kn);
-		return true;
+		return added;
+		
 	}	
+	
+	public void setLongLinks(ArrayList<KoalaNeighbor> longLinks){
+		this.longLinks = longLinks;
+	}
 	
 	public void clearLongLinks(){
 		longLinks.clear();
@@ -192,8 +216,5 @@ public class KoalaRoutingTable {
                 
         return hs;
 	}
-	
-	
-
 	
 }

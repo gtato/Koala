@@ -89,6 +89,9 @@ public class NodeUtilities {
 	}
 	
 	public static int distance(String srcID, String targetID, boolean forceLocal){
+		if(srcID.equals(NodeUtilities.DEFAULTID) || targetID.equals(NodeUtilities.DEFAULTID))
+			return Integer.MAX_VALUE;
+		
         boolean local = false;
         if (getDCID(srcID) == getDCID(targetID) || forceLocal)
             local = true;

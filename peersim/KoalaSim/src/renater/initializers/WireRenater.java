@@ -76,8 +76,10 @@ public class WireRenater extends WireGraph {
 				wireDCWaxman(gateways); break;	
 		}
 		
-//		computeDijsktra(gateways);
-		computeDijsktraPlus(gateways);
+		KoaLite.createDB();
+		
+		computeDijsktra(gateways);
+//		computeDijsktraPlus(gateways);
 		
 		
 		
@@ -511,7 +513,7 @@ public class WireRenater extends WireGraph {
 		if(!file_exists){
 		 
 			vertexes = initializeDijkstraPlus(gateways);
-			KoaLite.createDB();
+			
 			PhysicalDataProvider.clearLists();
 		}
 		

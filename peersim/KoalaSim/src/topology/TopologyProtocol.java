@@ -1,5 +1,6 @@
 package topology;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import koala.KoalaProtocol;
@@ -31,6 +32,9 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 	protected boolean logMsg;
 	protected static boolean initializeMode; //true only when the koala ring is being statically initialized (false during the simulation)
+	
+	protected String msgSender;
+	protected ArrayList<String> msgPath;
 	
 	public TopologyProtocol(String prefix) {
 
@@ -149,6 +153,9 @@ public abstract class TopologyProtocol implements EDProtocol {
 		String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " received a message from " + msg.getLastSender()  + " a msg of type: " + msg.getTypeName();
 		if(logMsg)
 			System.out.println(logmsg);
+		
+		msgSender = msg.getLastSender();
+		msgPath = (ArrayList<String>) msg.getPath().clone();
 		
 		switch(msg.getType()){
 			case KoalaMessage.RT:
