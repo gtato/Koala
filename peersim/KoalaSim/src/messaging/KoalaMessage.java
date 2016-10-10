@@ -3,6 +3,8 @@ package messaging;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import koala.KoalaNeighbor;
+import peersim.core.CommonState;
 import utilities.KoalaJsonParser;
 import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
@@ -23,13 +25,16 @@ public class KoalaMessage {
 	public static final int JOIN = 3;
 	public static final int LL = 4;
 	
+	private static final int PiggybackLength = 10;
 	private int type;
 
 	private KoalaMsgContent content;
 	/*if set to true, it means that you shouldn't share it with the rest of the DC*/
 	private boolean confidential;
 	private ArrayList<Double> latencies = new ArrayList<Double>();
-	private ArrayList<String> path = new ArrayList<String>();	
+	private ArrayList<String> path = new ArrayList<String>();
+	private ArrayList<KoalaNeighbor> piggyback = new ArrayList<KoalaNeighbor>();
+	
 	private int id;
 	
 	private long sentCycle;
@@ -40,12 +45,14 @@ public class KoalaMessage {
 	public KoalaMessage( KoalaMsgContent content){
 		this.type = content.getMsgType();
 		this.content = content;
+		setIdealPiggyBack();
 	}
 
 	public KoalaMessage(KoalaMsgContent content, boolean confidential){
 		this.type = content.getMsgType();
 		this.content = content;
 		this.confidential = confidential;
+		setIdealPiggyBack();
 	}
 	
 	public boolean isConfidential() {
@@ -141,6 +148,27 @@ public class KoalaMessage {
 	public void setPath(ArrayList<String> p){
 		path = p;
 	}
+	
+	public ArrayList<KoalaNeighbor> getPiggyBack(){
+		return piggyback;
+	}
+
+	
+	public void setPiggyBack(ArrayList<KoalaNeighbor> p){
+		piggyback = p;
+	}
+	
+	
+	public void setIdealPiggyBack(){
+		for(int i = 0; i < PiggybackLength; i++){
+			int dcID = CommonState.r.nextInt(NodeUtilities.NR_DC);
+			KoalaNeighbor k = new KoalaNeighbor(NodeUtilities.DEFAULTID);
+			k.setIdealID(dcID + "-0");
+			piggyback.add(k);
+			
+		}
+	}
+	
 	
 	public String pathToString(){
 		String pathstr = "";

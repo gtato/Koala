@@ -102,11 +102,17 @@ public class ChordProtocol extends TopologyProtocol {
 	}
 
 	@Override
-	protected void checkPiggybacked(KoalaMessage msg) {
+	protected void checkPiggybackedAfter(KoalaMessage msg) {
 		// TODO Auto-generated method stub
 		
 	}
 
+	@Override
+	protected void checkPiggybackedBefore(KoalaMessage msg) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	@Override
 	protected String getProtocolName() {
 		return "chord";

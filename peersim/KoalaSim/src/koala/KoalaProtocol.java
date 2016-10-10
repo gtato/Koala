@@ -1,6 +1,7 @@
 package koala;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -301,13 +302,18 @@ public class KoalaProtocol extends TopologyProtocol{
 	}
 
 	@Override
-	protected void checkPiggybacked(KoalaMessage msg) {
+	protected void checkPiggybackedAfter(KoalaMessage msg) {
 		if (msgSender == null || msgSender.equals(myNode.getID())) return;
 		ArrayList<KoalaNeighbor> pathNodes = new ArrayList<KoalaNeighbor>();
 		double latency = myNode.isLocal(msgSender) ?
 			PhysicalDataProvider.getMaxIntraLatency() : PhysicalDataProvider.getDefaultInterLatency();
-		for(String p : msgPath){
-			if(p.equals(myNode.getID())) continue;
+		
+		Set<String> someIds = new HashSet<String>();
+		someIds.addAll(msgPath);
+		someIds.addAll(msgPiggyBack);
+		
+		for(String p : someIds){
+			if(p.equals(myNode.getID()) || p.equals(NodeUtilities.DEFAULTID)) continue;
 			KoalaNeighbor kn = new KoalaNeighbor(p);
 			if(p.equals(msgSender)){
 				kn.setLatency(msg.getLatency());
@@ -338,6 +344,27 @@ public class KoalaProtocol extends TopologyProtocol{
 	@Override
 	protected String getProtocolName() {
 		return "koala";
+	}
+
+	@Override
+	protected void checkPiggybackedBefore(KoalaMessage msg) {
+		Object[] ids = myNode.getRoutingTable().getNeighboursIDs().toArray();
+		String[] idsIknow = Arrays.copyOf(ids, ids.length, String[].class);
+		
+		for(int i = 0; i < idsIknow.length; i++){
+			String ll = idsIknow[i];
+			for(int j = 0; j < msg.getPiggyBack().size(); j++){
+				KoalaNeighbor kn = msg.getPiggyBack().get(j);
+				int dist = NodeUtilities.distance(kn.getIdealID(), ll);
+				int currentDist = NodeUtilities.distance(kn.getIdealID(), kn.getNodeID());
+				if(dist < currentDist){
+					kn.setNodeID(ll);
+				}
+			}
+			
+		}
+		
+		
 	}
 
 }

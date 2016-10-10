@@ -3,6 +3,7 @@ package topology;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import koala.KoalaNeighbor;
 import koala.KoalaProtocol;
 import messaging.KoalaMessage;
 import peersim.config.Configuration;
@@ -35,6 +36,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 	protected String msgSender;
 	protected ArrayList<String> msgPath;
+	protected ArrayList<String> msgPiggyBack;
 	
 	public TopologyProtocol(String prefix) {
 
@@ -87,7 +89,8 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 	public abstract void join();
 
-	protected abstract void checkPiggybacked(KoalaMessage msg);
+	protected abstract void checkPiggybackedBefore(KoalaMessage msg);
+	protected abstract void checkPiggybackedAfter(KoalaMessage msg);
 	
 	protected abstract String getProtocolName();
 	
@@ -148,6 +151,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 
 
 	
+	@SuppressWarnings("unchecked")
 	public void receive(KoalaMessage msg)
 	{
 		String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " received a message from " + msg.getLastSender()  + " a msg of type: " + msg.getTypeName();
@@ -156,6 +160,12 @@ public abstract class TopologyProtocol implements EDProtocol {
 		
 		msgSender = msg.getLastSender();
 		msgPath = (ArrayList<String>) msg.getPath().clone();
+		msgPiggyBack = new ArrayList<String>();
+		for(int i = 0; i < msg.getPiggyBack().size(); i++)
+			msgPiggyBack.add(msg.getPiggyBack().get(i).getNodeID());
+		
+		if(!initializeMode)
+			checkPiggybackedBefore(msg);
 		
 		switch(msg.getType()){
 			case KoalaMessage.RT:
@@ -177,7 +187,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 		}
 		
 		if(!initializeMode)
-			checkPiggybacked(msg);
+			checkPiggybackedAfter(msg);
 		
 	}
 
