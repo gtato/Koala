@@ -78,9 +78,10 @@ public class WireRenater extends WireGraph {
 		
 		KoaLite.createDB();
 		
-		computeDijsktra(gateways);
-//		computeDijsktraPlus(gateways);
-		
+		if (Configuration.getBoolean("dijkstraplus", false))
+			computeDijsktraPlus(gateways);
+		else
+			computeDijsktra(gateways);
 		
 		
 //		setRenaterRoutes(gateway_indexes);
@@ -140,13 +141,11 @@ public class WireRenater extends WireGraph {
 	}
 	
 	private void  wireDCWaxman(ArrayList<RenaterNode> gateways){
-		HashMap<String, Double> distances = new HashMap<String, Double>();
+
 		double maxDist = 0;
 		for(int i = 0; i < gateways.size(); i++){
 			for(int j = i+1; j < gateways.size(); j++){
-				String id = NodeUtilities.getKeyID(i,j);
 				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j), worldSize);
-				distances.put(id, dist);
 				if(dist > maxDist)
 					maxDist = dist;
 			}
@@ -156,48 +155,23 @@ public class WireRenater extends WireGraph {
 	   	double a = 0.05;
 	   	double b = 0.13;
 	   	
-
-	   
-	   	ArrayList<AbstractMap.SimpleEntry<String, Double>> probablities = new ArrayList<AbstractMap.SimpleEntry<String, Double>>();
-	   	
 	   	for(int i = 0; i < gateways.size(); i++){
 			for(int j = i+1; j < gateways.size(); j++){
-				String id = NodeUtilities.getKeyID(i,j);
-				double p = b * Math.pow(Math.E, -distances.get(id)/(L*a));
-				probablities.add(new AbstractMap.SimpleEntry<String, Double>(id, p));
+				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j), worldSize);
+				double p = b * Math.pow(Math.E, -dist/(L*a));
+				if(p > CommonState.r.nextDouble()){
+			   		RenaterEdge re = new RenaterEdge(dist, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
+			   		((RenaterGraph)g).setEdge(gateways.get(i).getNode().getIndex(), gateways.get(j).getNode().getIndex(), re);
+				}
+				
 			}
 		}
 
-//	   	Collections.sort(probablities, new Comparator<AbstractMap.SimpleEntry<String, Double>>() {
-//
-//			@Override
-//			public int compare(SimpleEntry<String, Double> o1,
-//					SimpleEntry<String, Double> o2) {
-//				return -1*o1.getValue().compareTo(o2.getValue());
-//			}
-//		} );
-	   	
-	   	
-	   	for(int i =0; i < probablities.size(); i++){
-	   		AbstractMap.SimpleEntry<String, Double> entry = probablities.get(i);
-	   		
-	   		if(entry.getValue() > CommonState.r.nextDouble()){
-		   		int[] inds = NodeUtilities.getIDsFromKey(entry.getKey());
-		   		RenaterEdge re = new RenaterEdge(distances.get(entry.getKey()), PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
-		   		((RenaterGraph)g).setEdge(gateways.get(inds[0]).getNode().getIndex(), gateways.get(inds[1]).getNode().getIndex(), re);
-				
-	//	   		System.out.println(entry.getKey() + " " + entry.getValue());
-//		   		System.out.println(gateways.get(inds[0]).getID() +"|"+ gateways.get(inds[1]).getID() + " " + entry.getValue());
-	   		}
-	   	}
-	   	
 	   	ArrayList<RenaterNode> ambassadors =  getAmbassadors(gateways);
 		if(ambassadors.size() > 1)
 			wireDC(ambassadors);
-	   	
-	   	
+		
 //	   	computeDijsktra(gateways);
-	   	
 	}
 	
 	
@@ -425,12 +399,7 @@ public class WireRenater extends WireGraph {
 		return addedSmth;
 	}
 	
-//	private void setRenaterRoutes(ArrayList<Integer> gateway_indexes){
-//		for (int i = 0; i < gateway_indexes.size(); i++) {
-//			Node n = (Node) g.getNode(gateway_indexes.get(i));
-//		}
-//	}
-	
+
 	
 	private Dijkstra computeDijsktra(ArrayList<RenaterNode> gateways) {
 		long startTime = System.currentTimeMillis();
@@ -456,31 +425,16 @@ public class WireRenater extends WireGraph {
             if(!file_exists)
             	dijkstra.execute(rn);
         	for (int j = i+1; j < gateways.size(); j++) {
-//        		if (i==j) continue;
                 RenaterNode rm = gateways.get(j);
-    			String nextonPath1 = "";
-    			String nextonPath2 = "";
+    			
                 if(!file_exists){
     				LinkedList<RenaterNode> path = dijkstra.getPath(rm);
 	    			double dist = dijkstra.getShortestDistance(rm);
 	    			dijkstra.setDistance(rn, rm, dist);
 	    			PhysicalDataProvider.addLatency(rn.getID(), rm.getID(), dist );
 	    			PhysicalDataProvider.addPath(rn.getID(), rm.getID(), path);
-	    			nextonPath1 = path.get(1).getID();
-	    			nextonPath2 = path.get(path.size()-2).getID();
-    			}else{
-    				String[] split = PhysicalDataProvider.getPath(rn.getID(), rm.getID()).split(" ");
-    				if(split.length > 0){
-    					 
-    					nextonPath1 = split[1];
-    					nextonPath2 = split[split.length-2];
-    				}
     			}
     			
-    			if(nextonPath1.length() > 0 && nextonPath2.length()>0){
-    				rn.addRoute(rm.getID(), nextonPath1);
-    				rm.addRoute(rn.getID(), nextonPath2);
-    			}
         	}
         	
         	perc = (double)100*i/gateways.size();
@@ -501,21 +455,19 @@ public class WireRenater extends WireGraph {
 		return dijkstra;
 	}
 	
-	private Dijkstra computeDijsktraPlus(ArrayList<RenaterNode> gateways) {
-		long startTime = System.currentTimeMillis();
-		boolean file_exists = Files.exists(Paths.get(PhysicalDataProvider.DijsktraFile)); 
-		if(file_exists) { 
-		    System.out.println("Found Dijkstra file!");
-		    PhysicalDataProvider.loadRoutes();
-		    
+	private void computeDijsktraPlus(ArrayList<RenaterNode> gateways) {
+		if(KoaLite.dbExists()){
+			return;
 		}
-		HashMap<String, DijkstraPlus.Vertex> vertexes = null;
-		if(!file_exists){
-		 
-			vertexes = initializeDijkstraPlus(gateways);
 			
-			PhysicalDataProvider.clearLists();
-		}
+			
+			
+		long startTime = System.currentTimeMillis();
+		
+		HashMap<String, DijkstraPlus.Vertex> vertexes = null;
+		vertexes = initializeDijkstraPlus(gateways);
+		PhysicalDataProvider.clearLists();
+		
 		
 		double perc,prevPerc;
 		prevPerc = 0; 
@@ -525,38 +477,19 @@ public class WireRenater extends WireGraph {
             RenaterNode rn = gateways.get(i);
             DijkstraPlus.Vertex vn = vertexes.get(rn.getID());
             System.out.println(i+ "  computing paths for " + rn.getID());
-            if(!file_exists)
-            	DijkstraPlus.computePaths(vn);
+            
+            DijkstraPlus.computePaths(vn);
             
             ArrayList<String> entries = new ArrayList<String>();
         	for (int j = i+1; j < gateways.size(); j++) {
                 RenaterNode rm = gateways.get(j);
                 DijkstraPlus.Vertex vm = vertexes.get(rm.getID());
-    			String nextonPath1 = "";
-    			String nextonPath2 = "";
-                if(!file_exists){
-                	List<DijkstraPlus.Vertex> path = DijkstraPlus.getShortestPathTo(vm);
-	    			double dist = vm.minDistance;
-//	    			PhysicalDataProvider.addLatency(rn.getID(), rm.getID(), dist );
-//	    			PhysicalDataProvider.addPath(rn.getID(), rm.getID(), path.toString());
-//	    			PhysicalDataProvider.addEntry(rn.getID(), rm.getID(), dist, path.toString());
-	    			String id = NodeUtilities.getKeyStrID(rn.getID(), rm.getID());
-	    			entries.add(id+";"+path+";"+dist);
-	    			nextonPath1 = path.get(1).name;
-	    			nextonPath2 = path.get(path.size()-2).name;
-    			}else{
-    				String[] split = PhysicalDataProvider.getPath(rn.getID(), rm.getID()).split(" ");
-    				if(split.length > 0){
-    					 
-    					nextonPath1 = split[1];
-    					nextonPath2 = split[split.length-2];
-    				}
-    			}
-    			
-    			if(nextonPath1.length() > 0 && nextonPath2.length()>0){
-//    				rn.addRoute(rm.getID(), nextonPath1);
-//    				rm.addRoute(rn.getID(), nextonPath2);
-    			}
+            	List<DijkstraPlus.Vertex> path = DijkstraPlus.getShortestPathTo(vm);
+    			double dist = vm.minDistance;
+    			String id = NodeUtilities.getKeyStrID(rn.getID(), rm.getID());
+    			entries.add(id+";"+path+";"+dist);
+	    			
+    			 			
         	}
         	KoaLite.insertBatch(entries);
         	DijkstraPlus.resetVertexes(vertexes);
@@ -570,13 +503,11 @@ public class WireRenater extends WireGraph {
             
 		}
 		System.out.println(" Done.");
-//		if(!file_exists)
-//			PhysicalDataProvider.saveRoutes();
-		
+
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
 		System.out.println("Dijkstra computed in "+totalTime + " ms");
-		return null;
+		
 	}
 	
 	

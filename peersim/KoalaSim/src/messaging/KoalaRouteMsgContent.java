@@ -1,9 +1,12 @@
 package messaging;
 
+import java.util.ArrayList;
+
 public class KoalaRouteMsgContent extends KoalaMsgContent {
 
 	String id;
 	private boolean updateLatency;
+	private ArrayList<String> shortestPath;
 	
 	public String getId() {
 		return id;
@@ -29,6 +32,12 @@ public class KoalaRouteMsgContent extends KoalaMsgContent {
 	
 	public void setUpdateLatency(boolean updateLatency) {
 		this.updateLatency = updateLatency;
+	}
+	public ArrayList<String> getShortestPath() {
+		return shortestPath;
+	}
+	public void setShortestPath(ArrayList<String> shortestPath) {
+		this.shortestPath = shortestPath;
 	}
 
 }

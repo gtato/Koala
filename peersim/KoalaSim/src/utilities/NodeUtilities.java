@@ -3,7 +3,9 @@ package utilities;
 import java.util.HashMap;
 import java.util.Map;
 
+import chord.ChordNode;
 import koala.KoalaNeighbor;
+import koala.KoalaNode;
 import peersim.config.Configuration;
 import peersim.core.Node;
 import renater.RenaterNode;
@@ -24,6 +26,10 @@ public class NodeUtilities {
 	public static int NR_NODE_PER_DC = 0; //Configuration.getInt("NR_NODE_PER_DC")
 	public static int NR_DC = 0; //Configuration.getInt("NR_DC")
 	public static int ACTUAL_NR_DC = 0;
+	
+	public static int RID = 0;
+	public static int KID = 0;
+	public static int CID = 0;
 	
 	public static double[] hopCategories;
 	public static double[] latencyCategories;
@@ -62,6 +68,24 @@ public class NodeUtilities {
 			}
 		}
 		System.out.println();
+	}
+	
+	public static void setIDs(int rid, int kid, int cid){
+		RID = rid;
+		KID = kid;
+		CID = cid;
+	}
+	
+	public static RenaterNode getRenaterNode(String id){
+		return (RenaterNode) Nodes.get(id).getProtocol(RID);
+	}
+	
+	public static KoalaNode getKoalaNode(String id){
+		return (KoalaNode) Nodes.get(id).getProtocol(KID);
+	}
+	
+	public static ChordNode getChordNode(String id){
+		return (ChordNode) Nodes.get(id).getProtocol(CID);
 	}
 	
 	public static int getDCID(String id){

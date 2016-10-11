@@ -1,10 +1,15 @@
 package renater;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
+import messaging.KoalaMessage;
+import messaging.KoalaRouteMsgContent;
+import peersim.config.Configuration;
 import peersim.core.Node;
 import topology.TopologyNode;
+import utilities.KoaLite;
 import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
 
@@ -14,13 +19,13 @@ public class RenaterNode extends TopologyNode{
 	
 	private ArrayList<Node> neighbors;
 	private HashMap<String, RenaterEdge> edges;
-	private HashMap<String, String> routes;
+//	private HashMap<String, String> routes;
 	
 	
 	public RenaterNode(String prefix) {
 		super(prefix);
 		neighbors = new ArrayList<Node>();
-        routes = new  HashMap<String, String>();
+//        routes = new  HashMap<String, String>();
         edges = new  HashMap<String, RenaterEdge>();
 	}
 	
@@ -28,7 +33,7 @@ public class RenaterNode extends TopologyNode{
 		RenaterNode inp = null;
         inp = (RenaterNode) super.clone();
         neighbors = new ArrayList<Node>();
-        routes = new  HashMap<String, String>();
+//        routes = new  HashMap<String, String>();
         edges = new  HashMap<String, RenaterEdge>();
         return inp;
     }
@@ -46,24 +51,50 @@ public class RenaterNode extends TopologyNode{
     }
     
     
-	public void addRoute(String dest, String next ){
-		if(next.equals(this.getID()))
-			System.out.println("something went wrong");
-		routes.put(dest, next);
-	}
+//	public void addRoute(String dest, String next ){
+//		if(next.equals(this.getID()))
+//			System.out.println("something went wrong");
+//		routes.put(dest, next);
+//	}
 
-	public String getRoute(String dest){
-//		String path = PhysicalDataProvider.getPath(this.getID(), dest);
-//		return path.split(" ")[1];
-		if(routes.containsKey(dest))
-			return routes.get(dest);
-		for(String key : routes.keySet()){
-			if(NodeUtilities.getDCID(key) == NodeUtilities.getDCID(dest))
-				return routes.get(key);
-		}
+//	public String getRoute(String dest){
+////		String path = PhysicalDataProvider.getPath(this.getID(), dest);
+////		return path.split(" ")[1];
+//		if(routes.containsKey(dest))
+//			return routes.get(dest);
+//		for(String key : routes.keySet()){
+//			if(NodeUtilities.getDCID(key) == NodeUtilities.getDCID(dest))
+//				return routes.get(key);
+//		}
+//		if(!isGateway())
+//			return gateway;
+//		return null;
+//	}
+
+	public String getRoute(String dest, KoalaMessage msg){
 		if(!isGateway())
 			return gateway;
-		return null;
+		
+		RenaterNode rnDest = NodeUtilities.getRenaterNode(dest);
+		if(getID().equals(rnDest.getGateway()))
+			return dest;
+		
+		KoalaRouteMsgContent krc = (KoalaRouteMsgContent) msg.getContent();
+		ArrayList<String> shortestPath = krc.getShortestPath();
+		if(shortestPath == null || shortestPath.size() == 0){
+			if (Configuration.getBoolean("dijkstraplus", false))
+				shortestPath =  rnDest.isGateway() ?  KoaLite.getPath(this.getID(), dest) : KoaLite.getPath(this.getID(), rnDest.getGateway());
+			else{
+				String sp = rnDest.isGateway() ? PhysicalDataProvider.getPath(getID(), dest) : PhysicalDataProvider.getPath(getID(), rnDest.getGateway()) ;
+				shortestPath = new ArrayList<String>(Arrays.asList(sp.split(" "))); 
+			}
+			shortestPath.remove(0);
+			krc.setShortestPath(shortestPath);
+		}
+			
+		return shortestPath.remove(0);
+		
+		
 	}
 
 	

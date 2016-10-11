@@ -29,7 +29,7 @@ public class RenaterProtocol extends TopologyProtocol {
 	protected void onRoute(KoalaMessage msg) {
 		String nid = ((KoalaRouteMsgContent) msg.getContent()).getId();
 		if (!nid.equals(myNode.getID()))
-			send(myNode.getRoute(nid), msg);
+			send(myNode.getRoute(nid, msg), msg);
 		else {
 			onReceivedMsg(msg);
 		}

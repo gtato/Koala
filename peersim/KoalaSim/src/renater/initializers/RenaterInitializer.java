@@ -65,6 +65,7 @@ public class RenaterInitializer implements Control {
 		//initialize the gson parser
 		KoalaJsonParser.intitialize();
 		NodeUtilities.initialize();
+		NodeUtilities.setIDs(phid, pid, cpid);
 		
 		List<String> lines = null;
 		Node n; KoalaNode koalaNode; RenaterNode renaterNode; ChordNode chordNode;

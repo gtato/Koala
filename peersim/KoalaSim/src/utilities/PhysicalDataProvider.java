@@ -16,6 +16,7 @@ import java.util.Random;
 import java.util.Set;
 
 import koala.KoalaNode;
+import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
@@ -24,7 +25,7 @@ import renater.RenaterNode;
 public class PhysicalDataProvider {
 	
 	  
-	private static Set<String> gatewayIDs = new HashSet<String>();
+//	private static Set<String> gatewayIDs = new HashSet<String>();
 	private static HashMap<String, Double> latencies = new HashMap<String, Double>();
 	private static HashMap<String, String> paths= new HashMap<String, String>();
 	private static double maxInterLatency = 0;
@@ -40,8 +41,8 @@ public class PhysicalDataProvider {
 	
 	
 	public static void addLatency(String src, String dst, double latency){
-		gatewayIDs.add(src);
-		gatewayIDs.add(dst);
+//		gatewayIDs.add(src);
+//		gatewayIDs.add(dst);
 		String id = NodeUtilities.getKeyStrID(src, dst);
 		if(!latencies.containsKey(id)){
 			latencies.put(id, round(latency));
@@ -106,16 +107,19 @@ public class PhysicalDataProvider {
 		if(src.equals(dst))
 			return 0;
 		
+		
+		
 		int srcDC = NodeUtilities.getDCID(src); 
 		int dstDC = NodeUtilities.getDCID(dst);
 		if(srcDC == dstDC){
 			double intraLatency = round(getIntraDCLatency(srcDC)); 
-			if(gatewayIDs.contains(src) || gatewayIDs.contains(dst))
+			if(NodeUtilities.getRenaterNode(src).isGateway() || NodeUtilities.getRenaterNode(dst).isGateway())
 				return intraLatency;
 			return round(2 * intraLatency);
 		}
-		if(latencies.containsKey(NodeUtilities.getKeyStrID(src, dst)))
-			return latencies.get(NodeUtilities.getKeyStrID(src, dst));
+		double dclat = getDCLatency(src, dst);
+		if(dclat > 0)
+			return dclat;
 		else{
 			String gwSrc = getGW(src);
 			String gwDst = getGW(dst);
@@ -127,64 +131,46 @@ public class PhysicalDataProvider {
 		
 	}
 	
-//	public static double getLatency(String src, String dst){
-//		if(src.equals(dst))
-//			return 0;
-//		
-//		int srcDC = NodeUtilities.getDCID(src); 
-//		int dstDC = NodeUtilities.getDCID(dst);
-//		if(srcDC == dstDC){
-//			double intraLatency = round(getIntraDCLatency(srcDC)); 
-//			if(gatewayIDs.contains(src) || gatewayIDs.contains(dst))
-//				return intraLatency;
-//			return round(2 * intraLatency);
-//		}
-//		if(latencies.containsKey(NodeUtilities.getKeyStrID(src, dst)))
-//			return latencies.get(NodeUtilities.getKeyStrID(src, dst));
-//		else{
-//			String gwSrc = getGW(src);
-//			String gwDst = getGW(dst);
-//			return getLatency(src, gwSrc) +
-//				   getLatency(gwSrc, gwDst) +
-//				   getLatency(gwDst, dst);
-//					
-//		}
-//		
-//	}
+	private static double getDCLatency(String src, String dst){
+		Double d = -1.0;
+		if (Configuration.getBoolean("dijkstraplus", false)){
+			 d = KoaLite.getLatency(src, dst);
+			 if(d==null)
+				 return -1.0;
+		}else{
+			if(latencies.containsKey(NodeUtilities.getKeyStrID(src, dst)))
+				return latencies.get(NodeUtilities.getKeyStrID(src, dst));
+		}
+		
+		
+		return d;
+	}
+	
+
 	
 	
 	public static void setLatencyStats(){
-//		double avg, std, tot;
-		double tot = 0;
-		int i = 0;
-		ArrayList<Double> lats = new ArrayList<Double>(latencies.values());
-		for(Double lat : latencies.values()){
-			tot += lat;
-			i++;
-		}
-		avgInterLatency = tot/i;
-		
-		double sum=0;
-		for (Double lat : latencies.values()) 
-			sum += Math.pow(lat - avgInterLatency, 2);
-		
-		stdInterLatency = Math.sqrt(sum/latencies.size());
-		
-//		int betweenStd = 0;
-//		for(Double lat : latencies.values()){
-//			if(lat < avg + 2*std && lat > avg -2*std)
-//				betweenStd++; 
-//		}
-//		
-//		
-//		System.out.println("min: "+ minInterLatency + ", avg: " + avg + ", max: "
-//		+ maxInterLatency + ", std: " + std + ", bettwen +-std: " + ((double)betweenStd/latencies.size())*100 + "%" );
-//		
-//		Collections.sort(lats);
-//		for(int j=0; j < lats.size(); j++){
-//			System.out.println(j+" " + lats.get(j));
-//		}
+
+		if (!Configuration.getBoolean("dijkstraplus", false)){
+		//		double avg, std, tot;
+			double tot = 0;
+			int i = 0;
+			ArrayList<Double> lats = new ArrayList<Double>(latencies.values());
+			for(Double lat : latencies.values()){
+				tot += lat;
+				i++;
+			}
+			avgInterLatency = tot/i;
 			
+			double sum=0;
+			for (Double lat : latencies.values()) 
+				sum += Math.pow(lat - avgInterLatency, 2);
+			
+			stdInterLatency = Math.sqrt(sum/latencies.size());
+		}else{
+			avgInterLatency = KoaLite.getAverageLatency();
+			stdInterLatency  = KoaLite.getStdLatency(avgInterLatency);
+		}
 	}
 	
 	public static void printLatencyStats(){
@@ -228,6 +214,10 @@ public class PhysicalDataProvider {
 	public static double getAvgInterLatency(){
 		return avgInterLatency;
 	}
+	
+	public static void setAvgInterLatency(Double avg){
+		avgInterLatency = avg;
+	}
 
 	public static double getStdInterLatency(){
 		return stdInterLatency;
@@ -258,12 +248,12 @@ public class PhysicalDataProvider {
 		int srcDC = NodeUtilities.getDCID(src); 
 		int dstDC = NodeUtilities.getDCID(dst);
 		if(srcDC == dstDC){
-			if(gatewayIDs.contains(src) || gatewayIDs.contains(dst))
+			if(NodeUtilities.getRenaterNode(src).isGateway() || NodeUtilities.getRenaterNode(dst).isGateway())
 				return src + " " + dst; 
 			return src +" " + getGW(src)  + " " + dst;
 		}
-		if(paths.containsKey(NodeUtilities.getKeyStrID(src, dst))){
-			String path = paths.get(NodeUtilities.getKeyStrID(src, dst));
+		String path = getDCPath(src, dst);
+		if(path != null){
 			if(path.startsWith(src))
 				return path;
 			String reversePath = "";
@@ -282,6 +272,19 @@ public class PhysicalDataProvider {
 			return path1 + path2 + path3; 
 		}
 		
+	}
+	
+	private static String getDCPath(String src, String dst){
+		
+		if (Configuration.getBoolean("dijkstraplus", false)){
+			 return KoaLite.getPath(src, dst).toString().replace("[", "").replace("]", "").replace(",", "");
+		}else{
+			if(paths.containsKey(NodeUtilities.getKeyStrID(src, dst)))
+				return paths.get(NodeUtilities.getKeyStrID(src, dst));
+		}
+		
+		
+		return null;
 	}
 	
 	public static void saveRoutes(){
@@ -330,11 +333,7 @@ public class PhysicalDataProvider {
 
 	
 	private static String getGW(String id){
-		for(String gw : gatewayIDs){
-			if(NodeUtilities.getDCID(gw) == NodeUtilities.getDCID(id))
-				return gw;
-		}
-		return null;
+		return NodeUtilities.getRenaterNode(id).getGateway();
 	}
 	
 	public static double getPhysicalDistance(RenaterNode first, RenaterNode second, double worldSize) {
