@@ -34,6 +34,9 @@ public class NodeUtilities {
 	public static double[] hopCategories;
 	public static double[] latencyCategories;
 	
+	public static int PiggybackLength = 0;
+	public static boolean DijkstraPlus = false;
+	
 	public static Map<String, Node> Nodes =  new HashMap<String, Node>();
 	public static Map<String, RenaterNode> Gateways =  new HashMap<String, RenaterNode>();
 	
@@ -45,6 +48,8 @@ public class NodeUtilities {
 		B = Configuration.getDouble("ALPHA", 0.5);
 		C = 1-B;
 		
+		PiggybackLength = Configuration.getInt("koala.settings.piggyback", 10);
+		DijkstraPlus = Configuration.getBoolean("koala.settings.dijkstraplus", false);
 	}
 	
 	public static void initializeCategories()

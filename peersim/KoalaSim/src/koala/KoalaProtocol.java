@@ -254,6 +254,10 @@ public class KoalaProtocol extends TopologyProtocol{
 	        myNode.updateLatencyPerDC(msgSender, msg.getLatency(), 3);
 	        myNode.updateLatencies();
         }
+        
+        if(msgSender == null)
+        	msg.setIdealPiggyBack();
+        
         if(!nid.equals(myNode.getID())){
         	myNode.nrMsgRouted++;
             KoalaNeighbor kn = myNode.getRoute(nid, msg);

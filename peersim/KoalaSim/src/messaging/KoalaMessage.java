@@ -25,7 +25,7 @@ public class KoalaMessage {
 	public static final int JOIN = 3;
 	public static final int LL = 4;
 	
-	private static final int PiggybackLength = 10;
+//	private static final int PiggybackLength = 10;
 	private int type;
 
 	private KoalaMsgContent content;
@@ -45,14 +45,14 @@ public class KoalaMessage {
 	public KoalaMessage( KoalaMsgContent content){
 		this.type = content.getMsgType();
 		this.content = content;
-		setIdealPiggyBack();
+		
 	}
 
 	public KoalaMessage(KoalaMsgContent content, boolean confidential){
 		this.type = content.getMsgType();
 		this.content = content;
 		this.confidential = confidential;
-		setIdealPiggyBack();
+		
 	}
 	
 	public boolean isConfidential() {
@@ -160,7 +160,7 @@ public class KoalaMessage {
 	
 	
 	public void setIdealPiggyBack(){
-		for(int i = 0; i < PiggybackLength; i++){
+		for(int i = 0; i < NodeUtilities.PiggybackLength; i++){
 			int dcID = CommonState.r.nextInt(NodeUtilities.NR_DC);
 			KoalaNeighbor k = new KoalaNeighbor(NodeUtilities.DEFAULTID);
 			k.setIdealID(dcID + "-0");

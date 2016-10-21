@@ -25,7 +25,7 @@ import renater.RenaterNode;
 public class PhysicalDataProvider {
 	
 	  
-//	private static Set<String> gatewayIDs = new HashSet<String>();
+
 	private static HashMap<String, Double> latencies = new HashMap<String, Double>();
 	private static HashMap<String, String> paths= new HashMap<String, String>();
 	private static double maxInterLatency = 0;
@@ -35,14 +35,10 @@ public class PhysicalDataProvider {
 	
 	private static double maxInraLatency = 0;
 	
-//	private static double defaultInterLatency = 0;
-//	private static double defaultIntraLatency = 0;
 	public static String DijsktraFile = "out/dijkstra/dijsktra"+Network.size()+".dat";
 	
 	
 	public static void addLatency(String src, String dst, double latency){
-//		gatewayIDs.add(src);
-//		gatewayIDs.add(dst);
 		String id = NodeUtilities.getKeyStrID(src, dst);
 		if(!latencies.containsKey(id)){
 			latencies.put(id, round(latency));
@@ -87,9 +83,6 @@ public class PhysicalDataProvider {
 		}
 	}
 	
-//	public static void addGatewayID(String gwID){
-//		gatewayIDs.add(gwID);
-//	}
 	
 	public static void printLatencies(){
 		for(String srcdst : latencies.keySet()){
@@ -133,7 +126,7 @@ public class PhysicalDataProvider {
 	
 	private static double getDCLatency(String src, String dst){
 		Double d = -1.0;
-		if (Configuration.getBoolean("dijkstraplus", false)){
+		if (NodeUtilities.DijkstraPlus){
 			 d = KoaLite.getLatency(src, dst);
 			 if(d==null)
 				 return -1.0;
@@ -151,7 +144,7 @@ public class PhysicalDataProvider {
 	
 	public static void setLatencyStats(){
 
-		if (!Configuration.getBoolean("dijkstraplus", false)){
+		if (!NodeUtilities.DijkstraPlus){
 		//		double avg, std, tot;
 			double tot = 0;
 			int i = 0;
@@ -276,7 +269,7 @@ public class PhysicalDataProvider {
 	
 	private static String getDCPath(String src, String dst){
 		
-		if (Configuration.getBoolean("dijkstraplus", false)){
+		if (NodeUtilities.DijkstraPlus){
 			 return KoaLite.getPath(src, dst).toString().replace("[", "").replace("]", "").replace(",", "");
 		}else{
 			if(paths.containsKey(NodeUtilities.getKeyStrID(src, dst)))

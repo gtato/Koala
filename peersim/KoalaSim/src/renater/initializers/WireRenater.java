@@ -78,7 +78,7 @@ public class WireRenater extends WireGraph {
 		
 		KoaLite.createDB();
 		
-		if (Configuration.getBoolean("dijkstraplus", false))
+		if (NodeUtilities.DijkstraPlus)
 			computeDijsktraPlus(gateways);
 		else
 			computeDijsktra(gateways);
