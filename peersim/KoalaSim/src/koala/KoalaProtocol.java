@@ -371,4 +371,10 @@ public class KoalaProtocol extends TopologyProtocol{
 		
 	}
 
+	@Override
+	protected void onReceiveLatency(String dest, double l) {
+		 myNode.updateLatencyPerDC(dest, l, 3);
+	     myNode.updateLatencies();
+	}
+
 }

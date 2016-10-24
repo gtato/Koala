@@ -28,7 +28,7 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 		
 		id = kn.getID();
 		joining = kn.isJoining();
-		Set<KoalaNeighbor> neigs = kn.getRoutingTable().getNeighbors();
+		ArrayList<KoalaNeighbor> neigs = kn.getRoutingTable().getNeighbors();
 		neighbors = new String[neigs.size()];
 		int i=0;
 		for(KoalaNeighbor neig : neigs){

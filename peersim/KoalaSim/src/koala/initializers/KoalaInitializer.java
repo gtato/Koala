@@ -123,11 +123,14 @@ public class KoalaInitializer implements Control {
 	private ArrayList<KoalaNeighbor> getLongLinksKleinsberg(int k, KoalaNode kn){
 		ArrayList<KoalaNeighbor> pll = new ArrayList<KoalaNeighbor>();
 		int n = NodeUtilities.NR_DC / 2;
+		if(NodeUtilities.NR_DC <= k)
+			k = NodeUtilities.NR_DC/4;
 //		int n = NodeUtilities.NR_DC;
 		HashSet<Integer> nids = new HashSet<Integer>();
 		while(nids.size() != k){
 			int nid = (int)(Math.exp(Math.log(n) * (CommonState.r.nextDouble()-1.0))*n);
-			nids.add(nid);
+			if(nid > 1) //skip neighbors, we already have them
+				nids.add(nid);
 //			System.out.println(nids.size());
 		}
 		

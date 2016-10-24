@@ -152,4 +152,12 @@ public class ChordProtocol extends TopologyProtocol {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	protected void onReceiveLatency(String dest, double l) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 }

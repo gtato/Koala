@@ -78,6 +78,12 @@ public class RenaterProtocol extends TopologyProtocol {
 		// do nothing
 	}
 
+	@Override
+	protected void onReceiveLatency(String dest, double l) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 
 }

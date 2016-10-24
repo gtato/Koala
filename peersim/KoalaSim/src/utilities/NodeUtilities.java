@@ -13,6 +13,7 @@ import topology.TopologyNode;
 
 public class NodeUtilities {
 	public static final String DEFAULTID = "xxx";
+
 	
 	public static double A = 0;
 	public static double B = 0; //a.k.a alpha

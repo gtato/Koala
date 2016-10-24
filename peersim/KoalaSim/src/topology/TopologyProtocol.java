@@ -104,6 +104,8 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 	protected abstract void onLongLink(KoalaMessage msg);
 	
+	protected abstract void onReceiveLatency(String dest, double l);
+	
 	public void intializeMyNode(Node node, int pid){
 		this.node = node;
 		myPid = pid;
@@ -146,11 +148,16 @@ public abstract class TopologyProtocol implements EDProtocol {
 				((KoalaProtocol)dest.getProtocol(myPid)).receive(msg);
 			else
 				myTransport.send(node, dest, msg, myPid);
+			
+			onReceiveLatency(destinationID, l);
 		}
+		
 	}
 
 
 	
+	
+
 	@SuppressWarnings("unchecked")
 	public void receive(KoalaMessage msg)
 	{

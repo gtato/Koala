@@ -176,7 +176,7 @@ public class KoalaNode extends TopologyNode{
 	public boolean isJoining(){
 		if(this.getBootstrapID() == null)
 			return false;
-		Set<KoalaNeighbor> neighbors = getRoutingTable().getNeighbors();
+		ArrayList<KoalaNeighbor> neighbors = getRoutingTable().getNeighbors();
 		for(KoalaNeighbor kn : neighbors)
 			if(!NodeUtilities.isDefault(kn) && kn.getLatency() != -1)
 				return false;
@@ -272,7 +272,7 @@ public class KoalaNode extends TopologyNode{
         if (lq > 1)
             latencyPerDC.put(NodeUtilities.getDCID(id), l);
 
-        Set<KoalaNeighbor> links = routingTable.getNeighbors();
+        ArrayList<KoalaNeighbor> links = routingTable.getNeighbors();
         for(KoalaNeighbor ln : links){
             if(ln.getNodeID().equals(id) && lq >= ln.getLatencyQuality()){
                 ln.setLatency(l);
@@ -282,7 +282,7 @@ public class KoalaNode extends TopologyNode{
     }
     
     public void updateLatencies(){
-    	Set<KoalaNeighbor> neigs = routingTable.getNeighbors();
+    	ArrayList<KoalaNeighbor> neigs = routingTable.getNeighbors();
     	for(KoalaNeighbor n : neigs){
     		if(isLocal(n.getNodeID()))
     			continue;
@@ -308,7 +308,7 @@ public class KoalaNode extends TopologyNode{
 		KoalaNeighbor ret = null;
 		AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
 		double v=0;
-		Set<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
+		ArrayList<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
 		ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>(); 
 	
 		for(KoalaNeighbor re : rt){
@@ -394,7 +394,7 @@ public class KoalaNode extends TopologyNode{
 		@Override
 		public JsonElement serialize(KoalaNode src, Type typeOfSrc, JsonSerializationContext context) {
 			JsonArray neighbors = new JsonArray();
-			Set<KoalaNeighbor> neigs = src.getRoutingTable().getNeighbors();
+			ArrayList<KoalaNeighbor> neigs = src.getRoutingTable().getNeighbors();
 			for(KoalaNeighbor neig : neigs){
 				neighbors.add(KoalaJsonParser.toJsonTree(neig));
 			}
