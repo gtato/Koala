@@ -365,7 +365,13 @@ public class KoalaNode extends TopologyNode{
 	
 	
 	public Set<String> createRandomIDs(int nr){
-        Set<String> rids = new HashSet<String>();
+		Set<String> rids = new HashSet<String>();
+		
+		if(NodeUtilities.isDefault(getRoutingTable().getLocalSucessor()))
+			nr = 0;
+		else if(getRoutingTable().getLocalSucessor().getNodeID().equals(getRoutingTable().getLocalPredecessor().getNodeID()))
+			nr = 1;
+		
         while( rids.size() < nr){
             String rand_id = this.dcID + "-" + CommonState.r.nextInt(NodeUtilities.NR_NODE_PER_DC);
             if( !this.isResponsible(rand_id))
@@ -378,7 +384,8 @@ public class KoalaNode extends TopologyNode{
 
 
 	public boolean isResponsible(String id) {
-		
+		if(id.equals(getID()))
+			return true;
 		if (NodeUtilities.isDefault(getRoutingTable().getLocalSucessor()))
             return false;
         return NodeUtilities.distance(getID(), id) < NodeUtilities.distance(getRoutingTable().getLocalSucessor().getNodeID(), id) 

@@ -52,7 +52,8 @@ public class Dijkstra {
 	private void findMinimalDistances(RenaterNode node) {
 		ArrayList<Node> adjacentNodes = node.getNeighbors();// getNeighbors(node);
 		for (Node adjac: adjacentNodes) {
-			RenaterNode target = (RenaterNode)adjac.getProtocol(node.getPid());
+			RenaterNode target = (RenaterNode)adjac.getProtocol(NodeUtilities.RID);
+			if(!target.isGateway()) continue;
 			if (getShortestDistance(target) > getShortestDistance(node)
 					+ getDistance(node, target)) {
 				double dist = getShortestDistance(node) + getDistance(node, target);

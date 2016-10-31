@@ -15,13 +15,15 @@ import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
+import peersim.dynamics.NodeInitializer;
+import renater.RenaterNode;
 import renater.RenaterProtocol;
 import topology.TopologyProtocol;
 import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
 
 
-public class KoalaInitializer implements Control {
+public class KoalaInitializer implements Control, NodeInitializer {
 		
 	private static final String PAR_KOALA_PROTOCOL= "kprotocol";
 	private static final String PAR_RENATER_PROTOCOL= "protocol";
@@ -67,9 +69,17 @@ public class KoalaInitializer implements Control {
 			rp.join();
 			
 			if(koaProtPid > -1){
+				
 				KoalaProtocol kp = (KoalaProtocol )n.getProtocol(koaProtPid);
 				kp.intializeMyNode(n, koaProtPid);
 				kp.join();
+				
+				if(nr_longlinks > 0){
+					KoalaNode kn = (KoalaNode )n.getProtocol(FastConfig.getLinkable( koaProtPid));
+					ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(nr_longlinks, kn);
+//					ArrayList<KoalaNeighbor> lls = getLongLinksRand(nr_longlinks);
+					kn.getRoutingTable().setLongLinks(lls);
+				}
 			}
 			
 			perc = (double)100*i/nr;
@@ -81,17 +91,7 @@ public class KoalaInitializer implements Control {
 			
 		}
 		
-		if(nr_longlinks > 0){
-			for (int i = 0; i < nr; i++) {
-				Node n = Network.get(inx.get(i));
-				if(koaProtPid > -1){
-					KoalaNode kn = (KoalaNode )n.getProtocol(FastConfig.getLinkable( koaProtPid));
-					ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(nr_longlinks, kn);
-//					ArrayList<KoalaNeighbor> lls = getLongLinksRand(nr_longlinks);
-					kn.getRoutingTable().setLongLinks(lls);
-				}
-			}
-		}
+		
 		
 		
 //		System.exit(0);
@@ -144,6 +144,14 @@ public class KoalaInitializer implements Control {
 		}
 		return pll;
 		 
+	}
+	
+	
+
+	@Override
+	public void initialize(Node n) {
+		System.out.println("node initialized");
+		
 	}
 
 }

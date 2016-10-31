@@ -34,6 +34,7 @@ public class KoalaTopologyObserver extends NodeObserver {
 	public boolean execute() {
 		updateGraph();
 		generateGraph();
+		graphToFile();
 		return false;
 	}
 
@@ -50,21 +51,28 @@ public class KoalaTopologyObserver extends NodeObserver {
 				return NodeUtilities.compare(arg0.getID(), arg1.getID());
 			}});
 		
+		int lastdc = 0;
+		
 		for(KoalaNode each: orderedGraph){
-	    	double[] coords = getNextCoordinate(each.getID());
+			int dcid = NodeUtilities.getDCID(each.getID());
+			if(dcid - lastdc > 1)
+				for(int i = 1; i < dcid - lastdc; i++)
+					getNextCoordinate(lastdc+i);
+			
+	    	double[] coords = getNextCoordinate(dcid);
 			each.setX(coords[0]);
 			each.setY(coords[1]);
+			lastdc = dcid;
 		}
 		
-		graphToFile();
+		
 
 	}
 	
-	private double[] getNextCoordinate(String id){
-		int dc_id = utilities.NodeUtilities.getDCID(id);
+	private double[] getNextCoordinate(int dc_id){
 		double radius = 0.5;
 		double[] center = {radius, radius};
-		double unitangle = 2*Math.PI/getNrOnlineDC();
+		double unitangle = 2*Math.PI/ NodeUtilities.NR_DC; // getNrOnlineDC();
 		double[] entry = new double[2];
 		double angle = 0;
 		if(cords.containsKey(dc_id)){
@@ -85,17 +93,17 @@ public class KoalaTopologyObserver extends NodeObserver {
 	}
 
 
-	public int getNrOnlineDC(){
-		Set<Integer> onlineDCs = new HashSet<Integer>();
-		for (int i = 0; i < g.size(); i++) 
-		{
-			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
-			if(current.hasJoined())
-				onlineDCs.add(current.getDCID());
-		}
-		return onlineDCs.size();
-			
-	}
+//	public int getNrOnlineDC(){
+//		Set<Integer> onlineDCs = new HashSet<Integer>();
+//		for (int i = 0; i < g.size(); i++) 
+//		{
+//			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+//			if(current.hasJoined())
+//				onlineDCs.add(current.getDCID());
+//		}
+//		return onlineDCs.size();
+//			
+//	}
 
 
 	

@@ -61,7 +61,7 @@ public class WireRenater extends WireGraph {
             Node n = (Node) g.getNode(i);   
             RenaterNode rn = (RenaterNode)n.getProtocol(pid);
             if(!rn.isGateway()){
-            	((RenaterGraph)g).setEdge(i, NodeUtilities.Nodes.get(rn.getGateway()).getIndex(), new RenaterEdge(PhysicalDataProvider.getIntraDCLatency(NodeUtilities.getDCID(rn.getID()))));
+            	((RenaterGraph)g).setEdge(n.getIndex(), NodeUtilities.Nodes.get(rn.getGateway()).getIndex(), new RenaterEdge(PhysicalDataProvider.getIntraDCLatency(NodeUtilities.getDCID(rn.getID()))));
             }
 		}
 		ArrayList<RenaterNode> gateways = new ArrayList<RenaterNode>(NodeUtilities.Gateways.values());
@@ -386,6 +386,7 @@ public class WireRenater extends WireGraph {
 		ArrayList<RenaterNode> rneigs = new ArrayList<RenaterNode>();
 		for(Node neighbor : rn.getNeighbors()){
 			RenaterNode rneighbor = (RenaterNode)neighbor.getProtocol(pid);
+			if(!rneighbor.isGateway()) continue;
 			if (s.add(rneighbor.getID())){
 				addedSmth = true;
 				rneigs.add(rneighbor);
@@ -527,7 +528,7 @@ public class WireRenater extends WireGraph {
     		RenaterNode rn = gateways.get(i);
     		DijkstraPlus.Vertex each = vertexMap.get(rn.getID());
     		for(int j = 0; j < rn.degree(); j++){
-    			RenaterNode rm = (RenaterNode) rn.getNeighbor(j).getProtocol(rn.getPid());
+    			RenaterNode rm = (RenaterNode) rn.getNeighbor(j).getProtocol(NodeUtilities.RID);
     			RenaterEdge re = rn.getEdge(rm.getID());
     			DijkstraPlus.Vertex other = vertexMap.get(rm.getID());
     			

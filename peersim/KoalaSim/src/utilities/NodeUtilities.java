@@ -1,12 +1,14 @@
 package utilities;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import chord.ChordNode;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Node;
 import renater.RenaterNode;
 import topology.TopologyNode;
@@ -40,6 +42,8 @@ public class NodeUtilities {
 	
 	public static Map<String, Node> Nodes =  new HashMap<String, Node>();
 	public static Map<String, RenaterNode> Gateways =  new HashMap<String, RenaterNode>();
+	public static double[][] CenterPerDC;
+	
 	
 	public static void initialize(){
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
@@ -76,6 +80,22 @@ public class NodeUtilities {
 		System.out.println();
 	}
 	
+	
+	public static void intializeDCCenters(List<String> lines){
+		CenterPerDC = new double[NR_DC][2];
+		
+		for (int i = 0; i < NR_DC; i++){
+          	if(lines != null){
+          		CenterPerDC[i][0] = Double.parseDouble(lines.get(i).split(", ")[0]);
+          		CenterPerDC[i][1] = Double.parseDouble(lines.get(i).split(", ")[1]);
+        	}else{
+        		CenterPerDC[i][0] = CommonState.r.nextDouble();
+        		CenterPerDC[i][1] = CommonState.r.nextDouble();
+        	}
+        }
+	}
+	
+	
 	public static void setIDs(int rid, int kid, int cid){
 		RID = rid;
 		KID = kid;
@@ -96,6 +116,10 @@ public class NodeUtilities {
 	
 	public static int getDCID(String id){
 		return Integer.parseInt(id.split("-")[0]);
+	}
+	
+	public static String getStrDCID(String id){
+		return id.split("-")[0];
 	}
 	
 	public static int getNodeID(String id){

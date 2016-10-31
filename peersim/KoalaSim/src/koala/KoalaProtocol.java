@@ -119,9 +119,12 @@ public class KoalaProtocol extends TopologyProtocol{
 	protected void onNewGlobalNeighbours(KoalaMessage msg) {
 		KoalaNGNMsgContent content = (KoalaNGNMsgContent )msg.getContent();
 		
+		content.getNeighbor().setLatencyQuality(2);
+        int rnes = myNode.tryAddNeighbour(content.getNeighbor());
+        
         ArrayList<String> respees = new ArrayList<String>();
         for(String  c : content.getCandidates()){
-            if(myNode.isResponsible(c))
+            if(myNode.isResponsible(c)){
                 if(respees.size() == 0)
                 {
                 	KoalaMessage km = new KoalaMessage(new KoalaRTMsgConent(myNode), true);
@@ -129,9 +132,9 @@ public class KoalaProtocol extends TopologyProtocol{
                 }
  
                 respees.add(c);
+            }
         }
-        content.getNeighbor().setLatencyQuality(2);
-        int rnes = myNode.tryAddNeighbour(content.getNeighbor());
+        
         if(rnes != 2)
             return;
         

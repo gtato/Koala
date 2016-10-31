@@ -257,6 +257,10 @@ public class PhysicalDataProvider {
 		}else{
 			String gwSrc = getGW(src);
 			String gwDst = getGW(dst);
+			if ((gwSrc+gwDst).equals(src+dst)){
+				System.out.println("Something is wrong");
+				System.exit(1);
+			}
 			String path1 = getPath(src, gwSrc)+ " ";
 			String path2 = getPath(gwSrc, gwDst)+ " ";
 			path2 = path2.substring(path2.indexOf(" ")+1);
@@ -326,7 +330,10 @@ public class PhysicalDataProvider {
 
 	
 	private static String getGW(String id){
-		return NodeUtilities.getRenaterNode(id).getGateway();
+		RenaterNode rn = NodeUtilities.getRenaterNode(id);
+		if(rn.isGateway())
+			return rn.getID();
+		return rn.getGateway();
 	}
 	
 	public static double getPhysicalDistance(RenaterNode first, RenaterNode second, double worldSize) {

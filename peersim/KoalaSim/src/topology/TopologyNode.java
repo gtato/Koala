@@ -10,7 +10,7 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 
 	private String id;
 	
-	private int pid;
+//	private int pid;
 	private long birthday;
 	protected boolean joined;
 	private Node node;
@@ -105,11 +105,11 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 		return this.node.getID();
 	}
 
-	public int getPid() {
-		return pid;
-	}
-
-	public void setPid(int pid) {
-		this.pid = pid;
-	}
+//	public int getPid() {
+//		return pid;
+//	}
+//
+//	public void setPid(int pid) {
+//		this.pid = pid;
+//	}
 }

@@ -19,11 +19,12 @@ import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
+import peersim.dynamics.NodeInitializer;
 import renater.RenaterNode;
 import utilities.KoalaJsonParser;
 import utilities.NodeUtilities;
 
-public class RenaterInitializer implements Control {
+public class RenaterInitializer implements Control, NodeInitializer {
 
 	private static final String PAR_PROT = "protocol";
 	private static final String PAR_CHORD_PROT = "cprotocol";
@@ -41,6 +42,7 @@ public class RenaterInitializer implements Control {
     protected int nrDC;
     protected int nrNodePerDC;
     protected double distance;
+    boolean initializationMode;
     
     public RenaterInitializer(String prefix) {
         pid = Configuration.getPid(prefix + "." + PAR_PROT);
@@ -63,69 +65,35 @@ public class RenaterInitializer implements Control {
 		
 		System.out.println("\nSetting up renater nodes, positioning and gateways ");
 		//initialize the gson parser
-		KoalaJsonParser.intitialize();
-		NodeUtilities.initialize();
-		NodeUtilities.setIDs(phid, pid, cpid);
-		
 		List<String> lines = null;
-		Node n; KoalaNode koalaNode; RenaterNode renaterNode; ChordNode chordNode;
+		
         
         if(Files.exists(Paths.get(dc_file))){
         	 lines = getDcCordsFromFile();
-        	 if(lines != null){
+        	 if(lines != null)
         		 nrDC = lines.size();
-        	 }
         }
+		
+		
+		KoalaJsonParser.intitialize();
+		NodeUtilities.initialize();
+		NodeUtilities.setIDs(phid, pid, cpid);
+		NodeUtilities.intializeDCCenters(lines);
+		
         
-        if(Network.size() < nrDC)
-        	nrDC = Network.size();
+//        if(Network.size() < nrDC)
+//        	nrDC = Network.size();
         
-        NodeUtilities.ACTUAL_NR_DC = nrDC;
+        NodeUtilities.ACTUAL_NR_DC = Network.size();
         
-        double[][] centerPerDC = getCenterPerDC(lines);
-        int[] nodesPerDC = getNodesPerDC(true, lines);
         
-         
-        int j, k;
-        j = k = 0;
-        double[] cords;
         
 //        assigning nodes an id and setting their coordinates according to their data-center
+        initializationMode = true;
         for (int i = 0; i < Network.size(); i++) {
-            n = Network.get(i);
-            koalaNode = (KoalaNode) n.getProtocol(pid);
-            renaterNode = (RenaterNode) n.getProtocol(phid);
-            chordNode = (ChordNode) n.getProtocol(cpid);
-            
-            nodesPerDC[j]--;
-            koalaNode.setID(j, k);
-            koalaNode.setNode(n);
-            renaterNode.setID(j+"-"+k);
-            renaterNode.setPid(phid);
-            renaterNode.setNode(n);
-            chordNode.setID(j+"-"+k);
-            NodeUtilities.Nodes.put(j+"-"+k, n);
-            
-            k++;
-            if(nodesPerDC[j] == 0){
-            	cords = new double[]{centerPerDC[j][0], centerPerDC[j][1]};
-            	NodeUtilities.Gateways.put(j+"", renaterNode);
-            	j++;
-            	k=0;
-            }else
-            	cords = this.getRandomCirclePoint(centerPerDC[j][0], centerPerDC[j][1], distance);       
-            renaterNode.setX(cords[0]);
-            renaterNode.setY(cords[1]);
-            
+            initialize(Network.get(i));
         }
-        
-        for (int i = 0; i < Network.size(); i++) {
-        	n = Network.get(i);
-            renaterNode = (RenaterNode) n.getProtocol(phid);
-            if(renaterNode.isGateway()) continue;
-            renaterNode.setGateway(NodeUtilities.Gateways.get(renaterNode.getID().split("-")[0]).getID());
-            renaterNode.setJoined(true);
-        }
+        initializationMode = false;
         
         
 //        System.setErr(new PrintStream(new OutputStream() {
@@ -198,20 +166,67 @@ public class RenaterInitializer implements Control {
 	}
 	
 	
-	private double[][] getCenterPerDC(List<String> lines){
-		double[][] centerPerDC = new double[nrDC][2];
+	
+
+	
+	private String getID(){
+		ArrayList<String> emptyDC = new ArrayList<String>();
+		for(int i = 0; i < NodeUtilities.NR_DC; i++){
+			if(!NodeUtilities.Gateways.containsKey(i+""))
+				emptyDC.add(i+"");
+		}
 		
-		for (int i = 0; i < nrDC; i++){
-          	if(lines != null){
-        		centerPerDC[i][0] = Double.parseDouble(lines.get(i).split(", ")[0]);
-        		centerPerDC[i][1] = Double.parseDouble(lines.get(i).split(", ")[1]);
-        	}else{
-        		centerPerDC[i][0] = CommonState.r.nextDouble();
-        		centerPerDC[i][1] = CommonState.r.nextDouble();
-        	}
+		if (emptyDC.size() != 0)
+			return emptyDC.get(CommonState.r.nextInt(emptyDC.size())) + "-" + CommonState.r.nextInt(NodeUtilities.NR_NODE_PER_DC);
+		
+		ArrayList<String> emptyNodeID = new ArrayList<String>();
+		for(int i = 0; i < NodeUtilities.NR_DC; i++){
+			for(int j = 0; j < NodeUtilities.NR_NODE_PER_DC; j++){
+				String id = i+"-"+j;
+				if(!NodeUtilities.Nodes.containsKey(id))
+					emptyNodeID.add(id);
+			}
+		}
+		
+		if(emptyNodeID.size() == 0)
+			return null;
+			
+		return emptyNodeID.get(CommonState.r.nextInt(emptyNodeID.size()));
+	}
+	
+
+	@Override
+	public void initialize(Node node) {
+		KoalaNode koalaNode = (KoalaNode) node.getProtocol(pid);
+		RenaterNode renaterNode = (RenaterNode) node.getProtocol(phid);
+		ChordNode chordNode = (ChordNode) node.getProtocol(cpid);
+        
+        String id = getID();
+        int dcID = NodeUtilities.getDCID(id);
+        
+        koalaNode.setID(id);
+        renaterNode.setID(id);
+        chordNode.setID(id);
+        
+        koalaNode.setNode(node);
+        renaterNode.setNode(node);
+        
+        NodeUtilities.Nodes.put(id, node);
+        
+        double[] cords;
+        if(NodeUtilities.Gateways.containsKey(dcID+"")){
+        	renaterNode.setGateway(NodeUtilities.Gateways.get(dcID+"").getID());
+        	cords = this.getRandomCirclePoint(NodeUtilities.CenterPerDC[dcID][0], NodeUtilities.CenterPerDC[dcID][1], distance);
+//        	System.out.println(id + " is not gateway, its gateway is " +  NodeUtilities.Gateways.get(dcID+"").getID());
+        }else{
+        	NodeUtilities.Gateways.put(dcID+"", renaterNode);
+        	cords = new double[]{NodeUtilities.CenterPerDC[dcID][0], NodeUtilities.CenterPerDC[dcID][1]};
         }
+        
+        renaterNode.setX(cords[0]);
+        renaterNode.setY(cords[1]);
+        renaterNode.setJoined(true);
 		
-		return centerPerDC;
 	}
 	
 	
