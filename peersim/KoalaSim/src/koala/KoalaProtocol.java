@@ -264,11 +264,15 @@ public class KoalaProtocol extends TopologyProtocol{
         if(!nid.equals(myNode.getID())){
         	myNode.nrMsgRouted++;
             KoalaNeighbor kn = myNode.getRoute(nid, msg);
-            //TODO: maybe ask to update latency even in other cases (for the moment ask only if quality is really bad)
-            boolean updateLat = kn.getLatencyQuality() <= 0? true:false;
-//            updateLat = false; //TODO:disabled for the moment 
-            ((KoalaRouteMsgContent)msg.getContent()).setUpdateLatency(updateLat);
-        	send(kn.getNodeID(), msg);
+            if(kn != null){
+	            //TODO: maybe ask to update latency even in other cases (for the moment ask only if quality is really bad)
+	            boolean updateLat = kn.getLatencyQuality() <= 0? true:false;
+	//            updateLat = false; //TODO:disabled for the moment 
+	            ((KoalaRouteMsgContent)msg.getContent()).setUpdateLatency(updateLat);
+	        	send(kn.getNodeID(), msg);
+            }else
+            	onFail();
+           
         }else{
         	onReceivedMsg(msg);
         	

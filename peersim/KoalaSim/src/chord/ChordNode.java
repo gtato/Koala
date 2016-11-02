@@ -3,6 +3,7 @@ package chord;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
+
 import peersim.core.Network;
 import peersim.core.Node;
 import topology.TopologyNode;
@@ -133,10 +134,31 @@ private ArrayList<Integer> lookupMessage;
 		return false;
 	}
 
+	private boolean inAB(BigInteger bid, BigInteger ba, BigInteger bb){
+		long id = bid.longValue();
+		long a = ba.longValue();
+		long b = bb.longValue();
+		if (id == a) return false;
+		if (id == b) return true;
+		if(id > a && id < b)
+			return true;
+		if(id < a && a >= b && id < b)
+			return true;
+		
+		if(id > b && a >= b && id > a)
+			return true;
+		
+		
+		return false;
+	}
+	
 	public ChordNode findUpSuccessor(BigInteger target){
 		ChordNode dest = find_successor(target);
+//		if (dest == null) return null;
 		if (dest.isUp() == false) {
 			do {
+				if(dest.chordId.compareTo(target) == 0)
+					return null;
 				varSuccList = 0;
 				stabilize(this);
 				stabilizations++;
@@ -144,13 +166,44 @@ private ArrayList<Integer> lookupMessage;
 				dest = find_successor(target);
 			} while (dest.isUp() == false);
 		}
+		
+//		if (dest.getID() == successorList[0].getID()
+//				&& (target.compareTo(((ChordProtocol) dest
+//						.getProtocol(p.pid)).chordId) < 0)
+//				&& (target.compareTo(((ChordProtocol) node
+//						.getProtocol(p.pid)).chordId) > 0)		
+//				
+//				) {
+//			fails++;
+//		}
+		
+		
+//		if (dest.getSimNodeID() == successorList[0].getSimNodeID() 
+//				&& target.compareTo(dest.chordId) < 0
+//				&& this.chordId.compareTo(target) < 0		
+//			) {
+//			fails++;
+//			return null;
+//		}
+//		
 		if (dest.getSimNodeID() == successorList[0].getSimNodeID() 
-				&& target.compareTo(dest.chordId) < 0
-				&& this.chordId.compareTo(target) < 0		
+				&& !inAB(dest.chordId, this.chordId, target) 
 			) {
 			fails++;
 			return null;
 		}
+		
+		
+		
+//		if (dest.getID() == successorList[0].getID()
+//				&& target.compareTo(dest.chordId) < 0
+//				&& this.chordId.compareTo(target) > 0		
+//			) {
+//			fails++;
+//			return null;
+//		}
+		
+		
 		
 		return dest;
 	}
@@ -172,6 +225,42 @@ private ArrayList<Integer> lookupMessage;
 		return successorList[0];
 	}
 
+//	private ChordNode closest_preceding_node(BigInteger id) {
+//		ArrayList<Integer> priorities = new ArrayList<Integer>();
+//		
+//		for (int i = m-1; i >= 0; i--) {
+//			if (fingerTable[i] == null) 
+//				continue;
+//			BigInteger fingerId = fingerTable[i].chordId;
+//			if(inAB(fingerId, this.chordId, id)){
+//				priorities.add(i);
+//			}				
+//		}
+//		
+//		for(int i = 0; i < priorities.size(); i++){
+//			if(fingerTable[priorities.get(i)].isUp())
+//				return fingerTable[priorities.get(i)];
+//			else if(fingerTable[priorities.get(i)].chordId.compareTo(id) == 0)
+//				return null; //destination is down so what can we do!
+//		}
+//		
+//		//every good thing is down so send it as far as possible 
+//		for (int i = m-1; i >= 0; i--) {
+//			if (fingerTable[i] != null && fingerTable[i].isUp()) 
+//				return fingerTable[i];
+//		}
+//		
+//		
+//		//if all of them down, then try successors
+//		for (int i = succLSize-1; i >= 0; i--) {
+//			if (successorList[i] != null && successorList[i].isUp()) 
+//				return successorList[i];
+//		}
+//		
+//		
+//		return null;
+//	}
+	
 	private ChordNode closest_preceding_node(BigInteger id) {
 		for (int i = m; i > 0; i--) {
 			try {
@@ -211,7 +300,7 @@ private ArrayList<Integer> lookupMessage;
 			return successorList[0];
 		return successorList[0];
 	}
-
+	
 	// debug function
 	private void printFingers() {
 		for (int i = fingerTable.length - 1; i > 0; i--) {

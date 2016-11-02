@@ -132,6 +132,8 @@ public class ChordProtocol extends TopologyProtocol {
 			ChordNode dest = myNode.findUpSuccessor(target);
 			if(dest != null)
 				send(dest.getID(), msg);
+			else
+				onFail();
 		} else{
 			onReceivedMsg(msg);
 		}

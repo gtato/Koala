@@ -28,9 +28,13 @@ public class RenaterProtocol extends TopologyProtocol {
 	@Override
 	protected void onRoute(KoalaMessage msg) {
 		String nid = ((KoalaRouteMsgContent) msg.getContent()).getId();
-		if (!nid.equals(myNode.getID()))
-			send(myNode.getRoute(nid, msg), msg);
-		else {
+		if (!nid.equals(myNode.getID())){
+			String dest = myNode.getRoute(nid, msg);
+			if (dest != null)
+				send(dest, msg);
+			else
+				onFail(); // happens if the graph is disconnected, in that case we are in a real trouble
+		}else {
 			onReceivedMsg(msg);
 		}
 		

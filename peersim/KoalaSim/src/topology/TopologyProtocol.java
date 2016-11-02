@@ -31,6 +31,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	protected int myPid = -1;
 	protected int transId = -1;
 	
+	protected int fails = 0;
 	protected boolean logMsg;
 	protected static boolean initializeMode; //true only when the koala ring is being statically initialized (false during the simulation)
 	
@@ -65,6 +66,14 @@ public abstract class TopologyProtocol implements EDProtocol {
 		msg.setReceivedCycle(CommonState.getTime());
 		receivedMsgs.put(msg.getID(), msg);
 //		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
+	}
+	
+	protected void onFail(){
+		fails++;
+	}
+	
+	public int getFails(){
+		return fails;
 	}
 	
 	public TopologyNode getMyNode(){
