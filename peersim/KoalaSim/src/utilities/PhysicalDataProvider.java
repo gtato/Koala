@@ -21,6 +21,7 @@ import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
 import renater.RenaterNode;
+import spaasclient.SPClient;
 
 public class PhysicalDataProvider {
 	
@@ -35,7 +36,7 @@ public class PhysicalDataProvider {
 	
 	private static double maxInraLatency = 0;
 	
-	public static String DijsktraFile = "out/dijkstra/dijsktra"+Network.size()+".dat";
+	
 	
 	
 	public static void addLatency(String src, String dst, double latency){
@@ -96,75 +97,6 @@ public class PhysicalDataProvider {
 		}
 	}
 	
-	public static double getLatency(String src, String dst){
-		if(src.equals(dst))
-			return 0;
-		
-		
-		
-		int srcDC = NodeUtilities.getDCID(src); 
-		int dstDC = NodeUtilities.getDCID(dst);
-		if(srcDC == dstDC){
-			double intraLatency = round(getIntraDCLatency(srcDC)); 
-			if(NodeUtilities.getRenaterNode(src).isGateway() || NodeUtilities.getRenaterNode(dst).isGateway())
-				return intraLatency;
-			return round(2 * intraLatency);
-		}
-		double dclat = getDCLatency(src, dst);
-		if(dclat > 0)
-			return dclat;
-		else{
-			String gwSrc = getGW(src);
-			String gwDst = getGW(dst);
-			return getLatency(src, gwSrc) +
-				   getLatency(gwSrc, gwDst) +
-				   getLatency(gwDst, dst);
-					
-		}
-		
-	}
-	
-	private static double getDCLatency(String src, String dst){
-		Double d = -1.0;
-		if (NodeUtilities.DijkstraPlus){
-			 d = KoaLite.getLatency(src, dst);
-			 if(d==null)
-				 return -1.0;
-		}else{
-			if(latencies.containsKey(NodeUtilities.getKeyStrID(src, dst)))
-				return latencies.get(NodeUtilities.getKeyStrID(src, dst));
-		}
-		
-		
-		return d;
-	}
-	
-
-	
-	
-	public static void setLatencyStats(){
-
-		if (!NodeUtilities.DijkstraPlus){
-		//		double avg, std, tot;
-			double tot = 0;
-			int i = 0;
-			ArrayList<Double> lats = new ArrayList<Double>(latencies.values());
-			for(Double lat : latencies.values()){
-				tot += lat;
-				i++;
-			}
-			avgInterLatency = tot/i;
-			
-			double sum=0;
-			for (Double lat : latencies.values()) 
-				sum += Math.pow(lat - avgInterLatency, 2);
-			
-			stdInterLatency = Math.sqrt(sum/latencies.size());
-		}else{
-			avgInterLatency = KoaLite.getAverageLatency();
-			stdInterLatency  = KoaLite.getStdLatency(avgInterLatency);
-		}
-	}
 	
 	public static void printLatencyStats(){
 		double avg, std, tot;
@@ -201,7 +133,8 @@ public class PhysicalDataProvider {
 	}
 	
 	public static double getMaxInterLatency(){
-		return maxInterLatency;
+		return avgInterLatency + 2*stdInterLatency;
+//		return maxInterLatency;
 	}
 	
 	public static double getAvgInterLatency(){
@@ -216,12 +149,15 @@ public class PhysicalDataProvider {
 		return stdInterLatency;
 	}
 	
+	 
+
 	public static double getMaxIntraLatency(){
 		return maxInraLatency * NodeUtilities.NR_NODE_PER_DC;
 	}
 	
 	public static double getMinInterLatency(){
-		return minInterLatency;
+		return avgInterLatency - 2*stdInterLatency;
+//		return minInterLatency;
 	}
 	
 	public static double getDefaultInterLatency(){
@@ -233,6 +169,79 @@ public class PhysicalDataProvider {
 	public static double getDefaultIntraLatency(){
 		return getMaxIntraLatency()/16;
 	}
+	
+	public static void setLatencyStats(){
+
+		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraDB){
+			avgInterLatency = KoaLite.getAverageLatency();
+			stdInterLatency  = KoaLite.getStdLatency(avgInterLatency);
+		
+		}else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS){
+			
+		}else{
+//			double avg, std, tot;
+			double tot = 0;
+			int i = 0;
+			ArrayList<Double> lats = new ArrayList<Double>(latencies.values());
+			for(Double lat : latencies.values()){
+				tot += lat;
+				i++;
+			}
+			avgInterLatency = tot/i;
+			
+			double sum=0;
+			for (Double lat : latencies.values()) 
+				sum += Math.pow(lat - avgInterLatency, 2);
+			
+			stdInterLatency = Math.sqrt(sum/latencies.size());	
+		}
+	}
+	
+	public static double getLatency(String src, String dst){
+		if(src.equals(dst))
+			return 0;
+		
+		
+		
+		int srcDC = NodeUtilities.getDCID(src); 
+		int dstDC = NodeUtilities.getDCID(dst);
+		if(srcDC == dstDC){
+			double intraLatency = round(getIntraDCLatency(srcDC)); 
+			if(NodeUtilities.getRenaterNode(src).isGateway() || NodeUtilities.getRenaterNode(dst).isGateway())
+				return intraLatency;
+			return round(2 * intraLatency);
+		}
+		double dclat = getDCLatency(src, dst);
+		if(dclat > 0)
+			return dclat;
+		else{
+			String gwSrc = getGW(src);
+			String gwDst = getGW(dst);
+			return getLatency(src, gwSrc) +
+				   getLatency(gwSrc, gwDst) +
+				   getLatency(gwDst, dst);
+					
+		}
+		
+	}
+	
+	private static double getDCLatency(String src, String dst){
+		Double d = -1.0;
+		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraDB){
+			 d = KoaLite.getLatency(src, dst);
+			 if(d==null)
+				 return -1.0;
+		}else if(NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS){
+			return SPClient.getSP(src, dst).getLatency();
+		}else{
+			if(latencies.containsKey(NodeUtilities.getKeyStrID(src, dst)))
+				return latencies.get(NodeUtilities.getKeyStrID(src, dst));
+		}
+		
+		
+		return d;
+	}
+	
 	
 	public static String getPath(String src, String dst){
 		if(src.equals(dst))
@@ -273,8 +282,10 @@ public class PhysicalDataProvider {
 	
 	private static String getDCPath(String src, String dst){
 		
-		if (NodeUtilities.DijkstraPlus){
+		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraDB){
 			 return KoaLite.getPath(src, dst).toString().replace("[", "").replace("]", "").replace(",", "");
+		}else if(NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS) {
+			return SPClient.getSP(src, dst).getPath().toString().replace("[", "").replace("]", "").replace(",", "");
 		}else{
 			if(paths.containsKey(NodeUtilities.getKeyStrID(src, dst)))
 				return paths.get(NodeUtilities.getKeyStrID(src, dst));
@@ -284,19 +295,6 @@ public class PhysicalDataProvider {
 		return null;
 	}
 	
-	public static void saveRoutes(){
-		try {
-			FileOutputStream fos = new FileOutputStream(DijsktraFile);
-            PrintStream ps =  new PrintStream(fos);
-			for(String srcdst : latencies.keySet()){
-				ps.println(srcdst + " " + latencies.get(srcdst) + " (" + paths.get(srcdst) + ")" );
-			}
-			fos.close();
-            ps.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-	}
 	
 	
 	public static double getIntraDCLatency(int dcID){
@@ -336,7 +334,7 @@ public class PhysicalDataProvider {
 		return rn.getGateway();
 	}
 	
-	public static double getPhysicalDistance(RenaterNode first, RenaterNode second, double worldSize) {
+	public static double getPhysicalDistance(RenaterNode first, RenaterNode second) {
         double x1 = first.getX();
         double x2 = second.getX();
         double y1 = first.getY();
@@ -347,40 +345,22 @@ public class PhysicalDataProvider {
             throw new RuntimeException(
                     "Found un-initialized coordinate. Use e.g.,InetInitializer class in the config file.");
         double distance = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-        distance *= 1000 * worldSize;
-        distance = Math.round(distance * 100.0) / 100.0; //in km
+        distance = adjustDistanceValue(distance);
         return distance; 
     }
 
+	public static double adjustDistanceValue(double distance){
+		distance *= 1000 *  NodeUtilities.WORLD_SIZE;
+        distance = Math.round(distance * 100.0) / 100.0; //in km
+        return distance;
+	}
 	public static void clearLists() {
 		latencies.clear();
 		paths.clear();
 		
 	}
 
-	public static void loadRoutes() {
-		try (BufferedReader br = Files.newBufferedReader(Paths.get(DijsktraFile), StandardCharsets.UTF_8)) {
-		    for (String line = null; (line = br.readLine()) != null;) {
-		    	int firstSpace = line.indexOf(" ");
-		    	String ids = line.substring(0, firstSpace);
-		    	String[] srcdst = NodeUtilities.getStrIDsFromKey(ids);
-		    	
-		    	int secondSpace = line.indexOf(" ",firstSpace+1);
-		    	String lat = line.substring(firstSpace+1, secondSpace);
-		    	double latency = Double.parseDouble(lat);
-		    	
-		    	String path = line.substring(secondSpace+2, line.length()-1);
-		    	
-		    	addLatency(srcdst[0], srcdst[1], latency);
-		    	addPath(ids, path);
-//			    System.out.println(srcdst[0] + "->" + srcdst[1] + " " + latency + " " + path);
-		    }
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
+
 	
 	
 	public static double getBitRate(){

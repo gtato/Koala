@@ -21,6 +21,11 @@ public class NodeUtilities {
 	public static double B = 0; //a.k.a alpha
 	public static double C = 0; //a.k.a beta 
 	
+	public static int DijkstraRAM = 1;
+	public static int DijkstraDB = 2;
+	public static int DijkstraSPAAS = 3;
+	public static int DijkstraMethod;
+	
 	public static int MAGIC = 2;
 	
 //	public static double MAX_INTER_LATENCY = 2000;
@@ -38,7 +43,7 @@ public class NodeUtilities {
 	public static double[] latencyCategories;
 	
 	public static int PiggybackLength = 0;
-	public static boolean DijkstraPlus = false;
+	public static double WORLD_SIZE = 1.0;
 	
 	public static Map<String, Node> Nodes =  new HashMap<String, Node>();
 	public static Map<String, RenaterNode> Gateways =  new HashMap<String, RenaterNode>();
@@ -54,7 +59,15 @@ public class NodeUtilities {
 		C = 1-B;
 		
 		PiggybackLength = Configuration.getInt("koala.settings.piggyback", 10);
-		DijkstraPlus = Configuration.getBoolean("koala.settings.dijkstraplus", false);
+		String dijktraStr = Configuration.getString("koala.settings.dijkstramethod", "ram");
+		if(dijktraStr.equalsIgnoreCase("db"))
+			DijkstraMethod = DijkstraDB;
+		else if (dijktraStr.equalsIgnoreCase("spaas"))
+			DijkstraMethod = DijkstraSPAAS;
+		else 
+			DijkstraMethod = DijkstraRAM;
+		
+		WORLD_SIZE = Configuration.getDouble("koala.settings.world_size", 1.0);
 	}
 	
 	public static void initializeCategories()
@@ -247,9 +260,12 @@ public class NodeUtilities {
 //	}
 	
 	public static double normalizeLatency(int totDistance, double latency) {
-		double x1 = PhysicalDataProvider.getAvgInterLatency() - 2*PhysicalDataProvider.getStdInterLatency();
+//		double x1 = PhysicalDataProvider.getAvgInterLatency() - 2*PhysicalDataProvider.getStdInterLatency();
+		double x1 = PhysicalDataProvider.getMinInterLatency();
         double y1 = 1;
-        double x2 = PhysicalDataProvider.getAvgInterLatency() + 2*PhysicalDataProvider.getStdInterLatency();
+//        double x2 = PhysicalDataProvider.getAvgInterLatency() + 2*PhysicalDataProvider.getStdInterLatency();
+        double x2 = PhysicalDataProvider.getMaxInterLatency();
+        
         double y2 = (double) 1 / totDistance;
 
         if(latency > x2)

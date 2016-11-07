@@ -25,6 +25,7 @@ import peersim.graph.Graph;
 import renater.RenaterEdge;
 import renater.RenaterGraph;
 import renater.RenaterNode;
+import spaasclient.SPClient;
 import utilities.Dijkstra;
 import utilities.DijkstraPlus;
 import utilities.KoaLite;
@@ -41,14 +42,14 @@ public class WireRenater extends WireGraph {
 	private static final String PAR_K = "k";
 	private final int pid;
 	private final int k;
-	private final double worldSize;
+//	private final double worldSize;
 	private final String strategy;
 	
 	public WireRenater(String prefix) {
 		super(prefix);
 		pid = Configuration.getPid(prefix + "." + PAR_PROT);
 		k = Configuration.getInt(prefix + "." + PAR_K, 2);
-		worldSize = Configuration.getDouble(prefix + "." + PAR_WORLD, 1.0);
+//		worldSize = Configuration.getDouble(prefix + "." + PAR_WORLD, 1.0);
 		strategy = Configuration.getString(prefix + "." + PAR_STRATEGY, "closest").toLowerCase();
 		g = new RenaterGraph(pid,false);
 	}
@@ -78,8 +79,12 @@ public class WireRenater extends WireGraph {
 		
 		KoaLite.createDB();
 		
-		if (NodeUtilities.DijkstraPlus)
-			computeDijsktraPlus(gateways);
+		
+		
+		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraDB)
+			computeDijsktraDB(gateways);
+		else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS)
+			SPClient.uploadGraph(g);
 		else
 			computeDijsktra(gateways);
 		
@@ -101,7 +106,7 @@ public class WireRenater extends WireGraph {
 			for(int j = 0; j < gateways.size(); j++){
 //			for(int j = i+1; j < gateways.size(); j++){
 				if(i != j)
-					dists.add(new AbstractMap.SimpleEntry<Integer, Double>(j, PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j), worldSize)));
+					dists.add(new AbstractMap.SimpleEntry<Integer, Double>(j, PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j))));
 			}
 			distances.add(dists);
 		}
@@ -145,7 +150,7 @@ public class WireRenater extends WireGraph {
 		double maxDist = 0;
 		for(int i = 0; i < gateways.size(); i++){
 			for(int j = i+1; j < gateways.size(); j++){
-				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j), worldSize);
+				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j));
 				if(dist > maxDist)
 					maxDist = dist;
 			}
@@ -157,7 +162,7 @@ public class WireRenater extends WireGraph {
 	   	
 	   	for(int i = 0; i < gateways.size(); i++){
 			for(int j = i+1; j < gateways.size(); j++){
-				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j), worldSize);
+				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j));
 				double p = b * Math.pow(Math.E, -dist/(L*a));
 				if(p > CommonState.r.nextDouble()){
 			   		RenaterEdge re = new RenaterEdge(dist, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
@@ -183,7 +188,7 @@ public class WireRenater extends WireGraph {
 		center.setX(0.5);
 		center.setY(0.5);
 		for(int i = 0; i < gateways.size(); i++){
-			distance = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), center, worldSize);
+			distance = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), center);
 			if(distance < minDistance){
 				minDistance = distance;
 				closestCenter = gateways.get(i);
@@ -197,7 +202,7 @@ public class WireRenater extends WireGraph {
 			minDistance = Double.MAX_VALUE;
 			RenaterNode closestNode = null;
 			for(int j = 0; j < linked.size();j++){
-				distance = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), linked.get(j), worldSize);
+				distance = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), linked.get(j));
 				if(distance < minDistance){
 					minDistance = distance;
 					closestNode = linked.get(j);
@@ -221,7 +226,7 @@ public class WireRenater extends WireGraph {
 		linked.add(gateways.get(0));
 		for(int i = 0; i < gateways.size(); i++){
 			RenaterNode aNode = linked.get(CommonState.r.nextInt(linked.size()));
-			double distance = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), aNode, worldSize);
+			double distance = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), aNode);
 			RenaterEdge re = new RenaterEdge(distance, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
 			((RenaterGraph)g).setEdge(gateways.get(i).getNode().getIndex(), aNode.getNode().getIndex(), re);
 			linked.add(gateways.get(i));
@@ -404,18 +409,11 @@ public class WireRenater extends WireGraph {
 	
 	private Dijkstra computeDijsktra(ArrayList<RenaterNode> gateways) {
 		long startTime = System.currentTimeMillis();
-		boolean file_exists = Files.exists(Paths.get(PhysicalDataProvider.DijsktraFile)); 
-		if(file_exists) { 
-		    System.out.println("Found Dijkstra file!");
-		    PhysicalDataProvider.loadRoutes();
-		    
-		}
 		
-		Dijkstra dijkstra = null;
-		if(!file_exists){
-			dijkstra = initializeDijkstra(gateways);
-			PhysicalDataProvider.clearLists();
-		}
+		
+		Dijkstra dijkstra = initializeDijkstra(gateways);
+		PhysicalDataProvider.clearLists();
+		
 		
 		double perc,prevPerc;
 		prevPerc = 0; 
@@ -423,19 +421,15 @@ public class WireRenater extends WireGraph {
 		for (int i = 0; i < gateways.size(); i++) {
 			
             RenaterNode rn = gateways.get(i);
-            if(!file_exists)
-            	dijkstra.execute(rn);
+            
+            dijkstra.execute(rn);
         	for (int j = i+1; j < gateways.size(); j++) {
                 RenaterNode rm = gateways.get(j);
-    			
-                if(!file_exists){
-    				LinkedList<RenaterNode> path = dijkstra.getPath(rm);
-	    			double dist = dijkstra.getShortestDistance(rm);
-	    			dijkstra.setDistance(rn, rm, dist);
-	    			PhysicalDataProvider.addLatency(rn.getID(), rm.getID(), dist );
-	    			PhysicalDataProvider.addPath(rn.getID(), rm.getID(), path);
-    			}
-    			
+				LinkedList<RenaterNode> path = dijkstra.getPath(rm);
+    			double dist = dijkstra.getShortestDistance(rm);
+    			dijkstra.setDistance(rn, rm, dist);
+    			PhysicalDataProvider.addLatency(rn.getID(), rm.getID(), dist );
+    			PhysicalDataProvider.addPath(rn.getID(), rm.getID(), path);
         	}
         	
         	perc = (double)100*i/gateways.size();
@@ -447,8 +441,7 @@ public class WireRenater extends WireGraph {
             
 		}
 		System.out.println(" Done.");
-//		if(!file_exists)
-//			PhysicalDataProvider.saveRoutes();
+
 		
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
@@ -456,17 +449,16 @@ public class WireRenater extends WireGraph {
 		return dijkstra;
 	}
 	
-	private void computeDijsktraPlus(ArrayList<RenaterNode> gateways) {
+	private void computeDijsktraDB(ArrayList<RenaterNode> gateways) {
 		if(KoaLite.dbExists()){
 			return;
 		}
 			
-			
-			
+						
 		long startTime = System.currentTimeMillis();
 		
 		HashMap<String, DijkstraPlus.Vertex> vertexes = null;
-		vertexes = initializeDijkstraPlus(gateways);
+		vertexes = initializeDijkstraDB(gateways);
 		PhysicalDataProvider.clearLists();
 		
 		
@@ -512,7 +504,7 @@ public class WireRenater extends WireGraph {
 	}
 	
 	
-	private HashMap<String, DijkstraPlus.Vertex> initializeDijkstraPlus(ArrayList<RenaterNode> gateways){
+	private HashMap<String, DijkstraPlus.Vertex> initializeDijkstraDB(ArrayList<RenaterNode> gateways){
 //		ArrayList<DijkstraPlus.Vertex> vertexes = new ArrayList<DijkstraPlus.Vertex>();
 		HashMap<String, DijkstraPlus.Vertex> vertexMap = new HashMap<String, DijkstraPlus.Vertex>();
 		for(int i = 0; i < gateways.size(); i++){
