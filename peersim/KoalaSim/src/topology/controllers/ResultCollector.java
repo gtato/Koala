@@ -13,6 +13,7 @@ import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Node;
 import renater.RenaterProtocol;
+import spaasclient.SPClient;
 import utilities.KoaLite;
 import utilities.PhysicalDataProvider;
 
@@ -62,7 +63,7 @@ public class ResultCollector extends NodeObserver {
 			reportRenater();
 		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
 			System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg));
-			
+			SPClient.printCacheStats();
 			graphToFile();
 			
 //			plotIt();

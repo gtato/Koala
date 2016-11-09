@@ -86,7 +86,7 @@ private ArrayList<Integer> lookupMessage;
 
 	private void updateSuccessorList() throws Exception {
 		try {
-			while (successorList[0] == null || successorList[0].isUp() == false) {
+			while (successorList[0] == null || !successorList[0].isUp()) {
 				updateSuccessor();
 			}
 			System.arraycopy(successorList[0].successorList, 0, successorList, 1,

@@ -133,6 +133,8 @@ public class PhysicalDataProvider {
 	}
 	
 	public static double getMaxInterLatency(){
+		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS)
+			return maxInterLatency;
 		return avgInterLatency + 2*stdInterLatency;
 //		return maxInterLatency;
 	}
@@ -156,6 +158,9 @@ public class PhysicalDataProvider {
 	}
 	
 	public static double getMinInterLatency(){
+		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS)
+			return minInterLatency;
+		
 		return avgInterLatency - 2*stdInterLatency;
 //		return minInterLatency;
 	}
@@ -177,7 +182,9 @@ public class PhysicalDataProvider {
 			stdInterLatency  = KoaLite.getStdLatency(avgInterLatency);
 		
 		}else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS){
-			
+			double[] minmax = SPClient.getMinMax();
+			minInterLatency = minmax[0];
+			maxInterLatency = minmax[1];
 		}else{
 //			double avg, std, tot;
 			double tot = 0;
