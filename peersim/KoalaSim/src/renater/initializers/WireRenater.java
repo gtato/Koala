@@ -2,20 +2,14 @@ package renater.initializers;
 
 
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.AbstractMap;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;

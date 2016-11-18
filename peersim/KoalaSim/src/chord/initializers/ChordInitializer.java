@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.util.Random;
 
 import chord.ChordNode;
-import chord.ChordProtocol;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;

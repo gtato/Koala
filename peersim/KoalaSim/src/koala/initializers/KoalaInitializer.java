@@ -3,9 +3,6 @@ package koala.initializers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Random;
-
-import chord.ChordNode;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import koala.KoalaProtocol;
@@ -16,7 +13,6 @@ import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.dynamics.NodeInitializer;
-import renater.RenaterNode;
 import renater.RenaterProtocol;
 import topology.TopologyProtocol;
 import utilities.NodeUtilities;

@@ -5,15 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import javax.swing.event.ListSelectionEvent;
-
 import koala.KoalaNode;
-import peersim.config.Configuration;
-import peersim.core.CommonState;
 import peersim.core.Node;
 import topology.controllers.NodeObserver;
 import utilities.NodeUtilities;

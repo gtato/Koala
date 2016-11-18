@@ -16,7 +16,6 @@ import peersim.transport.Transport;
 import renater.RenaterNode;
 import renater.RenaterProtocol;
 import topology.TopologyNode;
-import utilities.NodeUtilities;
 
 public class KoalaPlanner extends GraphObserver {
 

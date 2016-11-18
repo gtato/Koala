@@ -1,8 +1,5 @@
 package utilities;
 
-import java.util.ArrayList;
-
-import messaging.KoalaMessage;
 import messaging.TopologyMessage;
 
 public class ErrorDetection {

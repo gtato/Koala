@@ -13,7 +13,6 @@ import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.edsim.EDProtocol;
 import peersim.transport.Transport;
-import renater.initializers.RenaterInitializer;
 import topology.controllers.ResultCollector;
 import utilities.ErrorDetection;
 import utilities.NodeUtilities;

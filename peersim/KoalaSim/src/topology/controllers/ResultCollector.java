@@ -5,15 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import chord.ChordProtocol;
-import koala.KoalaNode;
-import koala.KoalaProtocol;
-import messaging.KoalaMessage;
 import messaging.TopologyMessage;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Node;
-import renater.RenaterProtocol;
 import spaasclient.SPClient;
 import utilities.KoaLite;
 import utilities.NodeUtilities;

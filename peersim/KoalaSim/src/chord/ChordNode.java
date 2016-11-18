@@ -4,8 +4,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 
 
-import peersim.core.Network;
-import peersim.core.Node;
 import topology.TopologyNode;
 import utilities.ChordGlobalInfo;
 

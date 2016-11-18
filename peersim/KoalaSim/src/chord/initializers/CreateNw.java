@@ -4,7 +4,6 @@
 package chord.initializers;
 
 import chord.ChordNode;
-import chord.ChordProtocol;
 import peersim.core.*;
 import peersim.config.Configuration;
 import utilities.ChordGlobalInfo;

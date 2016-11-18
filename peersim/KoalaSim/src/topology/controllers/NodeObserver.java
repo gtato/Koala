@@ -8,10 +8,8 @@ import java.io.PrintStream;
 
 import koala.KoalaNode;
 import peersim.config.Configuration;
-import peersim.core.CommonState;
 import peersim.core.Node;
 import peersim.reports.GraphObserver;
-import peersim.util.FileNameGenerator;
 
 public abstract class NodeObserver extends GraphObserver {
 
