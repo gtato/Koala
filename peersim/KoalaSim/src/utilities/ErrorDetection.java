@@ -3,11 +3,12 @@ package utilities;
 import java.util.ArrayList;
 
 import messaging.KoalaMessage;
+import messaging.TopologyMessage;
 
 public class ErrorDetection {
 	
 	
-	public static boolean hasLoopCommunication( KoalaMessage km, String dst){
+	public static boolean hasLoopCommunication( TopologyMessage km, String dst){
 		
 		int occurrences = 0;
 		for(String nodeId : km.getPath())

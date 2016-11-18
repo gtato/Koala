@@ -1,10 +1,14 @@
 package renater;
 
+import java.util.HashMap;
+
 import messaging.KoalaMessage;
 import messaging.KoalaRouteMsgContent;
+import messaging.TopologyMessage;
 import peersim.core.Linkable;
 import peersim.core.Node;
 import topology.TopologyProtocol;
+import utilities.NodeUtilities;
 
 public class RenaterProtocol extends TopologyProtocol {
 
@@ -19,14 +23,11 @@ public class RenaterProtocol extends TopologyProtocol {
 		myNode.setJoined(true);
 	}
 
-	@Override
-	protected void onNewGlobalNeighbours(KoalaMessage msg) {
-		// TODO Auto-generated method stub
 
-	}
 
-	@Override
+	
 	protected void onRoute(KoalaMessage msg) {
+		
 		String nid = ((KoalaRouteMsgContent) msg.getContent()).getId();
 		if (!nid.equals(myNode.getID())){
 			String dest = myNode.getRoute(nid, msg);
@@ -40,12 +41,6 @@ public class RenaterProtocol extends TopologyProtocol {
 		
 	}
 
-	@Override
-	protected void onRoutingTable(KoalaMessage msg) {
-		// TODO Auto-generated method stub
-
-	}
-
 
 	@Override
 	public void intializeMyNode(Node node, int pid) {
@@ -53,38 +48,32 @@ public class RenaterProtocol extends TopologyProtocol {
 		myNode = (RenaterNode) (Linkable) node.getProtocol(linkPid);
 	}
 
-	@Override
-	protected void checkPiggybackedAfter(KoalaMessage msg) {
-		// TODO Auto-generated method stub
-
-	}
 	
-	@Override
-	protected void checkPiggybackedBefore(KoalaMessage msg) {
-		// TODO Auto-generated method stub
-
-	}
-
-	//
-	// @Override
-	// protected void checkStatus() {
-	// // TODO Auto-generated method stub
-	//
-	// }
 
 	@Override
 	protected String getProtocolName() {
 		return "renater";
 	}
 
-	@Override
-	protected void onLongLink(KoalaMessage msg) {
-		// do nothing
-	}
-
+	
 	@Override
 	protected void onReceiveLatency(String dest, double l) {
 		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected HashMap<Integer, TopologyMessage> getMsgStorage() {
+		return NodeUtilities.REN_MSG;
+	}
+
+	@Override
+	protected void handleMessage(TopologyMessage msg) {
+		switch(msg.getType()){
+		case KoalaMessage.ROUTE:
+			onRoute((KoalaMessage)msg);
+			break;
+		}
 		
 	}
 

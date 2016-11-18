@@ -9,12 +9,14 @@ import chord.ChordProtocol;
 import koala.KoalaNode;
 import koala.KoalaProtocol;
 import messaging.KoalaMessage;
+import messaging.TopologyMessage;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Node;
 import renater.RenaterProtocol;
 import spaasclient.SPClient;
 import utilities.KoaLite;
+import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
 
 public class ResultCollector extends NodeObserver {
@@ -80,17 +82,18 @@ public class ResultCollector extends NodeObserver {
 		int rl, kl, cl; rl = kl = cl = 0;
 		int rtSize = 0;
 		for(Map.Entry<Integer, Node> msg : sentMgs.entrySet()){
-			RenaterProtocol rp = (RenaterProtocol) msg.getValue().getProtocol(renProtPid);
-			KoalaProtocol kp = (KoalaProtocol) msg.getValue().getProtocol(koaProtPid);
-			ChordProtocol cp = (ChordProtocol) msg.getValue().getProtocol(chordProtPid);
+//			RenaterProtocol rp = (RenaterProtocol) msg.getValue().getProtocol(renProtPid);
+//			KoalaProtocol kp = (KoalaProtocol) msg.getValue().getProtocol(koaProtPid);
+//			ChordProtocol cp = (ChordProtocol) msg.getValue().getProtocol(chordProtPid);
 			
-			if(rp.hasReceivedMsg(msg.getKey()) 
-			&& kp.hasReceivedMsg(msg.getKey())
-			&& cp.hasReceivedMsg(msg.getKey())
-					){
-				KoalaMessage rm = rp.getReceivedMsg(msg.getKey());
-				KoalaMessage km = kp.getReceivedMsg(msg.getKey());
-				KoalaMessage cm = cp.getReceivedMsg(msg.getKey());
+			if(NodeUtilities.REN_MSG.containsKey(msg.getKey())
+			&& NodeUtilities.KOA_MSG.containsKey(msg.getKey())
+			&& NodeUtilities.CHO_MSG.containsKey(msg.getKey())
+			){
+			
+				TopologyMessage rm = NodeUtilities.REN_MSG.get(msg.getKey());
+				TopologyMessage km = NodeUtilities.KOA_MSG.get(msg.getKey());
+				TopologyMessage cm = NodeUtilities.CHO_MSG.get(msg.getKey());
 				
 //				renaterTotalLatency += rm.getLatency();
 //				koalaTotalLatency += km.getLatency();
@@ -121,9 +124,11 @@ public class ResultCollector extends NodeObserver {
 				rl += rm.getTotalLatency(); cl += cm.getTotalLatency(); kl += km.getTotalLatency();
 //				rtSize += ((KoalaNode)kp.getMyNode()).getRoutingTable().getSize();
 				
-				rp.removeReceivedMsg(msg.getKey());
-				kp.removeReceivedMsg(msg.getKey());
-				cp.removeReceivedMsg(msg.getKey());
+				NodeUtilities.REN_MSG.remove(msg.getKey());
+				NodeUtilities.KOA_MSG.remove(msg.getKey());
+				NodeUtilities.CHO_MSG.remove(msg.getKey());
+				
+				
 				entriesToRemove.add(msg.getKey());
 				nr++;
 
@@ -168,9 +173,8 @@ public class ResultCollector extends NodeObserver {
 	private void reportRenater(){
 		ArrayList<Integer> entriesToRemove = new ArrayList<Integer>();
 		for(Map.Entry<Integer, Node> msg : sentMgs.entrySet()){
-			RenaterProtocol rp = (RenaterProtocol) msg.getValue().getProtocol(renProtPid);
-			if(rp.hasReceivedMsg(msg.getKey())){
-				KoalaMessage rm = rp.getReceivedMsg(msg.getKey());
+			if(NodeUtilities.REN_MSG.containsKey(msg.getKey())){
+				TopologyMessage rm = NodeUtilities.REN_MSG.get(msg.getKey());
 				renaterTotalLatency += rm.getLatency();
 				renaterTotalLatency = PhysicalDataProvider.round(renaterTotalLatency);
 				
@@ -178,7 +182,7 @@ public class ResultCollector extends NodeObserver {
 				String ok = rm.getPath().toString().equals(rm.getPhysicalPathToString().toString()) ? " (ok) " : " (not ok) ";
 				System.out.println("(R) "+rm.getID() + ": " + rm.getLatency() + " " + rm.getPath() + " " + rm.getPhysicalPathToString() + ok);
 				System.out.println();
-				rp.removeReceivedMsg(msg.getKey());
+				NodeUtilities.REN_MSG.remove(msg.getKey());
 				entriesToRemove.add(msg.getKey());
 			}
 				

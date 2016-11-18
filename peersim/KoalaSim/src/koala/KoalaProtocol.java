@@ -2,6 +2,7 @@ package koala;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,7 @@ import messaging.KoalaMsgContent;
 import messaging.KoalaNGNMsgContent;
 import messaging.KoalaRTMsgConent;
 import messaging.KoalaRouteMsgContent;
+import messaging.TopologyMessage;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Linkable;
@@ -30,7 +32,44 @@ public class KoalaProtocol extends TopologyProtocol{
 		super(prefix);
 		learn = Configuration.getBoolean(prefix + "." +PAR_LEARN, true); 
 	}
+	
+	@Override
+	protected void handleMessage(TopologyMessage msg) {
+		KoalaMessage kmsg = (KoalaMessage)msg;
+		msgPiggyBack = new ArrayList<String>();
+		for(int i = 0; i < kmsg.getPiggyBack().size(); i++)
+			msgPiggyBack.add(kmsg.getPiggyBack().get(i).getNodeID());
 		
+		if(!initializeMode)
+			checkPiggybackedBefore(kmsg);
+		
+		
+		
+		
+		switch(kmsg.getType()){
+			case KoalaMessage.RT:
+				onRoutingTable(kmsg);
+				break;
+			case KoalaMessage.ROUTE:
+				onRoute(kmsg);
+				break;
+			case KoalaMessage.NGN:
+//				logmsg += " " + ((KoalaNGNMsgContent )msg.getContent()).getNeighbor().getNodeID() ; 
+				onNewGlobalNeighbours(kmsg);
+				break;
+			case KoalaMessage.JOIN:
+				join();
+				break;
+			case KoalaMessage.LL:
+				onLongLink(kmsg);
+				break;
+		}
+		
+		if(!initializeMode)
+			checkPiggybackedAfter(kmsg);
+		
+	}
+	
 	public void join()
 	{
 		if(myNode.hasJoined())
@@ -295,7 +334,7 @@ public class KoalaProtocol extends TopologyProtocol{
         	
 	}
 	
-	@Override
+	
 	protected void onLongLink(KoalaMessage msg) {
 		KoalaNeighbor ll = new KoalaNeighbor(msgSender, msg.getLatency(), 3);
 		boolean added = myNode.getRoutingTable().addLongLink(ll);
@@ -312,7 +351,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		
 	}
 
-	@Override
+	
 	protected void checkPiggybackedAfter(KoalaMessage msg) {
 		if (msgSender == null || msgSender.equals(myNode.getID())) return;
 		ArrayList<KoalaNeighbor> pathNodes = new ArrayList<KoalaNeighbor>();
@@ -357,7 +396,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		return "koala";
 	}
 
-	@Override
+	
 	protected void checkPiggybackedBefore(KoalaMessage msg) {
 		Object[] ids = myNode.getRoutingTable().getNeighboursIDs().toArray();
 		String[] idsIknow = Arrays.copyOf(ids, ids.length, String[].class);
@@ -382,6 +421,11 @@ public class KoalaProtocol extends TopologyProtocol{
 	protected void onReceiveLatency(String dest, double l) {
 		 myNode.updateLatencyPerDC(dest, l, 3);
 	     myNode.updateLatencies();
+	}
+
+	@Override
+	protected HashMap<Integer, TopologyMessage> getMsgStorage() {
+		return NodeUtilities.KOA_MSG;
 	}
 
 }

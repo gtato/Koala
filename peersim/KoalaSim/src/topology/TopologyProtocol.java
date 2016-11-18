@@ -3,9 +3,9 @@ package topology;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import koala.KoalaNeighbor;
+
 import koala.KoalaProtocol;
-import messaging.KoalaMessage;
+import messaging.TopologyMessage;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
@@ -25,7 +25,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	protected TopologyNode myNode = null;
 	protected Transport myTransport = null;
 
-	protected HashMap<Integer, KoalaMessage> receivedMsgs;
+//	protected HashMap<Integer, KoalaMessage> receivedMsgs;
 	
 	protected int linkPid = -1;
 	protected int myPid = -1;
@@ -41,7 +41,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 	public TopologyProtocol(String prefix) {
 
-        receivedMsgs = new HashMap<Integer, KoalaMessage>();
+//        receivedMsgs = new HashMap<Integer, KoalaMessage>();
         logMsg = Configuration.getInt("logging.msg", 0) == 1;
 	}
 	
@@ -49,7 +49,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 		TopologyProtocol inp = null;
         try {
             inp = (TopologyProtocol) super.clone();
-            inp.receivedMsgs = new HashMap<Integer, KoalaMessage>();
+//            inp.receivedMsgs = new HashMap<Integer, KoalaMessage>();
         } catch (CloneNotSupportedException e) {
         } // never happens
         return inp;
@@ -62,9 +62,9 @@ public abstract class TopologyProtocol implements EDProtocol {
 	}
 	
 
-	protected void onReceivedMsg(KoalaMessage msg) {
+	protected void onReceivedMsg(TopologyMessage msg) {
 		msg.setReceivedCycle(CommonState.getTime());
-		receivedMsgs.put(msg.getID(), msg);
+		getMsgStorage().put(msg.getID(), msg);
 //		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
 	}
 	
@@ -80,17 +80,17 @@ public abstract class TopologyProtocol implements EDProtocol {
 		return myNode;
 	}
 	
-	public KoalaMessage removeReceivedMsg(int msgID) {
-		return receivedMsgs.remove(msgID);
-	}
-	
-	public boolean hasReceivedMsg(int msgID) {
-		return receivedMsgs.containsKey(msgID);
-	}
-	
-	public KoalaMessage getReceivedMsg(int msgID) {
-		return receivedMsgs.get(msgID);
-	}
+//	public KoalaMessage removeReceivedMsg(int msgID) {
+//		return receivedMsgs.remove(msgID);
+//	}
+//	
+//	public boolean hasReceivedMsg(int msgID) {
+//		return receivedMsgs.containsKey(msgID);
+//	}
+//	
+//	public KoalaMessage getReceivedMsg(int msgID) {
+//		return receivedMsgs.get(msgID);
+//	}
 	
 	public String toString(){
 		return "("+ getProtocolName()+") " +  myNode.toString();
@@ -98,22 +98,16 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 	public abstract void join();
 
-	protected abstract void checkPiggybackedBefore(KoalaMessage msg);
-	protected abstract void checkPiggybackedAfter(KoalaMessage msg);
 	
 	protected abstract String getProtocolName();
 	
 //	protected abstract void checkStatus();
-	
-	protected abstract void onNewGlobalNeighbours(KoalaMessage msg);
-
-	protected abstract void onRoute(KoalaMessage msg);
-	
-	protected abstract void onRoutingTable(KoalaMessage msg);
-	
-	protected abstract void onLongLink(KoalaMessage msg);
-	
+			
 	protected abstract void onReceiveLatency(String dest, double l);
+	
+	protected abstract HashMap<Integer, TopologyMessage> getMsgStorage();
+	
+	protected abstract void handleMessage(TopologyMessage msg);
 	
 	public void intializeMyNode(Node node, int pid){
 		this.node = node;
@@ -125,7 +119,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 			myTransport = (Transport)node.getProtocol(transId);
 	}
 
-	public void send(String destinationID, KoalaMessage msg)
+	public void send(String destinationID, TopologyMessage msg)
 	{
 		Node dest = NodeUtilities.Nodes.get(destinationID);
 
@@ -168,7 +162,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 
 	@SuppressWarnings("unchecked")
-	public void receive(KoalaMessage msg)
+	public void receive(TopologyMessage msg)
 	{
 		String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " received a message from " + msg.getLastSender()  + " a msg of type: " + msg.getTypeName();
 		if(logMsg)
@@ -176,35 +170,8 @@ public abstract class TopologyProtocol implements EDProtocol {
 		
 		msgSender = msg.getLastSender();
 		msgPath = (ArrayList<String>) msg.getPath().clone();
-		msgPiggyBack = new ArrayList<String>();
-		for(int i = 0; i < msg.getPiggyBack().size(); i++)
-			msgPiggyBack.add(msg.getPiggyBack().get(i).getNodeID());
 		
-		if(!initializeMode)
-			checkPiggybackedBefore(msg);
-		
-		switch(msg.getType()){
-			case KoalaMessage.RT:
-				onRoutingTable(msg);
-				break;
-			case KoalaMessage.ROUTE:
-				onRoute(msg);
-				break;
-			case KoalaMessage.NGN:
-//				logmsg += " " + ((KoalaNGNMsgContent )msg.getContent()).getNeighbor().getNodeID() ; 
-				onNewGlobalNeighbours(msg);
-				break;
-			case KoalaMessage.JOIN:
-				join();
-				break;
-			case KoalaMessage.LL:
-				onLongLink(msg);
-				break;
-		}
-		
-		if(!initializeMode)
-			checkPiggybackedAfter(msg);
-		
+		handleMessage(msg);
 	}
 
 	
@@ -224,7 +191,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	@Override
 	public void processEvent(Node node, int pid, Object event) {
 		intializeMyNode(node, pid);
-		receive((KoalaMessage)event);
+		receive((TopologyMessage)event);
 	}
 
 	

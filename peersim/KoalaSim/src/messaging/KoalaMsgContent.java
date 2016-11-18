@@ -1,20 +1,12 @@
 package messaging;
 
-public class KoalaMsgContent {
-	
-	int msgType;
+public class KoalaMsgContent extends TopologyMessageContent{
 
 	public KoalaMsgContent(int msgType) {
-		super();
-		this.msgType = msgType;
+		super(msgType);
+		// TODO Auto-generated constructor stub
 	}
-
-	public int getMsgType() {
-		return msgType;
-	}
-
-	public void setMsgType(int msgType) {
-		this.msgType = msgType;
-	}
+	
+	
 	
 }

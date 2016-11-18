@@ -12,8 +12,8 @@ public class KoalaJsonParser {
 	public static void intitialize(){
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		
-		gsonBuilder.registerTypeAdapter(KoalaMessage.class, new KoalaMessage.KoalaMessageSerializer());
-		gsonBuilder.registerTypeAdapter(KoalaMessage.class, new KoalaMessage.KoalaMessageDeserializer());
+//		gsonBuilder.registerTypeAdapter(KoalaMessage.class, new KoalaMessage.KoalaMessageSerializer());
+//		gsonBuilder.registerTypeAdapter(KoalaMessage.class, new KoalaMessage.KoalaMessageDeserializer());
 		
 		gson = gsonBuilder.create();
 	}
