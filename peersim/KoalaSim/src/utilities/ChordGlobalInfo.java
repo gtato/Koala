@@ -25,4 +25,6 @@ public class ChordGlobalInfo {
 		return null;
 	}
 	
+	//this will soon die 
+	
 }
