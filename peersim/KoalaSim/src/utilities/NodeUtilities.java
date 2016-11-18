@@ -1,11 +1,13 @@
 package utilities;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import messaging.TopologyMessage;
 import chord.ChordNode;
+import chord.ChordProtocol;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import peersim.config.Configuration;
@@ -46,7 +48,11 @@ public class NodeUtilities {
 	public static int PiggybackLength = 0;
 	public static double WORLD_SIZE = 1.0;
 	
+	public static int SUCC_SIZE = 0;
+	public static int M = 0;
+	
 	public static Map<String, Node> Nodes =  new HashMap<String, Node>();
+	public static HashMap<BigInteger, Node> CHORD_NODES = new HashMap<BigInteger, Node>();
 	public static Map<String, RenaterNode> Gateways =  new HashMap<String, RenaterNode>();
 	public static double[][] CenterPerDC;
 	public static HashMap<Integer, TopologyMessage> REN_MSG =  new HashMap<Integer, TopologyMessage>();
@@ -60,6 +66,9 @@ public class NodeUtilities {
 		A = (double) 1 / NR_NODE_PER_DC;
 		B = Configuration.getDouble("ALPHA", 0.5);
 		C = 1-B;
+		
+		SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
+		M = Configuration.getInt("M", 10);
 		
 		PiggybackLength = Configuration.getInt("koala.settings.piggyback", 10);
 		String dijktraStr = Configuration.getString("koala.settings.dijkstramethod", "ram");
@@ -128,6 +137,14 @@ public class NodeUtilities {
 	
 	public static ChordNode getChordNode(String id){
 		return (ChordNode) Nodes.get(id).getProtocol(CID);
+	}
+	
+	public static ChordNode getChordNodeByCID(BigInteger id){
+		return (ChordNode) CHORD_NODES.get(id).getProtocol(CID);
+	}
+	
+	public static ChordNode getChordFromNode(Node n){
+		return (ChordNode) n.getProtocol(CID);
 	}
 	
 	public static int getDCID(String id){
@@ -242,6 +259,15 @@ public class NodeUtilities {
 		}
 		
 		return ids;
+	}
+	
+	public static BigInteger generateNewChordID(){
+		BigInteger newId;
+		do
+			newId= new BigInteger(M, CommonState.r);
+		while(CHORD_NODES.containsKey(newId));
+		
+		return newId;
 	}
 	
 //	public static double normalizeLatency(int totDistance, double latency) {
