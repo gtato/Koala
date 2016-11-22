@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import chord.ChordProtocol;
+import koala.KoalaProtocol;
 import messaging.TopologyMessage;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Node;
+import renater.RenaterProtocol;
 import spaasclient.SPClient;
 import utilities.KoaLite;
 import utilities.NodeUtilities;
@@ -60,7 +63,10 @@ public class ResultCollector extends NodeObserver {
 			reportRenater();
 		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
 			System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg));
+			System.out.println("CHORD: success: " + ChordProtocol.SUCCESS + " fails: " + ChordProtocol.FAIL);
+			System.out.println("KOALA: success: " + KoalaProtocol.SUCCESS + " fails: " + KoalaProtocol.FAIL);
 			SPClient.printCacheStats();
+			
 			graphToFile();
 			
 //			plotIt();
@@ -81,14 +87,14 @@ public class ResultCollector extends NodeObserver {
 //			KoalaProtocol kp = (KoalaProtocol) msg.getValue().getProtocol(koaProtPid);
 //			ChordProtocol cp = (ChordProtocol) msg.getValue().getProtocol(chordProtPid);
 			
-			if(NodeUtilities.REN_MSG.containsKey(msg.getKey())
-			&& NodeUtilities.KOA_MSG.containsKey(msg.getKey())
-			&& NodeUtilities.CHO_MSG.containsKey(msg.getKey())
+			if(RenaterProtocol.REC_MSG.containsKey(msg.getKey())
+			&& KoalaProtocol.REC_MSG.containsKey(msg.getKey())
+			&& ChordProtocol.REC_MSG.containsKey(msg.getKey())
 			){
 			
-				TopologyMessage rm = NodeUtilities.REN_MSG.get(msg.getKey());
-				TopologyMessage km = NodeUtilities.KOA_MSG.get(msg.getKey());
-				TopologyMessage cm = NodeUtilities.CHO_MSG.get(msg.getKey());
+				TopologyMessage rm = RenaterProtocol.REC_MSG.get(msg.getKey());
+				TopologyMessage km = KoalaProtocol.REC_MSG.get(msg.getKey());
+				TopologyMessage cm = ChordProtocol.REC_MSG.get(msg.getKey());
 				
 //				renaterTotalLatency += rm.getLatency();
 //				koalaTotalLatency += km.getLatency();
@@ -119,9 +125,9 @@ public class ResultCollector extends NodeObserver {
 				rl += rm.getTotalLatency(); cl += cm.getTotalLatency(); kl += km.getTotalLatency();
 //				rtSize += ((KoalaNode)kp.getMyNode()).getRoutingTable().getSize();
 				
-				NodeUtilities.REN_MSG.remove(msg.getKey());
-				NodeUtilities.KOA_MSG.remove(msg.getKey());
-				NodeUtilities.CHO_MSG.remove(msg.getKey());
+				RenaterProtocol.REC_MSG.remove(msg.getKey());
+				KoalaProtocol.REC_MSG.remove(msg.getKey());
+				ChordProtocol.REC_MSG.remove(msg.getKey());
 				
 				
 				entriesToRemove.add(msg.getKey());
@@ -133,12 +139,12 @@ public class ResultCollector extends NodeObserver {
 				}
 				String printstr = rm.getSentCycle()+""; 
 				printstr +=	"\t"+rm.getTotalLatency()+"\t"+cm.getTotalLatency()+"\t"+km.getTotalLatency();
-				printstr += "\t"+ rm.getPath().size() + "\t"+ cm.getPath().size() + "\t"+ km.getPath().size();
+				printstr += "\t"+ rm.getHops() + "\t"+ cm.getHops() + "\t"+ km.getHops();
  				printstr += "\t"+ rm.getHopCategory() + "\t"+ rm.getLatencyCategory();
  				printstr += "\t"+ rm.getPath();
  				printstr += "\t"+ km.getPath();
 				msgToPrint.add(printstr);
-
+//				System.out.println(cm.getPath());
 			}
 				
 		}
@@ -168,8 +174,8 @@ public class ResultCollector extends NodeObserver {
 	private void reportRenater(){
 		ArrayList<Integer> entriesToRemove = new ArrayList<Integer>();
 		for(Map.Entry<Integer, Node> msg : sentMgs.entrySet()){
-			if(NodeUtilities.REN_MSG.containsKey(msg.getKey())){
-				TopologyMessage rm = NodeUtilities.REN_MSG.get(msg.getKey());
+			if(RenaterProtocol.REC_MSG.containsKey(msg.getKey())){
+				TopologyMessage rm = RenaterProtocol.REC_MSG.get(msg.getKey());
 				renaterTotalLatency += rm.getLatency();
 				renaterTotalLatency = PhysicalDataProvider.round(renaterTotalLatency);
 				
@@ -177,7 +183,7 @@ public class ResultCollector extends NodeObserver {
 				String ok = rm.getPath().toString().equals(rm.getPhysicalPathToString().toString()) ? " (ok) " : " (not ok) ";
 				System.out.println("(R) "+rm.getID() + ": " + rm.getLatency() + " " + rm.getPath() + " " + rm.getPhysicalPathToString() + ok);
 				System.out.println();
-				NodeUtilities.REN_MSG.remove(msg.getKey());
+				RenaterProtocol.REC_MSG.remove(msg.getKey());
 				entriesToRemove.add(msg.getKey());
 			}
 				

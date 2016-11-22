@@ -3,6 +3,8 @@ package topology.controllers;
 import java.util.ArrayList;
 
 import chord.ChordNode;
+import messaging.ChordLookUpContent;
+import messaging.ChordMessage;
 import messaging.KoalaMessage;
 import messaging.KoalaRouteMsgContent;
 import koala.KoalaNode;
@@ -10,6 +12,7 @@ import koala.KoalaProtocol;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
+import peersim.core.Network;
 import peersim.core.Node;
 import peersim.reports.GraphObserver;
 import peersim.transport.Transport;
@@ -54,6 +57,7 @@ public class KoalaPlanner extends GraphObserver {
 		chordNodePid =  chordProtPid > -1 ? FastConfig.getLinkable(chordProtPid) : -1;
 		
 		msgID = 0;
+		initilizeRoutes();
 	}
 
 	@Override
@@ -151,18 +155,16 @@ public class KoalaPlanner extends GraphObserver {
 	}
 	
 	private void route() {
-		if(CommonState.getTime() == 0){
-			initilizeRoutes();
-//			routes.add(0, new Node[]{NodeUtilities.Nodes.get("0-0"), NodeUtilities.Nodes.get("400-0")});
-		}
 		
-		if(routes.size() == 0)
-			return;
 		
-		Node[] srcdst = routes.remove(0); 
-		Node src = srcdst[0];
-		Node dst = srcdst[1];
-		
+		Node src, dst;
+		do{
+			if(routes.size() == 0)
+				initilizeRoutes();
+			Node[] srcdst = routes.remove(0); 
+			src = srcdst[0];
+			dst = srcdst[1];
+		}while(!src.isUp() || !dst.isUp());
 		
 		TopologyNode sourc = koaProtPid >= 0 ? (KoalaNode)src.getProtocol(koaNodePid) : (RenaterNode)src.getProtocol(renNodePid);
 		TopologyNode dest = koaProtPid >= 0 ? (KoalaNode)dst.getProtocol(koaNodePid) : (RenaterNode)dst.getProtocol(renNodePid);
@@ -183,7 +185,8 @@ public class KoalaPlanner extends GraphObserver {
 		
 		if(chordProtPid >= 0){
 			ChordNode destCn = (ChordNode)dst.getProtocol(chordNodePid);
-			KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(destCn.chordId.toString()));
+			ChordLookUpContent cc = new ChordLookUpContent(ChordMessage.LOOK_UP, destCn);
+			ChordMessage msg = new ChordMessage(cc);
         	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
         	tr.send(null, src, msg, chordProtPid);
 		}
@@ -212,13 +215,13 @@ public class KoalaPlanner extends GraphObserver {
 	private ArrayList<Node> getRandomNodes(int n, boolean joined, ArrayList<Node> except){
 		ArrayList<Node> toRet = new ArrayList<Node>();
 		ArrayList<Integer> complyingIndexes = new ArrayList<Integer>();
-		for (int i = 0; i < g.size(); i++) {
-			if(except.contains(g.getNode(i)))
+		for (int i = 0; i < Network.size(); i++) {
+			if(except.contains(Network.get(i)))
 				continue;
         	//int id = koaProtPid >= 0 ? koaProtPid : renProtPid;
         	int nid = koaProtPid >= 0 ? koaNodePid : renNodePid;
         	//TopologyProtocol currentNode = (TopologyProtocol)((Node)g.getNode(i)).getProtocol(id);
-        	TopologyNode ncurrentNode = (TopologyNode)((Node)g.getNode(i)).getProtocol(nid);
+        	TopologyNode ncurrentNode = (TopologyNode)(Network.get(i)).getProtocol(nid);
         	//boolean cond = joined ? currentNode.hasJoined() : !currentNode.hasJoined();
         	boolean cond = joined ? ncurrentNode.hasJoined() : !ncurrentNode.hasJoined();
 //        	if(id == renProtPid)
@@ -232,7 +235,7 @@ public class KoalaPlanner extends GraphObserver {
 		
 		for(int i = 0; i< max; i++){
 			int sel = CommonState.r.nextInt(complyingIndexes.size());
-			toRet.add((Node)g.getNode(complyingIndexes.get(sel)));
+			toRet.add(Network.get(complyingIndexes.get(sel)));
 		}
 		return toRet;
 		

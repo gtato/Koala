@@ -30,13 +30,14 @@ public abstract class TopologyProtocol implements EDProtocol {
 	protected int myPid = -1;
 	protected int transId = -1;
 	
-	protected int fails = 0;
+//	protected int fails = 0;
 	protected boolean logMsg;
 	protected static boolean initializeMode; //true only when the koala ring is being statically initialized (false during the simulation)
 	
 	protected String msgSender;
 	protected ArrayList<String> msgPath;
 	protected ArrayList<String> msgPiggyBack;
+	
 	
 	public TopologyProtocol(String prefix) {
 
@@ -61,19 +62,21 @@ public abstract class TopologyProtocol implements EDProtocol {
 	}
 	
 
-	protected void onReceivedMsg(TopologyMessage msg) {
-		msg.setReceivedCycle(CommonState.getTime());
-		getMsgStorage().put(msg.getID(), msg);
-//		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
-	}
+//	protected void onReceivedMsg(TopologyMessage msg) {
+//		msg.setReceivedCycle(CommonState.getTime());
+//		REC_MSG.put(msg.getID(), msg);
+//		getMsgStorage().put(msg.getID(), msg);
+//		SUCCESS++;
+////		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
+//	}
 	
-	protected void onFail(){
-		fails++;
-	}
+	protected abstract void onSuccess(TopologyMessage msg);
+	protected abstract void onFail();
+		
 	
-	public int getFails(){
-		return fails;
-	}
+//	public int getFails(){
+//		return fails;
+//	}
 	
 	public TopologyNode getMyNode(){
 		return myNode;
@@ -104,7 +107,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 			
 	protected abstract void onReceiveLatency(String dest, double l);
 	
-	protected abstract HashMap<Integer, TopologyMessage> getMsgStorage();
+//	protected abstract HashMap<Integer, TopologyMessage> getMsgStorage();
 	
 	protected abstract void handleMessage(TopologyMessage msg);
 	
@@ -120,6 +123,11 @@ public abstract class TopologyProtocol implements EDProtocol {
 
 	public void send(String destinationID, TopologyMessage msg)
 	{
+		if(destinationID == null || destinationID.equals(myNode.getID())){
+			handleMessage(msg);
+			return;
+		}
+		
 		Node dest = NodeUtilities.Nodes.get(destinationID);
 
 		if(dest != null){
@@ -192,6 +200,8 @@ public abstract class TopologyProtocol implements EDProtocol {
 		intializeMyNode(node, pid);
 		receive((TopologyMessage)event);
 	}
+
+	
 
 	
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import messaging.KoalaMessage;
 import messaging.KoalaRouteMsgContent;
 import messaging.TopologyMessage;
+import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Node;
 import topology.TopologyProtocol;
@@ -12,6 +13,10 @@ import utilities.NodeUtilities;
 
 public class RenaterProtocol extends TopologyProtocol {
 
+	public static HashMap<Integer, TopologyMessage> REC_MSG =  new HashMap<Integer, TopologyMessage>();
+	public static int SUCCESS = 0;
+	public static int FAIL = 0;
+	
 	RenaterNode myNode;
 
 	public RenaterProtocol(String prefix) {
@@ -36,7 +41,7 @@ public class RenaterProtocol extends TopologyProtocol {
 			else
 				onFail(); // happens if the graph is disconnected, in that case we are in a real trouble
 		}else {
-			onReceivedMsg(msg);
+			onSuccess(msg);
 		}
 		
 	}
@@ -62,10 +67,10 @@ public class RenaterProtocol extends TopologyProtocol {
 		
 	}
 
-	@Override
-	protected HashMap<Integer, TopologyMessage> getMsgStorage() {
-		return NodeUtilities.REN_MSG;
-	}
+//	@Override
+//	protected HashMap<Integer, TopologyMessage> getMsgStorage() {
+//		return NodeUtilities.REN_MSG;
+//	}
 
 	@Override
 	protected void handleMessage(TopologyMessage msg) {
@@ -77,6 +82,19 @@ public class RenaterProtocol extends TopologyProtocol {
 		
 	}
 
+
+	protected void onSuccess(TopologyMessage msg) {
+		msg.setReceivedCycle(CommonState.getTime());
+		REC_MSG.put(msg.getID(), msg);
+		SUCCESS++;
+//		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
+	}
+	
+	protected void onFail(){
+		FAIL++;
+	}
+
+	
 
 
 }

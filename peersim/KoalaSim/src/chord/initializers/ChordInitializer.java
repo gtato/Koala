@@ -71,8 +71,8 @@ public class ChordInitializer implements NodeInitializer, Control {
 	}
 
 	public ChordNode findNodeforId(BigInteger id) {
-		for (int i = 0; i < Network.size(); i++) {
-			ChordNode cp = NodeUtilities.getChordFromNode(Network.get(i));
+		for (int i = 0; i < ChordGlobalInfo.network.size(); i++) {
+			ChordNode cp = ChordGlobalInfo.get(i);
 			if(cp.chordId.compareTo(id) >= 0)
 				return cp;
 		}

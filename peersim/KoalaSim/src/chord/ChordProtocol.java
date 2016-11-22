@@ -20,6 +20,10 @@ import messaging.TopologyMessage;
 
 public class ChordProtocol extends TopologyProtocol {
 
+	public static HashMap<Integer, TopologyMessage> REC_MSG =  new HashMap<Integer, TopologyMessage>();
+	public static int SUCCESS = 0;
+	public static int FAIL = 0;
+	
 	ChordNode myNode;
 
 	public ChordProtocol(String prefix) {
@@ -75,7 +79,7 @@ public class ChordProtocol extends TopologyProtocol {
 		BigInteger target = ((ChordLookUpContent)msg.getContent()).getChordNode().chordId;
 		
 		if(msg.isType(ChordMessage.LOOK_UP) && target.equals(myNode.chordId)){
-			onReceivedMsg(msg); return;
+			onSuccess(msg); return;
 		}
 		
 		else if (msg.isType(ChordMessage.SUCCESSOR) && ChordNode.inAB(target, myNode.chordId, myNode.successorList[0].chordId)) {
@@ -88,7 +92,7 @@ public class ChordProtocol extends TopologyProtocol {
 		}
 		else{
 			ChordNode dest = myNode.closestPrecedingNode(target);
-			if(dest != null)
+			if(dest != null && !dest.getID().equals(myNode.getID()))
 				send(dest.getID(), msg);
 			else
 				onFail();
@@ -105,7 +109,7 @@ public class ChordProtocol extends TopologyProtocol {
 		if(label.contains("successor")) //predecessor
 		{
 			ChordNode pred = succ.predecessor;
-			if(label.contains("first") || pred.equals(myNode.chordId)){
+			if(label.contains("first") || pred.equals(myNode)){
 				myNode.successorList[0] = succ;
 				if(label.contains("first")) myNode.predecessor = pred;
 				System.arraycopy(succ.successorList,0,myNode.successorList,1,myNode.successorList.length-1);
@@ -127,7 +131,9 @@ public class ChordProtocol extends TopologyProtocol {
 	
 	public void onNotify(ChordMessage msg){
 		ChordNode node = ((ChordLookUpContent)msg.getContent()).getChordNode();
-		if (myNode.predecessor == null || ChordNode.inAB(node.chordId, myNode.predecessor.chordId, myNode.chordId))
+		if (myNode.predecessor == null || 
+		 (ChordNode.inAB(node.chordId, myNode.predecessor.chordId, myNode.chordId)
+				 && !node.chordId.equals(myNode.chordId)))
 			myNode.predecessor = node;
 	}
 
@@ -135,7 +141,6 @@ public class ChordProtocol extends TopologyProtocol {
 		ChordLookUpContent content =  new ChordLookUpContent(ChordMessage.SUCCESSOR, new ChordNode(id));
 		ChordMessage predmsg = new ChordMessage(content);
 		predmsg.setLabel(label);
-		
 		send(nodeToAsk, predmsg);
 	}
 
@@ -192,7 +197,7 @@ public class ChordProtocol extends TopologyProtocol {
 			onSuccessorFound(cmsg);
 			break;
 		case ChordMessage.FINAL:
-			onReceivedMsg(cmsg);
+			onSuccess(cmsg);
 			break;
 		case ChordMessage.NOTIFY:
 			onNotify(cmsg);
@@ -203,11 +208,17 @@ public class ChordProtocol extends TopologyProtocol {
 	}
 
 
-	@Override
-	protected HashMap<Integer, TopologyMessage> getMsgStorage() {
-		return NodeUtilities.CHO_MSG;
-		
+	protected void onSuccess(TopologyMessage msg) {
+		msg.setReceivedCycle(CommonState.getTime());
+		REC_MSG.put(msg.getID(), msg);
+		SUCCESS++;
+//		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
 	}
+	
+	protected void onFail(){
+		FAIL++;
+	}
+
 
 	
 }

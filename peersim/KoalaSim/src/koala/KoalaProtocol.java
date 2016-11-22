@@ -25,6 +25,10 @@ import utilities.PhysicalDataProvider;
 
 public class KoalaProtocol extends TopologyProtocol{
 
+	public static HashMap<Integer, TopologyMessage> REC_MSG =  new HashMap<Integer, TopologyMessage>();
+	public static int SUCCESS = 0;
+	public static int FAIL = 0;
+	
 	private static final String PAR_LEARN= "learn";
 	KoalaNode myNode;
 	private final boolean learn;
@@ -313,7 +317,7 @@ public class KoalaProtocol extends TopologyProtocol{
             	onFail();
            
         }else{
-        	onReceivedMsg(msg);
+        	onSuccess(msg);
         	
         	if(!initializeMode && learn){
 	        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), PhysicalDataProvider.getDefaultInterLatency(), 0);
@@ -423,9 +427,15 @@ public class KoalaProtocol extends TopologyProtocol{
 	     myNode.updateLatencies();
 	}
 
-	@Override
-	protected HashMap<Integer, TopologyMessage> getMsgStorage() {
-		return NodeUtilities.KOA_MSG;
+	protected void onSuccess(TopologyMessage msg) {
+		msg.setReceivedCycle(CommonState.getTime());
+		REC_MSG.put(msg.getID(), msg);
+		SUCCESS++;
+//		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
+	}
+	
+	protected void onFail(){
+		FAIL++;
 	}
 
 }

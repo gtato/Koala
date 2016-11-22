@@ -31,6 +31,8 @@ public class NodeUtilities {
 	
 	public static int MAGIC = 2;
 	
+	
+	
 //	public static double MAX_INTER_LATENCY = 2000;
 //	public static double MAX_INTRA_LATENCY = 500;
 	
@@ -55,10 +57,7 @@ public class NodeUtilities {
 	public static HashMap<BigInteger, Node> CHORD_NODES = new HashMap<BigInteger, Node>();
 	public static Map<String, RenaterNode> Gateways =  new HashMap<String, RenaterNode>();
 	public static double[][] CenterPerDC;
-	public static HashMap<Integer, TopologyMessage> REN_MSG =  new HashMap<Integer, TopologyMessage>();
-	public static HashMap<Integer, TopologyMessage> KOA_MSG =  new HashMap<Integer, TopologyMessage>();
-	public static HashMap<Integer, TopologyMessage> CHO_MSG =  new HashMap<Integer, TopologyMessage>();
-	
+
 	public static void initialize(){
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
 		NR_DC = Configuration.getInt("NR_DC");

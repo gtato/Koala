@@ -312,6 +312,7 @@ public class KoalaNode extends TopologyNode{
 		ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>(); 
 	
 		for(KoalaNeighbor re : rt){
+			if(!NodeUtilities.Nodes.get(re.getNodeID()).isUp()) continue;
 			v = getRouteValue(dest, re, alpha);
 			mre = new AbstractMap.SimpleEntry<Double, KoalaNeighbor>(v, re);
 			potentialDests.add(mre);
