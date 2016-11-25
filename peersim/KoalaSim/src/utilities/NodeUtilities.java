@@ -52,6 +52,7 @@ public class NodeUtilities {
 	
 	public static int SUCC_SIZE = 0;
 	public static int M = 0;
+	public static int NEIGHBORS = Configuration.getInt("NEIGHBORS", 2);
 	
 	public static Map<String, Node> Nodes =  new HashMap<String, Node>();
 	public static HashMap<BigInteger, Node> CHORD_NODES = new HashMap<BigInteger, Node>();
@@ -68,6 +69,8 @@ public class NodeUtilities {
 		
 		SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
 		M = Configuration.getInt("M", 10);
+		
+//		NEIGHBORS= Configuration.getInt("NEIGHBORS", 2);
 		
 		PiggybackLength = Configuration.getInt("koala.settings.piggyback", 10);
 		String dijktraStr = Configuration.getString("koala.settings.dijkstramethod", "ram");

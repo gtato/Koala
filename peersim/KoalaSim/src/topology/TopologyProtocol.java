@@ -3,7 +3,6 @@ package topology;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 import koala.KoalaProtocol;
 import messaging.TopologyMessage;
 import peersim.config.Configuration;
@@ -131,9 +130,10 @@ public abstract class TopologyProtocol implements EDProtocol {
 		Node dest = NodeUtilities.Nodes.get(destinationID);
 
 		if(dest != null){
-			if(ErrorDetection.hasLoopCommunication(msg,destinationID))
-				System.out.println("problems in horizon");
-				
+			if(ErrorDetection.hasLoopCommunication(msg,destinationID)){
+				System.err.println("Message is going in cycles");
+				System.exit(1);
+			}
 			String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " sending a message to " + destinationID  + " a msg of type: " + msg.getTypeName();
 			if(logMsg)
 			System.out.println(logmsg);

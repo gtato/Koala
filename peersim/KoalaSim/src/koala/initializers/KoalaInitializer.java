@@ -88,9 +88,20 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		}
 		
 		
+		for (int i = 0; i < nr; i++) {
+			System.out.println("");
+			Node n = Network.get(inx.get(i));
+			KoalaNode kn = (KoalaNode )n.getProtocol(FastConfig.getLinkable( koaProtPid));
+			System.out.println(kn.getID());
+			System.out.print("succs: ");
+			for(KoalaNeighbor neig : kn.getRoutingTable().getGlobalSucessors())
+				System.out.print(neig.getNodeID() +  " ");
+			System.out.print("\npred: ");
+			for(KoalaNeighbor neig : kn.getRoutingTable().getGlobalPredecessors())
+				System.out.print(neig.getNodeID() +  " ");
+		}
 		
-		
-//		System.exit(0);
+		System.exit(0);
 		System.out.println("Done.");
 		
 		TopologyProtocol.setInitializeMode(false);

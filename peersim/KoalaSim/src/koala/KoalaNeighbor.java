@@ -1,7 +1,8 @@
 package koala;
 
+import java.util.Comparator;
 
-
+import utilities.NodeUtilities;
 
 public class KoalaNeighbor{
 
@@ -56,8 +57,19 @@ public class KoalaNeighbor{
 		}
 	}
 	
+	public boolean equals(Object n){
+		if (KoalaNode.class.isInstance(n))
+			return this.equals((KoalaNode)n);
+		if (KoalaNeighbor.class.isInstance(n))
+			return this.equals((KoalaNeighbor)n);
+		return false;
+	}
+	
 	public boolean equals(KoalaNeighbor n){
 		return this.getNodeID().equals(n.getNodeID());
+	}
+	public boolean equals(KoalaNode n){
+		return this.getNodeID().equals(n.getID());
 	}
 
 	public int getLatencyQuality() {
@@ -67,7 +79,6 @@ public class KoalaNeighbor{
 	public void setLatencyQuality(int latencyQuality) {
 		this.latencyQuality = latencyQuality;
 	}
-	
 	
 	
 	public String toString(){
@@ -83,4 +94,17 @@ public class KoalaNeighbor{
 		this.idealID = idealID;
 	}
 
+	public static class NeighborComparator implements Comparator<KoalaNeighbor>{
+		String referenceId;
+		public NeighborComparator(String ref){
+			referenceId = ref;
+		}
+		@Override
+		public int compare(KoalaNeighbor arg0, KoalaNeighbor arg1) {
+			int dist1 = NodeUtilities.distance(referenceId, arg0.getNodeID());
+			int dist2 = NodeUtilities.distance(referenceId, arg1.getNodeID());
+			return dist1 - dist2;
+		}
+		
+	}
 }

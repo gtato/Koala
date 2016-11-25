@@ -192,9 +192,9 @@ public class KoalaProtocol extends TopologyProtocol{
         content.setCandidates(new_cands.toArray(new String[new_cands.size()]));
         msg.setContent(content);
         
-        KoalaNeighbor target = myNode.getRoutingTable().getLocalPredecessor();
+        KoalaNeighbor target = myNode.getRoutingTable().getLocalPredecessor(0);
         if (msgSender.equals(target))
-            target = myNode.getRoutingTable().getLocalSucessor();
+            target = myNode.getRoutingTable().getLocalSucessor(0);
         if(!NodeUtilities.isDefault(target))
         	send(target.getNodeID(), msg);
 	}
@@ -219,6 +219,7 @@ public class KoalaProtocol extends TopologyProtocol{
 			dcsBefore.add(NodeUtilities.getDCID(neighID));
 		dcsBefore.add(myNode.getDCID());
 		
+//		myNode.updateNeighbors(receivedNeighbors, source.getID(), msgSender,  msg.getLatency());
 		
 		ArrayList<KoalaNeighbor> myOldNeighbors = new ArrayList<KoalaNeighbor>();
 		for(KoalaNeighbor recNeighbor: receivedNeighbors){
@@ -279,10 +280,10 @@ public class KoalaProtocol extends TopologyProtocol{
 	private void broadcastGlobalNeighbor(KoalaNeighbor newNeig) {
         Set<String> candidates = myNode.createRandomIDs(NodeUtilities.MAGIC);
         ArrayList<KoalaNeighbor> localNeigs = new ArrayList<KoalaNeighbor>(); 
-        localNeigs.add(myNode.getRoutingTable().getLocalSucessor());
+        localNeigs.add(myNode.getRoutingTable().getLocalSucessor(0));
 //        localNeigs.add(myNode.getRoutingTable().getLocalPredecessor());
-        if(!myNode.getRoutingTable().getLocalPredecessor().getNodeID().equals(myNode.getRoutingTable().getLocalSucessor().getNodeID()))
-        	localNeigs.add(myNode.getRoutingTable().getLocalPredecessor());
+        if(!myNode.getRoutingTable().getLocalPredecessor(0).equals(myNode.getRoutingTable().getLocalSucessor(0)))
+        	localNeigs.add(myNode.getRoutingTable().getLocalPredecessor(0));
         
         KoalaNGNMsgContent msgContent = new KoalaNGNMsgContent(candidates.toArray(new String[candidates.size()]), newNeig); 
         KoalaMessage newMsg = new KoalaMessage(msgContent);        
