@@ -142,7 +142,7 @@ public class KoalaRoutingTable {
 		if(globalSucessors[index].equals(kn)){
 			//update
 			globalSucessors[index].update(kn);
-		}else{
+		}else{ 
 //			oldEntry = globalSucessors[index]; 
 //			globalSucessors[index] = kn;
 			oldEntry = last(globalSucessors);

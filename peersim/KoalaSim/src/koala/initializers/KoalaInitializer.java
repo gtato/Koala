@@ -67,11 +67,11 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			if(koaProtPid > -1){
 				
 				KoalaProtocol kp = (KoalaProtocol )n.getProtocol(koaProtPid);
+				KoalaNode kn = (KoalaNode )n.getProtocol(FastConfig.getLinkable( koaProtPid));
 				kp.intializeMyNode(n, koaProtPid);
 				kp.join();
 				
 				if(nr_longlinks > 0){
-					KoalaNode kn = (KoalaNode )n.getProtocol(FastConfig.getLinkable( koaProtPid));
 					ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(nr_longlinks, kn);
 //					ArrayList<KoalaNeighbor> lls = getLongLinksRand(nr_longlinks);
 					kn.getRoutingTable().setLongLinks(lls);
@@ -134,12 +134,21 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			k = NodeUtilities.NR_DC/4;
 //		int n = NodeUtilities.NR_DC;
 		HashSet<Integer> nids = new HashSet<Integer>();
-		while(nids.size() != k){
-			int nid = (int)(Math.exp(Math.log(n) * (CommonState.r.nextDouble()-1.0))*n);
+		int limit = 50;
+		int trials = 0;
+		while(nids.size() != k && trials < limit){
+			int sizebefore = nids.size();
+			int nid = (int) Math.round(Math.exp(Math.log(n) * (CommonState.r.nextDouble()-1.0))*n);
 			if(nid > 1) //skip neighbors, we already have them
 				nids.add(nid);
 //			System.out.println(nids.size());
+			if(sizebefore == nids.size())
+				trials++;
+			else
+				trials = 0;
 		}
+		
+		
 		
 		for(Integer dist : nids){
 			String[] ids = NodeUtilities.getIDFromDistance(kn.getID(), dist, false);

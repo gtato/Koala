@@ -81,11 +81,13 @@ public class KoalaProtocol extends TopologyProtocol{
 		
 		Node bootstrap = getBootstrap();
 		
-		if (bootstrap == null)
+		if (bootstrap == null){
 			myNode.setJoined(true);
-		else{
+			System.out.println(myNode.getID()+ " is the first joining");
+		}else{
 			KoalaNode bootstrapRn = (KoalaNode)bootstrap.getProtocol(linkPid);
 			String bootstrapID = bootstrapRn.getID();
+			System.out.println(myNode.getID()+ " is joining on " + bootstrapID);
 			myNode.setBootstrapID( bootstrapID );
 			KoalaNeighbor first = new KoalaNeighbor(bootstrapID);
 			myNode.tryAddNeighbour(first);

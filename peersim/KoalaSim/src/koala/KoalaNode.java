@@ -142,25 +142,29 @@ public class KoalaNode extends TopologyNode{
         KoalaNeighbor oldS, oldP;
         oldS = oldP = null;
         
-        if(this.isSuccessor(n.getNodeID())){
-            oldS = local ? getRoutingTable().setLocalSucessor(n,0) : getRoutingTable().setGlobalSucessor(n,0);
-            addedS = oldS != null ? 1 : 0;
-            if (!NodeUtilities.isDefault(oldS)) oldNeighbors.add(oldS);   
-        }
-        if (this.isPredecessor(n.getNodeID())){
-            oldP = local ? getRoutingTable().setLocalPredecessor(n,0) : getRoutingTable().setGlobalPredecessor(n,0);
-            addedP = oldP != null ? 1 : 0;
-            if (!NodeUtilities.isDefault(oldP)) oldNeighbors.add(oldP);
+        for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
+		    if(this.isSuccessor(n.getNodeID(), i))
+		        oldS = local ? getRoutingTable().setLocalSucessor(n,i) : getRoutingTable().setGlobalSucessor(n,i);
+		        
+		    if (this.isPredecessor(n.getNodeID(), i))
+		        oldP = local ? getRoutingTable().setLocalPredecessor(n,i) : getRoutingTable().setGlobalPredecessor(n,i);
+		    
+		    if(i==0){
+		    	addedS = oldS != null ? 1 : 0;
+		    	addedP = oldP != null ? 1 : 0;
+		    	if (!NodeUtilities.isDefault(oldS)) oldNeighbors.add(oldS);
+		    	if (!NodeUtilities.isDefault(oldP)) oldNeighbors.add(oldP);
+		    }
         }
         
-        updateNeighbors(n);
+//        updateNeighbors(n);
         
         int ret = Math.max(addedS, addedP);
          
         if( ret == 1)
             ret++;
 
-        if( ret ==-1 && (canBePredecessor(n.getNodeID()) || canBeSuccessor(n.getNodeID())))
+        if( ret ==-1 && (canBePredecessor(n.getNodeID(),0) || canBeSuccessor(n.getNodeID(), 0)))
             ret = 1;
 
         getRoutingTable().setOldNeighborsContainer(oldNeighbors);
@@ -218,76 +222,108 @@ public class KoalaNode extends TopologyNode{
 	}
 	
 	
-	private boolean isNeighbour(String nodeID){
-        if (isSuccessor(nodeID))
-            return true;
-        if (isPredecessor(nodeID))
-            return true;
-        return false;
-	}
+//	private boolean isNeighbour(String nodeID){
+//        if (isSuccessor(nodeID))
+//            return true;
+//        if (isPredecessor(nodeID))
+//            return true;
+//        return false;
+//	}
 	
-	private boolean isSuccessor(String nodeID){
+	private boolean isSuccessor(String nodeID, int index){
         boolean local = this.isLocal(nodeID);
-        KoalaNeighbor successor = local ? getRoutingTable().getLocalSucessor(0) : getRoutingTable().getGlobalSucessor(0);
-        KoalaNeighbor predecessor = local ? getRoutingTable().getLocalPredecessor(0) : getRoutingTable().getGlobalPredecessor(0);
-        if (canBeSuccessor(nodeID)){
+        KoalaNeighbor successor = local ? getRoutingTable().getLocalSucessor(index) : getRoutingTable().getGlobalSucessor(index);
+        KoalaNeighbor predecessor = local ? getRoutingTable().getLocalPredecessor(index) : getRoutingTable().getGlobalPredecessor(index);
+        String current = index == 0 ? this.getID() : getRoutingTable().getLocalSucessor(index-1).getNodeID();
+        if(index > 0)
+        	predecessor = local ? getRoutingTable().getLocalSucessor(index-1) : getRoutingTable().getGlobalSucessor(index-1);
+        if (canBeSuccessor(nodeID, index)){
         	if( NodeUtilities.isDefault(successor)|| local || NodeUtilities.compareIDs(nodeID, successor.getNodeID(), false) != 0)
         		return true;
         	if(successor.equals(predecessor))
         		return true;
-        	if(!nodeID.equals(predecessor.getNodeID())  &&  NodeUtilities.distance(this.getID(), nodeID, true) <= NodeUtilities.distance(this.getID(), successor.getNodeID(), true))
+        	if(!nodeID.equals(predecessor.getNodeID())  &&  NodeUtilities.distance(current, nodeID, true) <= NodeUtilities.distance(current, successor.getNodeID(), true))
         		return true;
         }
         return false;
 	}
 	 
-	private boolean isPredecessor(String nodeID){
+	private boolean isPredecessor(String nodeID, int index){
 		boolean local = this.isLocal(nodeID);
-        KoalaNeighbor successor = local ? getRoutingTable().getLocalSucessor(0) : getRoutingTable().getGlobalSucessor(0);
-        KoalaNeighbor predecessor = local ? getRoutingTable().getLocalPredecessor(0) : getRoutingTable().getGlobalPredecessor(0);
-        if (canBePredecessor(nodeID)){
+        KoalaNeighbor successor = local ? getRoutingTable().getLocalSucessor(index) : getRoutingTable().getGlobalSucessor(index);
+        KoalaNeighbor predecessor = local ? getRoutingTable().getLocalPredecessor(index) : getRoutingTable().getGlobalPredecessor(index);
+        String current = index == 0 ? this.getID() : getRoutingTable().getLocalSucessor(index-1).getNodeID();
+        if(index > 0)
+        	successor = local ? getRoutingTable().getLocalPredecessor(index-1) : getRoutingTable().getGlobalPredecessor(index-1);
+        if (canBePredecessor(nodeID, index)){
         	if(NodeUtilities.isDefault(predecessor) || local || NodeUtilities.compareIDs(nodeID, predecessor.getNodeID(), false) != 0)
         		return true;
         	if(successor.getNodeID().equals(predecessor.getNodeID()))
         		return true;
-        	if(!nodeID.equals(successor.getNodeID())  &&  NodeUtilities.distance(this.getID(), nodeID, true) <= NodeUtilities.distance(this.getID(), predecessor.getNodeID(), true))
+        	if(!nodeID.equals(successor.getNodeID())  &&  NodeUtilities.distance(current, nodeID, true) <= NodeUtilities.distance(current, predecessor.getNodeID(), true))
         		return true;
         }
         return false;
 	}
 	
 	
-	private boolean canBeNeighbour(String nodeID){
-        if (canBeSuccessor(nodeID))
+//	private boolean canBeNeighbour(String nodeID){
+//        if (canBeSuccessor(nodeID))
+//            return true;
+//        if (canBePredecessor(nodeID))
+//            return true;
+//        return false;
+//	}
+	
+	private boolean canBeSuccessor(String nodeID, int index){
+        boolean local = this.isLocal(nodeID);
+        KoalaNeighbor successor = local ? getRoutingTable().getLocalSucessor(index) : getRoutingTable().getGlobalSucessor(index);
+        String current;
+        if(index == 0)
+        	current = this.getID();
+        else
+        	current = local ? getRoutingTable().getLocalSucessor(index-1).getNodeID() : getRoutingTable().getGlobalSucessor(index-1).getNodeID(); 
+        
+        if (NodeUtilities.isDefault(successor) || successor.getNodeID().equals(current))
             return true;
-        if (canBePredecessor(nodeID))
-            return true;
+        else{
+            if((NodeUtilities.compareIDs(nodeID, successor.getNodeID(), local) <= 0 && NodeUtilities.compareIDs(successor.getNodeID(), current, local) < 0) || 
+               (NodeUtilities.compareIDs(nodeID, successor.getNodeID(), local) >= 0 && NodeUtilities.compareIDs(successor.getNodeID(), current, local) < 0 && NodeUtilities.compareIDs(nodeID, current, local) > 0) || 
+               (NodeUtilities.compareIDs(nodeID, successor.getNodeID(), local) <= 0 && NodeUtilities.compareIDs(nodeID, current, local) > 0) )
+                return true;
+        }
         return false;
 	}
 	
-	private boolean canBeSuccessor(String nodeID){
-	        boolean local = this.isLocal(nodeID);
-	        KoalaNeighbor successor = local ? getRoutingTable().getLocalSucessor(0) : getRoutingTable().getGlobalSucessor(0);
-	        if (NodeUtilities.isDefault(successor))
-	            return true;
-	        else{
-	            if((NodeUtilities.compareIDs(nodeID, successor.getNodeID(), local) <= 0 && NodeUtilities.compareIDs(successor.getNodeID(), this.getID(), local) < 0) || 
-	               (NodeUtilities.compareIDs(nodeID, successor.getNodeID(), local) >= 0 && NodeUtilities.compareIDs(successor.getNodeID(), this.getID(), local) < 0 && NodeUtilities.compareIDs(nodeID, this.getID(), local) > 0) || 
-	               (NodeUtilities.compareIDs(nodeID, successor.getNodeID(), local) <= 0 && NodeUtilities.compareIDs(nodeID, this.getID(), local) > 0) )
-	                return true;
-	        }
-	        return false;
-	}
+//	private boolean canBeSuccessor1(String nodeId, String currentSucc, String potentialSucc){
+//        boolean local = this.isLocal(potentialSucc);
+//        KoalaNeighbor successor = local ? getRoutingTable().getLocalSucessor(0) : getRoutingTable().getGlobalSucessor(0);
+//        if (NodeUtilities.isDefault(successor))
+//            return true;
+//        else{
+//            if((NodeUtilities.compareIDs(potentialSucc, successor.getNodeID(), local) <= 0 && NodeUtilities.compareIDs(successor.getNodeID(), this.getID(), local) < 0) || 
+//               (NodeUtilities.compareIDs(potentialSucc, successor.getNodeID(), local) >= 0 && NodeUtilities.compareIDs(successor.getNodeID(), this.getID(), local) < 0 && NodeUtilities.compareIDs(potentialSucc, this.getID(), local) > 0) || 
+//               (NodeUtilities.compareIDs(potentialSucc, successor.getNodeID(), local) <= 0 && NodeUtilities.compareIDs(potentialSucc, this.getID(), local) > 0) )
+//                return true;
+//        }
+//        return false;
+//}
 	 
-	private boolean canBePredecessor(String nodeID){
+	private boolean canBePredecessor(String nodeID, int index){
         boolean local = this.isLocal(nodeID);
-        KoalaNeighbor predecessor = local ? getRoutingTable().getLocalPredecessor(0) : getRoutingTable().getGlobalPredecessor(0);
-        if (NodeUtilities.isDefault(predecessor))
+        KoalaNeighbor predecessor = local ? getRoutingTable().getLocalPredecessor(index) : getRoutingTable().getGlobalPredecessor(index);
+        String current;
+        if(index == 0)
+        	current = this.getID();
+        else
+        	current = local ? getRoutingTable().getLocalPredecessor(index-1).getNodeID() : getRoutingTable().getGlobalPredecessor(index-1).getNodeID(); 
+        
+        if (NodeUtilities.isDefault(predecessor) || predecessor.getNodeID().equals(current) )
             return true;
         else{
-            if((NodeUtilities.compareIDs(nodeID, predecessor.getNodeID(), local) >= 0 && NodeUtilities.compareIDs(predecessor.getNodeID(), this.getID(), local) > 0) || 
-               (NodeUtilities.compareIDs(nodeID, predecessor.getNodeID(), local) <= 0 && NodeUtilities.compareIDs(predecessor.getNodeID(), this.getID(), local) > 0 && NodeUtilities.compareIDs(nodeID, this.getID(), local) < 0) || 
-               (NodeUtilities.compareIDs(nodeID, predecessor.getNodeID(), local) >= 0 && NodeUtilities.compareIDs(nodeID, this.getID(), local) < 0) )
+            if((NodeUtilities.compareIDs(nodeID, predecessor.getNodeID(), local) >= 0 && NodeUtilities.compareIDs(predecessor.getNodeID(), current, local) > 0) || 
+               (NodeUtilities.compareIDs(nodeID, predecessor.getNodeID(), local) <= 0 && NodeUtilities.compareIDs(predecessor.getNodeID(), current, local) > 0 && NodeUtilities.compareIDs(nodeID, current, local) < 0) || 
+               (NodeUtilities.compareIDs(nodeID, predecessor.getNodeID(), local) >= 0 && NodeUtilities.compareIDs(nodeID, current, local) < 0) )
                 return true;
         }
         return false;
