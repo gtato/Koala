@@ -149,6 +149,13 @@ public class NodeUtilities {
 		return (ChordNode) n.getProtocol(CID);
 	}
 	
+	public static boolean isUp(String nodeid){
+		Node n = Nodes.get(nodeid);
+		if(n != null)
+			return n.isUp();
+		return false;
+	}
+	
 	public static int getDCID(String id){
 		return Integer.parseInt(id.split("-")[0]);
 	}

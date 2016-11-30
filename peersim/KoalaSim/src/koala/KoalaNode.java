@@ -39,7 +39,7 @@ public class KoalaNode extends TopologyNode{
 	private int nodeID;
 	private String bootstrapID;
 	
-//	these two are just for statistics purposes, not neccessary  
+//	these two are just for statistics purposes, not necessary  
 	public int nrMsgRouted=0;
 	public int nrMsgRoutedByLatency=0;
 	
@@ -172,36 +172,6 @@ public class KoalaNode extends TopologyNode{
         return ret; // should return oldNeighbors as well
 	}
 	
-	public ArrayList<KoalaNeighbor> updateNeighbors(KoalaNeighbor kn){
-		boolean local = this.isLocal(kn.getNodeID());
-		ArrayList<KoalaNeighbor> oldNeighbors = new ArrayList<KoalaNeighbor>();
-		KoalaNeighbor[][] neigs = {getRoutingTable().getLocalSucessors(), getRoutingTable().getLocalPredecessors()};  
-		if(!local){
-			 neigs[0] = getRoutingTable().getGlobalSucessors();
-			 neigs[1] = getRoutingTable().getGlobalPredecessors();
-		}
-		
-		for(int i=1; i < NodeUtilities.NEIGHBORS; i++){
-			for(int j = 0; j < neigs.length; j++){
-				int distKNFromMe = NodeUtilities.distance(getID(), kn.getNodeID());
-				int distNFromMe = NodeUtilities.distance(getID(), neigs[j][i].getNodeID());
-				int distNFromPrevious = NodeUtilities.distance(neigs[j][i-1].getNodeID(), neigs[j][i].getNodeID());
-				int distKNFromPrevious = NodeUtilities.distance(neigs[j][i-1].getNodeID(), kn.getNodeID());
-				if(distKNFromPrevious <= distNFromPrevious && distNFromMe < distKNFromMe && distKNFromPrevious!=0){
-					if(local){
-						if(j==0) oldNeighbors.add(getRoutingTable().setLocalSucessor(kn,i));
-						if(j==1) oldNeighbors.add(getRoutingTable().setLocalPredecessor(kn,i));
-					}else{
-						if(j==0) oldNeighbors.add(getRoutingTable().setGlobalSucessor(kn,i));
-						if(j==1) oldNeighbors.add(getRoutingTable().setGlobalPredecessor(kn,i));
-					}
-				}
-					
-			}
-		}
-		return oldNeighbors; 
-	}
-	
 	
 	public int getLatencyQuality(boolean isSender, String sourceID, KoalaNeighbor kn){
 		if(isSender)
@@ -295,19 +265,6 @@ public class KoalaNode extends TopologyNode{
         return false;
 	}
 	
-//	private boolean canBeSuccessor1(String nodeId, String currentSucc, String potentialSucc){
-//        boolean local = this.isLocal(potentialSucc);
-//        KoalaNeighbor successor = local ? getRoutingTable().getLocalSucessor(0) : getRoutingTable().getGlobalSucessor(0);
-//        if (NodeUtilities.isDefault(successor))
-//            return true;
-//        else{
-//            if((NodeUtilities.compareIDs(potentialSucc, successor.getNodeID(), local) <= 0 && NodeUtilities.compareIDs(successor.getNodeID(), this.getID(), local) < 0) || 
-//               (NodeUtilities.compareIDs(potentialSucc, successor.getNodeID(), local) >= 0 && NodeUtilities.compareIDs(successor.getNodeID(), this.getID(), local) < 0 && NodeUtilities.compareIDs(potentialSucc, this.getID(), local) > 0) || 
-//               (NodeUtilities.compareIDs(potentialSucc, successor.getNodeID(), local) <= 0 && NodeUtilities.compareIDs(potentialSucc, this.getID(), local) > 0) )
-//                return true;
-//        }
-//        return false;
-//}
 	 
 	private boolean canBePredecessor(String nodeID, int index){
         boolean local = this.isLocal(nodeID);
@@ -372,20 +329,18 @@ public class KoalaNode extends TopologyNode{
     public KoalaNeighbor getRoute(String dest, KoalaMessage msg) {
     	KoalaNeighbor normal = getRouteForAlpha(dest, msg, NodeUtilities.B);
     	KoalaNeighbor no_latency = getRouteForAlpha(dest, msg, 1);
-    	if(!normal.getNodeID().equals(no_latency.getNodeID()))
+    	if(normal!=null && no_latency!=null && !normal.equals(no_latency))
     		this.nrMsgRoutedByLatency++;
     	return normal;
     }
     
     public KoalaNeighbor getRouteForAlpha(String dest, KoalaMessage msg, double alpha) {
-		KoalaNeighbor ret = null;
 		AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
 		double v=0;
 		ArrayList<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
 		ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>(); 
 	
 		for(KoalaNeighbor re : rt){
-			if(!NodeUtilities.Nodes.get(re.getNodeID()).isUp()) continue;
 			v = getRouteValue(dest, re, alpha);
 			mre = new AbstractMap.SimpleEntry<Double, KoalaNeighbor>(v, re);
 			potentialDests.add(mre);
@@ -399,28 +354,34 @@ public class KoalaNode extends TopologyNode{
 			}
 			}));
 		
-		if(potentialDests.size() > 1 && potentialDests.get(0).getValue().getNodeID().equals(msg.getLastSender()))
-			ret = potentialDests.get(1).getValue(); 
-		else
-			ret = potentialDests.get(0).getValue();
-	
-		return ret;
+		
+		for(AbstractMap.SimpleEntry<Double, KoalaNeighbor> entry : potentialDests){
+			KoalaNeighbor rentry = entry.getValue();
+			boolean isDown = !NodeUtilities.isUp(rentry.getNodeID()); 
+			if(rentry.getNodeID().equals(dest) && isDown)
+				return null;
+			if(msg.getPath().contains(rentry.getNodeID()) || isDown)
+				continue;
+			return rentry;
+		}
+		return null;
     }
 
     
 	private double getRouteValue(String dest, KoalaNeighbor re, double alpha) {
 		double res = 0;
 
-		if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
-            res = -1;
-		
-		else if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
+//		if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
+//            res = -1;
+//		
+//		else
+		if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
             res = Double.MAX_VALUE - NodeUtilities.A * NodeUtilities.distance(re.getNodeID(), dest);
         
 		else if( this.dcID == NodeUtilities.getDCID(re.getNodeID()))
             res = NodeUtilities.A * NodeUtilities.distance(this.getID(), re.getNodeID());
         
-		else if( NodeUtilities.distance(this.getID(), dest) > NodeUtilities.distance(re.getNodeID(), dest)){
+		else {//if( NodeUtilities.distance(this.getID(), dest) > NodeUtilities.distance(re.getNodeID(), dest)){
             int tot_distance = NodeUtilities.distance(this.getID(), dest);
             int rem_distance = NodeUtilities.distance(dest, re.getNodeID());
             

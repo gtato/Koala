@@ -109,7 +109,7 @@ public class ChordProtocol extends TopologyProtocol {
 		if(label.contains("successor")) //predecessor
 		{
 			ChordNode pred = succ.predecessor;
-			if(label.contains("first") || pred.equals(myNode)){
+			if(label.contains("first") || pred.equals(myNode) || !pred.isUp()){
 				myNode.successorList[0] = succ;
 				if(label.contains("first")) myNode.predecessor = pred;
 				System.arraycopy(succ.successorList,0,myNode.successorList,1,myNode.successorList.length-1);
@@ -161,7 +161,7 @@ public class ChordProtocol extends TopologyProtocol {
 	public void stabilize() {
 		for(ChordNode succ: myNode.successorList){
 			if(succ != null && succ.isUp()){
-				myNode.successorList[0] = succ;
+//				myNode.successorList[0] = succ;
 				findSuccessor(succ.getID(), succ.chordId, "successor stabilize");
 				return;
 			}

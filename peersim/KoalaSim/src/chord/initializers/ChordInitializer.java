@@ -59,6 +59,7 @@ public class ChordInitializer implements NodeInitializer, Control {
 		});
 		myCreateFingerTable();
 //		printNeighs();
+//		System.exit(1);
 		return false;
 	}
 	
@@ -81,7 +82,7 @@ public class ChordInitializer implements NodeInitializer, Control {
 	
 	
 	
-public void myCreateFingerTable() {
+	public void myCreateFingerTable() {
 		
 		for (int i = 0; i < ChordGlobalInfo.network.size(); i++) {
 			
@@ -110,6 +111,27 @@ public void myCreateFingerTable() {
 			ids.add(new BigInteger(NodeUtilities.M, CommonState.r));
 		
 		return new ArrayList<BigInteger>(ids);
+	}
+	
+	public void printNeighs(){
+		for (int i = 0; i < Network.size(); i++) {
+			Node node = (Node) Network.get(i);
+			ChordNode cn = NodeUtilities.getChordFromNode(node);
+					
+			
+//			System.out.print(cp + "@" +node.getIndex() + ": ");
+//			System.out.print((ChordProtocol) cp.predecessor.getProtocol(pid));
+			for(int j =0; j < cn.successorList.length; j++){
+				System.out.print(cn.successorList[j].chordId + " ");
+			}
+			System.out.print("$ ");
+			for(int j =0; j < cn.fingerTable.length; j++){
+				if(cn.fingerTable[j] != null)
+					System.out.print(cn.fingerTable[j].chordId + " ");
+			}
+			
+			System.out.println();
+		}
 	}
 	
 }
