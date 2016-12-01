@@ -404,6 +404,10 @@ public class KoalaProtocol extends TopologyProtocol{
 	}
 
 	
+	/**
+	 * Check if i have any neighbor which is closer to ideal IDs of the piggyback 
+	 * @param msg
+	 */
 	protected void checkPiggybackedBefore(KoalaMessage msg) {
 		Object[] ids = myNode.getRoutingTable().getNeighboursIDs().toArray();
 		String[] idsIknow = Arrays.copyOf(ids, ids.length, String[].class);
@@ -414,14 +418,10 @@ public class KoalaProtocol extends TopologyProtocol{
 				KoalaNeighbor kn = msg.getPiggyBack().get(j);
 				int dist = NodeUtilities.distance(kn.getIdealID(), ll);
 				int currentDist = NodeUtilities.distance(kn.getIdealID(), kn.getNodeID());
-				if(dist < currentDist){
+				if(dist < currentDist)
 					kn.setNodeID(ll);
-				}
 			}
-			
 		}
-		
-		
 	}
 
 	@Override

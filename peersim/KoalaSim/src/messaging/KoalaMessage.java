@@ -72,7 +72,6 @@ public class KoalaMessage extends TopologyMessage implements JsonSerializer< Koa
 			KoalaNeighbor k = new KoalaNeighbor(NodeUtilities.DEFAULTID);
 			k.setIdealID(dcID + "-0");
 			piggyback.add(k);
-			
 		}
 	}
 	

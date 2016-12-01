@@ -94,7 +94,8 @@ public abstract class TopologyProtocol implements EDProtocol {
 //	}
 	
 	public String toString(){
-		return "("+ getProtocolName()+") " +  myNode.toString();
+		String nodeid = myNode == null ? "not initialized" : myNode.toString(); 
+		return "("+ getProtocolName()+") " + nodeid;
 	}
 	
 	public abstract void join();

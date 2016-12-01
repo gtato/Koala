@@ -91,18 +91,8 @@ public class ChordNode extends TopologyNode implements Comparable<ChordNode>{
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	public String toString(){
-		return chordId.toString() + " " + getID();
+		return  getID() + " ("+chordId.toString()+")";
 	}
 	
 	public boolean equals(Object arg0){

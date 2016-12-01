@@ -44,6 +44,8 @@ public class ChordInitializer implements NodeInitializer, Control {
 			cp.fingerTable = new ChordNode[NodeUtilities.M];
 			cp.successorList = new ChordNode[NodeUtilities.SUCC_SIZE];
 			ChordGlobalInfo.network.add(cp);
+			ChordProtocol cprot = (ChordProtocol) node.getProtocol(pid);
+			cprot.intializeMyNode(node, pid);
 		}
 		
 		Collections.sort(ChordGlobalInfo.network, 

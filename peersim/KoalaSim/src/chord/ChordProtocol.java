@@ -31,10 +31,10 @@ public class ChordProtocol extends TopologyProtocol {
 	}
 
 
-	public Object clone() {
-		ChordProtocol cp = (ChordProtocol) super.clone();
-		return cp;
-	}
+//	public Object clone() {
+//		ChordProtocol cp = (ChordProtocol) super.clone();
+//		return cp;
+//	}
 	
 	@Override
 	public void intializeMyNode(Node node, int pid) {

@@ -26,14 +26,14 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	private static final String PAR_CHORD_PROTOCOL= "cprotocol";
 	private static final String PAR_KOALA_NR= "nr";
 	private static final String PAR_KOALA_LL= "longlinks";
-	private static final String PAR_KOALA_NLL= "nr_longlinks";
+//	private static final String PAR_KOALA_NLL= "nr_longlinks";
 	
 	private final int renProtPid;
 	private final int koaProtPid;
 	private final int cordProtPid;
 	private final int nr;
 	private final boolean longlinks;
-	private final int nr_longlinks;
+//	private final int nr_longlinks;
 	
 	public KoalaInitializer(String prefix) {
 		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
@@ -41,7 +41,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		cordProtPid = Configuration.getPid(prefix + "." + PAR_CHORD_PROTOCOL, -1);
 		nr = Configuration.getInt(prefix + "." + PAR_KOALA_NR, Network.size());
 		longlinks = Configuration.getBoolean(prefix + "." + PAR_KOALA_LL, false);
-		nr_longlinks = Configuration.getInt(prefix + "." + PAR_KOALA_NLL, 0);
+//		nr_longlinks = Configuration.getInt(prefix + "." + PAR_KOALA_NLL, 0);
 	}
 	
 	@Override
@@ -71,8 +71,8 @@ public class KoalaInitializer implements Control, NodeInitializer {
 				kp.intializeMyNode(n, koaProtPid);
 				kp.join();
 				
-				if(nr_longlinks > 0){
-					ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(nr_longlinks, kn);
+				if(NodeUtilities.LONG_LINKS > 0){
+					ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(NodeUtilities.LONG_LINKS, kn);
 //					ArrayList<KoalaNeighbor> lls = getLongLinksRand(nr_longlinks);
 					kn.getRoutingTable().setLongLinks(lls);
 				}
