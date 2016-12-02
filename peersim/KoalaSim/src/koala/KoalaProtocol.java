@@ -315,7 +315,8 @@ public class KoalaProtocol extends TopologyProtocol{
 	            boolean updateLat = kn.getLatencyQuality() <= 0? true:false;
 	//            updateLat = false; //TODO:disabled for the moment 
 	            ((KoalaRouteMsgContent)msg.getContent()).setUpdateLatency(updateLat);
-	        	send(kn.getNodeID(), msg);
+	            addPiggybacked(msg,kn.getNodeID());
+	            send(kn.getNodeID(), msg);
             }else
             	onFail();
            
@@ -416,10 +417,25 @@ public class KoalaProtocol extends TopologyProtocol{
 			String ll = idsIknow[i];
 			for(int j = 0; j < msg.getPiggyBack().size(); j++){
 				KoalaNeighbor kn = msg.getPiggyBack().get(j);
-				int dist = NodeUtilities.distance(kn.getIdealID(), ll);
-				int currentDist = NodeUtilities.distance(kn.getIdealID(), kn.getNodeID());
-				if(dist < currentDist)
-					kn.setNodeID(ll);
+				if(kn.getIdealID() != null){
+					int dist = NodeUtilities.distance(kn.getIdealID(), ll);
+					int currentDist = NodeUtilities.distance(kn.getIdealID(), kn.getNodeID());
+					if(dist < currentDist)
+						kn.setNodeID(ll);
+				}
+			}
+		}
+	}
+	
+	private void addPiggybacked(KoalaMessage km, String dest){
+		// if I am forwarding to a neighbor 
+		if(myNode.inNeighborsList(dest)){
+			if (myNode.isLocal(dest)){
+				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getLocalSucessors()));
+				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getLocalPredecessors()));
+			}else{
+				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getGlobalSucessors()));
+				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getGlobalPredecessors()));
 			}
 		}
 	}

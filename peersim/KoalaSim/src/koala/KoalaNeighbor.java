@@ -94,6 +94,12 @@ public class KoalaNeighbor{
 		this.idealID = idealID;
 	}
 
+	public void reset(){
+		latency = -1;
+		latencyQuality = -1;
+		nodeID = NodeUtilities.DEFAULTID;
+	}
+	
 	public static class NeighborComparator implements Comparator<KoalaNeighbor>{
 		String referenceId;
 		public NeighborComparator(String ref){

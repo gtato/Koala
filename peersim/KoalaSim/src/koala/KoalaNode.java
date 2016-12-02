@@ -354,17 +354,27 @@ public class KoalaNode extends TopologyNode{
 			}
 			}));
 		
-		
+		KoalaNeighbor ret = null; 
+		ArrayList<KoalaNeighbor> downEntries = new ArrayList<KoalaNeighbor>();
 		for(AbstractMap.SimpleEntry<Double, KoalaNeighbor> entry : potentialDests){
 			KoalaNeighbor rentry = entry.getValue();
 			boolean isDown = !NodeUtilities.isUp(rentry.getNodeID()); 
+			if(isDown)
+				downEntries.add(rentry);
 			if(rentry.getNodeID().equals(dest) && isDown)
-				return null;
+				break;
 			if(msg.getPath().contains(rentry.getNodeID()) || isDown)
 				continue;
-			return rentry;
+			
+			ret = rentry;
+			break;
 		}
-		return null;
+		
+		for(KoalaNeighbor down : downEntries)
+			down.reset();
+			
+		
+		return ret;
     }
 
     
@@ -429,8 +439,12 @@ public class KoalaNode extends TopologyNode{
 	}
 
 	
+	public boolean inNeighborsList(String id){
+		Set<String> ids = isLocal(id) ?  getRoutingTable().getNeighboursIDs(1):
+										 getRoutingTable().getNeighboursIDs(2); 
+		return ids.contains(id);
+	}
 	
-
 	public static class KoalaNodeSerializer implements JsonSerializer<KoalaNode> {
 
 		@Override

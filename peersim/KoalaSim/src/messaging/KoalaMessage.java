@@ -65,6 +65,10 @@ public class KoalaMessage extends TopologyMessage implements JsonSerializer< Koa
 		piggyback = p;
 	}
 	
+	public void addPiggyBack(KoalaNeighbor p){
+		piggyback.add(p);
+	}
+	
 	
 	public void setIdealPiggyBack(){
 		for(int i = 0; i < NodeUtilities.PiggybackLength; i++){
