@@ -3,6 +3,8 @@ package koala.initializers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+
+import chord.ChordProtocol;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import koala.KoalaProtocol;
@@ -42,6 +44,8 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		nr = Configuration.getInt(prefix + "." + PAR_KOALA_NR, Network.size());
 		longlinks = Configuration.getBoolean(prefix + "." + PAR_KOALA_LL, false);
 //		nr_longlinks = Configuration.getInt(prefix + "." + PAR_KOALA_NLL, 0);
+		
+		NodeUtilities.setProtPIDs(renProtPid, koaProtPid, cordProtPid);
 	}
 	
 	@Override
@@ -166,8 +170,9 @@ public class KoalaInitializer implements Control, NodeInitializer {
 
 	@Override
 	public void initialize(Node n) {
-		System.out.println("node initialized");
-		
+		KoalaProtocol kp = (KoalaProtocol) n.getProtocol(koaProtPid);
+		kp.intializeMyNode(n, koaProtPid);
+		kp.join();
 	}
 
 }

@@ -72,7 +72,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
 		
 		KoalaJsonParser.intitialize();
 		NodeUtilities.initialize();
-		NodeUtilities.setIDs(phid, pid, cpid);
+		NodeUtilities.setNodePIDs(phid, pid, cpid);
 		NodeUtilities.intializeDCCenters(lines);
 		
         

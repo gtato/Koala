@@ -53,8 +53,7 @@ public class KoalaNode extends TopologyNode{
 	
 	public KoalaNode(String prefix) {
 		super(prefix);
-		resetRoutingTable();
-		resetLatencyPerDC();
+		reset();
 	}
 	
 	
@@ -62,11 +61,16 @@ public class KoalaNode extends TopologyNode{
 	public Object clone() {
 		KoalaNode inp = null;
         inp = (KoalaNode) super.clone();
-        inp.resetRoutingTable();
-        inp.resetLatencyPerDC();
+        inp.reset();
         return inp;
     }
 
+	public void reset(){
+		setJoined(false);
+		resetRoutingTable();
+		resetLatencyPerDC();
+	}
+	
 	public void resetLatencyPerDC(){
 		this.latencyPerDC = new HashMap<Integer, Double>();
 	}

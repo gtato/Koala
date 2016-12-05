@@ -44,6 +44,8 @@ public class NodeUtilities {
 	public static int KID = 0;
 	public static int CID = 0;
 	
+	public static int RPID = 0, KPID=0, CPID=0;
+	
 	public static double[] hopCategories;
 	public static double[] latencyCategories;
 	
@@ -124,10 +126,16 @@ public class NodeUtilities {
 	}
 	
 	
-	public static void setIDs(int rid, int kid, int cid){
+	public static void setNodePIDs(int rid, int kid, int cid){
 		RID = rid;
 		KID = kid;
 		CID = cid;
+	}
+	
+	public static void setProtPIDs(int rid, int kid, int cid){
+		RPID = rid;
+		KPID = kid;
+		CPID = cid;
 	}
 	
 	public static RenaterNode getRenaterNode(String id){

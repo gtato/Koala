@@ -52,8 +52,10 @@ public class ChordProtocol extends TopologyProtocol {
 			n = Network.get(CommonState.r.nextInt(Network.size()));
 		} while (n == null || !n.isUp());
 		
-		myNode.chordId = NodeUtilities.generateNewChordID();
-		NodeUtilities.CHORD_NODES.put(myNode.chordId, node);
+		if(myNode.chordId == null){
+			myNode.chordId = NodeUtilities.generateNewChordID();
+			NodeUtilities.CHORD_NODES.put(myNode.chordId, node);
+		}
 		ChordNode cpRemote = NodeUtilities.getChordFromNode(n);
 		myNode.successorList = new ChordNode[NodeUtilities.SUCC_SIZE];
 		myNode.fingerTable = new ChordNode[NodeUtilities.M];
@@ -64,7 +66,7 @@ public class ChordProtocol extends TopologyProtocol {
 			BigInteger id = new BigInteger(a+"");
 			findSuccessor(cpRemote.getID(), id, "finger " + i);
 		}
-		System.out.println("Node " + myNode.chordId + " is in da house");
+//		System.out.println("Node " + myNode.chordId + " is in da house");
 	}
 
 
