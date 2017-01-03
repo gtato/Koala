@@ -54,6 +54,7 @@ public class NodeUtilities {
 	
 	public static int SUCC_SIZE = 0;
 	public static int M = 0;
+	public static int CC = Configuration.getInt("CC", 2);
 	public static int NEIGHBORS = Configuration.getInt("NEIGHBORS", 2);
 	public static int LONG_LINKS = Configuration.getInt("LONG_LINKS", 3);
 	
@@ -72,6 +73,13 @@ public class NodeUtilities {
 		
 		SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
 		M = Configuration.getInt("M", 10);
+		
+		double doubleLength = Math.log(NR_DC) / Math.log(2);
+		M = (int)(doubleLength); 
+		if(doubleLength > M)
+			M++;
+		
+		LONG_LINKS = CC * M;
 		
 //		NEIGHBORS= Configuration.getInt("NEIGHBORS", 2);
 		
@@ -159,6 +167,7 @@ public class NodeUtilities {
 	}
 	
 	public static boolean isUp(String nodeid){
+		if(nodeid == null) return false;
 		Node n = Nodes.get(nodeid);
 		if(n != null)
 			return n.isUp();

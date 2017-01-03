@@ -28,13 +28,14 @@ public class ChordNode extends TopologyNode implements Comparable<ChordNode>{
 		this.chordId = chordId;
 	}
 	
-	
-	public ChordNode closestPrecedingNode(BigInteger id) {
+	public ChordNode closestPrecedingNode(BigInteger id, BigInteger joiningId ) {
 
 		ArrayList<ChordNode> fullTable = getFullTable();
 		ChordNode found = null;
 		for (int i = fullTable.size()-1; i >= 0; i--) {
 			ChordNode entry = fullTable.get(i);
+			if(entry != null && joiningId != null && entry.chordId.equals(joiningId))
+				continue;
 			if (entry != null && entry.isUp() && inAB(entry.chordId, this.chordId, id) ) {
 				found = entry;
 				break;
@@ -106,6 +107,10 @@ public class ChordNode extends TopologyNode implements Comparable<ChordNode>{
 	public int compareTo(ChordNode arg0) {
 		if (arg0 == null) return 100; 
 		return this.chordId.compareTo(arg0.chordId);
+	}
+	
+	public boolean isJoining(){
+		return this.successorList[0] != null;
 	}
 
 }

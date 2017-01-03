@@ -33,6 +33,10 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 			this.setBirthday(CommonState.getTime());
 	}
 	
+	public void reset(){
+		setJoined(false);
+	}
+	
 	public long getAge(){
 		if(!joined)
 			return -1;

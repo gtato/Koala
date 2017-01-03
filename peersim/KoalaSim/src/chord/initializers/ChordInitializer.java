@@ -40,6 +40,7 @@ public class ChordInitializer implements NodeInitializer, Control {
 			ChordNode cp = NodeUtilities.getChordFromNode(node);
 			cp.setNode(node);
 			cp.chordId = ids.get(i);
+			cp.setJoined(true);
 			NodeUtilities.CHORD_NODES.put(cp.chordId, node);
 			cp.fingerTable = new ChordNode[NodeUtilities.M];
 			cp.successorList = new ChordNode[NodeUtilities.SUCC_SIZE];

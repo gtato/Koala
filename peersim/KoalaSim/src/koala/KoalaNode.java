@@ -66,7 +66,7 @@ public class KoalaNode extends TopologyNode{
     }
 
 	public void reset(){
-		setJoined(false);
+		super.reset();
 		resetRoutingTable();
 		resetLatencyPerDC();
 	}
@@ -382,35 +382,36 @@ public class KoalaNode extends TopologyNode{
     }
 
     
-	private double getRouteValue(String dest, KoalaNeighbor re, double alpha) {
-		double res = 0;
 
-//		if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
-//            res = -1;
-//		
-//		else
-		if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
-            res = Double.MAX_VALUE - NodeUtilities.A * NodeUtilities.distance(re.getNodeID(), dest);
-        
-		else if( this.dcID == NodeUtilities.getDCID(re.getNodeID()))
-            res = NodeUtilities.A * NodeUtilities.distance(this.getID(), re.getNodeID());
-        
-		else {//if( NodeUtilities.distance(this.getID(), dest) > NodeUtilities.distance(re.getNodeID(), dest)){
-            int tot_distance = NodeUtilities.distance(this.getID(), dest);
-            int rem_distance = NodeUtilities.distance(dest, re.getNodeID());
-            
-            double norm_dist =  1 - (double)rem_distance/tot_distance;
-            double norm_latency = NodeUtilities.normalizeLatency(tot_distance, re.getLatency());
-            res = 1 + alpha * norm_dist + (1-alpha) * norm_latency;
-            
-            if(alpha == -1)
-            	res = 1+CommonState.r.nextInt(100);
-        }
-        
-		
-        
-		return res;
-	}
+	
+ 	private double getRouteValue(String dest, KoalaNeighbor re, double alpha) {
+ 		double res = 0;
+ 
+ 		if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
+             res = -1;
+ 		
+ 		else if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
+             res = Double.MAX_VALUE - NodeUtilities.A * NodeUtilities.distance(re.getNodeID(), dest);
+         
+ 		else if( this.dcID == NodeUtilities.getDCID(re.getNodeID()))
+             res = NodeUtilities.A * NodeUtilities.distance(this.getID(), re.getNodeID());
+         
+ 		else if( NodeUtilities.distance(this.getID(), dest) > NodeUtilities.distance(re.getNodeID(), dest)){
+             int tot_distance = NodeUtilities.distance(this.getID(), dest);
+             int rem_distance = NodeUtilities.distance(dest, re.getNodeID());
+             
+             double norm_dist =  1 - (double)rem_distance/tot_distance;
+             double norm_latency = NodeUtilities.normalizeLatency(tot_distance, re.getLatency());
+             res = 1 + alpha * norm_dist + (1-alpha) * norm_latency;
+             
+             if(alpha == -1)
+             	res = 1+CommonState.r.nextInt(100);
+         }
+         
+ 		
+         
+ 		return res;
+ 	}
 	
 	
 	public Set<String> createRandomIDs(int nr){
