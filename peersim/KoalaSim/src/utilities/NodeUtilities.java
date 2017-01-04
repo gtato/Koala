@@ -92,7 +92,8 @@ public class NodeUtilities {
 		else 
 			DijkstraMethod = DijkstraRAM;
 		
-		WORLD_SIZE = Configuration.getDouble("koala.settings.world_size", 1.0);
+//		WORLD_SIZE = Configuration.getDouble("koala.settings.world_size", 1.0);
+		WORLD_SIZE = (double)NR_DC/1000;
 	}
 	
 	public static void initializeCategories()
