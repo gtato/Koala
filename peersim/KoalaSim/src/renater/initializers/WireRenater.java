@@ -71,13 +71,14 @@ public class WireRenater extends WireGraph {
 				wireDCWaxman(gateways); break;	
 		}
 		
-		KoaLite.createDB();
 		
 		
 		
-		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraDB)
+		
+		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraDB){
+			KoaLite.createDB();
 			computeDijsktraDB(gateways);
-		else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS)
+		}else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS)
 			SPClient.uploadGraph(g);
 		else
 			computeDijsktra(gateways);

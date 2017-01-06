@@ -3,6 +3,7 @@ package chord;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 
@@ -52,7 +53,7 @@ public class ChordNode extends TopologyNode implements Comparable<ChordNode>{
 		hs.addAll(Arrays.asList(fingerTable));
 		hs.addAll(Arrays.asList(successorList));
 		fullTable.addAll(hs);
-		fullTable.sort(new Comparator<ChordNode>() {
+		Collections.sort(fullTable,new Comparator<ChordNode>() {
 			@Override
 			public int compare(ChordNode arg0, ChordNode arg1) {
 				int dist1 = ChordNode.distance(chordId, arg0.chordId);

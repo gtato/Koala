@@ -34,8 +34,9 @@ public class KoaLite {
 	
 	public static void close(){
 		try {
+			if(c==null) return;
 			c.close();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 		}
 	}
 	
