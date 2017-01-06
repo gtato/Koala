@@ -94,6 +94,7 @@ public class NodeUtilities {
 		
 //		WORLD_SIZE = Configuration.getDouble("koala.settings.world_size", 1.0);
 		WORLD_SIZE = (double)NR_DC/1000;
+		WORLD_SIZE *= 5;
 	}
 	
 	public static void initializeCategories()
