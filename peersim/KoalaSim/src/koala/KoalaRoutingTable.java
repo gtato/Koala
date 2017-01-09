@@ -203,6 +203,10 @@ public class KoalaRoutingTable {
 		longLinks.clear();
 	}
 	
+	public ArrayList<KoalaNeighbor> getLongLinks(){
+		return longLinks;
+	}
+	
 	/*
 	 * These are some simple utility functions
 	 */
