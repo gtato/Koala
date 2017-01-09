@@ -1,6 +1,7 @@
 package topology.controllers;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import chord.ChordNode;
 import messaging.ChordLookUpContent;
@@ -40,10 +41,11 @@ public class KoalaPlanner extends GraphObserver {
 	private boolean allAdded = false; 
 	
 	private ArrayList<Node[]> routes = new ArrayList<Node[]>();
+	private Random rand;
 	
 	public KoalaPlanner(String prefix) {
 		super(prefix);
-		
+	
 		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
 		renNodePid = FastConfig.getLinkable(renProtPid);
 		
@@ -57,7 +59,9 @@ public class KoalaPlanner extends GraphObserver {
 		chordNodePid =  chordProtPid > -1 ? FastConfig.getLinkable(chordProtPid) : -1;
 		
 		msgID = 0;
-		initilizeRoutes();
+//		initilizeRoutes();
+		long seed = Configuration.getLong("random.seed", 12345678);
+		rand = new Random(seed);
 	}
 
 	@Override
@@ -159,12 +163,14 @@ public class KoalaPlanner extends GraphObserver {
 		
 		Node src, dst;
 		do{
-			if(routes.size() == 0)
-				initilizeRoutes();
-			Node[] srcdst = routes.remove(0); 
-			src = srcdst[0];
-			dst = srcdst[1];
-		}while(!src.isUp() || !dst.isUp());
+//			if(routes.size() == 0)
+//				initilizeRoutes();
+//			Node[] srcdst = routes.remove(0); 
+//			src = srcdst[0];
+//			dst = srcdst[1];
+			src =  Network.get(rand.nextInt(Network.size()));
+			dst =  Network.get(rand.nextInt(Network.size()));
+		}while(!src.isUp() || !dst.isUp() || src.equals(dst));
 		
 		TopologyNode sourc = koaProtPid >= 0 ? (KoalaNode)src.getProtocol(koaNodePid) : (RenaterNode)src.getProtocol(renNodePid);
 		TopologyNode dest = koaProtPid >= 0 ? (KoalaNode)dst.getProtocol(koaNodePid) : (RenaterNode)dst.getProtocol(renNodePid);
@@ -198,14 +204,14 @@ public class KoalaPlanner extends GraphObserver {
 		
 	}
 	
-	private void initilizeRoutes(){
-		for(int i = 0; i < CommonState.getEndTime(); i++){
-			int count = 1;
-			ArrayList<Node> sources = getRandomNodes(count, true, new ArrayList<Node>());
-			ArrayList<Node> dests = getRandomNodes(count, true, sources);
-			routes.add(new Node[]{sources.get(0), dests.get(0)});
-		}
-	}
+//	private void initilizeRoutes(){
+//		for(int i = 0; i < CommonState.getEndTime(); i++){
+//			int count = 1;
+//			ArrayList<Node> sources = getRandomNodes(count, true, new ArrayList<Node>());
+//			ArrayList<Node> dests = getRandomNodes(count, true, sources);
+//			routes.add(new Node[]{sources.get(0), dests.get(0)});
+//		}
+//	}
 	
 	
 	

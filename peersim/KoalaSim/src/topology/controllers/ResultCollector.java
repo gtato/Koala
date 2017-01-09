@@ -36,7 +36,7 @@ public class ResultCollector extends NodeObserver {
 	
 	private static int nrInterDCMsg = 0;
 	private static int nrIntraDCMsg = 0;
-//	private int step;
+
 	private boolean ended = false;
 //	private ArrayList<ArrayList<Integer>> aggregated = new ArrayList<ArrayList<Integer>>(); 
 //	ArrayList<String> toPrint = new ArrayList<String>();
@@ -79,22 +79,26 @@ public class ResultCollector extends NodeObserver {
 	private void compare(){
 		ArrayList<Integer> entriesToRemove = new ArrayList<Integer>();
 		
-		int rps, kps, cps, nr; rps = kps = cps = nr = 0;
-		int rl, kl, cl; rl = kl = cl = 0;
-		int rtSize = 0;
+//		int rps, kps, cps, nr; rps = kps = cps = nr = 0;
+//		int rl, kl, cl; rl = kl = cl = 0;
+//		int rtSize = 0;
+		TopologyMessage rm=null,km=null,cm=null;
 		for(Map.Entry<Integer, Node> msg : sentMgs.entrySet()){
 //			RenaterProtocol rp = (RenaterProtocol) msg.getValue().getProtocol(renProtPid);
 //			KoalaProtocol kp = (KoalaProtocol) msg.getValue().getProtocol(koaProtPid);
 //			ChordProtocol cp = (ChordProtocol) msg.getValue().getProtocol(chordProtPid);
 			
-			if(RenaterProtocol.REC_MSG.containsKey(msg.getKey())
-			&& KoalaProtocol.REC_MSG.containsKey(msg.getKey())
-			&& ChordProtocol.REC_MSG.containsKey(msg.getKey())
+			if((RenaterProtocol.REC_MSG.containsKey(msg.getKey()) || renProtPid < 0)
+			&& (KoalaProtocol.REC_MSG.containsKey(msg.getKey()) || koaProtPid < 0)
+			&& (ChordProtocol.REC_MSG.containsKey(msg.getKey()) || chordProtPid < 0)
 			){
 			
-				TopologyMessage rm = RenaterProtocol.REC_MSG.get(msg.getKey());
-				TopologyMessage km = KoalaProtocol.REC_MSG.get(msg.getKey());
-				TopologyMessage cm = ChordProtocol.REC_MSG.get(msg.getKey());
+				if(renProtPid >= 0)
+					rm = RenaterProtocol.REC_MSG.get(msg.getKey());
+				if(koaProtPid >= 0)
+					km = KoalaProtocol.REC_MSG.get(msg.getKey());
+				if(chordProtPid >= 0)
+					cm = ChordProtocol.REC_MSG.get(msg.getKey());
 				
 //				renaterTotalLatency += rm.getLatency();
 //				koalaTotalLatency += km.getLatency();
@@ -121,29 +125,38 @@ public class ResultCollector extends NodeObserver {
 //				toPrint.add(((double) km.getTotalLatency() / rm.getTotalLatency())+"");
 				//toPrint.add(km.getPath().size()+"");
 
-				rps += rm.getPath().size(); cps += cm.getPath().size(); kps += km.getPath().size(); 
-				rl += rm.getTotalLatency(); cl += cm.getTotalLatency(); kl += km.getTotalLatency();
+//				rps += rm.getPath().size(); 
+//				if(chordProtPid > 0) cps += cm.getPath().size(); 
+//				kps += km.getPath().size(); 
+//				rl += rm.getTotalLatency(); 
+//				if(chordProtPid > 0) cl += cm.getTotalLatency(); 
+//				kl += km.getTotalLatency();
 //				rtSize += ((KoalaNode)kp.getMyNode()).getRoutingTable().getSize();
 				
-				RenaterProtocol.REC_MSG.remove(msg.getKey());
-				KoalaProtocol.REC_MSG.remove(msg.getKey());
-				ChordProtocol.REC_MSG.remove(msg.getKey());
+				if(renProtPid >= 0) RenaterProtocol.REC_MSG.remove(msg.getKey());
+				if(koaProtPid >= 0) KoalaProtocol.REC_MSG.remove(msg.getKey());
+				if(chordProtPid >= 0) ChordProtocol.REC_MSG.remove(msg.getKey());
 				
 				
 				entriesToRemove.add(msg.getKey());
-				nr++;
+//				nr++;
 
 				if(msgToPrint.size() == 0){
 					//add header
-					msgToPrint.add("cycle\trlat\tclat\tklat\trhop\tchop\tkhop\thopcat\tlatcat\tkpath");
+					msgToPrint.add("cycle\trlat\tclat\tklat\trhop\tchop\tkhop\thopcat\tlatcat\trpath\tkpath\tcpath");
 				}
 				String printstr = rm.getSentCycle()+""; 
-				printstr +=	"\t"+rm.getTotalLatency()+"\t"+cm.getTotalLatency()+"\t"+km.getTotalLatency();
-				printstr += "\t"+ rm.getHops() + "\t"+ cm.getHops() + "\t"+ km.getHops();
- 				printstr += "\t"+ rm.getHopCategory() + "\t"+ rm.getLatencyCategory();
- 				printstr += "\t"+ rm.getPath();
- 				printstr += "\t"+ km.getPath();
- 				printstr += "\t"+ cm.getChordPath();
+				printstr +=	renProtPid >= 0 ? "\t"+rm.getTotalLatency() : "\t0";
+				printstr += chordProtPid >= 0 ? "\t"+cm.getTotalLatency() : "\t0";
+				printstr += koaProtPid >= 0 ? "\t"+km.getTotalLatency() : "\t0";
+				
+				printstr += renProtPid >= 0 ? "\t"+ rm.getHops() : "\t0"; 
+				printstr += chordProtPid >= 0 ? "\t"+ cm.getHops() : "\t0";
+				printstr += koaProtPid >= 0 ? "\t"+ km.getHops() : "\t0";
+ 				printstr += renProtPid >= 0 ? "\t"+ rm.getHopCategory() + "\t"+ rm.getLatencyCategory(): "\t0\t0";
+ 				printstr += renProtPid >= 0 ? "\t"+ rm.getPath(): "\t[]";
+ 				printstr += koaProtPid >= 0 ? "\t"+ km.getPath(): "\t[]";
+ 				printstr += chordProtPid >= 0 ? "\t"+ cm.getChordPath(): "\t[]";  
 				msgToPrint.add(printstr);
 //				System.out.println(cm.getPath());
 			}
