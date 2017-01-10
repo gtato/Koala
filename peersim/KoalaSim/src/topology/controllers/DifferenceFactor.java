@@ -29,7 +29,8 @@ public class DifferenceFactor extends NodeObserver{
 			ended = true;
 		}
 		
-		double minCoef = Double.MAX_VALUE, maxCoef=-1;
+		double minCoef = Double.MAX_VALUE, maxCoef=-1, totCoef=0;
+		int nr = 0;
 		for (int i = 0; i < g.size(); i++) 
 		{	
 			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
@@ -41,16 +42,17 @@ public class DifferenceFactor extends NodeObserver{
 				String nid = NodeUtilities.isDefault(current.getID())? current.getID(): NodeUtilities.getStrDCID(current.getID())+ "-0";
 				int lld = NodeUtilities.distance(nnid, iid);
 				int myd = NodeUtilities.distance(nid, iid);
-				coef += (double) lld/myd;
+//				coef += (double) lld/myd;
+				coef = (double) lld/myd;
+//				coef = coef/current.getRoutingTable().getLongLinks().size();
+				if(coef > maxCoef && coef < NodeUtilities.NR_DC) maxCoef = coef;
+				if(coef < minCoef) minCoef = coef;
+				nr++;
+				totCoef += coef;
 			}
-			
-			coef = coef/current.getRoutingTable().getLongLinks().size();
-			if(coef > maxCoef && coef < NodeUtilities.NR_DC) maxCoef = coef;
-			if(coef < minCoef) minCoef = coef;
-			
-			
 		}
-		msgToPrint.add(CommonState.getTime() + " " + minCoef + " " + maxCoef);
+		
+		msgToPrint.add(CommonState.getTime() + " " + minCoef + " " + maxCoef+ " " + (double)totCoef/nr);
 		
 		return false;
 	}
