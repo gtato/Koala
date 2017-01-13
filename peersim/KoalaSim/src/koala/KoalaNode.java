@@ -147,15 +147,17 @@ public class KoalaNode extends TopologyNode{
         oldS = oldP = null;
         
         for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
-		    if(this.isSuccessor(n.getNodeID(), i))
+		    if(this.isSuccessor(n.getNodeID(), i)){
+		    	if(i==0) addedS = 0;
 		        oldS = local ? getRoutingTable().setLocalSucessor(n,i) : getRoutingTable().setGlobalSucessor(n,i);
-		        
-		    if (this.isPredecessor(n.getNodeID(), i))
+		    }
+		    if (this.isPredecessor(n.getNodeID(), i)){
+		    	if(i==0) addedP = 0;
 		        oldP = local ? getRoutingTable().setLocalPredecessor(n,i) : getRoutingTable().setGlobalPredecessor(n,i);
-		    
+		    }
 		    if(i==0){
-		    	addedS = oldS != null ? 1 : 0;
-		    	addedP = oldP != null ? 1 : 0;
+		    	addedS = oldS != null ? 1 : addedS;
+		    	addedP = oldP != null ? 1 : addedP;
 		    	if (!NodeUtilities.isDefault(oldS)) oldNeighbors.add(oldS);
 		    	if (!NodeUtilities.isDefault(oldP)) oldNeighbors.add(oldP);
 		    }
@@ -168,7 +170,7 @@ public class KoalaNode extends TopologyNode{
         if( ret == 1)
             ret++;
 
-        if( ret ==-1 && (canBePredecessor(n.getNodeID(),0) || canBeSuccessor(n.getNodeID(), 0)))
+        if( ret ==-1 && canBeNeighbour(n.getNodeID(),0))
             ret = 1;
 
         getRoutingTable().setOldNeighborsContainer(oldNeighbors);
@@ -241,13 +243,16 @@ public class KoalaNode extends TopologyNode{
 	}
 	
 	
-//	private boolean canBeNeighbour(String nodeID){
-//        if (canBeSuccessor(nodeID))
-//            return true;
-//        if (canBePredecessor(nodeID))
-//            return true;
-//        return false;
-//	}
+//	can be but is not
+	private boolean canBeNeighbour(String nodeID, int index){
+		if(routingTable.getNeighboursIDs(2).contains(nodeID))
+			return false;
+        if (canBeSuccessor(nodeID, index))
+            return true;
+        if (canBePredecessor(nodeID, index))
+            return true;
+        return false;
+	}
 	
 	private boolean canBeSuccessor(String nodeID, int index){
         boolean local = this.isLocal(nodeID);

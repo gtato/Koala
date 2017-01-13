@@ -32,12 +32,12 @@ set yrange [ 0 : * ]
 #set ylabel substr(firstrows, strstrt(firstrows, "\n")+1, strlen(firstrows))
 
 plot filename1 using 2 title titler smooth csplines with lines lc rgb "forest-green" , \
-	 filename1 using 3 title titlec smooth csplines with lines lc rgb "red" , \
+	 filename3 using 3 title titlec smooth csplines with lines lc rgb "red" , \
 	 filename1 using 4 title title1 smooth csplines with lines lc rgb "web-blue" , \
 	 filename2 using 4 title title2 smooth csplines with lines lc rgb "blue" , \
-	 filename3 using 4 title title3 smooth csplines with lines lc rgb "violet" ,\
-	 filename4 using 4 title title4 smooth csplines with lines lc rgb "green" ,\
-	 filename5 using 4 title title5 smooth csplines with lines lc rgb "brown" ,\
-	 filename6 using 4 title title6 smooth csplines with lines lc rgb "orange"
+	 filename3 using 4 title title3 smooth csplines with lines lc rgb "violet" #,\
+# 	 filename4 using 4 title title4 smooth csplines with lines lc rgb "green" ,\
+# 	 filename5 using 4 title title5 smooth csplines with lines lc rgb "brown" ,\
+# 	 filename6 using 4 title title6 smooth csplines with lines lc rgb "orange"
 	 
 pause mouse close

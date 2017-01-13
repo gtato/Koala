@@ -2,7 +2,7 @@ package topology.controllers;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-
+import java.util.PriorityQueue;
 
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
@@ -24,9 +24,13 @@ public class DifferenceFactor extends NodeObserver{
 	@Override
 	public boolean execute() {
 		updateGraph();
+		PriorityQueue<Double> q = new PriorityQueue<Double>();
+//		System.out.println(CommonState.getPhase()+ " - " +CommonState.POST_SIMULATION);
+		
 		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
 			graphToFile();
 			ended = true;
+//			System.out.println(CommonState.getTime() + " - " + CommonState.getEndTime());
 		}
 		
 		double minCoef = Double.MAX_VALUE, maxCoef=-1, totCoef=0;
@@ -49,10 +53,14 @@ public class DifferenceFactor extends NodeObserver{
 				if(coef < minCoef) minCoef = coef;
 				nr++;
 				totCoef += coef;
+				q.add(coef);
 			}
 		}
 		
-		msgToPrint.add(CommonState.getTime() + " " + minCoef + " " + maxCoef+ " " + (double)totCoef/nr);
+		for(int i =0; i <= q.size()/2; i++)
+			q.remove();
+		
+		msgToPrint.add(CommonState.getTime() + " " + minCoef + " " + maxCoef+ " " + (double)totCoef/nr + " " + q.remove());
 		
 		return false;
 	}

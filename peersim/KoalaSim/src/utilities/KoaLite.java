@@ -35,8 +35,10 @@ public class KoaLite {
 	public static void close(){
 		try {
 			if(c==null) return;
+			System.out.println("Closing db");
 			c.close();
 		} catch (Exception e) {
+			System.out.println("caught");
 		}
 	}
 	

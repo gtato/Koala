@@ -61,6 +61,7 @@ public class ResultCollector extends NodeObserver {
 			compare();
 		else
 			reportRenater();
+//		System.out.println(CommonState.getTime() + " - " + CommonState.getEndTime());
 		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
 			System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg));
 			System.out.println("CHORD: success: " + ChordProtocol.SUCCESS + " fails: " + ChordProtocol.FAIL);
@@ -71,7 +72,7 @@ public class ResultCollector extends NodeObserver {
 			
 //			plotIt();
 			ended = true;
-			KoaLite.close();
+//			KoaLite.close();
 		}
 		return false;
 	}
