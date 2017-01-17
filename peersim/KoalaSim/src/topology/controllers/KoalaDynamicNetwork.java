@@ -16,6 +16,7 @@ import peersim.core.Node;
 import peersim.dynamics.DynamicNetwork;
 import peersim.dynamics.NodeInitializer;
 import renater.RenaterNode;
+import topology.TopologyNode;
 import utilities.NodeUtilities;
 
 public class KoalaDynamicNetwork implements Control{
@@ -26,14 +27,17 @@ public class KoalaDynamicNetwork implements Control{
 	private static final String PAR_INIT = "init";
 	private static final String PAR_MIN = "minsize";
 	private static final String PAR_ADD = "add";
+	private static final String PAR_REM = "rem";
 	private static final String PAR_MODE = "mode";
 	protected final double add;
+	protected final double rem;
 	protected final int minsize;
 	protected final String mode;
 	protected final NodeInitializer[] inits;
 	
 	public KoalaDynamicNetwork(String prefix) {
-		add = Configuration.getDouble(prefix + "." + PAR_ADD);
+		add = Configuration.getDouble(prefix + "." + PAR_ADD,0);
+		rem = Configuration.getDouble(prefix + "." + PAR_REM,0);
 		minsize = Configuration.getInt(prefix + "." + PAR_MIN, 0);
 		mode = Configuration.getString(prefix + "." + PAR_MODE, MOD_STAND);
 		Object[] tmp = Configuration.getInstanceArray(prefix + "." + PAR_INIT);
@@ -73,7 +77,7 @@ public class KoalaDynamicNetwork implements Control{
 	
 	@Override
 	public boolean execute() {
-		if (!isRand() && add == 0) return false;
+		if (!isRand() && add == 0 && rem == 0) return false;
 		
 		int realMinSize = (int) (Network.size() * (double)minsize/100);
 		
@@ -100,7 +104,8 @@ public class KoalaDynamicNetwork implements Control{
 			toRemove = 1-toAdd;
 		}else{
 			toAdd = add > 0 ? (int) add : 0;
-			toRemove = add < 0 ? (int) (int)-add : 0;
+//			toRemove = add < 0 ? (int) (int)-add : 0;
+			toRemove = rem > 0 ? (int) rem : 0;
 		}
 		
 		if(toAdd > 0 && toAdd > downInx.size())
@@ -113,8 +118,12 @@ public class KoalaDynamicNetwork implements Control{
 		for(int i=0; i < toAdd; i++){
 			Node node = Network.get(downInx.get(i)); 
 			node.setFailState(Fallible.OK);
-			ChordNode cn = (ChordNode)node.getProtocol(NodeUtilities.CID);
-			System.out.println("Node " + cn + " came back to save us all");
+			TopologyNode tn;
+			if(NodeUtilities.CID >= 0)
+				tn = (ChordNode)node.getProtocol(NodeUtilities.CID);
+			else
+				tn = (KoalaNode)node.getProtocol(NodeUtilities.KID);
+			System.out.println("Node " + tn + " is in da house");
 			
 			for (int j = 0; j < inits.length; ++j) 
 				inits[j].initialize(node);

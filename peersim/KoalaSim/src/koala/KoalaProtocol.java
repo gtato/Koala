@@ -235,10 +235,12 @@ public class KoalaProtocol extends TopologyProtocol{
 			double l = isSender ? msg.getLatency() : recNeighbor.getLatency();
 			int lq = myNode.getLatencyQuality(isSender, source.getID(), recNeighbor);
 			
-            int res  = myNode.tryAddNeighbour(new KoalaNeighbor(recNeighbor.getNodeID(), l, lq));
+			KoalaNeighbor potentialKN = new KoalaNeighbor(recNeighbor.getNodeID(), l, lq);
+            int res  = myNode.tryAddNeighbour(potentialKN);
 			ArrayList<KoalaNeighbor> oldies = myNode.getRoutingTable().getOldNeighborsContainer();
 			myOldNeighbors.addAll(oldies);
 
+			myNode.getRoutingTable().addLongLink(potentialKN);
 			myNode.updateLatencyPerDC(recNeighbor.getNodeID(), l, lq);
 			
 			if( res == 2 || (res == 1 && isSource && sourceJoining))
@@ -318,7 +320,7 @@ public class KoalaProtocol extends TopologyProtocol{
 	            addPiggybacked(msg,kn.getNodeID());
 	            send(kn.getNodeID(), msg);
             }else
-            	onFail();
+            	onFail(msg);
            
         }else{
         	onSuccess(msg);
@@ -453,7 +455,16 @@ public class KoalaProtocol extends TopologyProtocol{
 //		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
 	}
 	
-	protected void onFail(){
+	protected void onFail(TopologyMessage msg){
+		KoalaMessage kmsg = (KoalaMessage) msg;
+		String failmsg = "failed to sent from " + kmsg.getFirstSender();
+		if(msg.getContent() instanceof KoalaRouteMsgContent){
+			String nid = ((KoalaRouteMsgContent)msg.getContent()).getId();
+			failmsg += " to " + nid;
+		}
+		
+				;
+		System.out.println(failmsg);
 		FAIL++;
 	}
 

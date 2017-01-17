@@ -42,7 +42,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
     public RenaterInitializer(String prefix) {
         pid = Configuration.getPid(prefix + "." + PAR_PROT);
         phid  = FastConfig.getLinkable(pid);
-        cpid = Configuration.getPid(prefix + "." + PAR_CHORD_PROT);
+        cpid = Configuration.getPid(prefix + "." + PAR_CHORD_PROT,-1);
         
         nrDC = Configuration.getInt("NR_DC", 1);
         nrNodePerDC = Configuration.getInt("NR_NODE_PER_DC", 1);
@@ -194,14 +194,17 @@ public class RenaterInitializer implements Control, NodeInitializer {
 	public void initialize(Node node) {
 		KoalaNode koalaNode = (KoalaNode) node.getProtocol(pid);
 		RenaterNode renaterNode = (RenaterNode) node.getProtocol(phid);
-		ChordNode chordNode = (ChordNode) node.getProtocol(cpid);
+		ChordNode chordNode = null;
+		if(cpid >= 0)
+			chordNode= (ChordNode) node.getProtocol(cpid);
         
         String id = getID();
         int dcID = NodeUtilities.getDCID(id);
         
         koalaNode.setID(id);
         renaterNode.setID(id);
-        chordNode.setID(id);
+        if(cpid >= 0)
+        	chordNode.setID(id);
         
         koalaNode.setNode(node);
         renaterNode.setNode(node);

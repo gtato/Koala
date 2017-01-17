@@ -40,11 +40,11 @@ public class NodeUtilities {
 	public static int NR_DC = 0; //Configuration.getInt("NR_DC")
 	public static int ACTUAL_NR_DC = 0;
 	
-	public static int RID = 0;
-	public static int KID = 0;
-	public static int CID = 0;
+	public static int RID = -1;
+	public static int KID = -1;
+	public static int CID = -1;
 	
-	public static int RPID = 0, KPID=0, CPID=0;
+	public static int RPID = -1, KPID=-1, CPID=-1;
 	
 	public static double[] hopCategories;
 	public static double[] latencyCategories;

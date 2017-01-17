@@ -12,6 +12,7 @@ import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Control;
+import peersim.core.Fallible;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.dynamics.NodeInitializer;
@@ -53,6 +54,9 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		System.out.println("Building the koala ring. Depending on the size this might take also some time");
 		TopologyProtocol.setInitializeMode(true);
 		
+		for(int i = 0; i < Network.size(); i++)
+			Network.get(i).setFailState(Fallible.DOWN);
+		
 		ArrayList<Integer> inx = new ArrayList<Integer>();
 		for(int i = 0; i < nr; i++)
 			inx.add(i);
@@ -63,7 +67,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		prevPerc = 0;
 		for (int i = 0; i < nr; i++) {
 			Node n = Network.get(inx.get(i));
-			
+			n.setFailState(Fallible.OK);
 			RenaterProtocol rp = (RenaterProtocol )n.getProtocol(renProtPid);
 			rp.intializeMyNode(n, renProtPid);
 			rp.join();

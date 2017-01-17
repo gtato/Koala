@@ -31,8 +31,8 @@ rm -f /tmp/*.mpl
 #gnuplot -e "filename='../out/koala/topologyA0.5.dat'" plotKoala.plt &
 
 
-group=10000
-#group=100
+
+group=100
 # group=2
 # plot occurrences in message paths
 f1="/tmp/$RANDOM.mpl"
@@ -44,7 +44,7 @@ f2="/tmp/$RANDOM.mpl"
 #comparision of latency for the 3 protocols 
 f1="/tmp/$RANDOM.mpl"
 f2="/tmp/$RANDOM.mpl"
-# ./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
+./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
 # ./group.py -f '../out/results/ws1resultsA0.5.dat' -n $group > $f2 ; gnuplot -e "filename='$f2'" plotLatency.plt &
 # ./group.py -f '../../../../backup_out/results/resultsA1.0.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
 # ./group.py -f ~/exps/results/resultsA1.0.dat -n $group > $f2 ; gnuplot -e "filename='$f2'" plotLatency.plt &
@@ -88,10 +88,10 @@ group=10000
 f1="/tmp/$RANDOM.mpl"
 f2="/tmp/$RANDOM.mpl"
 f3="/tmp/$RANDOM.mpl"
-./group.py -f ~/exps/results/resultsA0.0.dat -n $group > $f1 ;\
-./group.py -f ~/exps/results/resultsA0.5.dat -n $group > $f2 ;\
-./group.py -f ~/exps/results/resultsA1.0.dat -n $group > $f3 ;\
-gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyComparison.plt &
+# ./group.py -f ~/exps/results/resultsA0.0.dat -n $group > $f1 ;\
+# ./group.py -f ~/exps/results/resultsA0.5.dat -n $group > $f2 ;\
+# ./group.py -f ~/exps/results/resultsA1.0.dat -n $group > $f3 ;\
+# gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'" plotLatencyComparison.plt &
 
 
 #comparision of latency when ALPHA changes with 5 alphas

@@ -39,7 +39,7 @@ public class RenaterProtocol extends TopologyProtocol {
 			if (dest != null)
 				send(dest, msg);
 			else
-				onFail(); // happens if the graph is disconnected, in that case we are in a real trouble
+				onFail(msg); // happens if the graph is disconnected, in that case we are in a real trouble
 		}else {
 			onSuccess(msg);
 		}
@@ -90,7 +90,7 @@ public class RenaterProtocol extends TopologyProtocol {
 //		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
 	}
 	
-	protected void onFail(){
+	protected void onFail(TopologyMessage msg){
 		FAIL++;
 	}
 

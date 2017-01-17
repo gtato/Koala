@@ -70,7 +70,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 //	}
 	
 	protected abstract void onSuccess(TopologyMessage msg);
-	protected abstract void onFail();
+	protected abstract void onFail(TopologyMessage msg);
 		
 	
 //	public int getFails(){

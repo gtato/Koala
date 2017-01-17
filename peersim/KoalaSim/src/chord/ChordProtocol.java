@@ -108,7 +108,7 @@ public class ChordProtocol extends TopologyProtocol {
 			if(dest != null && !dest.getID().equals(myNode.getID()))
 				send(dest.getID(), msg);
 			else
-				onFail();
+				onFail(msg);
 		}
 		
 	}
@@ -233,7 +233,7 @@ public class ChordProtocol extends TopologyProtocol {
 //		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
 	}
 	
-	protected void onFail(){
+	protected void onFail(TopologyMessage msg){
 		FAIL++;
 	}
 
