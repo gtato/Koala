@@ -12,6 +12,7 @@ import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.edsim.EDProtocol;
 import peersim.transport.Transport;
+import renater.RenaterProtocol;
 import topology.controllers.ResultCollector;
 import utilities.ErrorDetection;
 import utilities.NodeUtilities;
@@ -109,7 +110,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 //	protected abstract HashMap<Integer, TopologyMessage> getMsgStorage();
 	
-	protected abstract void handleMessage(TopologyMessage msg);
+	public abstract void handleMessage(TopologyMessage msg);
 	
 	public void intializeMyNode(Node node, int pid){
 		this.node = node;
@@ -129,7 +130,14 @@ public abstract class TopologyProtocol implements EDProtocol {
 		}
 		
 		Node dest = NodeUtilities.Nodes.get(destinationID);
-
+		
+		if(this instanceof RenaterProtocol && !dest.isUp())
+		{
+			((RenaterProtocol)dest.getProtocol(myPid)).handleMessage(msg);
+			return;
+		}
+		
+		
 		if(dest != null){
 			if(ErrorDetection.hasLoopCommunication(msg,destinationID)){
 				System.err.println("Message is going in cycles");
@@ -148,7 +156,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 				msg.addToPath(myNode.getID());
 			msg.addToPath(destinationID);
 			
-
+			
 			
 			if(NodeUtilities.getDCID(myNode.getID()) == NodeUtilities.getDCID(destinationID))
 				ResultCollector.countIntra();

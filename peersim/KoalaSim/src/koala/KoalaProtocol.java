@@ -38,7 +38,7 @@ public class KoalaProtocol extends TopologyProtocol{
 	}
 	
 	@Override
-	protected void handleMessage(TopologyMessage msg) {
+	public void handleMessage(TopologyMessage msg) {
 		KoalaMessage kmsg = (KoalaMessage)msg;
 		msgPiggyBack = new ArrayList<String>();
 		for(int i = 0; i < kmsg.getPiggyBack().size(); i++)
@@ -127,7 +127,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		
 		for (int i = 0; i < Network.size(); i++) {
             each = (KoalaNode) Network.get(i).getProtocol(linkPid);
-            if(each.hasJoined()){
+            if(each.isUp() && each.hasJoined()){
             	joined.add(Network.get(i));
             	if(myNode.isLocal(each.getID()))
             		joinedInMyDC.add(Network.get(i));
@@ -150,7 +150,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		if(joinedInMyDC.size() > 0)
 			return joinedInMyDC.get(CommonState.r.nextInt(joinedInMyDC.size()));
 		
-		if(initializeMode)
+		if(initializeMode) //cheap boot, a bit cheating but it can be realistic
 			if(joinedClosestToMyDC.size() > 0)
 				return joinedClosestToMyDC.get(CommonState.r.nextInt(joinedClosestToMyDC.size()));
 			

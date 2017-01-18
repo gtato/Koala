@@ -202,7 +202,7 @@ public class ChordProtocol extends TopologyProtocol {
 
 
 	@Override
-	protected void handleMessage(TopologyMessage msg) {
+	public void handleMessage(TopologyMessage msg) {
 		ChordMessage cmsg = (ChordMessage) msg;
 		switch(msg.getType()){
 		case ChordMessage.LOOK_UP:

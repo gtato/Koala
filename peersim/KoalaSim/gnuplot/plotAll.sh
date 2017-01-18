@@ -32,7 +32,7 @@ rm -f /tmp/*.mpl
 
 
 
-group=100
+group=200
 # group=2
 # plot occurrences in message paths
 f1="/tmp/$RANDOM.mpl"
@@ -44,7 +44,8 @@ f2="/tmp/$RANDOM.mpl"
 #comparision of latency for the 3 protocols 
 f1="/tmp/$RANDOM.mpl"
 f2="/tmp/$RANDOM.mpl"
-./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
+# ./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
+./group.py -f '../out/results/resultsA1.0.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotHops.plt &
 # ./group.py -f '../out/results/ws1resultsA0.5.dat' -n $group > $f2 ; gnuplot -e "filename='$f2'" plotLatency.plt &
 # ./group.py -f '../../../../backup_out/results/resultsA1.0.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
 # ./group.py -f ~/exps/results/resultsA1.0.dat -n $group > $f2 ; gnuplot -e "filename='$f2'" plotLatency.plt &

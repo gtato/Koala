@@ -73,7 +73,7 @@ public class RenaterProtocol extends TopologyProtocol {
 //	}
 
 	@Override
-	protected void handleMessage(TopologyMessage msg) {
+	public void handleMessage(TopologyMessage msg) {
 		switch(msg.getType()){
 		case KoalaMessage.ROUTE:
 			onRoute((KoalaMessage)msg);

@@ -1,6 +1,8 @@
 package utilities;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,8 @@ import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
+import peersim.core.Fallible;
+import peersim.core.Network;
 import peersim.core.Node;
 import renater.RenaterNode;
 import topology.TopologyNode;
@@ -63,6 +67,9 @@ public class NodeUtilities {
 	public static Map<String, RenaterNode> Gateways =  new HashMap<String, RenaterNode>();
 	public static double[][] CenterPerDC;
 
+	public static HashMap<String, Node> UPS =  new HashMap<String, Node>();
+	public static HashMap<String, Node> DOWNS =  new HashMap<String, Node>();
+	
 	public static void initialize(){
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
 		NR_DC = Configuration.getInt("NR_DC");
@@ -346,6 +353,34 @@ public class NodeUtilities {
 		cords[0] = minX + Math.abs(p1[0] - p2[0])/2;
 		cords[1] = minY + Math.abs(p1[1] - p2[1])/2;
 		return cords;
+	}
+	
+	public static void up(Node n){
+		KoalaNode kn = (KoalaNode) n.getProtocol(KID);
+		n.setFailState(Fallible.OK);
+		UPS.put(kn.getID(), n);
+		DOWNS.remove(kn.getID());
+	}
+	
+	public static void down(Node n){
+		KoalaNode kn = (KoalaNode) n.getProtocol(KID);
+		n.setFailState(Fallible.DOWN);
+		DOWNS.put(kn.getID(), n);
+		UPS.remove(kn.getID());
+	}
+	
+	public static ArrayList<Node> getRandNodes(int upOrDown, int nr){
+		ArrayList<Node> ret = new ArrayList<Node>();
+		if(nr < 1) return ret;
+		
+		HashMap<String, Node> upDowns = upOrDown==1 ? UPS : DOWNS;
+		ArrayList<String> upDownKeys = new ArrayList<String>(upDowns.keySet());
+			 
+		Collections.shuffle(upDownKeys, CommonState.r);
+		for(int i = 0; i < nr; i++)
+			ret.add(upDowns.get(upDownKeys.get(i)));
+		
+		return ret;
 	}
 	
 }

@@ -18,6 +18,7 @@ import peersim.dynamics.NodeInitializer;
 import renater.RenaterNode;
 import utilities.KoalaJsonParser;
 import utilities.NodeUtilities;
+import utilities.PhysicalDataProvider;
 
 public class RenaterInitializer implements Control, NodeInitializer {
 
@@ -55,6 +56,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
     	
 	@Override
 	public boolean execute() {
+		PhysicalDataProvider.SimTime = System.currentTimeMillis();
 		double alpha = Configuration.getDouble("ALPHA", -2.0);
 		System.out.println("ALPHA set to " + alpha);
 		

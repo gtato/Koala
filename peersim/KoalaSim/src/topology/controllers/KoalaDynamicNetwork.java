@@ -81,18 +81,18 @@ public class KoalaDynamicNetwork implements Control{
 		
 		int realMinSize = (int) (Network.size() * (double)minsize/100);
 		
-		ArrayList<Integer> upInx = new ArrayList<Integer>();
-		ArrayList<Integer> downInx = new ArrayList<Integer>();
+//		ArrayList<Integer> upInx = new ArrayList<Integer>();
+//		ArrayList<Integer> downInx = new ArrayList<Integer>();
+//		
+//		for(int i = 0; i < Network.size(); i++){
+//			if(Network.get(i).isUp())
+//				upInx.add(i);
+//			else
+//				downInx.add(i);
+//		}
 		
-		for(int i = 0; i < Network.size(); i++){
-			if(Network.get(i).isUp())
-				upInx.add(i);
-			else
-				downInx.add(i);
-		}
-		
-		Collections.shuffle(upInx, CommonState.r);
-		Collections.shuffle(downInx, CommonState.r);
+//		Collections.shuffle(upInx, CommonState.r);
+//		Collections.shuffle(downInx, CommonState.r);
 		
 		int toAdd = 0 , toRemove = 0;
 		
@@ -108,16 +108,19 @@ public class KoalaDynamicNetwork implements Control{
 			toRemove = rem > 0 ? (int) rem : 0;
 		}
 		
-		if(toAdd > 0 && toAdd > downInx.size())
-			toAdd = downInx.size();
+		if(toAdd > 0 && toAdd > NodeUtilities.DOWNS.size())
+			toAdd = NodeUtilities.DOWNS.size();
 		
-		if(toRemove > 0 && realMinSize > upInx.size() - toRemove)
-			toRemove = upInx.size() - realMinSize;
+		if(toRemove > 0 && realMinSize > NodeUtilities.UPS.size() - toRemove)
+			toRemove = NodeUtilities.UPS.size() - realMinSize;
 		
 		
+		ArrayList<Node> toUp = NodeUtilities.getRandNodes(0, toAdd);
+		ArrayList<Node> toDown = NodeUtilities.getRandNodes(1, toRemove);
+				
 		for(int i=0; i < toAdd; i++){
-			Node node = Network.get(downInx.get(i)); 
-			node.setFailState(Fallible.OK);
+			Node node = toUp.get(i);
+			NodeUtilities.up(node);
 			TopologyNode tn;
 			if(NodeUtilities.CID >= 0)
 				tn = (ChordNode)node.getProtocol(NodeUtilities.CID);
@@ -131,8 +134,8 @@ public class KoalaDynamicNetwork implements Control{
 		
 		
 		for(int i=0; i < toRemove; i++){
-			Node node = Network.get(upInx.get(i)); 
-			node.setFailState(Fallible.DOWN);
+			Node node = toDown.get(i);
+			NodeUtilities.down(node);
 			ChordNode cn = (ChordNode)node.getProtocol(NodeUtilities.CID);
 			KoalaNode kn = (KoalaNode)node.getProtocol(NodeUtilities.KID);
 			cn.reset();

@@ -21,6 +21,7 @@ public class PhysicalDataProvider {
 	
 	private static double maxInraLatency = 0;
 	
+	public static long SimTime;
 	
 	
 	

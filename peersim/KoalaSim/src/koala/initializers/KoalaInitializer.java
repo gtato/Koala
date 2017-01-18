@@ -54,8 +54,15 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		System.out.println("Building the koala ring. Depending on the size this might take also some time");
 		TopologyProtocol.setInitializeMode(true);
 		
-		for(int i = 0; i < Network.size(); i++)
-			Network.get(i).setFailState(Fallible.DOWN);
+		for(int i = 0; i < Network.size(); i++){
+			Node n = Network.get(i);
+			RenaterProtocol rp = (RenaterProtocol )n.getProtocol(renProtPid);
+			rp.intializeMyNode(n, renProtPid);
+			rp.join();
+			KoalaProtocol kp = (KoalaProtocol )n.getProtocol(koaProtPid);
+			kp.intializeMyNode(n, koaProtPid);
+			NodeUtilities.down(Network.get(i));
+		}
 		
 		ArrayList<Integer> inx = new ArrayList<Integer>();
 		for(int i = 0; i < nr; i++)
@@ -67,16 +74,16 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		prevPerc = 0;
 		for (int i = 0; i < nr; i++) {
 			Node n = Network.get(inx.get(i));
-			n.setFailState(Fallible.OK);
-			RenaterProtocol rp = (RenaterProtocol )n.getProtocol(renProtPid);
-			rp.intializeMyNode(n, renProtPid);
-			rp.join();
+			NodeUtilities.up(n);
+//			RenaterProtocol rp = (RenaterProtocol )n.getProtocol(renProtPid);
+//			rp.intializeMyNode(n, renProtPid);
+//			rp.join();
 			
 			if(koaProtPid > -1){
 				
 				KoalaProtocol kp = (KoalaProtocol )n.getProtocol(koaProtPid);
 				KoalaNode kn = (KoalaNode )n.getProtocol(FastConfig.getLinkable( koaProtPid));
-				kp.intializeMyNode(n, koaProtPid);
+//				kp.intializeMyNode(n, koaProtPid);
 				kp.join();
 				
 				if(NodeUtilities.LONG_LINKS > 0){
@@ -176,6 +183,10 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	public void initialize(Node n) {
 		KoalaProtocol kp = (KoalaProtocol) n.getProtocol(koaProtPid);
 		kp.intializeMyNode(n, koaProtPid);
+		KoalaNode kn = (KoalaNode)kp.getMyNode();
+		ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(NodeUtilities.LONG_LINKS, kn);
+		kn.getRoutingTable().setLongLinks(lls);
+		
 		kp.join();
 	}
 

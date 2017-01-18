@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+import javax.xml.stream.events.NotationDeclaration;
+
 import chord.ChordNode;
 import messaging.ChordLookUpContent;
 import messaging.ChordMessage;
@@ -21,6 +23,7 @@ import peersim.transport.Transport;
 import renater.RenaterNode;
 import renater.RenaterProtocol;
 import topology.TopologyNode;
+import utilities.NodeUtilities;
 
 public class TrafficGenerator extends GraphObserver {
 
@@ -76,27 +79,32 @@ public class TrafficGenerator extends GraphObserver {
 	
 
 	private void route() {
-		Node src, dst;
+		Node src = null, dst=null;
 		int trials = 50;
+//		do{
+//
+//			src =  Network.get(rand.nextInt(Network.size()));
+//			dst =  Network.get(rand.nextInt(Network.size()));
+//			if(--trials == 0){
+//				Node[] srcdst = extraSrcDst();
+//				if(srcdst == null)
+//					break;
+//				src = srcdst[0];
+//				dst = srcdst[1];
+//				trials = 50;
+//			} 
+//		}while(!src.isUp() || !dst.isUp() || src.equals(dst));
+		ArrayList<Node> srcdst; 
 		do{
-//			if(routes.size() == 0)
-//				initilizeRoutes();
-//			Node[] srcdst = routes.remove(0); 
-//			src = srcdst[0];
-//			dst = srcdst[1];
-			src =  Network.get(rand.nextInt(Network.size()));
-			dst =  Network.get(rand.nextInt(Network.size()));
-			if(--trials == 0){
-				Node[] srcdst = extraSrcDst();
-				if(srcdst == null)
-					break;
-				src = srcdst[0];
-				dst = srcdst[1];
-				trials = 50;
-			} 
-				
-			
-		}while(!src.isUp() || !dst.isUp() || src.equals(dst));
+			if(NodeUtilities.UPS.size() <= 1){
+				trials = 0; break;
+			}
+			srcdst = NodeUtilities.getRandNodes(1, 2);
+			src = srcdst.get(0);
+			dst = srcdst.get(1);
+			 
+		}while(src.equals(dst) && trials > 0);
+		
 		
 		if(trials == 0){
 			System.out.println("Not enough nodes are up, skipping routing this time");
