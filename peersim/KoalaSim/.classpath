@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="libs/jsoup-1.10.1.jar"/>
 	<classpathentry kind="lib" path="libs/peersim-1.0.5.jar"/>
 	<classpathentry kind="lib" path="libs/sqlite-jdbc-3.14.2.1.jar"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=KoalaSim&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import messaging.KoalaMessage;
 import messaging.KoalaRouteMsgContent;
 import messaging.TopologyMessage;
+import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Node;
@@ -18,9 +19,11 @@ public class RenaterProtocol extends TopologyProtocol {
 	public static int FAIL = 0;
 	
 	RenaterNode myNode;
-
+	private static final String PAR_SKIP= "skip";
+	private boolean skip;
 	public RenaterProtocol(String prefix) {
 		super(prefix);
+		skip = Configuration.getBoolean(prefix + "." +PAR_SKIP, false); 
 	}
 
 	@Override
@@ -32,8 +35,14 @@ public class RenaterProtocol extends TopologyProtocol {
 
 	
 	protected void onRoute(KoalaMessage msg) {
-		
 		String nid = ((KoalaRouteMsgContent) msg.getContent()).getId();
+		
+		if(skip){
+			myNode.setAllRoute(nid, msg);
+			onSuccess(msg);
+			return;
+		}
+		
 		if (!nid.equals(myNode.getID())){
 			String dest = myNode.getRoute(nid, msg);
 			if (dest != null)

@@ -39,6 +39,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
     protected int nrNodePerDC;
     protected double distance;
     boolean initializationMode;
+    boolean nested;
     
     public RenaterInitializer(String prefix) {
         pid = Configuration.getPid(prefix + "." + PAR_PROT);
@@ -50,7 +51,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
         
         dc_file = (Configuration.getString(prefix + "." + PAR_DC_FILE, "nofilewiththisname"));
         distance = (Configuration.getDouble(prefix + "." + PAR_DC_DISTANCE, 0.01));
-        
+        nested = Configuration.getBoolean("koala.settings.nested", false);
     }
 
     	
@@ -191,7 +192,10 @@ public class RenaterInitializer implements Control, NodeInitializer {
 		return emptyNodeID.get(CommonState.r.nextInt(emptyNodeID.size()));
 	}
 	
-
+	private String getFastID(Node node){
+		return node.getIndex()+"-0";
+	}
+	
 	@Override
 	public void initialize(Node node) {
 		KoalaNode koalaNode = (KoalaNode) node.getProtocol(pid);
@@ -200,7 +204,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
 		if(cpid >= 0)
 			chordNode= (ChordNode) node.getProtocol(cpid);
         
-        String id = getID();
+        String id = nested ? getID() : getFastID(node);
         int dcID = NodeUtilities.getDCID(id);
         
         koalaNode.setID(id);
@@ -214,7 +218,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
         NodeUtilities.Nodes.put(id, node);
         
         double[] cords;
-        if(NodeUtilities.Gateways.containsKey(dcID+"")){
+        if(nested && NodeUtilities.Gateways.containsKey(dcID+"")){
         	renaterNode.setGateway(NodeUtilities.Gateways.get(dcID+"").getID());
         	cords = this.getRandomCirclePoint(NodeUtilities.CenterPerDC[dcID][0], NodeUtilities.CenterPerDC[dcID][1], distance);
 //        	System.out.println(id + " is not gateway, its gateway is " +  NodeUtilities.Gateways.get(dcID+"").getID());

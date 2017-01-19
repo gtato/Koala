@@ -32,7 +32,7 @@ rm -f /tmp/*.mpl
 
 
 
-group=200
+group=5
 # group=2
 # plot occurrences in message paths
 f1="/tmp/$RANDOM.mpl"

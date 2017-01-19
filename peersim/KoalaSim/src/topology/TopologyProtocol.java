@@ -131,12 +131,6 @@ public abstract class TopologyProtocol implements EDProtocol {
 		
 		Node dest = NodeUtilities.Nodes.get(destinationID);
 		
-		if(this instanceof RenaterProtocol && !dest.isUp())
-		{
-			((RenaterProtocol)dest.getProtocol(myPid)).handleMessage(msg);
-			return;
-		}
-		
 		
 		if(dest != null){
 			if(ErrorDetection.hasLoopCommunication(msg,destinationID)){
@@ -157,11 +151,16 @@ public abstract class TopologyProtocol implements EDProtocol {
 			msg.addToPath(destinationID);
 			
 			
-			
 			if(NodeUtilities.getDCID(myNode.getID()) == NodeUtilities.getDCID(destinationID))
 				ResultCollector.countIntra();
 			else
 				ResultCollector.countInter();
+			
+			if(this instanceof RenaterProtocol && !dest.isUp())
+			{
+				((RenaterProtocol)dest.getProtocol(myPid)).handleMessage(msg);
+				return;
+			}
 			
 			if(initializeMode)
 				((KoalaProtocol)dest.getProtocol(myPid)).receive(msg);

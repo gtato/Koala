@@ -23,6 +23,7 @@ import spaasclient.SPClient;
 import utilities.Dijkstra;
 import utilities.DijkstraPlus;
 import utilities.KoaLite;
+import utilities.MyHipster;
 import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
 import utilities.Dijkstra.Edge;
@@ -72,15 +73,19 @@ public class WireRenater extends WireGraph {
 		}
 		
 		
-		
-		
-		
 		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraDB){
 			KoaLite.createDB();
 			computeDijsktraDB(gateways);
 		}else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS)
 			SPClient.uploadGraph(g);
-		else
+		else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster){
+			MyHipster.createGraph(gateways);
+//			MyHipster.getMinMax();
+//			MyHipster.getSPLatency(gateways.get(6).getID(), gateways.get(1).getID());
+//			MyHipster.getSPLatency(gateways.get(6).getID(), gateways.get(1).getID());
+//			MyHipster.printCacheStats();
+//			System.exit(1);
+		}else
 			computeDijsktra(gateways);
 		
 		
@@ -142,30 +147,66 @@ public class WireRenater extends WireGraph {
 	
 	private void  wireDCWaxman(ArrayList<RenaterNode> gateways){
 
-		double maxDist = 0;
-		for(int i = 0; i < gateways.size(); i++){
-			for(int j = i+1; j < gateways.size(); j++){
-				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j));
-				if(dist > maxDist)
-					maxDist = dist;
-			}
-		}
+//		double maxDist = 0;
+//		for(int i = 0; i < gateways.size(); i++){
+//			for(int j = i+1; j < gateways.size(); j++){
+//				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j));
+//				if(dist > maxDist)
+//					maxDist = dist;
+//			}
+//		}
 		
-		double L = maxDist; 
-	   	double a = 0.05;
-	   	double b = 0.13;
+		double L = PhysicalDataProvider.adjustDistanceValue(Math.sqrt(2));
+//		double L = maxDist;
+		double a,b;
+//	   	double a = 0.05;
+//	   	double b = 0.13;
+		if(gateways.size() > 50000){
+			a = 0.008; b = 0.07;
+		}else{
+			a = 0.05; b = 0.13;
+		}
+			
+	   	int degree = 0, maxDegree=0, minDegree=Integer.MAX_VALUE, totDegree=0;
+	   	
+//	   	ArrayList<RenaterNode> sample = new ArrayList<RenaterNode>();
+//	   	for(int k = 0; k < 1000; k++)
+//	   		sample.add(gateways.get(CommonState.r.nextInt(gateways.size())));
+	   	
 	   	
 	   	for(int i = 0; i < gateways.size(); i++){
-			for(int j = i+1; j < gateways.size(); j++){
+			degree=0;
+	   		for(int j = i+1; j < gateways.size(); j++){
 				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j));
 				double p = b * Math.pow(Math.E, -dist/(L*a));
 				if(p > CommonState.r.nextDouble()){
 			   		RenaterEdge re = new RenaterEdge(dist, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
 			   		((RenaterGraph)g).setEdge(gateways.get(i).getNode().getIndex(), gateways.get(j).getNode().getIndex(), re);
+			   		degree++;
 				}
-				
 			}
+	   		if(degree > maxDegree) maxDegree=degree;
+	   		if(degree < minDegree) minDegree=degree;
+	   		totDegree += degree;
 		}
+	   	System.out.println("max: " + maxDegree + " min: " + minDegree + " avg: " + (double)totDegree/gateways.size());
+	   	
+//	   	for(int i = 0; i < sample.size(); i++){
+//			degree=0;
+//	   		for(int j = 0; j < gateways.size(); j++){
+//				double dist = PhysicalDataProvider.getPhysicalDistance(sample.get(i), gateways.get(j));
+//				double p = b * Math.pow(Math.E, -dist/(L*a));
+//				if(p > CommonState.r.nextDouble()){
+//			   		RenaterEdge re = new RenaterEdge(dist, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
+//			   		((RenaterGraph)g).setEdge(sample.get(i).getNode().getIndex(), gateways.get(j).getNode().getIndex(), re);
+//			   		degree++;
+//				}
+//			}
+//	   		if(degree > maxDegree) maxDegree=degree;
+//	   		if(degree < minDegree) minDegree=degree;
+//	   		totDegree += degree;
+//		}
+//	   	System.out.println("max: " + maxDegree + " min: " + minDegree + " avg: " + (double)totDegree/sample.size());
 
 	   	ArrayList<RenaterNode> ambassadors =  getAmbassadors(gateways);
 		if(ambassadors.size() > 1)

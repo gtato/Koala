@@ -1,0 +1,10 @@
+<ivy-module version="2.0">
+		<info organisation="com.corporation.my" module="my-module" revision="1.0" />
+		<dependencies>
+			<dependency org='es.usc.citius.hipster' name='hipster-all' rev='1.0.1'>
+  			<artifact name='hipster-all' ext='jar'  ></artifact>
+			</dependency>
+		</dependencies>
+</ivy-module>
+
+

@@ -93,10 +93,17 @@ public class RenaterNode extends TopologyNode{
 		}
 			
 		return shortestPath.remove(0);
-		
-		
 	}
 
+	public void setAllRoute(String dest, KoalaMessage msg){
+		
+		String sp = PhysicalDataProvider.getPath(getID(), dest);
+		double lat = PhysicalDataProvider.getLatency(getID(), dest);
+		ArrayList<String> shortestPath= new ArrayList<String>(Arrays.asList(sp.split(" ")));
+		msg.addLatency(lat);
+		msg.setPath(shortestPath);
+	}
+	
 	
 	public ArrayList<Node> getNeighbors() {
 		return neighbors;

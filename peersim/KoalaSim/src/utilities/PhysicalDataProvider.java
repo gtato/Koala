@@ -119,7 +119,8 @@ public class PhysicalDataProvider {
 	}
 	
 	public static double getMaxInterLatency(){
-		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS)
+		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS 
+			|| NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster)
 			return maxInterLatency;
 		return avgInterLatency + 2*stdInterLatency;
 //		return maxInterLatency;
@@ -144,7 +145,8 @@ public class PhysicalDataProvider {
 	}
 	
 	public static double getMinInterLatency(){
-		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS)
+		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS
+		 || NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster)
 			return minInterLatency;
 		
 		return avgInterLatency - 2*stdInterLatency;
@@ -171,7 +173,12 @@ public class PhysicalDataProvider {
 			double[] minmax = SPClient.getMinMax();
 			minInterLatency = minmax[0];
 			maxInterLatency = minmax[1];
-		}else{
+		}else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster){
+			double[] minmax = MyHipster.getMinMax();
+			minInterLatency = minmax[0];
+			maxInterLatency = minmax[1];
+		}
+		else{
 //			double avg, std, tot;
 			double tot = 0;
 			int i = 0;
@@ -193,8 +200,6 @@ public class PhysicalDataProvider {
 	public static double getLatency(String src, String dst){
 		if(src.equals(dst))
 			return 0;
-		
-		
 		
 		int srcDC = NodeUtilities.getDCID(src); 
 		int dstDC = NodeUtilities.getDCID(dst);
@@ -224,9 +229,11 @@ public class PhysicalDataProvider {
 			 d = KoaLite.getLatency(src, dst);
 			 if(d==null)
 				 return -1.0;
-		}else if(NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS){
+		}else if(NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS)
 			return SPClient.getSP(src, dst).getLatency();
-		}else{
+		else if(NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster)
+			return MyHipster.getSPLatency(src,dst);
+		else{
 			if(latencies.containsKey(NodeUtilities.getKeyStrID(src, dst)))
 				return latencies.get(NodeUtilities.getKeyStrID(src, dst));
 		}
@@ -279,7 +286,9 @@ public class PhysicalDataProvider {
 			 return KoaLite.getPath(src, dst).toString().replace("[", "").replace("]", "").replace(",", "");
 		}else if(NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS) {
 			return SPClient.getSP(src, dst).getPath().toString().replace("[", "").replace("]", "").replace(",", "");
-		}else{
+		}else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster)
+			return MyHipster.getSPPath(src, dst).toString().replace("[", "").replace("]", "").replace(",", "");
+		else{
 			if(paths.containsKey(NodeUtilities.getKeyStrID(src, dst)))
 				return paths.get(NodeUtilities.getKeyStrID(src, dst));
 		}
@@ -353,8 +362,6 @@ public class PhysicalDataProvider {
 		
 	}
 
-
-	
 	
 	public static double getBitRate(){
 		double[] bitrates = {1e9, 2.5e9, 10e9};

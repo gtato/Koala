@@ -31,6 +31,7 @@ public class NodeUtilities {
 	public static int DijkstraRAM = 1;
 	public static int DijkstraDB = 2;
 	public static int DijkstraSPAAS = 3;
+	public static int DijkstraHipster = 4;
 	public static int DijkstraMethod;
 	
 	public static int MAGIC = 2;
@@ -96,7 +97,9 @@ public class NodeUtilities {
 			DijkstraMethod = DijkstraDB;
 		else if (dijktraStr.equalsIgnoreCase("spaas"))
 			DijkstraMethod = DijkstraSPAAS;
-		else 
+		else if (dijktraStr.equalsIgnoreCase("hipster"))
+			DijkstraMethod = DijkstraHipster;
+		else
 			DijkstraMethod = DijkstraRAM;
 		
 //		WORLD_SIZE = Configuration.getDouble("koala.settings.world_size", 1.0);

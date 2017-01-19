@@ -3,7 +3,7 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="KoalaSim">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="KoalaSim" xmlns:ivy="antlib:org.apache.ivy.ant">
     <property environment="env"/>
     <property name="ECLIPSE_HOME" value="../../../../eclipse/jee-neon/eclipse/"/>
     <property name="debuglevel" value="source,lines,vars"/>
@@ -18,6 +18,11 @@
         <pathelement location="libs/peersim-1.0.5.jar"/>
         <pathelement location="libs/sqlite-jdbc-3.14.2.1.jar"/>
     </path>
+              	
+	<target name="resolve" description="retrieve dependencies with ivy">
+		<ivy:retrieve pattern="Libraries/[artifact]-[revision]-[type].[ext]" />
+	</target>
+        	
     <target name="init">
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
@@ -31,7 +36,7 @@
         <delete dir="bin"/>
     </target>
     <target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project" name="build"/>
+    <target depends="build-subprojects,build-project,resolve" name="build" />
     <target name="build-subprojects"/>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
