@@ -14,7 +14,16 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 	private long birthday;
 	protected boolean joined;
 	private Node node;
+	boolean visited;
 	
+	public boolean isVisited() {
+		return visited;
+	}
+
+	public void setVisited(boolean visited) {
+		this.visited = visited;
+	}
+
 	public long getBirthday() {
 		return birthday;
 	}

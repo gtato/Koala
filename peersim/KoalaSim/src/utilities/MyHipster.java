@@ -28,10 +28,22 @@ public class MyHipster {
 	private static int cacheHit= 0;
 	private static int cacheMiss= 0;
 	
-	private static HipsterGraph<String, Double> hg;
+	private static HipsterGraph<String, Double> hg = null;
+	private static GraphBuilder<String, Double> gb = null;
+	
+	public static void addEdge(String src, String dst, double val){
+		if(gb == null)
+			gb = GraphBuilder.<String, Double>create();
+		gb.connect(src).to(dst).withEdge(val);
+	}
+	public static void createGraph(){
+		hg = gb.createUndirectedGraph();
+	}
+	
 	
 	public static void createGraph(ArrayList<RenaterNode> gateways){
 		GraphBuilder<String, Double> gb = GraphBuilder.<String, Double>create();
+		int i=0;
 		for (RenaterNode rn : gateways) {
 			for (Node nnode : rn.getNeighbors()) {
 				RenaterNode rm = (RenaterNode) nnode.getProtocol(NodeUtilities.RID);
@@ -40,6 +52,7 @@ public class MyHipster {
 				gb.connect(rn.getID()).to(rm.getID()).withEdge(re.getLatency());
 //				System.out.println(rn.getID() + " ---" + re.getLatency() + "--- " + rm.getID());
 			}
+			System.out.println((i++) + " " +rn.getID());
 		}
 		hg = gb.createUndirectedGraph();
 	}

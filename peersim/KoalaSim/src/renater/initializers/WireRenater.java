@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Stack;
+
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
@@ -39,7 +42,7 @@ public class WireRenater extends WireGraph {
 	private final int k;
 //	private final double worldSize;
 	private final String strategy;
-	
+	private boolean nested;
 	public WireRenater(String prefix) {
 		super(prefix);
 		pid = Configuration.getPid(prefix + "." + PAR_PROT);
@@ -47,18 +50,21 @@ public class WireRenater extends WireGraph {
 //		worldSize = Configuration.getDouble(prefix + "." + PAR_WORLD, 1.0);
 		strategy = Configuration.getString(prefix + "." + PAR_STRATEGY, "closest").toLowerCase();
 		g = new RenaterGraph(pid,false);
+		nested = Configuration.getBoolean("koala.settings.nested", false);
 	}
 
 	@Override
 	public void wire(Graph g) {
 		System.out.println("Wiring up renater nodes. Setting up paths according to Dijkstra");
 		
-		for (int i = 0; i < Network.size(); i++) {
-            Node n = (Node) g.getNode(i);   
-            RenaterNode rn = (RenaterNode)n.getProtocol(pid);
-            if(!rn.isGateway()){
-            	((RenaterGraph)g).setEdge(n.getIndex(), NodeUtilities.Nodes.get(rn.getGateway()).getIndex(), new RenaterEdge(PhysicalDataProvider.getIntraDCLatency(NodeUtilities.getDCID(rn.getID()))));
-            }
+		if(nested){
+			for (int i = 0; i < Network.size(); i++) {
+	            Node n = (Node) g.getNode(i);   
+	            RenaterNode rn = (RenaterNode)n.getProtocol(pid);
+	            if(!rn.isGateway()){
+	            	((RenaterGraph)g).setEdge(n.getIndex(), NodeUtilities.Nodes.get(rn.getGateway()).getIndex(), new RenaterEdge(PhysicalDataProvider.getIntraDCLatency(NodeUtilities.getDCID(rn.getID()))));
+	            }
+			}
 		}
 		ArrayList<RenaterNode> gateways = new ArrayList<RenaterNode>(NodeUtilities.Gateways.values());
 		switch(strategy){
@@ -79,7 +85,8 @@ public class WireRenater extends WireGraph {
 		}else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS)
 			SPClient.uploadGraph(g);
 		else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster){
-			MyHipster.createGraph(gateways);
+			MyHipster.createGraph();
+//			MyHipster.createGraph(gateways);
 //			MyHipster.getMinMax();
 //			MyHipster.getSPLatency(gateways.get(6).getID(), gateways.get(1).getID());
 //			MyHipster.getSPLatency(gateways.get(6).getID(), gateways.get(1).getID());
@@ -128,6 +135,8 @@ public class WireRenater extends WireGraph {
 				if (rm.getEdge(rn.getID()) != null) continue;
 				RenaterEdge re = new RenaterEdge(dists.get(j).getValue(), PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
 				((RenaterGraph)g).setEdge(rn.getNode().getIndex(), rm.getNode().getIndex(), re);
+				if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster)
+		   			MyHipster.addEdge(rn.getID(), rm.getID(), re.calculateLatency());
 //				if(rn.degree() >= k)
 //					break;
 				if(CommonState.r.nextDouble() > 1/(rn.degree()+0.5))
@@ -136,9 +145,9 @@ public class WireRenater extends WireGraph {
 			
 		}
 		
-		ArrayList<RenaterNode> ambassadors =  getAmbassadors(gateways);
-		if(ambassadors.size() > 1)
-			wireDC(ambassadors);
+//		ArrayList<RenaterNode> ambassadors =  getAmbassadors(gateways);
+//		if(ambassadors.size() > 1)
+//			wireDC(ambassadors);
 
 		
 //		computeDijsktra(gateways);
@@ -167,7 +176,8 @@ public class WireRenater extends WireGraph {
 			a = 0.05; b = 0.13;
 		}
 			
-	   	int degree = 0, maxDegree=0, minDegree=Integer.MAX_VALUE, totDegree=0;
+	   	int degree = 0, maxDegree=0, minDegree=Integer.MAX_VALUE, totDegree=0, totalEdges=0;
+	   	double maxP=0; int maxIndex =0; double maxDist=0;
 	   	
 //	   	ArrayList<RenaterNode> sample = new ArrayList<RenaterNode>();
 //	   	for(int k = 0; k < 1000; k++)
@@ -175,22 +185,40 @@ public class WireRenater extends WireGraph {
 	   	
 	   	
 	   	for(int i = 0; i < gateways.size(); i++){
-			degree=0;
+			degree=0; maxP=0;
 	   		for(int j = i+1; j < gateways.size(); j++){
 				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j));
 				double p = b * Math.pow(Math.E, -dist/(L*a));
+				if(p>maxP){
+					maxP=p;
+					maxDist=dist;
+					maxIndex = j;
+				}
 				if(p > CommonState.r.nextDouble()){
 			   		RenaterEdge re = new RenaterEdge(dist, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
 			   		((RenaterGraph)g).setEdge(gateways.get(i).getNode().getIndex(), gateways.get(j).getNode().getIndex(), re);
+			   		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster)
+			   			MyHipster.addEdge(gateways.get(i).getID(), gateways.get(j).getID(), re.getLatency());
 			   		degree++;
+			   		totalEdges++;
 				}
 			}
+	   		if(degree == 0){
+	   			RenaterEdge re = new RenaterEdge(maxDist, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
+		   		((RenaterGraph)g).setEdge(gateways.get(i).getNode().getIndex(), gateways.get(maxIndex).getNode().getIndex(), re);
+		   		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster)
+		   			MyHipster.addEdge(gateways.get(i).getID(), gateways.get(maxIndex).getID(), re.getLatency());
+		   		degree++;
+		   		totalEdges++;
+	   		}
+	   		
 	   		if(degree > maxDegree) maxDegree=degree;
 	   		if(degree < minDegree) minDegree=degree;
 	   		totDegree += degree;
 		}
-	   	System.out.println("max: " + maxDegree + " min: " + minDegree + " avg: " + (double)totDegree/gateways.size());
-	   	
+	   		
+	   	System.out.println("total edges: "+ totalEdges + " max: " + maxDegree + " min: " + minDegree + " avg: " + (double)totDegree/gateways.size());
+//	   	System.exit(1);
 //	   	for(int i = 0; i < sample.size(); i++){
 //			degree=0;
 //	   		for(int j = 0; j < gateways.size(); j++){
@@ -208,12 +236,17 @@ public class WireRenater extends WireGraph {
 //		}
 //	   	System.out.println("max: " + maxDegree + " min: " + minDegree + " avg: " + (double)totDegree/sample.size());
 
-	   	ArrayList<RenaterNode> ambassadors =  getAmbassadors(gateways);
-		if(ambassadors.size() > 1)
+	   	ArrayList<RenaterNode> ambassadors = checkConnectivity(gateways);
+	   	while(ambassadors.size() > 1){
+
+	   		System.out.println("groups: " + ambassadors.size());
 			wireDC(ambassadors);
-		
+			ambassadors = checkConnectivity(ambassadors);
+	   	}
 //	   	computeDijsktra(gateways);
 	}
+	
+	
 	
 	
 	private void  wireGradual(ArrayList<RenaterNode> gateways){
@@ -276,21 +309,6 @@ public class WireRenater extends WireGraph {
 	}
 	
 	
-	private ArrayList<RenaterNode> getAmbassadors(ArrayList<RenaterNode> gateways){
-		ArrayList<HashSet<String>> groups = checkConnectivity(gateways);
-		System.out.println("Groups: " + groups.size());
-		
-		
-		ArrayList<RenaterNode> ambassadors = new ArrayList<RenaterNode>(); 
-		for(HashSet<String> s : groups){
-			for(String n : s){
-				ambassadors.add((RenaterNode)NodeUtilities.Nodes.get(n).getProtocol(pid));
-				break;
-			}
-		}
-		return ambassadors;
-		
-	}
 	
 //	private void addExtraLinks(ArrayList<Integer> gateway_indexes, ArrayList<RenaterNode> gateways){
 //		computeDijsktra(g, gateway_indexes);
@@ -400,49 +418,45 @@ public class WireRenater extends WireGraph {
 //		
 //	}
 	
-	
-	private ArrayList<HashSet<String>>  checkConnectivity(ArrayList<RenaterNode> gateways){
-		ArrayList<HashSet<String>> groups = new ArrayList<HashSet<String>>();
-		
-		for(int i = 0; i < gateways.size(); i++){
-			boolean skip = false;
-			RenaterNode rn = gateways.get(i);
-			for(HashSet<String> set : groups){
-				if(set.contains(rn.getID())){
-					skip = true; break;
-				}
-			}
-			if(skip)
-				continue;
-			HashSet<String> s = new HashSet<String>();
-			addNeighborsToSet(rn, s);
-			groups.add(s);
-
-		}
-		return groups; 
-	}
-	private boolean addNeighborsToSet(RenaterNode rn, HashSet<String> s){
-		boolean addedSmth = false;
-		s.add(rn.getID());
-		ArrayList<RenaterNode> rneigs = new ArrayList<RenaterNode>();
-		for(Node neighbor : rn.getNeighbors()){
-			RenaterNode rneighbor = (RenaterNode)neighbor.getProtocol(pid);
-			if(!rneighbor.isGateway()) continue;
-			if (s.add(rneighbor.getID())){
-				addedSmth = true;
-				rneigs.add(rneighbor);
-			}
-		}
-		
-		for(RenaterNode neighbor : rneigs){
-			addNeighborsToSet(neighbor, s);
-		}
-		
-		return addedSmth;
-	}
-	
 
 	
+	private ArrayList<RenaterNode> checkConnectivity(ArrayList<RenaterNode> list){
+		ArrayList<RenaterNode> reps = new ArrayList<RenaterNode>();
+		for(RenaterNode rn : list){
+			if(!rn.isVisited()){
+				reps.add(rn);
+				addNeighborsToSetNonRecursive(rn);
+			}
+
+		}
+		return reps; 
+	}
+	
+	
+
+	public void addNeighborsToSetNonRecursive(RenaterNode rn) {
+		Queue<RenaterNode> queue = new LinkedList<RenaterNode>();
+		queue.add(rn);
+		rn.setVisited(true);
+		while(!queue.isEmpty()) {
+			RenaterNode node = queue.remove();
+			RenaterNode child = null;
+			while((child=getUnvisitedChildNode(node))!=null) {
+				child.setVisited(true);
+				queue.add(child);
+			}
+		}
+	}
+	
+	private RenaterNode getUnvisitedChildNode(RenaterNode node) {
+		for(Node n : node.getNeighbors()){
+			RenaterNode rn = (RenaterNode)n.getProtocol(NodeUtilities.RID);
+			if(!rn.isVisited())
+				return rn;
+		}
+		return null;
+	}
+
 	private Dijkstra computeDijsktra(ArrayList<RenaterNode> gateways) {
 		long startTime = System.currentTimeMillis();
 		
