@@ -9,18 +9,15 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
-    <path id="KoalaSim.classpath">
-        <pathelement location="bin"/>
-        <pathelement location="libs/djep-1.0.0.jar"/>
-        <pathelement location="libs/gson-2.6.2.jar"/>
-        <pathelement location="libs/jep-2.3.0.jar"/>
-        <pathelement location="libs/jsoup-1.10.1.jar"/>
-        <pathelement location="libs/peersim-1.0.5.jar"/>
-        <pathelement location="libs/sqlite-jdbc-3.14.2.1.jar"/>
-    </path>
-              	
+    
+	<path id="KoalaSim.classpath">
+	  <fileset dir="libs">
+	    <include name="**/*.jar" />
+	  </fileset>
+	</path>          	
+        
 	<target name="resolve" description="retrieve dependencies with ivy">
-		<ivy:retrieve pattern="Libraries/[artifact]-[revision]-[type].[ext]" />
+		<ivy:retrieve pattern="libs/[artifact]-[revision]-[type].[ext]" />
 	</target>
         	
     <target name="init">
@@ -36,7 +33,7 @@
         <delete dir="bin"/>
     </target>
     <target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project,resolve" name="build" />
+    <target depends="resolve, build-subprojects,build-project" name="build" />
     <target name="build-subprojects"/>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
