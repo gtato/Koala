@@ -236,7 +236,7 @@ public class ResultCollector extends NodeObserver {
 
 	@Override
 	protected String[] getOutputFileNames() {
-		return new String[]{"results"};
+		return new String[]{"resultsC"+Configuration.getString("CC")};
 	}
 	
 	
