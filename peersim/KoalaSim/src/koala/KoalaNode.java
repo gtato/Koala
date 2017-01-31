@@ -16,6 +16,7 @@ import javax.swing.event.ListSelectionEvent;
 
 import messaging.KoalaMessage;
 import peersim.core.CommonState;
+import peersim.core.Node;
 import topology.TopologyNode;
 import utilities.KoalaJsonParser;
 import utilities.NodeUtilities;
@@ -56,6 +57,12 @@ public class KoalaNode extends TopologyNode{
 		reset();
 	}
 	
+	
+	public KoalaNode(String prefix, String id) {
+		super(prefix);
+		reset();
+		setID(id);
+	}
 	
 
 	public Object clone() {
@@ -139,7 +146,11 @@ public class KoalaNode extends TopologyNode{
 	
 		
 	public int tryAddNeighbour(KoalaNeighbor n){
-        ArrayList<KoalaNeighbor> oldNeighbors = new ArrayList<KoalaNeighbor>();
+//      Discard down neighbors (like Lamport would do)
+		if(!NodeUtilities.Nodes.get(n.getNodeID()).isUp())
+        	return -1;
+		
+		ArrayList<KoalaNeighbor> oldNeighbors = new ArrayList<KoalaNeighbor>();
 		boolean local = this.isLocal(n.getNodeID());
         int addedS, addedP;
         addedS = addedP = -1;
@@ -198,13 +209,7 @@ public class KoalaNode extends TopologyNode{
 	}
 	
 	
-//	private boolean isNeighbour(String nodeID){
-//        if (isSuccessor(nodeID))
-//            return true;
-//        if (isPredecessor(nodeID))
-//            return true;
-//        return false;
-//	}
+	
 	
 	private boolean isSuccessor(String nodeID, int index){
         boolean local = this.isLocal(nodeID);
@@ -335,7 +340,7 @@ public class KoalaNode extends TopologyNode{
     }
     	
     
-    public KoalaNeighbor getRoute(String dest, KoalaMessage msg) {
+    public KoalaNeighbor getRoute(KoalaNode dest,  KoalaMessage msg) {
     	KoalaNeighbor normal = getRouteForAlpha(dest, msg, NodeUtilities.B);
     	KoalaNeighbor no_latency = getRouteForAlpha(dest, msg, 1);
     	if(normal!=null && no_latency!=null && !normal.equals(no_latency))
@@ -343,16 +348,18 @@ public class KoalaNode extends TopologyNode{
     	return normal;
     }
     
-    public KoalaNeighbor getRouteForAlpha(String dest, KoalaMessage msg, double alpha) {
-		AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
+    public KoalaNeighbor getRouteForAlpha(KoalaNode dest,  KoalaMessage msg, double alpha) {
+		ArrayList<String> destNeigs = dest.getRoutingTable().getNeighborsContainerIDs();
+    	AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
 		double v=0;
 		ArrayList<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
 		ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>(); 
 	
 		for(KoalaNeighbor re : rt){
-			v = getRouteValue(dest, re, alpha);
+			v = getRouteValue(dest.getID(), re, alpha);
 			mre = new AbstractMap.SimpleEntry<Double, KoalaNeighbor>(v, re);
-			potentialDests.add(mre);
+			if(v>0) // add only those better than myself
+				potentialDests.add(mre);
 	
 		}
 		Collections.sort(potentialDests, Collections.reverseOrder(new Comparator<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>() {
@@ -372,24 +379,28 @@ public class KoalaNode extends TopologyNode{
 				downEntries.add(rentry);
 			if(rentry.getNodeID().equals(dest) && isDown)
 				break;
-			if(msg.getPath().contains(rentry.getNodeID()) || isDown)
+			if(msg.getPath().contains(rentry.getNodeID()) || 
+					destNeigs.contains(rentry.getNodeID()) ||
+					isDown)
 				continue;
 			
 			ret = rentry;
 			break;
 		}
 		
-		for(KoalaNeighbor down : downEntries)
+		for(KoalaNeighbor down : downEntries){
 			down.reset();
-			
+		}
+		
+		
 		
 		return ret;
     }
 
-    
+   
 
-	
- 	private double getRouteValue(String dest, KoalaNeighbor re, double alpha) {
+
+	private double getRouteValue(String dest, KoalaNeighbor re, double alpha) {
  		double res = 0;
  
  		if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
@@ -417,6 +428,48 @@ public class KoalaNode extends TopologyNode{
          
  		return res;
  	}
+	
+	public KoalaNeighbor getClosestEntryAfter(String dest){
+		int sdistfromme = NodeUtilities.signDistance(this.getID(), dest);
+		int minDist = Integer.MAX_VALUE;
+		KoalaNeighbor closestEntry = null;
+		for( KoalaNeighbor re: getRoutingTable().getNeighbors()){
+			int sdistfromre = NodeUtilities.signDistance(this.getID(), re.getNodeID());
+			if(sdistfromme*sdistfromre < 0) continue;
+			int dist = NodeUtilities.distance(re.getNodeID(), dest);
+			if(!NodeUtilities.isUp(re.getNodeID())){re.reset(); continue;}
+			if(dist < minDist){
+				minDist = dist;
+				closestEntry = re;
+			}
+		}
+		
+		return closestEntry;
+	}
+	
+	public KoalaNeighbor getClosestEntryBefore(String dest){
+		int sdistfromme = NodeUtilities.signDistance(this.getID(), dest);
+		int distfromme = NodeUtilities.distance(this.getID(), dest);
+		int minDist = Integer.MAX_VALUE;
+		KoalaNeighbor closestEntry = null;
+		for( KoalaNeighbor re: getRoutingTable().getNeighbors()){
+			
+			int sdistfromre = NodeUtilities.signDistance(this.getID(), re.getNodeID());
+			int distfromre = NodeUtilities.distance(this.getID(), re.getNodeID());
+			if(sdistfromme*sdistfromre < 0) continue;
+			if(distfromre > distfromme ) continue;
+			int dist = NodeUtilities.distance(re.getNodeID(), dest);
+			if(dist==0) continue;
+			if(!NodeUtilities.isUp(re.getNodeID())){ re.reset(); continue;}
+			
+			if(dist < minDist){
+				minDist = dist;
+				closestEntry = re;
+			}
+		}
+		
+		return closestEntry;
+	}
 	
 	
 	public Set<String> createRandomIDs(int nr){

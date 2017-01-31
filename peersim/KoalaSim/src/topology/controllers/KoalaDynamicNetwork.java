@@ -29,10 +29,12 @@ public class KoalaDynamicNetwork implements Control{
 	private static final String PAR_ADD = "add";
 	private static final String PAR_REM = "rem";
 	private static final String PAR_MODE = "mode";
+	private static final String PAR_ALT = "alt";
 	protected final double add;
 	protected final double rem;
 	protected final int minsize;
 	protected final String mode;
+	protected final boolean alt;
 	protected final NodeInitializer[] inits;
 	
 	public KoalaDynamicNetwork(String prefix) {
@@ -40,6 +42,7 @@ public class KoalaDynamicNetwork implements Control{
 		rem = Configuration.getDouble(prefix + "." + PAR_REM,0);
 		minsize = Configuration.getInt(prefix + "." + PAR_MIN, 0);
 		mode = Configuration.getString(prefix + "." + PAR_MODE, MOD_STAND);
+		alt = Configuration.getBoolean(prefix + "." + PAR_ALT, false);
 		Object[] tmp = Configuration.getInstanceArray(prefix + "." + PAR_INIT);
 		inits = new NodeInitializer[tmp.length];
 		for (int i = 0; i < tmp.length; ++i) {
@@ -79,27 +82,14 @@ public class KoalaDynamicNetwork implements Control{
 	public boolean execute() {
 		if (!isRand() && add == 0 && rem == 0) return false;
 		
+//		int nrUps = NodeUtilities.UPS.size();
+//		int nrDowns = lat ? NodeUtilities.DOWNS.size();
+		
 		int realMinSize = (int) (Network.size() * (double)minsize/100);
-		
-//		ArrayList<Integer> upInx = new ArrayList<Integer>();
-//		ArrayList<Integer> downInx = new ArrayList<Integer>();
-//		
-//		for(int i = 0; i < Network.size(); i++){
-//			if(Network.get(i).isUp())
-//				upInx.add(i);
-//			else
-//				downInx.add(i);
-//		}
-		
-//		Collections.shuffle(upInx, CommonState.r);
-//		Collections.shuffle(downInx, CommonState.r);
-		
+				
 		int toAdd = 0 , toRemove = 0;
 		
 		if(isRand()){
-			//TODO: why 5? because magic 
-//			toAdd = CommonState.r.nextInt(5);
-//			toRemove = CommonState.r.nextInt(5);
 			toAdd = CommonState.r.nextInt(2);
 			toRemove = 1-toAdd;
 		}else{
@@ -114,8 +104,8 @@ public class KoalaDynamicNetwork implements Control{
 		if(toRemove > 0 && realMinSize > NodeUtilities.UPS.size() - toRemove)
 			toRemove = NodeUtilities.UPS.size() - realMinSize;
 		
-		
-		ArrayList<Node> toUp = NodeUtilities.getRandNodes(0, toAdd);
+		int upind = alt ? -1:0;
+		ArrayList<Node> toUp = NodeUtilities.getRandNodes(upind, toAdd);
 		ArrayList<Node> toDown = NodeUtilities.getRandNodes(1, toRemove);
 				
 		for(int i=0; i < toAdd; i++){
@@ -143,10 +133,6 @@ public class KoalaDynamicNetwork implements Control{
 			
 			System.out.println("Node " + cn + " died... R.I.P.");			
 		}
-		
-		
-		
-		
 		
 		return false;
 	}

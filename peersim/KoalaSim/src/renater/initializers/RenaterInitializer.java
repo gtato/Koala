@@ -57,6 +57,8 @@ public class RenaterInitializer implements Control, NodeInitializer {
     	
 	@Override
 	public boolean execute() {
+		
+		
 		PhysicalDataProvider.SimTime = System.currentTimeMillis();
 		double alpha = Configuration.getDouble("ALPHA", -2.0);
 		System.out.println("ALPHA set to " + alpha);
@@ -83,7 +85,6 @@ public class RenaterInitializer implements Control, NodeInitializer {
 //        	nrDC = Network.size();
         
         NodeUtilities.ACTUAL_NR_DC = Network.size();
-        
         
         
 //        assigning nodes an id and setting their coordinates according to their data-center

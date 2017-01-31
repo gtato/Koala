@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import messaging.TopologyMessage;
 import chord.ChordNode;
@@ -70,6 +71,7 @@ public class NodeUtilities {
 
 	public static HashMap<String, Node> UPS =  new HashMap<String, Node>();
 	public static HashMap<String, Node> DOWNS =  new HashMap<String, Node>();
+	public static HashMap<String, Node> ALT_DOWNS =  new HashMap<String, Node>();
 	
 	public static void initialize(){
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
@@ -212,6 +214,18 @@ public class NodeUtilities {
 	
 	public static int distance(String srcID, String targetID){
 		return distance(srcID, targetID, false);
+	}
+	
+	public static int signDistance(String srcID, String targetID){
+		int dist = distance(srcID, targetID);
+		String succ = (getDCID(srcID)+1)%NR_DC +"-"+getNodeID(srcID);
+		String pred = (getDCID(srcID)+NR_DC-1)%NR_DC +"-"+getNodeID(srcID);
+		int distsucc = distance(succ, targetID);
+		int distpred = distance(pred, targetID);
+		if(distsucc > distpred) 
+			return -dist;
+		else 
+			return dist;
 	}
 	
 	public static int distance(String srcID, String targetID, boolean forceLocal){
@@ -372,11 +386,21 @@ public class NodeUtilities {
 		UPS.remove(kn.getID());
 	}
 	
+	
+	public static void copyAltDowns(){
+		for(Entry<String,Node> e : DOWNS.entrySet()){
+			ALT_DOWNS.put(e.getKey(), e.getValue());
+		}
+	}
+	
+	
 	public static ArrayList<Node> getRandNodes(int upOrDown, int nr){
 		ArrayList<Node> ret = new ArrayList<Node>();
 		if(nr < 1) return ret;
 		
 		HashMap<String, Node> upDowns = upOrDown==1 ? UPS : DOWNS;
+		if(upOrDown==-1)
+			upDowns = ALT_DOWNS;
 		ArrayList<String> upDownKeys = new ArrayList<String>(upDowns.keySet());
 			 
 		Collections.shuffle(upDownKeys, CommonState.r);

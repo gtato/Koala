@@ -354,7 +354,7 @@ public class PhysicalDataProvider {
 	public static double adjustDistanceValue(double distance){
 //		distance *= 1000 *  NodeUtilities.WORLD_SIZE;
 		distance *= NodeUtilities.WORLD_SIZE;
-        distance = Math.round(distance * 100.0) / 100.0; //in km
+        distance = round(distance);
         return distance;
 	}
 	public static void clearLists() {

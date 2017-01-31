@@ -206,8 +206,10 @@ public class WireRenater extends WireGraph {
 	   		if(degree == 0){
 	   			RenaterEdge re = new RenaterEdge(maxDist, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
 		   		((RenaterGraph)g).setEdge(gateways.get(i).getNode().getIndex(), gateways.get(maxIndex).getNode().getIndex(), re);
-		   		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster)
+		   		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster){
 		   			MyHipster.addEdge(gateways.get(i).getID(), gateways.get(maxIndex).getID(), re.getLatency());
+		   			System.out.println(gateways.get(i).getID()+" "+ gateways.get(maxIndex).getID()+" "+ re.getLatency());
+		   		}
 		   		degree++;
 		   		totalEdges++;
 	   		}

@@ -166,6 +166,9 @@ public class KoalaRoutingTable {
 //		if(this.getNeighboursIDs(1).contains(kn.getNodeID())
 //		||this.getNeighboursIDs(2).contains(kn.getNodeID()))
 //			return false;
+//		Discard down neighbors (like Lamport would do)
+		if(!NodeUtilities.Nodes.get(kn.getNodeID()).isUp())
+        	return false;
 		
 		boolean added = false;
 		for(int i = 0; i < longLinks.size(); i++){
@@ -220,6 +223,13 @@ public class KoalaRoutingTable {
 	public ArrayList<KoalaNeighbor> getNeighborsContainer() {
 		return neighborsContainer;
 	}
+	
+	public ArrayList<String> getNeighborsContainerIDs() {
+		ArrayList<String> ids = new ArrayList<String>();
+		for(KoalaNeighbor kn : neighborsContainer)
+			ids.add(kn.getNodeID());
+		return ids;
+	}
 
 	public void setNeighborsContainer(ArrayList<KoalaNeighbor> neighbors) {
 		this.neighborsContainer = neighbors;
@@ -262,6 +272,17 @@ public class KoalaRoutingTable {
             if(!NodeUtilities.isDefault(neighs.get(i)))
             	hs.add(neighs.get(i).getNodeID());
                 
+        return hs;
+	}
+	
+	public Set<String> getFirstGlobalNeighboursIDs(){
+		ArrayList<KoalaNeighbor> neighs = new ArrayList<KoalaNeighbor>();
+		neighs.add(globalPredecessors[0]);
+		neighs.add(globalSucessors[0]);
+		Set<String> hs = new LinkedHashSet<String>();
+        for(int i = 0; i < neighs.size(); i++)
+            if(!NodeUtilities.isDefault(neighs.get(i)))
+            	hs.add(neighs.get(i).getNodeID());
         return hs;
 	}
 	

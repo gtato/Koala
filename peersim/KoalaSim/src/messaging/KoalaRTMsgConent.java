@@ -4,6 +4,7 @@ package messaging;
 
 import java.util.ArrayList;
 import utilities.KoalaJsonParser;
+import utilities.NodeUtilities;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 
@@ -11,8 +12,10 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 
 	String id;
 	boolean joining;
+	boolean neighborsDown;
 	String[] neighbors;
 	String[] oldNeighbors;
+	
 	
 	
 	public KoalaRTMsgConent(KoalaNode kn) {
@@ -24,6 +27,9 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 		if (kn == null)
 			return;
 		
+		boolean predDown = NodeUtilities.isDefault(kn.getRoutingTable().getGlobalPredecessor(0)); 
+ 		boolean succDown = NodeUtilities.isDefault(kn.getRoutingTable().getGlobalSucessor(0));
+		neighborsDown = predDown || succDown; 
 		id = kn.getID();
 		joining = kn.isJoining();
 		ArrayList<KoalaNeighbor> neigs = kn.getRoutingTable().getNeighbors();
@@ -61,6 +67,10 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 		kn.getRoutingTable().setNeighborsContainer(neighs);
 		kn.getRoutingTable().setOldNeighborsContainer(oldNeighs); 
 		return kn;
+	}
+	
+	public boolean getNeighborsDown(){
+		return neighborsDown;
 	}
 
 }

@@ -15,6 +15,7 @@ public class KoalaNeighbor{
 	public KoalaNeighbor(String nodeID) {
 		super();
 		this.nodeID = nodeID;
+		this.idealID = nodeID;
 	}
 	
 	public KoalaNeighbor(String nodeID, double latency, int latencyQuality) {
@@ -22,13 +23,14 @@ public class KoalaNeighbor{
 		this.nodeID = nodeID;
 		this.latency = latency;
 		this.latencyQuality = latencyQuality;
+		this.idealID = nodeID;
 	}
 	
 	public KoalaNeighbor(String nodeID, double latency) {
 		super();
 		this.nodeID = nodeID;
 		this.latency = latency;
-		
+		this.idealID = nodeID;
 	}
 	
 	
