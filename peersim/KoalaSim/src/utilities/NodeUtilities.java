@@ -56,7 +56,7 @@ public class NodeUtilities {
 	public static double[] latencyCategories;
 	
 	public static int PiggybackLength = 0;
-	public static double WORLD_SIZE = 1.0;
+//	public static double WORLD_SIZE = 1.0;
 	
 	public static int SUCC_SIZE = 0;
 	public static int M = 0;
@@ -105,7 +105,7 @@ public class NodeUtilities {
 			DijkstraMethod = DijkstraRAM;
 		
 //		WORLD_SIZE = Configuration.getDouble("koala.settings.world_size", 1.0);
-		WORLD_SIZE = (double)NR_DC/1000;
+//		WORLD_SIZE = (double)NR_DC/1000;
 //		WORLD_SIZE *= 5;
 	}
 	

@@ -16,8 +16,8 @@ datafile = filename
 #set ylabel substr(firstrows, strstrt(firstrows, "\n")+1, strlen(firstrows))
 
 plot "<(tail -n +2  ".datafile.")"  using 4 title "Koala" smooth csplines with lines lc rgb "blue" , \
-	 "<(tail -n +2  ".datafile.")" using 2 title "Physical" smooth csplines with lines  lc rgb "forest-green"#, \
-	 #"<(tail -n +2  ".datafile.")" using 3 title "Chord" smooth csplines with lines  lc rgb "red"
+	 "<(tail -n +2  ".datafile.")" using 2 title "Physical" smooth csplines with lines  lc rgb "forest-green", \
+	 "<(tail -n +2  ".datafile.")" using 3 title "Chord" smooth csplines with lines  lc rgb "red"
 
 # no smoothing
 #plot datafile using 1 title "Koala" with lines, \

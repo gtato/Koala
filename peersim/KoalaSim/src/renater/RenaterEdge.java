@@ -53,16 +53,16 @@ public class RenaterEdge {
 		return latency; 
 	}
 
-	public double calculateLatency_future(){
-		int packetSize = 1562;
-		double tranmissionTime = (double) ((packetSize * 8)/bitrate);
-		double propagationTime = (double) ((distance * 1000)/speed);
-		latency = tranmissionTime  + propagationTime;
-
-		//*1000 to convert in milliseconds and *10 is just to look more realistic
-		latency = (double)Math.round(latency *  100.0 *1000 *10) / 100.0; //in milliseconds
-		return latency; 
-	}
+//	public double calculateLatency_future(){
+//		int packetSize = 1562;
+//		double tranmissionTime = (double) ((packetSize * 8)/bitrate);
+//		double propagationTime = (double) ((distance * 1000)/speed);
+//		latency = tranmissionTime  + propagationTime;
+//
+//		//*1000 to convert in milliseconds and *10 is just to look more realistic
+//		latency = (double)Math.round(latency *  100.0 *1000 *10) / 100.0; //in milliseconds
+//		return latency; 
+//	}
 	
 	public double calculateLatency(){
 		latency = distance;

@@ -23,6 +23,8 @@ public class ResultCollector extends NodeObserver {
 	private static final String PAR_KOALA_PROTOCOL= "kprotocol";
 	private static final String PAR_RENATER_PROTOCOL= "protocol";
 	
+	private static final String PAR_FLUSH= "flush";
+	
 	
 	private final int renProtPid;
 	private final int koaProtPid;
@@ -37,10 +39,12 @@ public class ResultCollector extends NodeObserver {
 	private static int nrInterDCMsg = 0;
 	private static int nrIntraDCMsg = 0;
 
+	private static int flush = 0;
 	private boolean ended = false;
 //	private ArrayList<ArrayList<Integer>> aggregated = new ArrayList<ArrayList<Integer>>(); 
 //	ArrayList<String> toPrint = new ArrayList<String>();
 	ArrayList<String> msgToPrint = new ArrayList<String>();
+	PrintStream[] pss;
 	
 	public ResultCollector(String prefix) {
 		super(prefix);
@@ -49,7 +53,10 @@ public class ResultCollector extends NodeObserver {
 		chordProtPid = Configuration.getPid(prefix + "." + PAR_CHORD_PROTOCOL, -1);
 		
 //		step  = Configuration.getInt(prefix + ".step", 1);
+		flush = Configuration.getInt(prefix + PAR_FLUSH, 100);
 //		plotScript = "gnuplot/plotResults.plt";
+		deleteFiles();
+		msgToPrint.add("cycle\trlat\tclat\tklat\trhop\tchop\tkhop\tmsgs\trpath\tcpath\tkpath\tcfail\tkfail");
 	}
 
 	
@@ -65,15 +72,21 @@ public class ResultCollector extends NodeObserver {
 		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
 			System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg));
 			System.out.println("CHORD: success: " + ChordProtocol.SUCCESS + " fails: " + ChordProtocol.FAIL);
-			System.out.println("KOALA: success: " + KoalaProtocol.SUCCESS + " fails: " + KoalaProtocol.FAIL);
+			System.out.println("KOALA: success: " + KoalaProtocol.SUCCESS + " fails: " + KoalaProtocol.FAIL + " internal fails: " + KoalaProtocol.INT_FAIL);
 			SPClient.printCacheStats();
 			
-			graphToFile();
+			flush();
+//			graphToFile();
+//			closeFiles(pss);
 			
 //			plotIt();
 			ended = true;
 //			KoaLite.close();
 		}
+		
+		if(CommonState.getTime()%flush==0)
+			flush();
+		
 		return false;
 	}
 	
@@ -142,10 +155,7 @@ public class ResultCollector extends NodeObserver {
 				entriesToRemove.add(msg.getKey());
 //				nr++;
 
-				if(msgToPrint.size() == 0){
-					//add header
-					msgToPrint.add("cycle\trlat\tclat\tklat\trhop\tchop\tkhop\thopcat\tlatcat\trpath\tkpath\tcpath");
-				}
+				
 				String printstr = rm.getSentCycle()+""; 
 				printstr +=	renProtPid >= 0 ? "\t"+rm.getTotalLatency() : "\t0";
 				printstr += chordProtPid >= 0 ? "\t"+cm.getTotalLatency() : "\t0";
@@ -154,11 +164,16 @@ public class ResultCollector extends NodeObserver {
 				printstr += renProtPid >= 0 ? "\t"+ rm.getHops() : "\t0"; 
 				printstr += chordProtPid >= 0 ? "\t"+ cm.getHops() : "\t0";
 				printstr += koaProtPid >= 0 ? "\t"+ km.getHops() : "\t0";
- 				printstr += renProtPid >= 0 ? "\t"+ rm.getHopCategory() + "\t"+ rm.getLatencyCategory(): "\t0\t0";
- 				printstr += renProtPid >= 0 ? "\t"+ rm.getPath(): "\t[]";
- 				printstr += koaProtPid >= 0 ? "\t"+ km.getPath(): "\t[]";
- 				printstr += chordProtPid >= 0 ? "\t"+ cm.getChordPath(): "\t[]";  
-				msgToPrint.add(printstr);
+// 				printstr += renProtPid >= 0 ? "\t"+ rm.getHopCategory() + "\t"+ rm.getLatencyCategory(): "\t0\t0";
+// 				printstr += renProtPid >= 0 ? "\t"+ rm.getPath(): "\t[]";
+// 				printstr += chordProtPid >= 0 ? "\t"+ cm.getChordPath(): "\t[]";
+// 				printstr += koaProtPid >= 0 ? "\t"+ km.getPath(): "\t[]";
+				printstr += "\t"+ nrInterDCMsg;
+ 				printstr += chordProtPid >= 0 ? "\t"+ ChordProtocol.FAIL: "\t0";
+ 				printstr += koaProtPid >= 0 ? "\t"+ KoalaProtocol.FAIL: "\t0";
+ 				
+ 				msgToPrint.add(printstr);
+ 				
 //				System.out.println(cm.getPath());
 			}
 				
@@ -219,6 +234,14 @@ public class ResultCollector extends NodeObserver {
 	
 	public static void countIntra(){
 		nrIntraDCMsg++;
+	}
+	
+	protected void flush(){
+		pss = openFiles();
+		for(String line : msgToPrint)
+			pss[0].println(line);
+		msgToPrint.clear();
+		closeFiles(pss);
 	}
 
 	@Override

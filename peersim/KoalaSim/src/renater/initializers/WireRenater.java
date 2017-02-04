@@ -34,7 +34,7 @@ import utilities.Dijkstra.Edge;
 public class WireRenater extends WireGraph {
 
 	private static final String PAR_PROT = "protocol";
-	private static final String PAR_WORLD = "world_size";
+//	private static final String PAR_WORLD = "world_size";
 	private static final String PAR_STRATEGY = "strategy";
 	
 	private static final String PAR_K = "k";
@@ -172,20 +172,61 @@ public class WireRenater extends WireGraph {
 //	   	double b = 0.13;
 		if(gateways.size() > 50000){
 			a = 0.008; b = 0.07;
-		}else{
+		}
+		else if(10000 <= gateways.size() && gateways.size() < 40000){
+			a = 0.015; b = 0.09;
+		}		
+		else{
 			a = 0.05; b = 0.13;
 		}
 			
 	   	int degree = 0, maxDegree=0, minDegree=Integer.MAX_VALUE, totDegree=0, totalEdges=0;
-	   	double maxP=0; int maxIndex =0; double maxDist=0;
+	   	double maxP=0; int maxIndex =-1; double maxDist=0;
 	   	
+//	   	this is useful for finding a good a and b
 //	   	ArrayList<RenaterNode> sample = new ArrayList<RenaterNode>();
 //	   	for(int k = 0; k < 1000; k++)
 //	   		sample.add(gateways.get(CommonState.r.nextInt(gateways.size())));
+//	   	
+//	   	
+//	   	for(int i = 0; i < sample.size(); i++){
+//	   		degree=0; maxP=0; maxDist=0; maxIndex=-1;
+//	   		for(int j = 0; j < gateways.size(); j++){
+//				if(sample.get(i).getID().equals(gateways.get(j).getID())) continue;
+//	   			double dist = PhysicalDataProvider.getPhysicalDistance(sample.get(i), gateways.get(j));
+//				double p = b * Math.pow(Math.E, -dist/(L*a));
+//				if(p>maxP){
+//					maxP=p;
+//					maxDist=dist;
+//					maxIndex = j;
+//				}
+//				if(p > CommonState.r.nextDouble()){
+//			   		RenaterEdge re = new RenaterEdge(dist, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
+//			   		((RenaterGraph)g).setEdge(sample.get(i).getNode().getIndex(), gateways.get(j).getNode().getIndex(), re);
+//			   		degree++;
+//				}
+//			}
+//	   		if(degree == 0){
+//	   			RenaterEdge re = new RenaterEdge(maxDist, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
+//	   			((RenaterGraph)g).setEdge(sample.get(i).getNode().getIndex(), gateways.get(maxIndex).getNode().getIndex(), re);
+//		   		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster){
+//		   			MyHipster.addEdge(sample.get(i).getID(), gateways.get(maxIndex).getID(), re.getLatency());
+////		   			System.out.println(sample.get(i).getID()+" "+ gateways.get(maxIndex).getID()+" "+ re.getLatency());
+//		   		}
+//		   		degree++;
+//		   		totalEdges++;
+//	   		}
+//	   		if(degree > maxDegree) maxDegree=degree;
+//	   		if(degree < minDegree) minDegree=degree;
+//	   		totDegree += degree;
+//		}
+//	   	System.out.println("max: " + maxDegree + " min: " + minDegree + " avg: " + (double)totDegree/sample.size());
+//	   	System.exit(1);
 	   	
 	   	
-	   	for(int i = 0; i < gateways.size(); i++){
-			degree=0; maxP=0;
+	   	
+	   	for(int i = 0; i < gateways.size()-1; i++){
+			degree=0; maxP=0;maxDist=0;maxIndex=-1;
 	   		for(int j = i+1; j < gateways.size(); j++){
 				double dist = PhysicalDataProvider.getPhysicalDistance(gateways.get(i), gateways.get(j));
 				double p = b * Math.pow(Math.E, -dist/(L*a));
@@ -208,7 +249,7 @@ public class WireRenater extends WireGraph {
 		   		((RenaterGraph)g).setEdge(gateways.get(i).getNode().getIndex(), gateways.get(maxIndex).getNode().getIndex(), re);
 		   		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster){
 		   			MyHipster.addEdge(gateways.get(i).getID(), gateways.get(maxIndex).getID(), re.getLatency());
-		   			System.out.println(gateways.get(i).getID()+" "+ gateways.get(maxIndex).getID()+" "+ re.getLatency());
+//		   			System.out.println(gateways.get(i).getID()+" "+ gateways.get(maxIndex).getID()+" "+ re.getLatency());
 		   		}
 		   		degree++;
 		   		totalEdges++;
@@ -220,23 +261,6 @@ public class WireRenater extends WireGraph {
 		}
 	   		
 	   	System.out.println("total edges: "+ totalEdges + " max: " + maxDegree + " min: " + minDegree + " avg: " + (double)totDegree/gateways.size());
-//	   	System.exit(1);
-//	   	for(int i = 0; i < sample.size(); i++){
-//			degree=0;
-//	   		for(int j = 0; j < gateways.size(); j++){
-//				double dist = PhysicalDataProvider.getPhysicalDistance(sample.get(i), gateways.get(j));
-//				double p = b * Math.pow(Math.E, -dist/(L*a));
-//				if(p > CommonState.r.nextDouble()){
-//			   		RenaterEdge re = new RenaterEdge(dist, PhysicalDataProvider.getBitRate(), PhysicalDataProvider.getSpeed());
-//			   		((RenaterGraph)g).setEdge(sample.get(i).getNode().getIndex(), gateways.get(j).getNode().getIndex(), re);
-//			   		degree++;
-//				}
-//			}
-//	   		if(degree > maxDegree) maxDegree=degree;
-//	   		if(degree < minDegree) minDegree=degree;
-//	   		totDegree += degree;
-//		}
-//	   	System.out.println("max: " + maxDegree + " min: " + minDegree + " avg: " + (double)totDegree/sample.size());
 
 	   	ArrayList<RenaterNode> ambassadors = checkConnectivity(gateways);
 	   	while(ambassadors.size() > 1){

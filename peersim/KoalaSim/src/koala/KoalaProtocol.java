@@ -28,6 +28,7 @@ public class KoalaProtocol extends TopologyProtocol{
 	public static HashMap<Integer, TopologyMessage> REC_MSG =  new HashMap<Integer, TopologyMessage>();
 	public static int SUCCESS = 0;
 	public static int FAIL = 0;
+	public static int INT_FAIL = 0;
 	
 	private static final String PAR_LEARN= "learn";
 	KoalaNode myNode;
@@ -44,7 +45,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		for(int i = 0; i < kmsg.getPiggyBack().size(); i++)
 			msgPiggyBack.add(kmsg.getPiggyBack().get(i).getNodeID());
 		
-		if(!initializeMode)
+//		if(!initializeMode)
 			checkPiggybackedBefore(kmsg);
 		
 		
@@ -69,7 +70,7 @@ public class KoalaProtocol extends TopologyProtocol{
 				break;
 		}
 		
-		if(!initializeMode)
+//		if(!initializeMode)
 			checkPiggybackedAfter(kmsg);
 		
 	}
@@ -150,7 +151,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		if(joinedInMyDC.size() > 0)
 			return joinedInMyDC.get(CommonState.r.nextInt(joinedInMyDC.size()));
 		
-		if(initializeMode) //cheap boot, a bit cheating but it can be realistic
+//		if(initializeMode) //cheap boot, a bit cheating but it can be realistic
 			if(joinedClosestToMyDC.size() > 0)
 				return joinedClosestToMyDC.get(CommonState.r.nextInt(joinedClosestToMyDC.size()));
 			
@@ -340,7 +341,7 @@ public class KoalaProtocol extends TopologyProtocol{
         }else{
         	onSuccess(msg);
         	
-        	if(!initializeMode && learn){
+        	if(/*!initializeMode &&*/ learn){
 	        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(), PhysicalDataProvider.getDefaultInterLatency(), 0);
 	        	boolean added = myNode.getRoutingTable().addLongLink(ll);
 	        	if(added){
@@ -352,7 +353,7 @@ public class KoalaProtocol extends TopologyProtocol{
         	}        	
         }
         
-        if(!initializeMode && wantsToUpdateLatency){
+        if(/*!initializeMode && */wantsToUpdateLatency){
         	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
         	send(msgSender, newMsg);
         }
@@ -480,7 +481,7 @@ public class KoalaProtocol extends TopologyProtocol{
 //				KoalaMessage newMsg = new KoalaMessage(new KoalaRTMsgConent(myNode));
 //				send(recNeighbor.getNodeID(), newMsg);
 			}
-			if(res == -1 && !initializeMode && learn)
+			if(res == -1 /*&& !initializeMode*/ && learn)
 				myNode.getRoutingTable().addLongLink(recNeighbor);
 		}
 		
@@ -551,11 +552,13 @@ public class KoalaProtocol extends TopologyProtocol{
 		if(msg.getContent() instanceof KoalaRouteMsgContent){
 			String nid = ((KoalaRouteMsgContent)msg.getContent()).getId();
 			failmsg += " to " + nid;
-		}
+			FAIL++;
+		}else
+			INT_FAIL++;
 		
-				;
+				
 		System.out.println(failmsg);
-		FAIL++;
+		
 	}
 
 }

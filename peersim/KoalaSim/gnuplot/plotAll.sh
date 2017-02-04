@@ -32,7 +32,7 @@ rm -f /tmp/*.mpl
 
 
 
-group=5
+group=100
 # group=2
 # plot occurrences in message paths
 f1="/tmp/$RANDOM.mpl"
@@ -45,10 +45,10 @@ f2="/tmp/$RANDOM.mpl"
 f1="/tmp/$RANDOM.mpl"
 f2="/tmp/$RANDOM.mpl"
 # ./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
-./group.py -f '../out/results/resultsA1.0.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotHops.plt &
+./group.py -f '../out/results/resultsC1A1.0.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
 # ./group.py -f '../out/results/ws1resultsA0.5.dat' -n $group > $f2 ; gnuplot -e "filename='$f2'" plotLatency.plt &
 # ./group.py -f '../../../../backup_out/results/resultsA1.0.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
-# ./group.py -f ~/exps/results/resultsA1.0.dat -n $group > $f2 ; gnuplot -e "filename='$f2'" plotLatency.plt &
+#./group.py -f ~/exps/results/resultsA1.0.dat -n $group > $f2 ; gnuplot -e "filename='$f2'" plotLatency.plt &
 
 #comparision of hops for the 3 protocols
 f1="/tmp/$RANDOM.mpl"
@@ -61,18 +61,18 @@ group=10000
 #group=200
  
 #comparision of latency when ALPHA changes
-# f1="/tmp/$RANDOM.mpl"
-# f2="/tmp/$RANDOM.mpl"
-# f3="/tmp/$RANDOM.mpl"
-# f4="/tmp/$RANDOM.mpl"
-# f5="/tmp/$RANDOM.mpl"
-# f6="/tmp/$RANDOM.mpl"
-# ./group.py -f '../out/results/resultsA0.0.dat' -n $group > $f1 ;\
-# ./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f2 ;\
-# ./group.py -f '../out/results/resultsA1.0.dat' -n $group > $f3 ;\
-# ./group.py -f '../out/results/resultsA0.25.dat' -n $group > $f4 ;\
-# ./group.py -f '../out/results/resultsA0.75.dat' -n $group > $f5 ;\
-# ./group.py -f '../out/results/resultsA-1.0.dat' -n $group > $f6 ;\
+f1="/tmp/$RANDOM.mpl"
+f2="/tmp/$RANDOM.mpl"
+f3="/tmp/$RANDOM.mpl"
+f4="/tmp/$RANDOM.mpl"
+f5="/tmp/$RANDOM.mpl"
+f6="/tmp/$RANDOM.mpl"
+# ./group.py -f ~/exps/results/resultsA0.0.dat -n $group > $f1 ;\
+# ./group.py -f ~/exps/results/resultsA0.5.dat -n $group > $f2 ;\
+# ./group.py -f ~/exps/results/resultsA1.0.dat -n $group > $f3 ;\
+# ./group.py -f ~/exps/results/resultsA0.25.dat -n $group > $f4 ;\
+# ./group.py -f ~/exps/results/resultsA0.75.dat -n $group > $f5 ;\
+# # ./group.py -f '~/exps/results/resultsA-1.0.dat' -n $group > $f6 ;\
 # gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'; filename4='$f4'; filename5='$f5'; filename6='$f6'" plotLatencyComparison.plt &
 
 #comparision of latency when ALPHA changes (averaged)

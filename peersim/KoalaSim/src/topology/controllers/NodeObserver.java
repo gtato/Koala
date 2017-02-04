@@ -72,6 +72,48 @@ public abstract class NodeObserver extends GraphObserver {
         }
     }
 	
+	protected PrintStream[] openFiles(){
+		PrintStream[] pss = null;
+		try {
+			File file;
+			String[] filenames = getOutputFileNames();
+			pss = new PrintStream[filenames.length]; 
+			
+			for(int i= 0; i < filenames.length; i++){
+				file = new File(getOutputFileBase()+ filenames[i]+ fileCounter+".dat");
+				file.getParentFile().mkdirs();
+				file.createNewFile();
+				FileOutputStream fos = new FileOutputStream(file, true);
+	            pss[i] = new PrintStream(fos);
+	            
+	            
+			}
+			
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+		
+		return pss;
+	} 
+	
+	protected void deleteFiles(){
+		File file;
+		String[] filenames = getOutputFileNames();
+		 
+		for(int i= 0; i < filenames.length; i++){
+			file = new File(getOutputFileBase()+ filenames[i]+ fileCounter+".dat");
+			if (file.exists())
+				file.delete();
+		}
+		
+	} 
+	
+	
+	protected void closeFiles(PrintStream[] pss){
+		for(PrintStream ps : pss)
+			ps.close();
+	} 
+	
 //	protected void plotIt(){
 //		try {
 ////			new ProcessBuilder("gnuplot", "-persistent", plotScript).start();

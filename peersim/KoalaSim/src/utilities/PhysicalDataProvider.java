@@ -351,10 +351,14 @@ public class PhysicalDataProvider {
         return distance; 
     }
 
+    /*We assume that the maximum RTT is 500 ms
+     * that means sqrt(2) maps to 500
+     * **/
 	public static double adjustDistanceValue(double distance){
 //		distance *= 1000 *  NodeUtilities.WORLD_SIZE;
-		distance *= NodeUtilities.WORLD_SIZE;
-        distance = round(distance);
+//		distance *= NodeUtilities.WORLD_SIZE;
+//        distance = round(distance);
+		distance = round((distance*250) / Math.sqrt(2));
         return distance;
 	}
 	public static void clearLists() {

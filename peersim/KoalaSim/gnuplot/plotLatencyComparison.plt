@@ -14,7 +14,7 @@ set xlabel "Time"
 set ylabel 'Latency'
 
 
-titler = "Renater"
+titler = "Physical"
 titlec = "Chord"
 title1 = "Koala A=0"
 title2 = "Koala A=0.5"
@@ -32,13 +32,13 @@ set logscale y
 #set title substr(firstrows, 0, strstrt(firstrows, "\n"))
 #set ylabel substr(firstrows, strstrt(firstrows, "\n")+1, strlen(firstrows))
 
-plot filename1 using 2 title titler smooth csplines with lines lc rgb "forest-green" lw 1.5, \
-	 filename3 using 3 title titlec smooth csplines with lines lc rgb "red"  lw 2, \
-	 filename1 using 4 title title1 smooth csplines with lines lc rgb "web-blue"  lw 2, \
-	 filename2 using 4 title title2 smooth csplines with lines lc rgb "blue"  lw 2, \
-	 filename3 using 4 title title3 smooth csplines with lines lc rgb "navy"  lw 2 #,\
-# 	 filename4 using 4 title title4 smooth csplines with lines lc rgb "black" ,\
-# 	 filename5 using 4 title title5 smooth csplines with lines lc rgb "black" ,\
+plot filename1 using 2 title titler smooth csplines with lines lc rgb "forest-green" lw 1, \
+	 filename3 using 3 title titlec smooth csplines with lines lc rgb "red"  lw 1, \
+	 filename1 using 4 title title1 smooth csplines with lines lc rgb "web-blue"  lw 1, \
+	 filename2 using 4 title title2 smooth csplines with lines lc rgb "blue"  lw 1, \
+	 filename3 using 4 title title3 smooth csplines with lines lc rgb "navy"  lw 1 ,\
+ 	 filename4 using 4 title title4 smooth csplines with lines lc rgb "black" lw 1,\
+ 	 filename5 using 4 title title5 smooth csplines with lines lc rgb "black" lw 1 #,\
 # 	 filename6 using 4 title title6 smooth csplines with lines lc rgb "black"
 	 
 pause mouse close
