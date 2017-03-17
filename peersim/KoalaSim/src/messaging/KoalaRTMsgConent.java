@@ -13,6 +13,7 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 	String id;
 	boolean joining;
 	boolean neighborsDown;
+	String bootstrap;
 	String[] neighbors;
 	String[] oldNeighbors;
 	
@@ -32,6 +33,7 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 		neighborsDown = predDown || succDown; 
 		id = kn.getID();
 		joining = kn.isJoining();
+		bootstrap = kn.getBootstrapID();
 		ArrayList<KoalaNeighbor> neigs = kn.getRoutingTable().getNeighbors();
 		neighbors = new String[neigs.size()];
 		int i=0;
@@ -54,7 +56,7 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 		
 		kn.setID(id);
 		kn.setJoining(joining);
-		
+		kn.setBootstrapID(bootstrap);
 		ArrayList<KoalaNeighbor> neighs = new ArrayList<KoalaNeighbor>();
 		for(String neig : neighbors)
 			neighs.add(KoalaJsonParser.jsonToObject(neig, KoalaNeighbor.class));

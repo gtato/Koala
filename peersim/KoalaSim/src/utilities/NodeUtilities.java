@@ -64,6 +64,8 @@ public class NodeUtilities {
 	public static int NEIGHBORS = Configuration.getInt("NEIGHBORS", 2);
 	public static int LONG_LINKS = Configuration.getInt("LONG_LINKS", 3);
 	
+	public static boolean NESTED = Configuration.getBoolean("koala.settings.nested", false);
+	
 	public static Map<String, Node> Nodes =  new HashMap<String, Node>();
 	public static HashMap<BigInteger, Node> CHORD_NODES = new HashMap<BigInteger, Node>();
 	public static Map<String, RenaterNode> Gateways =  new HashMap<String, RenaterNode>();

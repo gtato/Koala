@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import peersim.core.Node;
 import utilities.NodeUtilities;
 
 
@@ -167,7 +168,8 @@ public class KoalaRoutingTable {
 //		||this.getNeighboursIDs(2).contains(kn.getNodeID()))
 //			return false;
 //		Discard down neighbors (like Lamport would do)
-		if(!NodeUtilities.Nodes.get(kn.getNodeID()).isUp())
+		Node nn = NodeUtilities.Nodes.get(kn.getNodeID());
+		if(nn==null || !nn.isUp())
         	return false;
 		
 		boolean added = false;
@@ -300,8 +302,9 @@ public class KoalaRoutingTable {
             if(!NodeUtilities.isDefault(neighs.get(i)))
             	hs.add(neighs.get(i));
 		
+		
         for(int i = 0; i < neighborsContainer.size(); i++)
-        	if(!NodeUtilities.isDefault(neighs.get(i)))
+        	if(!NodeUtilities.isDefault(neighborsContainer.get(i)))
         		hs.add(neighborsContainer.get(i));
                 
         return hs;

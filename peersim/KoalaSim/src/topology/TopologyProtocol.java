@@ -137,6 +137,13 @@ public abstract class TopologyProtocol implements EDProtocol {
 				System.err.println("Message is going in cycles");
 				System.exit(1);
 			}
+			
+			if(msg.getHops() > 500){
+				System.err.println("Too many hops, something is wrong here");
+				onFail(msg);
+				return;
+			}
+			
 			String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " sending a message to " + destinationID  + " a msg of type: " + msg.getTypeName();
 			if(logMsg)
 			System.out.println(logmsg);

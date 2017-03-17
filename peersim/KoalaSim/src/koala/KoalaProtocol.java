@@ -248,6 +248,7 @@ public class KoalaProtocol extends TopologyProtocol{
 				newNeighbors.add(new KoalaNeighbor(recNeighbor.getNodeID(), l));
 			else if (res < 0 && recNeighbor.getNodeID().equals(source.getID())){				
 				KoalaNeighbor fwd = getRoute(source, msg);
+				
 //				check if we are actually neighbors after cleaning
 				res  = myNode.tryAddNeighbour(potentialKN);
 				if(res >= 0){
@@ -279,7 +280,7 @@ public class KoalaProtocol extends TopologyProtocol{
 				}else
 				{
 					boolean newDC = !dcsBefore.contains(NodeUtilities.getDCID(newNeig.getNodeID()));
-					if(newDC && !selfJoining)
+					if(newDC && !selfJoining && NodeUtilities.NESTED)
 						broadcastGlobalNeighbor(newNeig);
 					if(!myNode.isLocal(source.getID())  && (!msg.isConfidential() || newDC) )
 					{
@@ -375,6 +376,12 @@ public class KoalaProtocol extends TopologyProtocol{
 				ret = myNode.getRoute(kn, msg);
 		}
 		areNeighborsDown();
+		
+		if(kn.getDCID() == myNode.getDCID() && NodeUtilities.getDCID(ret.getNodeID()) != myNode.getDCID()){
+			System.out.println("I am calling foreigners to solve my problems, I am probably Albanian");
+		}
+			
+		
 		return ret;
 	}
 	

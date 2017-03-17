@@ -147,7 +147,8 @@ public class KoalaNode extends TopologyNode{
 		
 	public int tryAddNeighbour(KoalaNeighbor n){
 //      Discard down neighbors (like Lamport would do)
-		if(!NodeUtilities.Nodes.get(n.getNodeID()).isUp())
+		Node nn = NodeUtilities.Nodes.get(n.getNodeID());
+		if(nn==null || !nn.isUp())
         	return -1;
 		
 		ArrayList<KoalaNeighbor> oldNeighbors = new ArrayList<KoalaNeighbor>();
@@ -402,12 +403,14 @@ public class KoalaNode extends TopologyNode{
 
 	private double getRouteValue(String dest, KoalaNeighbor re, double alpha) {
  		double res = 0;
+ 		double max = Double.MAX_VALUE;
+ 		max = 100000;
  
  		if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
              res = -1;
  		
  		else if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
-             res = Double.MAX_VALUE - NodeUtilities.A * NodeUtilities.distance(re.getNodeID(), dest);
+             res = max - (double)NodeUtilities.A * (double)NodeUtilities.distance(re.getNodeID(), dest);
          
  		else if( this.dcID == NodeUtilities.getDCID(re.getNodeID()))
              res = NodeUtilities.A * NodeUtilities.distance(this.getID(), re.getNodeID());

@@ -46,6 +46,9 @@ public class ResultCollector extends NodeObserver {
 	ArrayList<String> msgToPrint = new ArrayList<String>();
 	PrintStream[] pss;
 	
+	int lastMsg;
+	int lastCFail;
+	int lastKFail;
 	public ResultCollector(String prefix) {
 		super(prefix);
 		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
@@ -56,6 +59,7 @@ public class ResultCollector extends NodeObserver {
 		flush = Configuration.getInt(prefix + PAR_FLUSH, 100);
 //		plotScript = "gnuplot/plotResults.plt";
 		deleteFiles();
+		lastMsg = lastCFail = lastKFail = 0;
 		msgToPrint.add("cycle\trlat\tclat\tklat\trhop\tchop\tkhop\tmsgs\trpath\tcpath\tkpath\tcfail\tkfail");
 	}
 
@@ -168,10 +172,14 @@ public class ResultCollector extends NodeObserver {
 // 				printstr += renProtPid >= 0 ? "\t"+ rm.getPath(): "\t[]";
 // 				printstr += chordProtPid >= 0 ? "\t"+ cm.getChordPath(): "\t[]";
 // 				printstr += koaProtPid >= 0 ? "\t"+ km.getPath(): "\t[]";
-				printstr += "\t"+ nrInterDCMsg;
- 				printstr += chordProtPid >= 0 ? "\t"+ ChordProtocol.FAIL: "\t0";
- 				printstr += koaProtPid >= 0 ? "\t"+ KoalaProtocol.FAIL: "\t0";
+				printstr += "\t"+ (nrInterDCMsg - lastMsg);
+ 				printstr += chordProtPid >= 0 ? "\t"+ (ChordProtocol.FAIL - lastCFail): "\t0";
+ 				printstr += koaProtPid >= 0 ? "\t"+ (KoalaProtocol.FAIL - lastKFail): "\t0";
  				
+ 				
+ 				lastMsg = nrInterDCMsg;
+ 				lastCFail = ChordProtocol.FAIL;
+ 				lastKFail = KoalaProtocol.FAIL;
  				msgToPrint.add(printstr);
  				
 //				System.out.println(cm.getPath());
@@ -259,7 +267,7 @@ public class ResultCollector extends NodeObserver {
 
 	@Override
 	protected String[] getOutputFileNames() {
-		return new String[]{"resultsC"+Configuration.getString("CC")};
+		return new String[]{"resultsC"+Configuration.getString("CC")+"CH"+Configuration.getString("CHURN")};
 	}
 	
 	

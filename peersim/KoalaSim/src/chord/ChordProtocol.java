@@ -195,7 +195,7 @@ public class ChordProtocol extends TopologyProtocol {
 		long a = (long) (myNode.chordId.longValue() + Math.pow(2, myNode.fingerToFix)) %(long)Math.pow(2, NodeUtilities.M);
 		BigInteger id = new BigInteger(a+"");
 		findSuccessor(myNode.getID(), id, "finger " + myNode.fingerToFix);
-		
+		myNode.fingerToFix++;
 	}
 
 
