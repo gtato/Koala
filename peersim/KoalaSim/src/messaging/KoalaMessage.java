@@ -21,9 +21,10 @@ import com.google.gson.JsonSerializer;
 public class KoalaMessage extends TopologyMessage implements JsonSerializer< KoalaMessage>, JsonDeserializer<KoalaMessage>{
 	public static final int RT = 0;
 	public static final int NGN = 1;
-	public static final int ROUTE = 2;
-	public static final int JOIN = 3;
-	public static final int LL = 4;
+	public static final int NLN = 2;
+	public static final int ROUTE = 3;
+	public static final int JOIN = 4;
+	public static final int LL = 5;
 	
 //	private static final int PiggybackLength = 10;
 	
@@ -85,6 +86,8 @@ public class KoalaMessage extends TopologyMessage implements JsonSerializer< Koa
 			return "RT";
 		case NGN:
 			return "NGN";
+		case NLN:
+			return "NLN";
 		case ROUTE:
 			return "ROUTE";
 		case JOIN:
@@ -100,6 +103,8 @@ public class KoalaMessage extends TopologyMessage implements JsonSerializer< Koa
 			case RT:
 				return KoalaRTMsgConent.class;
 			case NGN:
+				return KoalaNGNMsgContent.class;
+			case NLN:
 				return KoalaNGNMsgContent.class;
 			case ROUTE:
 				return KoalaRouteMsgContent.class;

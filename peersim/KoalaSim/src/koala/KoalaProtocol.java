@@ -10,6 +10,7 @@ import java.util.Set;
 import messaging.KoalaMessage;
 import messaging.KoalaMsgContent;
 import messaging.KoalaNGNMsgContent;
+import messaging.KoalaNLNMsgContent;
 import messaging.KoalaRTMsgConent;
 import messaging.KoalaRouteMsgContent;
 import messaging.TopologyMessage;
@@ -62,6 +63,10 @@ public class KoalaProtocol extends TopologyProtocol{
 //				logmsg += " " + ((KoalaNGNMsgContent )msg.getContent()).getNeighbor().getNodeID() ; 
 				onNewGlobalNeighbours(kmsg);
 				break;
+			case KoalaMessage.NLN:
+//				logmsg += " " + ((KoalaNGNMsgContent )msg.getContent()).getNeighbor().getNodeID() ; 
+				onNewLocalNeighbour(kmsg);
+				break;
 			case KoalaMessage.JOIN:
 				join();
 				break;
@@ -75,6 +80,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		
 	}
 	
+
 	public void join()
 	{
 		if(myNode.hasJoined())
@@ -166,40 +172,14 @@ public class KoalaProtocol extends TopologyProtocol{
 		KoalaNGNMsgContent content = (KoalaNGNMsgContent )msg.getContent();
 		
 		content.getNeighbor().setLatencyQuality(2);
-        int rnes = myNode.tryAddNeighbour(content.getNeighbor());
+        myNode.tryAddNeighbour(content.getNeighbor());
         
-        ArrayList<String> respees = new ArrayList<String>();
-        for(String  c : content.getCandidates()){
-            if(myNode.isResponsible(c)){
-                if(respees.size() == 0)
-                {
-                	KoalaMessage km = new KoalaMessage(new KoalaRTMsgConent(myNode), true);
-                	send(content.getNeighbor().getNodeID(), km);
-                }
- 
-                respees.add(c);
-            }
+        if(CommonState.r.nextDouble() < 2/myNode.getRoutingTable().getLocals().size()){
+        	KoalaMessage km = new KoalaMessage(new KoalaRTMsgConent(myNode), true);
+        	send(content.getNeighbor().getNodeID(), km);
         }
+
         
-        if(rnes != 2)
-            return;
-        
-        List<String> cands = new ArrayList<String>();
-        for(String cand : content.getCandidates())
-        	if (!respees.contains(cand))
-        		cands.add(cand);
-        
-        Set<String> add_cands = myNode.createRandomIDs(respees.size() - 1);
-        cands.addAll(add_cands);
-        Set<String> new_cands = new HashSet<String>(cands);
-        content.setCandidates(new_cands.toArray(new String[new_cands.size()]));
-        msg.setContent(content);
-        
-        KoalaNeighbor target = myNode.getRoutingTable().getLocalPredecessor(0);
-        if (msgSender.equals(target))
-            target = myNode.getRoutingTable().getLocalSucessor(0);
-        if(!NodeUtilities.isDefault(target))
-        	send(target.getNodeID(), msg);
 	}
 
 	protected void onRoutingTable(KoalaMessage msg) {
@@ -276,10 +256,12 @@ public class KoalaProtocol extends TopologyProtocol{
 			{
 				KoalaMessage newMsg = new KoalaMessage(new KoalaRTMsgConent(myNode));
 				if(myNode.isLocal(newNeig.getNodeID())){
+					broadcastLocalNeighbor(newNeig);
 					send(newNeig.getNodeID(), newMsg);
 				}else
 				{
 					boolean newDC = !dcsBefore.contains(NodeUtilities.getDCID(newNeig.getNodeID()));
+//					if(newDC && !selfJoining && NodeUtilities.NESTED)
 					if(newDC && !selfJoining && NodeUtilities.NESTED)
 						broadcastGlobalNeighbor(newNeig);
 					if(!myNode.isLocal(source.getID())  && (!msg.isConfidential() || newDC) )
@@ -295,20 +277,31 @@ public class KoalaProtocol extends TopologyProtocol{
 		
 	}
 	
+	private void onNewLocalNeighbour(KoalaMessage kmsg) {
+		KoalaNLNMsgContent content = (KoalaNLNMsgContent )kmsg.getContent();
+		myNode.getRoutingTable().addLocal(content.getNeighbor());
+	}
 	
+	private void broadcastLocalNeighbor(KoalaNeighbor newNeig) {
+		for(KoalaNeighbor kn : myNode.getRoutingTable().getLocals()){
+			if(kn.getNodeID().equals(newNeig.getNodeID())) continue;
+			KoalaNLNMsgContent msgContent = new KoalaNLNMsgContent(newNeig);
+			send(kn.getNodeID(), new KoalaMessage(msgContent));
+		}
+	}
 
 	
 	private void broadcastGlobalNeighbor(KoalaNeighbor newNeig) {
-        Set<String> candidates = myNode.createRandomIDs(NodeUtilities.MAGIC);
-        ArrayList<KoalaNeighbor> localNeigs = new ArrayList<KoalaNeighbor>(); 
-        localNeigs.add(myNode.getRoutingTable().getLocalSucessor(0));
-//        localNeigs.add(myNode.getRoutingTable().getLocalPredecessor());
-        if(!myNode.getRoutingTable().getLocalPredecessor(0).equals(myNode.getRoutingTable().getLocalSucessor(0)))
-        	localNeigs.add(myNode.getRoutingTable().getLocalPredecessor(0));
+//        Set<String> candidates = myNode.createRandomIDs(NodeUtilities.MAGIC);
+//        ArrayList<KoalaNeighbor> localNeigs = new ArrayList<KoalaNeighbor>(); 
+//        localNeigs.add(myNode.getRoutingTable().getLocalSucessor(0));
+////        localNeigs.add(myNode.getRoutingTable().getLocalPredecessor());
+//        if(!myNode.getRoutingTable().getLocalPredecessor(0).equals(myNode.getRoutingTable().getLocalSucessor(0)))
+//        	localNeigs.add(myNode.getRoutingTable().getLocalPredecessor(0));
         
-        KoalaNGNMsgContent msgContent = new KoalaNGNMsgContent(candidates.toArray(new String[candidates.size()]), newNeig); 
+        KoalaNGNMsgContent msgContent = new KoalaNGNMsgContent(null, newNeig); 
         KoalaMessage newMsg = new KoalaMessage(msgContent);        
-        for( KoalaNeighbor n : localNeigs)
+        for( KoalaNeighbor n : myNode.getRoutingTable().getLocals())
             if(!NodeUtilities.isDefault(n))
                 send(n.getNodeID(), newMsg);
 		
@@ -531,8 +524,8 @@ public class KoalaProtocol extends TopologyProtocol{
 		// if I am forwarding to a neighbor 
 		if(myNode.inNeighborsList(dest)){
 			if (myNode.isLocal(dest)){
-				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getLocalSucessors()));
-				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getLocalPredecessors()));
+//				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getLocalSucessors()));
+//				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getLocalPredecessors()));
 			}else{
 				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getGlobalSucessors()));
 				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getGlobalPredecessors()));

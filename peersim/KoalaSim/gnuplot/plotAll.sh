@@ -28,7 +28,7 @@ rm -f /tmp/*.mpl
 
 
 #plot the koala topology (there are some problems with this one)
-#gnuplot -e "filename='../out/koala/topologyA0.5.dat'" plotKoala.plt &
+gnuplot -e "filename='../out/koala/topologyA0.5.dat'" plotKoala.plt &
 
 
 
@@ -45,7 +45,7 @@ f2="/tmp/$RANDOM.mpl"
 f1="/tmp/$RANDOM.mpl"
 f2="/tmp/$RANDOM.mpl"
 # ./group.py -f '../out/results/resultsA0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
-./group.py -f '../out/results/resultsC2CH5A0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
+# ./group.py -f '../out/results/resultsC2CH5A0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
 # ./group.py -f '../out/results/ws1resultsA0.5.dat' -n $group > $f2 ; gnuplot -e "filename='$f2'" plotLatency.plt &
 # ./group.py -f '../../../../backup_out/results/resultsA1.0.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
 #./group.py -f ~/exps/results/resultsA1.0.dat -n $group > $f2 ; gnuplot -e "filename='$f2'" plotLatency.plt &

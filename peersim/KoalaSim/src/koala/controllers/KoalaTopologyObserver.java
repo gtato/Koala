@@ -111,7 +111,7 @@ public class KoalaTopologyObserver extends NodeObserver {
             double x_to = current.getX();
             double y_to = current.getY();
             
-            Set<String> gneigs = current.getRoutingTable().getNeighboursIDs(3);
+            Set<String> gneigs = current.getRoutingTable().getNeighboursIDs(2);
             first = true;
             for(String gnID : gneigs){
             	if(NodeUtilities.isDefault(gnID)) continue;
