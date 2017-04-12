@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import chord.ChordNode;
+import koala.FlatKoalaNode;
 import koala.KoalaNode;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
@@ -22,16 +23,16 @@ import utilities.PhysicalDataProvider;
 
 public class RenaterInitializer implements Control, NodeInitializer {
 
-	private static final String PAR_PROT = "protocol";
-	private static final String PAR_CHORD_PROT = "cprotocol";
+//	private static final String PAR_PROT = "protocol";
+//	private static final String PAR_CHORD_PROT = "cprotocol";
 	private static final String PAR_DC_FILE = "dc_file";
 	private static final String PAR_DC_DISTANCE = "distance";
 	
 //	public static Map<String, Node> Nodes =  new HashMap<String, Node>(); 
 
-    private static int pid;
-    private static int phid;
-    private static int cpid;
+//    private static int pid;
+//    private static int phid;
+//    private static int cpid;
     
     private final String dc_file;
     
@@ -42,10 +43,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
     boolean nested;
     
     public RenaterInitializer(String prefix) {
-        pid = Configuration.getPid(prefix + "." + PAR_PROT);
-        phid  = FastConfig.getLinkable(pid);
-        cpid = Configuration.getPid(prefix + "." + PAR_CHORD_PROT,-1);
-        
+      
         nrDC = Configuration.getInt("NR_DC", 1);
         nrNodePerDC = Configuration.getInt("NR_NODE_PER_DC", 1);
         
@@ -77,7 +75,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
 		
 		KoalaJsonParser.intitialize();
 		NodeUtilities.initialize();
-		NodeUtilities.setNodePIDs(phid, pid, cpid);
+		//NodeUtilities.setNodePIDs(phid, pid, cpid);
 		NodeUtilities.intializeDCCenters(lines);
 		
         
@@ -199,22 +197,36 @@ public class RenaterInitializer implements Control, NodeInitializer {
 	
 	@Override
 	public void initialize(Node node) {
-		KoalaNode koalaNode = (KoalaNode) node.getProtocol(pid);
-		RenaterNode renaterNode = (RenaterNode) node.getProtocol(phid);
+		KoalaNode koalaNode = (KoalaNode) node.getProtocol(NodeUtilities.KID);
+		
+		RenaterNode renaterNode = (RenaterNode) node.getProtocol(NodeUtilities.RID);
 		ChordNode chordNode = null;
-		if(cpid >= 0)
-			chordNode= (ChordNode) node.getProtocol(cpid);
+		if(NodeUtilities.CID >= 0)
+			chordNode= (ChordNode) node.getProtocol(NodeUtilities.CID);
+		FlatKoalaNode flatKoalaNode = null;
+		if(NodeUtilities.FKID >= 0)
+			flatKoalaNode = (FlatKoalaNode) node.getProtocol(NodeUtilities.FKID);
+		
         
         String id = nested ? getID() : getFastID(node);
         int dcID = NodeUtilities.getDCID(id);
         
         koalaNode.setID(id);
         renaterNode.setID(id);
-        if(cpid >= 0)
+        if(NodeUtilities.CID >= 0)
         	chordNode.setID(id);
+        
+        if(NodeUtilities.FKID >= 0){
+        	String fid = getFastID(node);
+        	flatKoalaNode.setID(fid);
+        	flatKoalaNode.setCommonID(id);
+        	flatKoalaNode.setNode(node);
+        	NodeUtilities.FlatMap.put(fid, id);
+        }
         
         koalaNode.setNode(node);
         renaterNode.setNode(node);
+        
         
         NodeUtilities.Nodes.put(id, node);
         

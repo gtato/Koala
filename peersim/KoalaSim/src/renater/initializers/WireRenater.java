@@ -38,18 +38,18 @@ public class WireRenater extends WireGraph {
 	private static final String PAR_STRATEGY = "strategy";
 	
 	private static final String PAR_K = "k";
-	private final int pid;
+//	private final int pid;
 	private final int k;
 //	private final double worldSize;
 	private final String strategy;
 	private boolean nested;
 	public WireRenater(String prefix) {
 		super(prefix);
-		pid = Configuration.getPid(prefix + "." + PAR_PROT);
+//		pid = Configuration.getPid(prefix + "." + PAR_PROT);
 		k = Configuration.getInt(prefix + "." + PAR_K, 2);
 //		worldSize = Configuration.getDouble(prefix + "." + PAR_WORLD, 1.0);
 		strategy = Configuration.getString(prefix + "." + PAR_STRATEGY, "closest").toLowerCase();
-		g = new RenaterGraph(pid,false);
+		g = new RenaterGraph(NodeUtilities.RID,false);
 		nested = Configuration.getBoolean("koala.settings.nested", false);
 	}
 
@@ -60,7 +60,7 @@ public class WireRenater extends WireGraph {
 		if(nested){
 			for (int i = 0; i < Network.size(); i++) {
 	            Node n = (Node) g.getNode(i);   
-	            RenaterNode rn = (RenaterNode)n.getProtocol(pid);
+	            RenaterNode rn = (RenaterNode)n.getProtocol(NodeUtilities.RID);
 	            if(!rn.isGateway()){
 	            	((RenaterGraph)g).setEdge(n.getIndex(), NodeUtilities.Nodes.get(rn.getGateway()).getIndex(), new RenaterEdge(PhysicalDataProvider.getIntraDCLatency(NodeUtilities.getDCID(rn.getID()))));
 	            }
@@ -625,7 +625,7 @@ public class WireRenater extends WireGraph {
 			RenaterNode kn = gateways.get(i);
 			
 			for (int j = 0; j < kn.degree(); j++) {
-				RenaterNode km = (RenaterNode) kn.getNeighbor(j).getProtocol(pid);
+				RenaterNode km = (RenaterNode) kn.getNeighbor(j).getProtocol(NodeUtilities.RID);
 				if(!km.isGateway()) continue;
 				RenaterEdge re = kn.getEdge(km.getID());
 //				dg.addEdge(i+":"+j, kn, km, NodeUtilities.getPhysicalDistance(kn, km));

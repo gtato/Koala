@@ -10,14 +10,12 @@ import koala.KoalaNode;
 import peersim.config.Configuration;
 import peersim.core.Node;
 import peersim.reports.GraphObserver;
+import utilities.NodeUtilities;
 
 public abstract class NodeObserver extends GraphObserver {
-
-	private static final String PAR_PROT = "protocol";
 //    private static final String PAR_FILENAME_BASE = "file_base";
 //    private static final String PAR_NR_FILES= "nr_files";
 
-    protected final int pid;
 //    private final String graph_filename;
 //    private final FileNameGenerator fng;
 //    private final int nrFiles;
@@ -27,7 +25,7 @@ public abstract class NodeObserver extends GraphObserver {
     
 	protected NodeObserver(String prefix) {
 		super(prefix);
-		pid = Configuration.getPid(prefix + "." + PAR_PROT);
+//		pid = Configuration.getPid(prefix + "." + PAR_PROT);
 //		nrFiles = Configuration.getInt(prefix + "."+ PAR_NR_FILES, 1);
 //		graph_filename = Configuration.getString(prefix + "."+ PAR_FILENAME_BASE, "graph_dump");
 //		if(graph_filename.equals("graph_dump"))
@@ -49,10 +47,7 @@ public abstract class NodeObserver extends GraphObserver {
 		
 		try {
 			File file;
-			String[] filenames = getOutputFileNames();
-			
-			
-			
+			String[] filenames = getOutputFileNames();		
 			for(int i= 0; i < filenames.length; i++){
 				//file = new File(getOutputFileBase()+ filenames[i]);
 				file = new File(getOutputFileBase()+ filenames[i]+ fileCounter+".dat");
@@ -136,7 +131,7 @@ public abstract class NodeObserver extends GraphObserver {
 	{
 		for (int i = 0; i < g.size(); i++) 
 		{
-			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(NodeUtilities.KID);
 			if(current.getID().equals(id))
 				return current;
 		}

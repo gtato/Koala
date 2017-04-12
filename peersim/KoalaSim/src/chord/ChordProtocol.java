@@ -2,7 +2,6 @@ package chord;
 
 
 import peersim.core.CommonState;
-import peersim.core.Linkable;
 import peersim.core.Network;
 import peersim.core.Node;
 import topology.TopologyProtocol;
@@ -39,7 +38,7 @@ public class ChordProtocol extends TopologyProtocol {
 	@Override
 	public void intializeMyNode(Node node, int pid) {
 		super.intializeMyNode(node, pid);
-		myNode = (ChordNode) (Linkable) node.getProtocol(linkPid);
+		myNode = (ChordNode) node.getProtocol(NodeUtilities.CID);
 		
 	}
 

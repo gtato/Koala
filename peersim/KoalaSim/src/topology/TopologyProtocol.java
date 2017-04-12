@@ -26,7 +26,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 
 //	protected HashMap<Integer, KoalaMessage> receivedMsgs;
 	
-	protected int linkPid = -1;
+//	protected int linkPid = -1;
 	protected int myPid = -1;
 	protected int transId = -1;
 	
@@ -112,12 +112,13 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 	public abstract void handleMessage(TopologyMessage msg);
 	
+	
 	public void intializeMyNode(Node node, int pid){
 		this.node = node;
 		myPid = pid;
-		linkPid = FastConfig.getLinkable(pid);
-		transId = FastConfig.getTransport(pid);
-		myNode = (TopologyNode) (Linkable) node.getProtocol(linkPid);
+//		linkPid = FastConfig.getLinkable(pid);
+		transId = NodeUtilities.TRID;
+		myNode = (TopologyNode) node.getProtocol(NodeUtilities.getLinkable(pid));
 		if(transId > 0)
 			myTransport = (Transport)node.getProtocol(transId);
 	}
@@ -129,7 +130,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 			return;
 		}
 		
-		Node dest = NodeUtilities.Nodes.get(destinationID);
+		Node dest = getNodeFromID(destinationID);
 		
 		
 		if(dest != null){
@@ -148,7 +149,9 @@ public abstract class TopologyProtocol implements EDProtocol {
 			if(logMsg)
 			System.out.println(logmsg);
 
-			double l = PhysicalDataProvider.getLatency(myNode.getID(), destinationID);
+			String did = myPid == NodeUtilities.FKPID ? NodeUtilities.FlatMap.get(destinationID) : destinationID;
+			String sid = myPid == NodeUtilities.FKPID ? NodeUtilities.FlatMap.get(myNode.getID()) : myNode.getID();
+			double l = PhysicalDataProvider.getLatency(sid, did);
 
 			if(l <= 0)
 				System.out.println("someone invented time traveling!");
@@ -180,6 +183,10 @@ public abstract class TopologyProtocol implements EDProtocol {
 	}
 
 
+	protected Node getNodeFromID(String id)
+	{
+		return NodeUtilities.Nodes.get(id);
+	}
 	
 	
 

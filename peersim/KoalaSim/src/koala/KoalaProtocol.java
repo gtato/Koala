@@ -16,7 +16,6 @@ import messaging.KoalaRouteMsgContent;
 import messaging.TopologyMessage;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
-import peersim.core.Linkable;
 import peersim.core.Network;
 import peersim.core.Node;
 import topology.TopologyProtocol;
@@ -34,9 +33,11 @@ public class KoalaProtocol extends TopologyProtocol{
 	private static final String PAR_LEARN= "learn";
 	KoalaNode myNode;
 	private final boolean learn;
+	protected boolean nested;
 	public KoalaProtocol(String prefix) {
 		super(prefix);
-		learn = Configuration.getBoolean(prefix + "." +PAR_LEARN, true); 
+		learn = Configuration.getBoolean(prefix + "." +PAR_LEARN, true);
+		nested = NodeUtilities.NESTED;
 	}
 	
 	@Override
@@ -92,7 +93,7 @@ public class KoalaProtocol extends TopologyProtocol{
 			myNode.setJoined(true);
 //			System.out.println(myNode.getID()+ " is the first joining");
 		}else{
-			KoalaNode bootstrapRn = (KoalaNode)bootstrap.getProtocol(linkPid);
+			KoalaNode bootstrapRn = (KoalaNode)bootstrap.getProtocol(NodeUtilities.getLinkable(myPid));
 			String bootstrapID = bootstrapRn.getID();
 //			System.out.println(myNode.getID()+ " is joining on " + bootstrapID);
 			myNode.setBootstrapID( bootstrapID );
@@ -105,13 +106,14 @@ public class KoalaProtocol extends TopologyProtocol{
 		}
 	}
 	
+	
 	private Node getBootstrap_old()
 	{
 
 		KoalaNode each;
 		ArrayList<Node> joined = new ArrayList<Node>();
 		for (int i = 0; i < Network.size(); i++) {
-            each = (KoalaNode) Network.get(i).getProtocol(linkPid);
+            each = (KoalaNode) Network.get(i).getProtocol(NodeUtilities.getLinkable(myPid));
             if(each.hasJoined())
             	joined.add(Network.get(i));   	
 		}
@@ -133,7 +135,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		Node closestJoined; int minDist = NodeUtilities.NR_DC;
 		
 		for (int i = 0; i < Network.size(); i++) {
-            each = (KoalaNode) Network.get(i).getProtocol(linkPid);
+            each = (KoalaNode) Network.get(i).getProtocol(NodeUtilities.getLinkable(myPid));
             if(each.isUp() && each.hasJoined()){
             	joined.add(Network.get(i));
             	if(myNode.isLocal(each.getID()))
@@ -200,7 +202,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		Set<Integer> dcsBefore = new HashSet<Integer>(); 
 		for(String neighID : neighborsBefore)
 			dcsBefore.add(NodeUtilities.getDCID(neighID));
-		dcsBefore.add(myNode.getDCID());
+		dcsBefore.add(NodeUtilities.getDCID(myNode.getID()));
 		
 //		myNode.updateNeighbors(receivedNeighbors, source.getID(), msgSender,  msg.getLatency());
 		
@@ -262,7 +264,7 @@ public class KoalaProtocol extends TopologyProtocol{
 				{
 					boolean newDC = !dcsBefore.contains(NodeUtilities.getDCID(newNeig.getNodeID()));
 //					if(newDC && !selfJoining && NodeUtilities.NESTED)
-					if(newDC && !selfJoining && NodeUtilities.NESTED)
+					if(newDC && !selfJoining && nested)
 						broadcastGlobalNeighbor(newNeig);
 					if(!myNode.isLocal(source.getID())  && (!msg.isConfidential() || newDC) )
 					{
@@ -370,8 +372,9 @@ public class KoalaProtocol extends TopologyProtocol{
 		}
 		areNeighborsDown();
 		
-		if(kn.getDCID() == myNode.getDCID() && NodeUtilities.getDCID(ret.getNodeID()) != myNode.getDCID()){
-			System.out.println("I am calling foreigners to solve my problems, I am probably Albanian");
+		if(NodeUtilities.getDCID(kn.getID())  ==  NodeUtilities.getDCID(myNode.getID())  
+	    && NodeUtilities.getDCID(ret.getNodeID()) != NodeUtilities.getDCID(myNode.getID())){
+			System.out.println("I am calling foreigners to solve my problems");
 		}
 			
 		
@@ -441,7 +444,7 @@ public class KoalaProtocol extends TopologyProtocol{
 	@Override
 	public void intializeMyNode(Node node, int pid) {
 		super.intializeMyNode(node, pid);
-		myNode = (KoalaNode) (Linkable) node.getProtocol(linkPid);
+		myNode = (KoalaNode) node.getProtocol(NodeUtilities.KID);
 		
 	}
 
@@ -516,6 +519,7 @@ public class KoalaProtocol extends TopologyProtocol{
 					if(dist < currentDist)
 						kn.setNodeID(ll);
 				}
+				
 			}
 		}
 	}
@@ -526,6 +530,7 @@ public class KoalaProtocol extends TopologyProtocol{
 			if (myNode.isLocal(dest)){
 //				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getLocalSucessors()));
 //				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getLocalPredecessors()));
+				km.getPiggyBack().add(myNode.getResponsibleLocalNeighbor(dest));
 			}else{
 				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getGlobalSucessors()));
 				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getGlobalPredecessors()));

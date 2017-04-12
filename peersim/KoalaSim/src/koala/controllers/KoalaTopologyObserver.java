@@ -34,7 +34,7 @@ public class KoalaTopologyObserver extends NodeObserver {
 
 	private void generateGraph(){
 		for (int i = 0; i < g.size(); i++) {
-			KoalaNode each = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+			KoalaNode each = (KoalaNode) ((Node)g.getNode(i)).getProtocol(NodeUtilities.KID);
         	if (each.hasJoined())
 				orderedGraph.add(each);
 		}
@@ -107,7 +107,7 @@ public class KoalaTopologyObserver extends NodeObserver {
 			return;
 		boolean first;
 		for (int i = 0; i < g.size(); i++) {
-        	KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+        	KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(NodeUtilities.KID);
             double x_to = current.getX();
             double y_to = current.getY();
             

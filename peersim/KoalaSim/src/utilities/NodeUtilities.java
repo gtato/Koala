@@ -46,11 +46,9 @@ public class NodeUtilities {
 	public static int NR_DC = 0; //Configuration.getInt("NR_DC")
 	public static int ACTUAL_NR_DC = 0;
 	
-	public static int RID = -1;
-	public static int KID = -1;
-	public static int CID = -1;
-	
-	public static int RPID = -1, KPID=-1, CPID=-1;
+	public static int RID = -1, KID = -1, CID = -1, FKID = -1;
+	public static int RPID = -1, KPID=-1, CPID=-1, FKPID=-1;
+	public static int TRID = -1;
 	
 	public static double[] hopCategories;
 	public static double[] latencyCategories;
@@ -74,6 +72,7 @@ public class NodeUtilities {
 	public static HashMap<String, Node> UPS =  new HashMap<String, Node>();
 	public static HashMap<String, Node> DOWNS =  new HashMap<String, Node>();
 	public static HashMap<String, Node> ALT_DOWNS =  new HashMap<String, Node>();
+	public static HashMap<String, String> FlatMap =  new HashMap<String, String>();
 	
 	public static void initialize(){
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
@@ -150,25 +149,51 @@ public class NodeUtilities {
 	}
 	
 	
-	public static void setNodePIDs(int rid, int kid, int cid){
-		RID = rid;
-		KID = kid;
-		CID = cid;
-	}
+//	public static void setNodePIDs(int rid, int kid, int cid){
+//		RID = rid;
+//		KID = kid;
+//		CID = cid;
+//	}
+//	
+//	public static void setProtPIDs(int rid, int kid, int cid){
+//		RPID = rid;
+//		KPID = kid;
+//		CPID = cid;
+//	}
 	
-	public static void setProtPIDs(int rid, int kid, int cid){
-		RPID = rid;
-		KPID = kid;
-		CPID = cid;
+	public static int getLinkable(int pid){
+		if(pid == RPID)
+			return RID;
+		if(pid == KPID)
+			return KID;
+		if(pid == CPID)
+			return CID;
+		if(pid == FKPID)
+			return FKID;
+		return -1;
 	}
 	
 	public static RenaterNode getRenaterNode(String id){
+//		String commonid = id;
+//		Node n = Nodes.get(id);
+//		
+//		if(n == null)
+//			commonid = FlatMap.get(id);
+//		else{
+//			KoalaNode fkn = (KoalaNode)n.getProtocol(FKID);
+//			KoalaNode kn = (KoalaNode)n.getProtocol(KID);
+//			
+//			if 
+//			commonid = kn.getCommonID();
+//		}
+			
 		return (RenaterNode) Nodes.get(id).getProtocol(RID);
 	}
 	
-	public static KoalaNode getKoalaNode(String id){
-		return (KoalaNode) Nodes.get(id).getProtocol(KID);
-	}
+//	public static KoalaNode getKoalaNode(String id){
+//		return (KoalaNode) Nodes.get(id).getProtocol(KID);
+//	}
+	
 	
 	public static ChordNode getChordNode(String id){
 		return (ChordNode) Nodes.get(id).getProtocol(CID);
@@ -215,7 +240,15 @@ public class NodeUtilities {
 	}
 	
 	public static int distance(String srcID, String targetID){
-		return distance(srcID, targetID, false);
+		return distance(srcID, targetID, false, false);
+	}
+	
+	public static int distanceGlobal(String srcID, String targetID){
+		return distance(srcID, targetID, false, true);
+	}
+	
+	public static int distanceLocal(String srcID, String targetID){
+		return distance(srcID, targetID, true, false);
 	}
 	
 	public static int signDistance(String srcID, String targetID){
@@ -230,13 +263,16 @@ public class NodeUtilities {
 			return dist;
 	}
 	
-	public static int distance(String srcID, String targetID, boolean forceLocal){
+	public static int distance(String srcID, String targetID, boolean forceLocal, boolean forceGlobal){
 		if(srcID.equals(NodeUtilities.DEFAULTID) || targetID.equals(NodeUtilities.DEFAULTID))
 			return Integer.MAX_VALUE;
 		
         boolean local = false;
         if (getDCID(srcID) == getDCID(targetID) || forceLocal)
             local = true;
+        
+        if(forceGlobal)
+        	local = false;
 
         int src_id = local ? getNodeID(srcID) : getDCID(srcID); 
         int target_id = local ? getNodeID(targetID) : getDCID(targetID);

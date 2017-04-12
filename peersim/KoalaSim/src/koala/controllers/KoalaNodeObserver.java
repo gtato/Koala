@@ -7,6 +7,7 @@ import koala.KoalaNode;
 import peersim.core.CommonState;
 import peersim.core.Node;
 import topology.controllers.NodeObserver;
+import utilities.NodeUtilities;
 
 
 public class KoalaNodeObserver extends NodeObserver {
@@ -40,7 +41,7 @@ public class KoalaNodeObserver extends NodeObserver {
 	private void finalRTReport() {
 		for (int i = 0; i < g.size(); i++) 
 		{	
-			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(NodeUtilities.KID);
 			anotherRtReport.add((double)current.getRoutingTable().getSize()/g.size() + "");
 		}
 		
@@ -54,7 +55,7 @@ public class KoalaNodeObserver extends NodeObserver {
 		int totalMsgRoutedbyLatency = 0;
 		for (int i = 0; i < g.size(); i++) 
 		{	
-			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(NodeUtilities.KID);
 			totalMsgRouted += current.nrMsgRouted;
 			totalMsgRoutedbyLatency += current.nrMsgRoutedByLatency;
 		}
@@ -71,7 +72,7 @@ public class KoalaNodeObserver extends NodeObserver {
 
 		for (int i = 0; i < g.size(); i++) 
 		{	
-			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(pid);
+			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(NodeUtilities.KID);
 			size += current.getRoutingTable().getSize();
 			sizes.add(current.getRoutingTable().getSize());
 		}

@@ -9,7 +9,6 @@ import example.hot.InetCoordinates;
 public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 
 	private String id;
-	
 //	private int pid;
 	private long birthday;
 	protected boolean joined;

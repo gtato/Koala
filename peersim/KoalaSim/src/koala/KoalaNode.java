@@ -36,8 +36,8 @@ public class KoalaNode extends TopologyNode{
 	 * 
 	 */
 
-	private int dcID;
-	private int nodeID;
+//	private int dcID;
+//	private int nodeID;
 	private String bootstrapID;
 	
 //	these two are just for statistics purposes, not necessary  
@@ -82,35 +82,35 @@ public class KoalaNode extends TopologyNode{
 		this.latencyPerDC = new HashMap<Integer, Double>();
 	}
 	
-	public int getDCID() {
-        return dcID;
-    }
-
-    public void setDCID(int dcID) {
-        this.dcID = dcID;
-    }
-
-    public int getNodeID() {
-		return nodeID;
-	}
-
-	public void setNodeID(int nodeID) {
-		this.nodeID = nodeID;
-	}
-
-	public void setID(int dcID, int nodeID) {
-		this.dcID = dcID;
-		this.nodeID = nodeID;
-	}
-	
-	public void setID(String id) {
-		this.dcID = Integer.parseInt(id.split("-")[0]);
-		this.nodeID = Integer.parseInt(id.split("-")[1]);
-	}
-	
-	public String getID() {
-		return this.dcID + "-" + this.nodeID;
-	}
+//	public int getDCID() {
+//        return dcID;
+//    }
+//
+//    public void setDCID(int dcID) {
+//        this.dcID = dcID;
+//    }
+//
+//    public int getNodeID() {
+//		return nodeID;
+//	}
+//
+//	public void setNodeID(int nodeID) {
+//		this.nodeID = nodeID;
+//	}
+//
+//	public void setID(int dcID, int nodeID) {
+//		this.dcID = dcID;
+//		this.nodeID = nodeID;
+//	}
+//	
+//	public void setID(String id) {
+//		this.dcID = Integer.parseInt(id.split("-")[0]);
+//		this.nodeID = Integer.parseInt(id.split("-")[1]);
+//	}
+//	
+//	public String getID() {
+//		return this.dcID + "-" + this.nodeID;
+//	}
 	
 	public String getBootstrapID() {
 		return bootstrapID;
@@ -141,13 +141,23 @@ public class KoalaNode extends TopologyNode{
 		return getID();
 	}
 	
+//	public String getActualID(){
+//		return getID();
+//	}
+	
+	public String getCommonID(){
+		return getID();
+	}
 	
 	/* The relevant methods start here */
 	
-		
+	protected Node getNode(String id){
+		return NodeUtilities.Nodes.get(id);
+	}
+	
 	public int tryAddNeighbour(KoalaNeighbor n){
 //      Discard down neighbors (like Lamport would do)
-		Node nn = NodeUtilities.Nodes.get(n.getNodeID());
+		Node nn = getNode(n.getNodeID());
 		if(nn==null || !nn.isUp())
         	return -1;
 			
@@ -226,12 +236,15 @@ public class KoalaNode extends TopologyNode{
         if(index > 0)
         	predecessor = getRoutingTable().getGlobalSucessor(index-1);
         if (canBeSuccessor(nodeID, index)){
-        	if( NodeUtilities.isDefault(successor)||  NodeUtilities.compareIDs(nodeID, successor.getNodeID(), false) != 0)
+        	if( NodeUtilities.isDefault(successor) ||  NodeUtilities.compareIDs(nodeID, successor.getNodeID(), false) != 0)
         		return true;
         	if(successor.equals(predecessor))
         		return true;
-        	if(!nodeID.equals(predecessor.getNodeID())  &&  NodeUtilities.distance(current, nodeID, true) <= NodeUtilities.distance(current, successor.getNodeID(), true))
+        	if(!nodeID.equals(predecessor.getNodeID())  &&  NodeUtilities.distanceGlobal(current, nodeID) < NodeUtilities.distanceGlobal(current, successor.getNodeID()))
         		return true;
+        	if(NodeUtilities.distanceGlobal(current, nodeID) == NodeUtilities.distanceGlobal(current, successor.getNodeID()) &&
+               NodeUtilities.distanceLocal(current, nodeID) <= NodeUtilities.distanceLocal(current, successor.getNodeID()))
+             		return true;
         }
         return false;
 	}
@@ -249,7 +262,10 @@ public class KoalaNode extends TopologyNode{
         		return true;
         	if(successor.getNodeID().equals(predecessor.getNodeID()))
         		return true;
-        	if(!nodeID.equals(successor.getNodeID())  &&  NodeUtilities.distance(current, nodeID, true) <= NodeUtilities.distance(current, predecessor.getNodeID(), true))
+        	if(!nodeID.equals(successor.getNodeID())  &&  NodeUtilities.distanceGlobal(current, nodeID) < NodeUtilities.distanceGlobal(current, predecessor.getNodeID()))
+        		return true;
+        	if(NodeUtilities.distanceGlobal(current, nodeID) == NodeUtilities.distanceGlobal(current, predecessor.getNodeID()) &&
+        	   NodeUtilities.distanceLocal(current, nodeID) <= NodeUtilities.distanceLocal(current, predecessor.getNodeID()))
         		return true;
         }
         return false;
@@ -409,13 +425,13 @@ public class KoalaNode extends TopologyNode{
  		double max = Double.MAX_VALUE;
  		max = 100000;
  
- 		if( NodeUtilities.distance(this.getID(), dest) < NodeUtilities.distance(re.getNodeID(), dest))
+ 		if(NodeUtilities.distanceGlobal(this.getID(), dest) < NodeUtilities.distanceGlobal(re.getNodeID(), dest))
              res = -1;
  		
  		else if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
              res = max - (double)NodeUtilities.A * (double)NodeUtilities.distance(re.getNodeID(), dest);
          
- 		else if( this.dcID == NodeUtilities.getDCID(re.getNodeID()))
+ 		else if( NodeUtilities.getDCID(getID()) == NodeUtilities.getDCID(re.getNodeID()))
              res = NodeUtilities.A * NodeUtilities.distance(this.getID(), re.getNodeID());
          
  		else if( NodeUtilities.distance(this.getID(), dest) > NodeUtilities.distance(re.getNodeID(), dest)){
@@ -508,6 +524,16 @@ public class KoalaNode extends TopologyNode{
 //		
 //	}
 
+	public KoalaNeighbor getResponsibleLocalNeighbor(String globalN){
+		int min = Integer.MAX_VALUE;
+		KoalaNeighbor minLocalNeighbor = new KoalaNeighbor(NodeUtilities.DEFAULTID);
+		for(KoalaNeighbor ln : this.routingTable.getLocals()){
+			int dist = NodeUtilities.distanceLocal(ln.getNodeID(), globalN);
+			if(dist < min)
+				minLocalNeighbor = ln;
+		}
+		return minLocalNeighbor;
+	}
 	
 	public boolean inNeighborsList(String id){
 		Set<String> ids = isLocal(id) ?  getRoutingTable().getNeighboursIDs(1):
@@ -515,61 +541,63 @@ public class KoalaNode extends TopologyNode{
 		return ids.contains(id);
 	}
 	
-	public static class KoalaNodeSerializer implements JsonSerializer<KoalaNode> {
-
-		@Override
-		public JsonElement serialize(KoalaNode src, Type typeOfSrc, JsonSerializationContext context) {
-			JsonArray neighbors = new JsonArray();
-			ArrayList<KoalaNeighbor> neigs = src.getRoutingTable().getNeighbors();
-			for(KoalaNeighbor neig : neigs){
-				neighbors.add(KoalaJsonParser.toJsonTree(neig));
-			}
-			
-			JsonArray oldNeighbors = new JsonArray();
-			ArrayList<KoalaNeighbor> oldNeigs = src.getRoutingTable().getOldNeighborsContainer();
-			for(KoalaNeighbor oldNeig : oldNeigs){
-				oldNeighbors.add(KoalaJsonParser.toJsonTree(oldNeig));
-			}
-			
-			JsonObject obj = new JsonObject();
-			obj.addProperty("id", src.getID());
-			obj.addProperty("joining", src.isJoining());
-			
-			obj.add("neighbors", (JsonElement)neighbors);
-			obj.add("oldNeighbors", (JsonElement)oldNeighbors);
-			return obj;
-		}
-		
-	}
-	
-	public static class KoalaNodeDeserializer implements JsonDeserializer<KoalaNode> {
-		private KoalaNode sample;
-		public KoalaNodeDeserializer(KoalaNode sample){
-			this.sample = sample;
-		}
-		
-		@Override
-		public KoalaNode deserialize(JsonElement src, Type typeOfSrc, JsonDeserializationContext context) throws JsonParseException {
-			JsonObject srcJO = src.getAsJsonObject();
-			KoalaNode kn = (KoalaNode) sample.clone();
-			kn.setID(srcJO.get("id").getAsString());
-			kn.setJoining(srcJO.get("joining").getAsBoolean());
-		
-			JsonArray neigs = srcJO.getAsJsonArray("neighbors");
-			ArrayList<KoalaNeighbor> neighbors = new ArrayList<KoalaNeighbor>();
-			for(JsonElement neig : neigs)
-				neighbors.add(KoalaJsonParser.jsonTreeToObject(neig, KoalaNeighbor.class));
-			
-			JsonArray oldNeigs = srcJO.getAsJsonArray("oldNeighbors");
-			ArrayList<KoalaNeighbor> oldNeighbors = new ArrayList<KoalaNeighbor>();
-			for(JsonElement neig : oldNeigs)
-				oldNeighbors.add(KoalaJsonParser.jsonTreeToObject(neig, KoalaNeighbor.class));
-			
-			kn.getRoutingTable().setNeighborsContainer(neighbors);
-			kn.getRoutingTable().setOldNeighborsContainer(oldNeighbors); 
-			return kn;
-		}
-		
-	}
+//	public static class KoalaNodeSerializer implements JsonSerializer<KoalaNode> {
+//
+//		@Override
+//		public JsonElement serialize(KoalaNode src, Type typeOfSrc, JsonSerializationContext context) {
+//			JsonArray neighbors = new JsonArray();
+//			ArrayList<KoalaNeighbor> neigs = src.getRoutingTable().getNeighbors();
+//			for(KoalaNeighbor neig : neigs){
+//				neighbors.add(KoalaJsonParser.toJsonTree(neig));
+//			}
+//			
+//			JsonArray oldNeighbors = new JsonArray();
+//			ArrayList<KoalaNeighbor> oldNeigs = src.getRoutingTable().getOldNeighborsContainer();
+//			for(KoalaNeighbor oldNeig : oldNeigs){
+//				oldNeighbors.add(KoalaJsonParser.toJsonTree(oldNeig));
+//			}
+//			
+//			JsonObject obj = new JsonObject();
+//			obj.addProperty("id", src.getID());
+//			obj.addProperty("actid", src.getActualID());
+//			obj.addProperty("joining", src.isJoining());
+//			
+//			obj.add("neighbors", (JsonElement)neighbors);
+//			obj.add("oldNeighbors", (JsonElement)oldNeighbors);
+//			return obj;
+//		}
+//		
+//	}
+//	
+//	public static class KoalaNodeDeserializer implements JsonDeserializer<KoalaNode> {
+//		private KoalaNode sample;
+//		public KoalaNodeDeserializer(KoalaNode sample){
+//			this.sample = sample;
+//		}
+//		
+//		@Override
+//		public KoalaNode deserialize(JsonElement src, Type typeOfSrc, JsonDeserializationContext context) throws JsonParseException {
+//			JsonObject srcJO = src.getAsJsonObject();
+//			KoalaNode kn = (KoalaNode) sample.clone();
+//			kn.setID(srcJO.get("id").getAsString());
+//			//TODO: check whats happening with actid here 
+//			kn.setJoining(srcJO.get("joining").getAsBoolean());
+//		
+//			JsonArray neigs = srcJO.getAsJsonArray("neighbors");
+//			ArrayList<KoalaNeighbor> neighbors = new ArrayList<KoalaNeighbor>();
+//			for(JsonElement neig : neigs)
+//				neighbors.add(KoalaJsonParser.jsonTreeToObject(neig, KoalaNeighbor.class));
+//			
+//			JsonArray oldNeigs = srcJO.getAsJsonArray("oldNeighbors");
+//			ArrayList<KoalaNeighbor> oldNeighbors = new ArrayList<KoalaNeighbor>();
+//			for(JsonElement neig : oldNeigs)
+//				oldNeighbors.add(KoalaJsonParser.jsonTreeToObject(neig, KoalaNeighbor.class));
+//			
+//			kn.getRoutingTable().setNeighborsContainer(neighbors);
+//			kn.getRoutingTable().setOldNeighborsContainer(oldNeighbors); 
+//			return kn;
+//		}
+//		
+//	}
 
 }

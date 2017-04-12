@@ -19,17 +19,17 @@ import utilities.PhysicalDataProvider;
 
 public class ResultCollector extends NodeObserver {
 
-	private static final String PAR_CHORD_PROTOCOL= "cprotocol";
-	private static final String PAR_KOALA_PROTOCOL= "kprotocol";
-	private static final String PAR_RENATER_PROTOCOL= "protocol";
-	
+//	private static final String PAR_CHORD_PROTOCOL= "cprotocol";
+//	private static final String PAR_KOALA_PROTOCOL= "kprotocol";
+//	private static final String PAR_RENATER_PROTOCOL= "protocol";
+//	
 	private static final String PAR_FLUSH= "flush";
 	
 	
-	private final int renProtPid;
-	private final int koaProtPid;
-	private final int chordProtPid;
-	
+//	private final int renProtPid;
+//	private final int koaProtPid;
+//	private final int chordProtPid;
+//	
 	private static HashMap<Integer, Node> sentMgs = new HashMap<Integer, Node>(); 
 	
 	private double renaterTotalLatency = 0;
@@ -51,10 +51,10 @@ public class ResultCollector extends NodeObserver {
 	int lastKFail;
 	public ResultCollector(String prefix) {
 		super(prefix);
-		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
-		koaProtPid = Configuration.getPid(prefix + "." + PAR_KOALA_PROTOCOL, -1);
-		chordProtPid = Configuration.getPid(prefix + "." + PAR_CHORD_PROTOCOL, -1);
-		
+//		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
+//		koaProtPid = Configuration.getPid(prefix + "." + PAR_KOALA_PROTOCOL, -1);
+//		chordProtPid = Configuration.getPid(prefix + "." + PAR_CHORD_PROTOCOL, -1);
+//		
 //		step  = Configuration.getInt(prefix + ".step", 1);
 		flush = Configuration.getInt(prefix + PAR_FLUSH, 100);
 //		plotScript = "gnuplot/plotResults.plt";
@@ -68,7 +68,7 @@ public class ResultCollector extends NodeObserver {
 	public boolean execute() {
 		updateGraph();
 		
-		if(koaProtPid > 0)
+		if(NodeUtilities.KPID > 0)
 			compare();
 		else
 			reportRenater();
@@ -106,16 +106,16 @@ public class ResultCollector extends NodeObserver {
 //			KoalaProtocol kp = (KoalaProtocol) msg.getValue().getProtocol(koaProtPid);
 //			ChordProtocol cp = (ChordProtocol) msg.getValue().getProtocol(chordProtPid);
 			
-			if((RenaterProtocol.REC_MSG.containsKey(msg.getKey()) || renProtPid < 0)
-			&& (KoalaProtocol.REC_MSG.containsKey(msg.getKey()) || koaProtPid < 0)
-			&& (ChordProtocol.REC_MSG.containsKey(msg.getKey()) || chordProtPid < 0)
+			if((RenaterProtocol.REC_MSG.containsKey(msg.getKey()) || NodeUtilities.RPID < 0)
+			&& (KoalaProtocol.REC_MSG.containsKey(msg.getKey()) || NodeUtilities.KPID < 0)
+			&& (ChordProtocol.REC_MSG.containsKey(msg.getKey()) || NodeUtilities.CPID < 0)
 			){
 			
-				if(renProtPid >= 0)
+				if(NodeUtilities.RPID >= 0)
 					rm = RenaterProtocol.REC_MSG.get(msg.getKey());
-				if(koaProtPid >= 0)
+				if(NodeUtilities.KPID >= 0)
 					km = KoalaProtocol.REC_MSG.get(msg.getKey());
-				if(chordProtPid >= 0)
+				if(NodeUtilities.CPID >= 0)
 					cm = ChordProtocol.REC_MSG.get(msg.getKey());
 				
 //				renaterTotalLatency += rm.getLatency();
@@ -151,9 +151,9 @@ public class ResultCollector extends NodeObserver {
 //				kl += km.getTotalLatency();
 //				rtSize += ((KoalaNode)kp.getMyNode()).getRoutingTable().getSize();
 				
-				if(renProtPid >= 0) RenaterProtocol.REC_MSG.remove(msg.getKey());
-				if(koaProtPid >= 0) KoalaProtocol.REC_MSG.remove(msg.getKey());
-				if(chordProtPid >= 0) ChordProtocol.REC_MSG.remove(msg.getKey());
+				if(NodeUtilities.RPID >= 0) RenaterProtocol.REC_MSG.remove(msg.getKey());
+				if(NodeUtilities.KPID >= 0) KoalaProtocol.REC_MSG.remove(msg.getKey());
+				if(NodeUtilities.CPID >= 0) ChordProtocol.REC_MSG.remove(msg.getKey());
 				
 				
 				entriesToRemove.add(msg.getKey());
@@ -161,20 +161,20 @@ public class ResultCollector extends NodeObserver {
 
 				
 				String printstr = rm.getSentCycle()+""; 
-				printstr +=	renProtPid >= 0 ? "\t"+rm.getTotalLatency() : "\t0";
-				printstr += chordProtPid >= 0 ? "\t"+cm.getTotalLatency() : "\t0";
-				printstr += koaProtPid >= 0 ? "\t"+km.getTotalLatency() : "\t0";
+				printstr +=	NodeUtilities.RPID >= 0 ? "\t"+rm.getTotalLatency() : "\t0";
+				printstr += NodeUtilities.CPID >= 0 ? "\t"+cm.getTotalLatency() : "\t0";
+				printstr += NodeUtilities.KPID >= 0 ? "\t"+km.getTotalLatency() : "\t0";
 				
-				printstr += renProtPid >= 0 ? "\t"+ rm.getHops() : "\t0"; 
-				printstr += chordProtPid >= 0 ? "\t"+ cm.getHops() : "\t0";
-				printstr += koaProtPid >= 0 ? "\t"+ km.getHops() : "\t0";
+				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.getHops() : "\t0"; 
+				printstr += NodeUtilities.CPID >= 0 ? "\t"+ cm.getHops() : "\t0";
+				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.getHops() : "\t0";
 // 				printstr += renProtPid >= 0 ? "\t"+ rm.getHopCategory() + "\t"+ rm.getLatencyCategory(): "\t0\t0";
 // 				printstr += renProtPid >= 0 ? "\t"+ rm.getPath(): "\t[]";
 // 				printstr += chordProtPid >= 0 ? "\t"+ cm.getChordPath(): "\t[]";
 // 				printstr += koaProtPid >= 0 ? "\t"+ km.getPath(): "\t[]";
 				printstr += "\t"+ (nrInterDCMsg - lastMsg);
- 				printstr += chordProtPid >= 0 ? "\t"+ (ChordProtocol.FAIL - lastCFail): "\t0";
- 				printstr += koaProtPid >= 0 ? "\t"+ (KoalaProtocol.FAIL - lastKFail): "\t0";
+ 				printstr += NodeUtilities.CPID >= 0 ? "\t"+ (ChordProtocol.FAIL - lastCFail): "\t0";
+ 				printstr += NodeUtilities.KPID >= 0 ? "\t"+ (KoalaProtocol.FAIL - lastKFail): "\t0";
  				
  				
  				lastMsg = nrInterDCMsg;

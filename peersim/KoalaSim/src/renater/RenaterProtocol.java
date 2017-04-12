@@ -7,7 +7,7 @@ import messaging.KoalaRouteMsgContent;
 import messaging.TopologyMessage;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
-import peersim.core.Linkable;
+
 import peersim.core.Node;
 import topology.TopologyProtocol;
 import utilities.NodeUtilities;
@@ -59,7 +59,7 @@ public class RenaterProtocol extends TopologyProtocol {
 	@Override
 	public void intializeMyNode(Node node, int pid) {
 		super.intializeMyNode(node, pid);
-		myNode = (RenaterNode) (Linkable) node.getProtocol(linkPid);
+		myNode = (RenaterNode) node.getProtocol(NodeUtilities.RID);
 	}
 
 	
