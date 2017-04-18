@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import koala.KoalaNeighbor;
 import peersim.core.CommonState;
-import utilities.KoalaJsonParser;
 import utilities.NodeUtilities;
 
 
@@ -18,7 +17,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-public class KoalaMessage extends TopologyMessage implements JsonSerializer< KoalaMessage>, JsonDeserializer<KoalaMessage>{
+public class KoalaMessage extends TopologyMessage /*implements JsonSerializer< KoalaMessage>, JsonDeserializer<KoalaMessage>*/{
 	public static final int RT = 0;
 	public static final int NGN = 1;
 	public static final int NLN = 2;
@@ -73,8 +72,8 @@ public class KoalaMessage extends TopologyMessage implements JsonSerializer< Koa
 	
 	public void setIdealPiggyBack(){
 		for(int i = 0; i < NodeUtilities.PiggybackLength; i++){
-			int dcID = CommonState.r.nextInt(NodeUtilities.NR_DC);
-			KoalaNeighbor k = new KoalaNeighbor(NodeUtilities.DEFAULTID);
+			int dcID = CommonState.r.nextInt(NodeUtilities.getSize());
+			KoalaNeighbor k = KoalaNeighbor.getDefaultNeighbor();
 			k.setIdealID(dcID + "-0");
 			piggyback.add(k);
 		}
@@ -117,35 +116,35 @@ public class KoalaMessage extends TopologyMessage implements JsonSerializer< Koa
 	}
 	
 	
-	@Override
-	public JsonElement serialize(KoalaMessage src, Type typeOfSrc, JsonSerializationContext context) {
-		JsonObject obj = (JsonObject) super.serialize(src, typeOfSrc, context);
-		obj.addProperty("confidential", src.isConfidential());
-		JsonArray piggyEntries = new JsonArray();
-		ArrayList<KoalaNeighbor> piggies= src.getPiggyBack();
-		for(KoalaNeighbor pigg : piggies)
-			piggyEntries.add(KoalaJsonParser.toJsonTree(pigg));
-		obj.add("piggyback", piggyEntries);
-		return obj;
-	}
-	
-	
-	@Override
-	public KoalaMessage deserialize(JsonElement src, Type typeOfSrc, JsonDeserializationContext context) throws JsonParseException {
-		JsonObject srcJO = src.getAsJsonObject();
-		KoalaMessage km = (KoalaMessage)super.deserialize(new KoalaMessage(), src, typeOfSrc, context); 
-		
-		km.setConfidential(srcJO.get("confidential").getAsBoolean());		
-				
-		
-		JsonArray jpig = srcJO.getAsJsonArray("piggyback");
-		ArrayList<KoalaNeighbor> piggies = new ArrayList<KoalaNeighbor>();
-		for(JsonElement entry : jpig)
-			piggies.add(KoalaJsonParser.jsonTreeToObject(entry, KoalaNeighbor.class));
-		km.setPiggyBack(piggies);
-		
-		return km;
-		
-	}
+//	@Override
+//	public JsonElement serialize(KoalaMessage src, Type typeOfSrc, JsonSerializationContext context) {
+//		JsonObject obj = (JsonObject) super.serialize(src, typeOfSrc, context);
+//		obj.addProperty("confidential", src.isConfidential());
+//		JsonArray piggyEntries = new JsonArray();
+//		ArrayList<KoalaNeighbor> piggies= src.getPiggyBack();
+//		for(KoalaNeighbor pigg : piggies)
+//			piggyEntries.add(KoalaJsonParser.toJsonTree(pigg));
+//		obj.add("piggyback", piggyEntries);
+//		return obj;
+//	}
+//	
+//	
+//	@Override
+//	public KoalaMessage deserialize(JsonElement src, Type typeOfSrc, JsonDeserializationContext context) throws JsonParseException {
+//		JsonObject srcJO = src.getAsJsonObject();
+//		KoalaMessage km = (KoalaMessage)super.deserialize(new KoalaMessage(), src, typeOfSrc, context); 
+//		
+//		km.setConfidential(srcJO.get("confidential").getAsBoolean());		
+//				
+//		
+//		JsonArray jpig = srcJO.getAsJsonArray("piggyback");
+//		ArrayList<KoalaNeighbor> piggies = new ArrayList<KoalaNeighbor>();
+//		for(JsonElement entry : jpig)
+//			piggies.add(KoalaJsonParser.jsonTreeToObject(entry, KoalaNeighbor.class));
+//		km.setPiggyBack(piggies);
+//		
+//		return km;
+//		
+//	}
 
 }

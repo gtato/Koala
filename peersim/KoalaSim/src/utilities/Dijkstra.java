@@ -31,7 +31,7 @@ public class Dijkstra {
 	}
 	
 	public void setDistance(RenaterNode src, RenaterNode dst, double dist){
-		allDistance.put(NodeUtilities.getKeyStrID(src.getID(), dst.getID()), dist);
+		allDistance.put(NodeUtilities.getKeyStrID(src.getCID(), dst.getCID()), dist);
 	}
 	
 	public void execute(RenaterNode source) {
@@ -66,7 +66,7 @@ public class Dijkstra {
 	}
 
 	private double getDistance(RenaterNode node, RenaterNode target) {
-		return edges.get(NodeUtilities.getKeyStrID(node.getID(), target.getID())).getWeight();
+		return edges.get(NodeUtilities.getKeyStrID(node.getCID(), target.getCID())).getWeight();
 //		for (Edge edge : edges) {
 //			if (edge.getSource().equals(node)
 //					&& edge.getDestination().equals(target)) {
@@ -89,7 +89,7 @@ public class Dijkstra {
 //	}
 
 	public double getShortestDistanceBetween(RenaterNode src, RenaterNode dst){
-		String key = NodeUtilities.getKeyStrID(src.getID(), dst.getID());
+		String key = NodeUtilities.getKeyStrID(src.getCID(), dst.getCID());
 		if(allDistance.containsKey(key))
 			return allDistance.get(key);
 		return Double.MAX_VALUE;
@@ -205,7 +205,7 @@ public class Dijkstra {
 //		}
 		
 		public void addEdge(RenaterNode source, RenaterNode destination, double duration) {
-			Edge lane = new Edge(NodeUtilities.getKeyStrID(source.getID(), destination.getID()),source, destination, duration);
+			Edge lane = new Edge(NodeUtilities.getKeyStrID(source.getCID(), destination.getCID()),source, destination, duration);
 			edges.put(lane.getId(), lane);
 		}
 

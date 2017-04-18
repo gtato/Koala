@@ -41,7 +41,7 @@ public class RenaterTopologyObserver extends NodeObserver {
                 double x_from = n.getX();
                 double y_from = n.getY();
 //                String label = true ? current.getID() : ".";
-                String label = current.getID();
+                String label = current.getCID();
                 ps.println(x_from + " " + y_from);
                 String secondLine = x_to + " " + y_to + " " + label; 
                 if(current.isGateway() && n.isGateway()){

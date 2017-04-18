@@ -3,6 +3,7 @@ package topology;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import koala.KoalaNeighbor;
 import koala.KoalaProtocol;
 import messaging.TopologyMessage;
 import peersim.config.Configuration;
@@ -34,9 +35,9 @@ public abstract class TopologyProtocol implements EDProtocol {
 	protected boolean logMsg;
 	protected static boolean initializeMode; //true only when the koala ring is being statically initialized (false during the simulation)
 	
-	protected String msgSender;
-	protected ArrayList<String> msgPath;
-	protected ArrayList<String> msgPiggyBack;
+	protected TopologyPathNode msgSender;
+	protected ArrayList<TopologyPathNode> msgPath;
+	protected ArrayList<KoalaNeighbor> msgPiggyBack;
 	
 	
 	public TopologyProtocol(String prefix) {
@@ -106,7 +107,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 //	protected abstract void checkStatus();
 			
-	protected abstract void onReceiveLatency(String dest, double l);
+	protected abstract void onReceiveLatency(TopologyPathNode dest, double l);
 	
 //	protected abstract HashMap<Integer, TopologyMessage> getMsgStorage();
 	
@@ -121,20 +122,20 @@ public abstract class TopologyProtocol implements EDProtocol {
 		myNode = (TopologyNode) node.getProtocol(NodeUtilities.getLinkable(pid));
 		if(transId > 0)
 			myTransport = (Transport)node.getProtocol(transId);
+		NodeUtilities.CURRENT_PID = pid;
 	}
 
-	public void send(String destinationID, TopologyMessage msg)
+	public void send(TopologyPathNode dest, TopologyMessage msg)
 	{
-		if(destinationID == null || destinationID.equals(myNode.getID())){
+		if(dest == null || dest.getSID().equals(myNode.getSID())){
 			handleMessage(msg);
 			return;
 		}
 		
-		Node dest = getNodeFromID(destinationID);
-		
+		Node destNode = NodeUtilities.Nodes.get(dest.getCID());
 		
 		if(dest != null){
-			if(ErrorDetection.hasLoopCommunication(msg,destinationID)){
+			if(ErrorDetection.hasLoopCommunication(msg,dest)){
 				System.err.println("Message is going in cycles");
 				System.exit(1);
 			}
@@ -145,39 +146,39 @@ public abstract class TopologyProtocol implements EDProtocol {
 				return;
 			}
 			
-			String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " sending a message to " + destinationID  + " a msg of type: " + msg.getTypeName();
+			String logmsg = "("+ CommonState.getTime()+") "+ myNode.getSID() + " sending a message to " + dest.getSID() + " a msg of type: " + msg.getTypeName();
 			if(logMsg)
 			System.out.println(logmsg);
 
-			String did = myPid == NodeUtilities.FKPID ? NodeUtilities.FlatMap.get(destinationID) : destinationID;
-			String sid = myPid == NodeUtilities.FKPID ? NodeUtilities.FlatMap.get(myNode.getID()) : myNode.getID();
-			double l = PhysicalDataProvider.getLatency(sid, did);
+//			String did = myPid == NodeUtilities.FKPID ? NodeUtilities.FlatMap.get(destinationID) : destinationID;
+//			String sid = myPid == NodeUtilities.FKPID ? NodeUtilities.FlatMap.get(myNode.getID()) : myNode.getID();
+			double l = PhysicalDataProvider.getLatency(myNode.getCID(), dest.getCID());
 
 			if(l <= 0)
 				System.out.println("someone invented time traveling!");
 			msg.addLatency(l);
 			if(msg.getLastSender() == null)
-				msg.addToPath(myNode.getID());
-			msg.addToPath(destinationID);
+				msg.addToPath(new TopologyPathNode(myNode));
+			msg.addToPath(dest);
 			
 			
-			if(NodeUtilities.getDCID(myNode.getID()) == NodeUtilities.getDCID(destinationID))
+			if(NodeUtilities.getDCID(myNode.getSID()) == NodeUtilities.getDCID(dest.getSID()))
 				ResultCollector.countIntra();
 			else
 				ResultCollector.countInter();
 			
-			if(this instanceof RenaterProtocol && !dest.isUp())
+			if(this instanceof RenaterProtocol && !destNode.isUp())
 			{
-				((RenaterProtocol)dest.getProtocol(myPid)).handleMessage(msg);
+				((RenaterProtocol)destNode.getProtocol(myPid)).handleMessage(msg);
 				return;
 			}
 			
 			if(initializeMode)
-				((KoalaProtocol)dest.getProtocol(myPid)).receive(msg);
+				((KoalaProtocol)destNode.getProtocol(myPid)).receive(msg);
 			else
-				myTransport.send(node, dest, msg, myPid);
+				myTransport.send(node, destNode, msg, myPid);
 			
-			onReceiveLatency(destinationID, l);
+			onReceiveLatency(dest, l);
 		}
 		
 	}
@@ -189,16 +190,18 @@ public abstract class TopologyProtocol implements EDProtocol {
 	}
 	
 	
+	
+	
 
 	@SuppressWarnings("unchecked")
 	public void receive(TopologyMessage msg)
 	{
-		String logmsg = "("+ CommonState.getTime()+") "+ myNode.getID() + " received a message from " + msg.getLastSender()  + " a msg of type: " + msg.getTypeName();
+		String logmsg = "("+ CommonState.getTime()+") "+ myNode.getSID() + " received a message from " + msg.getLastSender()  + " a msg of type: " + msg.getTypeName();
 		if(logMsg)
 			System.out.println(logmsg);
 		
 		msgSender = msg.getLastSender();
-		msgPath = (ArrayList<String>) msg.getPath().clone();
+		msgPath = (ArrayList<TopologyPathNode>) msg.getPath().clone();
 		
 		handleMessage(msg);
 	}

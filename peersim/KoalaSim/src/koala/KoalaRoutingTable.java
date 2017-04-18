@@ -27,7 +27,7 @@ public class KoalaRoutingTable {
 	
 	
 	public KoalaRoutingTable(){
-		KoalaNeighbor defaultNeighbor = new KoalaNeighbor(NodeUtilities.DEFAULTID);
+		KoalaNeighbor defaultNeighbor = KoalaNeighbor.getDefaultNeighbor();
 //		localPredecessors = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
 //		localSucessors = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
 		globalPredecessors = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
@@ -62,7 +62,7 @@ public class KoalaRoutingTable {
 
 	public boolean hasAllDefaultLocals(){
 		for(KoalaNeighbor ln : locals){
-			if(!ln.getNodeID().equals(NodeUtilities.DEFAULTID))
+			if(!ln.getSID().equals(NodeUtilities.DEFAULTID))
 				return false;
 		}
 		return true;
@@ -70,8 +70,8 @@ public class KoalaRoutingTable {
 	
 	public boolean hasAllDefaultGlobals(){
 		for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
-			if(!globalSucessors[i].getNodeID().equals(NodeUtilities.DEFAULTID)
-			|| !globalPredecessors[i].getNodeID().equals(NodeUtilities.DEFAULTID)
+			if(!globalSucessors[i].getSID().equals(NodeUtilities.DEFAULTID)
+			|| !globalPredecessors[i].getSID().equals(NodeUtilities.DEFAULTID)
 				)
 				return false;
 		}
@@ -80,7 +80,7 @@ public class KoalaRoutingTable {
 	
 	public boolean addLocal(KoalaNeighbor kn){
 		for(KoalaNeighbor n : locals)
-			if(n.getNodeID().equals(kn.getNodeID()))
+			if(n.equals(kn))
 				return false;
 		return locals.add(kn);
 	}
@@ -178,14 +178,14 @@ public class KoalaRoutingTable {
 //		||this.getNeighboursIDs(2).contains(kn.getNodeID()))
 //			return false;
 //		Discard down neighbors (like Lamport would do)
-		Node nn = NodeUtilities.Nodes.get(kn.getNodeID());
+		Node nn = NodeUtilities.Nodes.get(kn.getCID());
 		if(nn==null || !nn.isUp())
         	return false;
 		
 		boolean added = false;
 		for(int i = 0; i < longLinks.size(); i++){
 			KoalaNeighbor ll = longLinks.get(i);
-			if(ll.getNodeID().equals(kn.getNodeID())){
+			if(ll.equals(kn)){
 				if(kn.getLatencyQuality() >= ll.getLatencyQuality()){
 					ll.setLatency(kn.getLatency());
 					ll.setLatencyQuality(kn.getLatencyQuality());
@@ -193,11 +193,12 @@ public class KoalaRoutingTable {
 				return false;
 			}
 			else{
-				int dist = NodeUtilities.distance(ll.getIdealID(), kn.getNodeID());
-				int currentDist = NodeUtilities.distance(ll.getIdealID(), ll.getNodeID());
+				int dist = NodeUtilities.distance(ll.getIdealID(), kn.getSID());
+				int currentDist = NodeUtilities.distance(ll.getIdealID(), ll.getSID());
 				if(dist < currentDist){
 					//here there might be a situation where we would have to chose between a better id or a better latency quality
-					ll.setNodeID(kn.getNodeID());
+					ll.setCID(kn.getCID());
+					ll.setSID(kn.getSID());
 					ll.setLatency(kn.getLatency());
 					ll.setLatencyQuality(kn.getLatencyQuality());
 					added=true;
@@ -239,7 +240,7 @@ public class KoalaRoutingTable {
 	public ArrayList<String> getNeighborsContainerIDs() {
 		ArrayList<String> ids = new ArrayList<String>();
 		for(KoalaNeighbor kn : neighborsContainer)
-			ids.add(kn.getNodeID());
+			ids.add(kn.getSID());
 		return ids;
 	}
 
@@ -282,7 +283,7 @@ public class KoalaRoutingTable {
         
         for(int i = 0; i < neighs.size(); i++)
             if(!NodeUtilities.isDefault(neighs.get(i)))
-            	hs.add(neighs.get(i).getNodeID());
+            	hs.add(neighs.get(i).getSID());
                 
         return hs;
 	}
@@ -294,7 +295,7 @@ public class KoalaRoutingTable {
 		Set<String> hs = new LinkedHashSet<String>();
         for(int i = 0; i < neighs.size(); i++)
             if(!NodeUtilities.isDefault(neighs.get(i)))
-            	hs.add(neighs.get(i).getNodeID());
+            	hs.add(neighs.get(i).getSID());
         return hs;
 	}
 	
@@ -306,15 +307,19 @@ public class KoalaRoutingTable {
 		neighs.addAll(Arrays.asList(globalPredecessors)); neighs.addAll(Arrays.asList(globalSucessors));
 		neighs.addAll(longLinks);
 		
-		for(int i = 0; i < neighs.size(); i++)
-            if(!NodeUtilities.isDefault(neighs.get(i)))
-            	hs.add(neighs.get(i));
+		Set<String> idhs = new LinkedHashSet<String>();
+		
+		for(KoalaNeighbor n: neighs)
+            if(!NodeUtilities.isDefault(n) && !idhs.contains(n.getSID())){
+            	hs.add(n); idhs.add(n.getSID());
+            }
 		
 		
-        for(int i = 0; i < neighborsContainer.size(); i++)
-        	if(!NodeUtilities.isDefault(neighborsContainer.get(i)))
-        		hs.add(neighborsContainer.get(i));
-                
+		for(KoalaNeighbor n: neighborsContainer)
+            if(!NodeUtilities.isDefault(n) && !idhs.contains(n.getSID())){
+            	hs.add(n); idhs.add(n.getSID());
+            }
+		
         return hs;
 	}
 	

@@ -1,9 +1,11 @@
 package spaasclient;
 
+import java.util.ArrayList;
+
 public class Body {
 	private Node[] nodes;
 	private Edge[] edges;
-	private String[] path;
+	private ArrayList<String> path;
 	private double latency;
 	
 	
@@ -19,10 +21,10 @@ public class Body {
 	public void setEdges(Edge[] edges) {
 		this.edges = edges;
 	}
-	public String[] getPath() {
+	public ArrayList<String> getPath() {
 		return path;
 	}
-	public void setPath(String[] path) {
+	public void setPath(ArrayList<String> path) {
 		this.path = path;
 	}
 	

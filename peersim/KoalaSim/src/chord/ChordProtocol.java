@@ -4,6 +4,7 @@ package chord;
 import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
+import topology.TopologyPathNode;
 import topology.TopologyProtocol;
 import utilities.NodeUtilities;
 
@@ -51,20 +52,20 @@ public class ChordProtocol extends TopologyProtocol {
 			n = Network.get(CommonState.r.nextInt(Network.size()));
 		} while (n == null || !n.isUp() || n.equals(myNode.getNode()));
 		
-		if(myNode.chordId == null){
-			myNode.chordId = NodeUtilities.generateNewChordID();
-			NodeUtilities.CHORD_NODES.put(myNode.chordId, node);
+		if(myNode.getSID() == null){
+			myNode.setSID(NodeUtilities.generateNewChordID());
+			NodeUtilities.CHORD_NODES.put(myNode.getSID(), node);
 		}
 		ChordNode cpRemote = NodeUtilities.getChordFromNode(n);
 		myNode.successorList = new ChordNode[NodeUtilities.SUCC_SIZE];
 		myNode.fingerTable = new ChordNode[NodeUtilities.M];
 		myNode.predecessor = null;
 		
-		findSuccessor(cpRemote.getID(), myNode.chordId, "successor first");
+		TopologyPathNode remotetpn = new TopologyPathNode(cpRemote);
+		findSuccessor(remotetpn, myNode.getSID(), "successor first");
 		for (int i = 0; i < myNode.fingerTable.length; i++) {
-			long a = (long) (myNode.chordId.longValue() + Math.pow(2, i)) %(long)Math.pow(2, NodeUtilities.M);
-			BigInteger id = new BigInteger(a+"");
-			findSuccessor(cpRemote.getID(), id, "finger " + i);
+			long a = (long) (myNode.getLID() + Math.pow(2, i)) %(long)Math.pow(2, NodeUtilities.M);
+			findSuccessor(remotetpn, a+"", "finger " + i);
 		}
 //		System.out.println("Node " + myNode.chordId + " is in da house");
 	}
@@ -79,33 +80,33 @@ public class ChordProtocol extends TopologyProtocol {
 
 	protected void onRoute(ChordMessage msg) {
 		ChordLookUpContent reccontent = (ChordLookUpContent)msg.getContent(); 
-		BigInteger target = reccontent.getChordNode().chordId;
-		BigInteger joining = reccontent.getJoiningNode() != null ? reccontent.getJoiningNode().chordId : null;
+		String target = reccontent.getChordNode().getSID();
+		String joining = reccontent.getJoiningNode() != null ? reccontent.getJoiningNode().getSID() : null;
 		
 		if(!myNode.hasJoined()) return;
 		
-		if(msg.isType(ChordMessage.LOOK_UP) && target.equals(myNode.chordId)){
+		if(msg.isType(ChordMessage.LOOK_UP) && target.equals(myNode.getSID())){
 			onSuccess(msg); return;
 		}
 		
-		else if (msg.isType(ChordMessage.SUCCESSOR) && ChordNode.inAB(target, myNode.chordId, myNode.successorList[0].chordId)) {
+		else if (msg.isType(ChordMessage.SUCCESSOR) && ChordNode.inAB(target, myNode.getSID(), myNode.successorList[0].getSID())) {
 			ChordLookUpContent content =  new ChordLookUpContent(ChordMessage.SUCCESSOR_FOUND,  myNode.successorList[0]);
-			if(target.equals(myNode.chordId))
+			if(target.equals(myNode.getSID()))
 				content.setChordNode(myNode);
-			if(joining != null && joining.equals(myNode.successorList[0].chordId))
+			if(joining != null && joining.equals(myNode.successorList[0].getSID()))
 				content.setChordNode(myNode.successorList[1]);
 			
 			ChordMessage finalmsg = new ChordMessage(content);
-			String dest = msg.getFirstSender();
-			if (dest == null) dest = myNode.getID();
+			TopologyPathNode dest = msg.getFirstSender();
+			if (dest == null) dest = new TopologyPathNode(myNode);
 			finalmsg.setLabel(msg.getLabel());
 //			send(msg.getLastSender(), finalmsg);
 			send(dest, finalmsg);
 		}
 		else{
 			ChordNode dest = myNode.closestPrecedingNode(target, joining);
-			if(dest != null && !dest.getID().equals(myNode.getID()))
-				send(dest.getID(), msg);
+			if(dest != null && !dest.getCID().equals(myNode.getCID()))
+				send(new TopologyPathNode(dest), msg);
 			else
 				onFail(msg);
 		}
@@ -121,7 +122,7 @@ public class ChordProtocol extends TopologyProtocol {
 		if(label.contains("successor")) //predecessor
 		{
 			ChordNode pred = succ.predecessor;
-			String predID = pred != null ? pred.getID(): null;
+			String predID = pred != null ? pred.getCID(): null;
 			if(label.contains("first") || myNode.equals(pred) || !NodeUtilities.isUp(predID)){
 				myNode.successorList[0] = succ;
 				if(label.contains("first") && !myNode.equals(pred)) myNode.predecessor = pred;
@@ -129,12 +130,12 @@ public class ChordProtocol extends TopologyProtocol {
 				if(label.contains("first")) myNode.setJoined(true);
 			}
 			else if(label.contains("stabilize")){
-				if (pred.isUp() && ChordNode.inAB(pred.chordId, myNode.chordId, succ.chordId)){
+				if (pred.isUp() && ChordNode.inAB(pred.getSID(), myNode.getSID(), succ.getSID())){
 					myNode.successorList[0] = pred;
 					myNode.successorList[1] = succ;
 					System.arraycopy(succ.successorList,0,myNode.successorList,2,myNode.successorList.length-2);
 				}
-				notify(myNode.successorList[0].getID());
+				notify(new TopologyPathNode(myNode.successorList[0]));
 			}
 		}
 		else if(label.contains("finger")){
@@ -147,12 +148,12 @@ public class ChordProtocol extends TopologyProtocol {
 	public void onNotify(ChordMessage msg){
 		ChordNode node = ((ChordLookUpContent)msg.getContent()).getChordNode();
 		if (myNode.predecessor == null || 
-		 (ChordNode.inAB(node.chordId, myNode.predecessor.chordId, myNode.chordId)
-				 && !node.chordId.equals(myNode.chordId)))
+		 (ChordNode.inAB(node.getSID(), myNode.predecessor.getSID(), myNode.getSID())
+				 && !node.getSID().equals(myNode.getSID())))
 			myNode.predecessor = node;
 	}
 
-	public void findSuccessor(String nodeToAsk, BigInteger id, String label){
+	public void findSuccessor(TopologyPathNode nodeToAsk, String id, String label){
 		ChordLookUpContent content =  new ChordLookUpContent(ChordMessage.SUCCESSOR, new ChordNode(id));
 		if(!myNode.isJoining())
 			content.setJoiningNode(myNode);
@@ -162,14 +163,14 @@ public class ChordProtocol extends TopologyProtocol {
 	}
 
 	@Override
-	protected void onReceiveLatency(String dest, double l) {
+	protected void onReceiveLatency(TopologyPathNode dest, double l) {
 		// TODO Auto-generated method stub
 		
 	}
 	
 	
 
-	public void notify(String nodeId){
+	public void notify(TopologyPathNode nodeId){
 		ChordLookUpContent content =  new ChordLookUpContent(ChordMessage.NOTIFY, myNode);
 		ChordMessage notifyMsg = new ChordMessage(content);
 		send(nodeId, notifyMsg);
@@ -179,11 +180,11 @@ public class ChordProtocol extends TopologyProtocol {
 		for(ChordNode succ: myNode.successorList){
 			if(succ != null && succ.isUp()){
 //				myNode.successorList[0] = succ;
-				findSuccessor(succ.getID(), succ.chordId, "successor stabilize");
+				findSuccessor(new TopologyPathNode(succ), succ.getSID(), "successor stabilize");
 				return;
 			}
 		}
-		System.err.println("All successors of node " + myNode.chordId + " are down!");
+		System.err.println("All successors of node " + myNode.getSID() + " are down!");
 		System.exit(1); //something went totally wrong
 		
 	}
@@ -191,9 +192,8 @@ public class ChordProtocol extends TopologyProtocol {
 	public void fixFingers(){
 		if(myNode.fingerToFix >= myNode.fingerTable.length)
 			myNode.fingerToFix = 0;
-		long a = (long) (myNode.chordId.longValue() + Math.pow(2, myNode.fingerToFix)) %(long)Math.pow(2, NodeUtilities.M);
-		BigInteger id = new BigInteger(a+"");
-		findSuccessor(myNode.getID(), id, "finger " + myNode.fingerToFix);
+		long a = (long) (myNode.getLID() + Math.pow(2, myNode.fingerToFix)) %(long)Math.pow(2, NodeUtilities.M);
+		findSuccessor(new TopologyPathNode(myNode), a+"", "finger " + myNode.fingerToFix);
 		myNode.fingerToFix++;
 	}
 

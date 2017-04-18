@@ -8,7 +8,8 @@ import example.hot.InetCoordinates;
 
 public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 
-	private String id;
+	private String commonID;
+	private String specificID;
 //	private int pid;
 	private long birthday;
 	protected boolean joined;
@@ -42,6 +43,8 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 	}
 	
 	public void reset(){
+		setCID(null);
+		setSID(null);
 		setJoined(false);
 	}
 	
@@ -54,17 +57,32 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 	
 	public TopologyNode(String prefix) {
 		super(prefix);
-		// TODO Auto-generated constructor stub
+		reset();
+	}
+	
+	public TopologyNode(String prefix, String cid, String sid) {
+		super(prefix);
+		reset();
+		commonID = cid;
+		specificID = sid;
 	}
 
-	public String getID() {
-		return id;
+	public String getCID() {
+		return commonID;
 	}
 
-	public void setID(String id) {
-		this.id = id;
+	public void setCID(String commonID) {
+		this.commonID = commonID;
 	}
 
+	public String getSID() {
+		return specificID;
+	}
+
+	public void setSID(String specificID) {
+		this.specificID = specificID;
+	}
+	
 	@Override
 	public void onKill() {
 		// TODO Auto-generated method stub

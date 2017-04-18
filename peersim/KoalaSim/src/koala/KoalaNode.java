@@ -12,23 +12,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.event.ListSelectionEvent;
 
 import messaging.KoalaMessage;
 import peersim.core.CommonState;
 import peersim.core.Node;
 import topology.TopologyNode;
-import utilities.KoalaJsonParser;
 import utilities.NodeUtilities;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
 public class KoalaNode extends TopologyNode{
 
@@ -37,7 +27,7 @@ public class KoalaNode extends TopologyNode{
 	 */
 
 //	private int dcID;
-//	private int nodeID;
+	
 	private String bootstrapID;
 	
 //	these two are just for statistics purposes, not necessary  
@@ -54,17 +44,13 @@ public class KoalaNode extends TopologyNode{
 	
 	public KoalaNode(String prefix) {
 		super(prefix);
-		reset();
 	}
 	
 	
-	public KoalaNode(String prefix, String id) {
-		super(prefix);
-		reset();
-		setID(id);
+	public KoalaNode(String prefix, String cid, String sid) {
+		super(prefix, cid, sid);
 	}
 	
-
 	public Object clone() {
 		KoalaNode inp = null;
         inp = (KoalaNode) super.clone();
@@ -82,13 +68,6 @@ public class KoalaNode extends TopologyNode{
 		this.latencyPerDC = new HashMap<Integer, Double>();
 	}
 	
-//	public int getDCID() {
-//        return dcID;
-//    }
-//
-//    public void setDCID(int dcID) {
-//        this.dcID = dcID;
-//    }
 //
 //    public int getNodeID() {
 //		return nodeID;
@@ -108,7 +87,7 @@ public class KoalaNode extends TopologyNode{
 //		this.nodeID = Integer.parseInt(id.split("-")[1]);
 //	}
 //	
-//	public String getID() {
+//	public String getSID() {
 //		return this.dcID + "-" + this.nodeID;
 //	}
 	
@@ -138,26 +117,16 @@ public class KoalaNode extends TopologyNode{
 	}
 
 	public String toString(){
-		return getID();
+		return getSID();
 	}
-	
-//	public String getActualID(){
-//		return getID();
-//	}
-	
-	public String getCommonID(){
-		return getID();
-	}
+
 	
 	/* The relevant methods start here */
 	
-	protected Node getNode(String id){
-		return NodeUtilities.Nodes.get(id);
-	}
 	
 	public int tryAddNeighbour(KoalaNeighbor n){
 //      Discard down neighbors (like Lamport would do)
-		Node nn = getNode(n.getNodeID());
+		Node nn = NodeUtilities.Nodes.get(n.getCID());
 		if(nn==null || !nn.isUp())
         	return -1;
 			
@@ -169,16 +138,16 @@ public class KoalaNode extends TopologyNode{
         
         
         
-        boolean local = this.isLocal(n.getNodeID());
+        boolean local = this.isLocal(n.getSID());
 		if(local){
 			addedS = getRoutingTable().addLocal(n) ? 1 : 0;
 		}else{
 	        for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
-			    if(this.isSuccessor(n.getNodeID(), i)){
+			    if(this.isSuccessor(n.getSID(), i)){
 			    	if(i==0) addedS = 0;
 			        oldS = getRoutingTable().setGlobalSucessor(n,i);
 			    }
-			    if (this.isPredecessor(n.getNodeID(), i)){
+			    if (this.isPredecessor(n.getSID(), i)){
 			    	if(i==0) addedP = 0;
 			        oldP = getRoutingTable().setGlobalPredecessor(n,i);
 			    }
@@ -197,7 +166,7 @@ public class KoalaNode extends TopologyNode{
         if( ret == 1)
             ret++;
 
-        if( ret ==-1 && canBeNeighbour(n.getNodeID(),0))
+        if( ret ==-1 && canBeNeighbour(n.getSID(),0))
             ret = 1;
 
         getRoutingTable().setOldNeighborsContainer(oldNeighbors);
@@ -232,18 +201,18 @@ public class KoalaNode extends TopologyNode{
         
         KoalaNeighbor successor = getRoutingTable().getGlobalSucessor(index);
         KoalaNeighbor predecessor = getRoutingTable().getGlobalPredecessor(index);
-        String current = index == 0 ? this.getID() : getRoutingTable().getGlobalSucessor(index-1).getNodeID();
+        String current = index == 0 ? this.getSID() : getRoutingTable().getGlobalSucessor(index-1).getSID();
         if(index > 0)
         	predecessor = getRoutingTable().getGlobalSucessor(index-1);
         if (canBeSuccessor(nodeID, index)){
-        	if( NodeUtilities.isDefault(successor) ||  NodeUtilities.compareIDs(nodeID, successor.getNodeID(), false) != 0)
+        	if( NodeUtilities.isDefault(successor) ||  NodeUtilities.compareIDs(nodeID, successor.getSID(), false) != 0)
         		return true;
         	if(successor.equals(predecessor))
         		return true;
-        	if(!nodeID.equals(predecessor.getNodeID())  &&  NodeUtilities.distanceGlobal(current, nodeID) < NodeUtilities.distanceGlobal(current, successor.getNodeID()))
+        	if(!nodeID.equals(predecessor.getSID())  &&  NodeUtilities.distanceGlobal(current, nodeID) < NodeUtilities.distanceGlobal(current, successor.getSID()))
         		return true;
-        	if(NodeUtilities.distanceGlobal(current, nodeID) == NodeUtilities.distanceGlobal(current, successor.getNodeID()) &&
-               NodeUtilities.distanceLocal(current, nodeID) <= NodeUtilities.distanceLocal(current, successor.getNodeID()))
+        	if(NodeUtilities.distanceGlobal(current, nodeID) == NodeUtilities.distanceGlobal(current, successor.getSID()) &&
+               NodeUtilities.distanceLocal(current, nodeID) <= NodeUtilities.distanceLocal(current, successor.getSID()))
              		return true;
         }
         return false;
@@ -254,18 +223,18 @@ public class KoalaNode extends TopologyNode{
 		
         KoalaNeighbor successor = getRoutingTable().getGlobalSucessor(index);
         KoalaNeighbor predecessor =getRoutingTable().getGlobalPredecessor(index);
-        String current = index == 0 ? this.getID() : getRoutingTable().getGlobalSucessor(index-1).getNodeID();
+        String current = index == 0 ? this.getSID() : getRoutingTable().getGlobalSucessor(index-1).getSID();
         if(index > 0)
         	successor = getRoutingTable().getGlobalPredecessor(index-1);
         if (canBePredecessor(nodeID, index)){
-        	if(NodeUtilities.isDefault(predecessor) || NodeUtilities.compareIDs(nodeID, predecessor.getNodeID(), false) != 0)
+        	if(NodeUtilities.isDefault(predecessor) || NodeUtilities.compareIDs(nodeID, predecessor.getSID(), false) != 0)
         		return true;
-        	if(successor.getNodeID().equals(predecessor.getNodeID()))
+        	if(successor.getSID().equals(predecessor.getSID()))
         		return true;
-        	if(!nodeID.equals(successor.getNodeID())  &&  NodeUtilities.distanceGlobal(current, nodeID) < NodeUtilities.distanceGlobal(current, predecessor.getNodeID()))
+        	if(!nodeID.equals(successor.getSID())  &&  NodeUtilities.distanceGlobal(current, nodeID) < NodeUtilities.distanceGlobal(current, predecessor.getSID()))
         		return true;
-        	if(NodeUtilities.distanceGlobal(current, nodeID) == NodeUtilities.distanceGlobal(current, predecessor.getNodeID()) &&
-        	   NodeUtilities.distanceLocal(current, nodeID) <= NodeUtilities.distanceLocal(current, predecessor.getNodeID()))
+        	if(NodeUtilities.distanceGlobal(current, nodeID) == NodeUtilities.distanceGlobal(current, predecessor.getSID()) &&
+        	   NodeUtilities.distanceLocal(current, nodeID) <= NodeUtilities.distanceLocal(current, predecessor.getSID()))
         		return true;
         }
         return false;
@@ -288,16 +257,16 @@ public class KoalaNode extends TopologyNode{
         KoalaNeighbor successor = getRoutingTable().getGlobalSucessor(index);
         String current;
         if(index == 0)
-        	current = this.getID();
+        	current = this.getSID();
         else
-        	current = getRoutingTable().getGlobalSucessor(index-1).getNodeID(); 
+        	current = getRoutingTable().getGlobalSucessor(index-1).getSID(); 
         
-        if (NodeUtilities.isDefault(successor) || successor.getNodeID().equals(current))
+        if (NodeUtilities.isDefault(successor) || successor.getSID().equals(current))
             return true;
         else{
-            if((NodeUtilities.compareIDs(nodeID, successor.getNodeID(), false) <= 0 && NodeUtilities.compareIDs(successor.getNodeID(), current, false) < 0) || 
-               (NodeUtilities.compareIDs(nodeID, successor.getNodeID(), false) >= 0 && NodeUtilities.compareIDs(successor.getNodeID(), current, false) < 0 && NodeUtilities.compareIDs(nodeID, current, false) > 0) || 
-               (NodeUtilities.compareIDs(nodeID, successor.getNodeID(), false) <= 0 && NodeUtilities.compareIDs(nodeID, current, false) > 0) )
+            if((NodeUtilities.compareIDs(nodeID, successor.getSID(), false) <= 0 && NodeUtilities.compareIDs(successor.getSID(), current, false) < 0) || 
+               (NodeUtilities.compareIDs(nodeID, successor.getSID(), false) >= 0 && NodeUtilities.compareIDs(successor.getSID(), current, false) < 0 && NodeUtilities.compareIDs(nodeID, current, false) > 0) || 
+               (NodeUtilities.compareIDs(nodeID, successor.getSID(), false) <= 0 && NodeUtilities.compareIDs(nodeID, current, false) > 0) )
                 return true;
         }
         return false;
@@ -307,14 +276,14 @@ public class KoalaNode extends TopologyNode{
 	private boolean canBePredecessor(String nodeID, int index){
 		if( this.isLocal(nodeID)) return false;
         KoalaNeighbor predecessor = getRoutingTable().getGlobalPredecessor(index);
-        String current = index == 0 ? this.getID() : getRoutingTable().getGlobalPredecessor(index-1).getNodeID();
+        String current = index == 0 ? this.getSID() : getRoutingTable().getGlobalPredecessor(index-1).getSID();
          
-        if (NodeUtilities.isDefault(predecessor) || predecessor.getNodeID().equals(current) )
+        if (NodeUtilities.isDefault(predecessor) || predecessor.getSID().equals(current) )
             return true;
         else{
-            if((NodeUtilities.compareIDs(nodeID, predecessor.getNodeID(), false) >= 0 && NodeUtilities.compareIDs(predecessor.getNodeID(), current, false) > 0) || 
-               (NodeUtilities.compareIDs(nodeID, predecessor.getNodeID(), false) <= 0 && NodeUtilities.compareIDs(predecessor.getNodeID(), current, false) > 0 && NodeUtilities.compareIDs(nodeID, current, false) < 0) || 
-               (NodeUtilities.compareIDs(nodeID, predecessor.getNodeID(), false) >= 0 && NodeUtilities.compareIDs(nodeID, current, false) < 0) )
+            if((NodeUtilities.compareIDs(nodeID, predecessor.getSID(), false) >= 0 && NodeUtilities.compareIDs(predecessor.getSID(), current, false) > 0) || 
+               (NodeUtilities.compareIDs(nodeID, predecessor.getSID(), false) <= 0 && NodeUtilities.compareIDs(predecessor.getSID(), current, false) > 0 && NodeUtilities.compareIDs(nodeID, current, false) < 0) || 
+               (NodeUtilities.compareIDs(nodeID, predecessor.getSID(), false) >= 0 && NodeUtilities.compareIDs(nodeID, current, false) < 0) )
                 return true;
         }
         return false;
@@ -322,23 +291,23 @@ public class KoalaNode extends TopologyNode{
     
     	
 	public boolean isLocal(String id){
-		return NodeUtilities.sameDC(getID(), id); 
+		return NodeUtilities.sameDC(getSID(), id); 
 	}
 
 	public boolean isLocal(KoalaNeighbor n){
-		return NodeUtilities.sameDC(getID(), n.getNodeID()); 
+		return NodeUtilities.sameDC(getSID(), n.getSID()); 
 	}
 	
 	
     public void updateLatencyPerDC(String id, double l, int lq){    	
-    	if(this.getID().equals(id))
+    	if(this.getSID().equals(id))
     		return;
         if (lq > 1)
             latencyPerDC.put(NodeUtilities.getDCID(id), l);
 
         ArrayList<KoalaNeighbor> links = routingTable.getNeighbors();
         for(KoalaNeighbor ln : links){
-            if(ln.getNodeID().equals(id) && lq >= ln.getLatencyQuality()){
+            if(ln.getSID().equals(id) && lq >= ln.getLatencyQuality()){
                 ln.setLatency(l);
                 ln.setLatencyQuality(lq);
             }
@@ -348,9 +317,9 @@ public class KoalaNode extends TopologyNode{
     public void updateLatencies(){
     	ArrayList<KoalaNeighbor> neigs = routingTable.getNeighbors();
     	for(KoalaNeighbor n : neigs){
-    		if(isLocal(n.getNodeID()))
+    		if(isLocal(n.getSID()))
     			continue;
-    		int ndc = NodeUtilities.getDCID(n.getNodeID());
+    		int ndc = NodeUtilities.getDCID(n.getSID());
     		if(n.getLatencyQuality() < 2 &&  latencyPerDC.keySet().contains(ndc)){
     			n.setLatency(2);
     			n.setLatency(latencyPerDC.get(ndc));
@@ -376,7 +345,7 @@ public class KoalaNode extends TopologyNode{
 		ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>(); 
 	
 		for(KoalaNeighbor re : rt){
-			v = getRouteValue(dest.getID(), re, alpha);
+			v = getRouteValue(dest.getSID(), re, alpha);
 			mre = new AbstractMap.SimpleEntry<Double, KoalaNeighbor>(v, re);
 			if(v>0) // add only those better than myself
 				potentialDests.add(mre);
@@ -394,13 +363,13 @@ public class KoalaNode extends TopologyNode{
 		ArrayList<KoalaNeighbor> downEntries = new ArrayList<KoalaNeighbor>();
 		for(AbstractMap.SimpleEntry<Double, KoalaNeighbor> entry : potentialDests){
 			KoalaNeighbor rentry = entry.getValue();
-			boolean isDown = !NodeUtilities.isUp(rentry.getNodeID()); 
+			boolean isDown = !NodeUtilities.isUp(rentry.getCID()); 
 			if(isDown)
 				downEntries.add(rentry);
-			if(rentry.getNodeID().equals(dest) && isDown)
+			if(rentry.getSID().equals(dest) && isDown)
 				break;
-			if(msg.getPath().contains(rentry.getNodeID()) || 
-					destNeigs.contains(rentry.getNodeID()) ||
+			if(msg.getPath().contains(rentry) || 
+					destNeigs.contains(rentry.getSID()) ||
 					isDown)
 				continue;
 			
@@ -425,18 +394,18 @@ public class KoalaNode extends TopologyNode{
  		double max = Double.MAX_VALUE;
  		max = 100000;
  
- 		if(NodeUtilities.distanceGlobal(this.getID(), dest) < NodeUtilities.distanceGlobal(re.getNodeID(), dest))
+ 		if(NodeUtilities.distanceGlobal(this.getSID(), dest) < NodeUtilities.distanceGlobal(re.getSID(), dest))
              res = -1;
  		
- 		else if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getNodeID()))
-             res = max - (double)NodeUtilities.A * (double)NodeUtilities.distance(re.getNodeID(), dest);
+ 		else if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getSID()))
+             res = max - (double)NodeUtilities.A * (double)NodeUtilities.distance(re.getSID(), dest);
          
- 		else if( NodeUtilities.getDCID(getID()) == NodeUtilities.getDCID(re.getNodeID()))
-             res = NodeUtilities.A * NodeUtilities.distance(this.getID(), re.getNodeID());
+ 		else if( NodeUtilities.getDCID(getSID()) == NodeUtilities.getDCID(re.getSID()))
+             res = NodeUtilities.A * NodeUtilities.distance(this.getSID(), re.getSID());
          
- 		else if( NodeUtilities.distance(this.getID(), dest) > NodeUtilities.distance(re.getNodeID(), dest)){
-             int tot_distance = NodeUtilities.distance(this.getID(), dest);
-             int rem_distance = NodeUtilities.distance(dest, re.getNodeID());
+ 		else if( NodeUtilities.distance(this.getSID(), dest) > NodeUtilities.distance(re.getSID(), dest)){
+             int tot_distance = NodeUtilities.distance(this.getSID(), dest);
+             int rem_distance = NodeUtilities.distance(dest, re.getSID());
              
              double norm_dist =  1 - (double)rem_distance/tot_distance;
              double norm_latency = NodeUtilities.normalizeLatency(tot_distance, re.getLatency());
@@ -452,14 +421,14 @@ public class KoalaNode extends TopologyNode{
  	}
 	
 	public KoalaNeighbor getClosestEntryAfter(String dest){
-		int sdistfromme = NodeUtilities.signDistance(this.getID(), dest);
+		int sdistfromme = NodeUtilities.signDistance(this.getSID(), dest);
 		int minDist = Integer.MAX_VALUE;
 		KoalaNeighbor closestEntry = null;
 		for( KoalaNeighbor re: getRoutingTable().getNeighbors()){
-			int sdistfromre = NodeUtilities.signDistance(this.getID(), re.getNodeID());
+			int sdistfromre = NodeUtilities.signDistance(this.getSID(), re.getSID());
 			if(sdistfromme*sdistfromre < 0) continue;
-			int dist = NodeUtilities.distance(re.getNodeID(), dest);
-			if(!NodeUtilities.isUp(re.getNodeID())){re.reset(); continue;}
+			int dist = NodeUtilities.distance(re.getSID(), dest);
+			if(!NodeUtilities.isUp(re.getSID())){re.reset(); continue;}
 			if(dist < minDist){
 				minDist = dist;
 				closestEntry = re;
@@ -470,19 +439,19 @@ public class KoalaNode extends TopologyNode{
 	}
 	
 	public KoalaNeighbor getClosestEntryBefore(String dest){
-		int sdistfromme = NodeUtilities.signDistance(this.getID(), dest);
-		int distfromme = NodeUtilities.distance(this.getID(), dest);
+		int sdistfromme = NodeUtilities.signDistance(this.getSID(), dest);
+		int distfromme = NodeUtilities.distance(this.getSID(), dest);
 		int minDist = Integer.MAX_VALUE;
 		KoalaNeighbor closestEntry = null;
 		for( KoalaNeighbor re: getRoutingTable().getNeighbors()){
 			
-			int sdistfromre = NodeUtilities.signDistance(this.getID(), re.getNodeID());
-			int distfromre = NodeUtilities.distance(this.getID(), re.getNodeID());
+			int sdistfromre = NodeUtilities.signDistance(this.getSID(), re.getSID());
+			int distfromre = NodeUtilities.distance(this.getSID(), re.getSID());
 			if(sdistfromme*sdistfromre < 0) continue;
 			if(distfromre > distfromme ) continue;
-			int dist = NodeUtilities.distance(re.getNodeID(), dest);
+			int dist = NodeUtilities.distance(re.getSID(), dest);
 			if(dist==0) continue;
-			if(!NodeUtilities.isUp(re.getNodeID())){ re.reset(); continue;}
+			if(!NodeUtilities.isUp(re.getSID())){ re.reset(); continue;}
 			
 			if(dist < minDist){
 				minDist = dist;
@@ -515,20 +484,20 @@ public class KoalaNode extends TopologyNode{
 
 
 //	public boolean isResponsible(String id) {
-//		if(id.equals(getID()))
+//		if(id.equals(getSID()))
 //			return true;
 //		if (getRoutingTable().hasAllDefaultLocals())
 //            return false;
-//        return NodeUtilities.distance(getID(), id) < NodeUtilities.distance(getRoutingTable().getLocalSucessor(0).getNodeID(), id) 
-//                && NodeUtilities.distance(getID(), id) < NodeUtilities.distance(getRoutingTable().getLocalPredecessor(0).getNodeID(), id);
+//        return NodeUtilities.distance(getSID(), id) < NodeUtilities.distance(getRoutingTable().getLocalSucessor(0).getNodeID(), id) 
+//                && NodeUtilities.distance(getSID(), id) < NodeUtilities.distance(getRoutingTable().getLocalPredecessor(0).getNodeID(), id);
 //		
 //	}
 
 	public KoalaNeighbor getResponsibleLocalNeighbor(String globalN){
 		int min = Integer.MAX_VALUE;
-		KoalaNeighbor minLocalNeighbor = new KoalaNeighbor(NodeUtilities.DEFAULTID);
+		KoalaNeighbor minLocalNeighbor = KoalaNeighbor.getDefaultNeighbor();
 		for(KoalaNeighbor ln : this.routingTable.getLocals()){
-			int dist = NodeUtilities.distanceLocal(ln.getNodeID(), globalN);
+			int dist = NodeUtilities.distanceLocal(ln.getSID(), globalN);
 			if(dist < min)
 				minLocalNeighbor = ln;
 		}
@@ -558,7 +527,7 @@ public class KoalaNode extends TopologyNode{
 //			}
 //			
 //			JsonObject obj = new JsonObject();
-//			obj.addProperty("id", src.getID());
+//			obj.addProperty("id", src.getSID());
 //			obj.addProperty("actid", src.getActualID());
 //			obj.addProperty("joining", src.isJoining());
 //			

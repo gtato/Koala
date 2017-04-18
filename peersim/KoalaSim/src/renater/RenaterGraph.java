@@ -14,14 +14,14 @@ public class RenaterGraph extends OverlayGraph {
 		boolean ret = super.setEdge(i, j);
 		RenaterNode rni =(RenaterNode)Network.get(i).getProtocol(protocolID);
 		RenaterNode rnj =(RenaterNode)Network.get(j).getProtocol(protocolID);
-		rni.addEdge(rnj.getID(), edge);
-		rnj.addEdge(rni.getID(), edge);
+		rni.addEdge(rnj.getCID(), edge);
+		rnj.addEdge(rni.getCID(), edge);
 		return ret;
 	}
 
 	public Object getEdge(int i, int j) { 
 		RenaterNode rn = (RenaterNode)Network.get(i).getProtocol(protocolID);
 		RenaterNode rnj = (RenaterNode)Network.get(j).getProtocol(protocolID);
-		return rn.getEdge(rnj.getID());
+		return rn.getEdge(rnj.getCID());
 	}
 }

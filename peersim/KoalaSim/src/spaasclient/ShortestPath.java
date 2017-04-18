@@ -1,19 +1,20 @@
 package spaasclient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ShortestPath {
-	private List<String> path;
+	private ArrayList<String> path;
 	private double latency;
-	public ShortestPath(List<String> path, double latency) {
+	public ShortestPath(ArrayList<String> path, double latency) {
 		super();
 		this.path = path;
 		this.latency = latency;
 	}
-	public List<String> getPath() {
+	public ArrayList<String> getPath() {
 		return path;
 	}
-	public void setPath(List<String> path) {
+	public void setPath(ArrayList<String> path) {
 		this.path = path;
 	}
 	public double getLatency() {

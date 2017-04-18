@@ -86,25 +86,25 @@ public class TrafficGenerator extends GraphObserver {
 			return;
 		}
 		
-		TopologyNode sourc = NodeUtilities.KPID >= 0 ? (KoalaNode)src.getProtocol(NodeUtilities.KID) : (RenaterNode)src.getProtocol(NodeUtilities.RID);
-		TopologyNode dest = NodeUtilities.KPID >= 0 ? (KoalaNode)dst.getProtocol(NodeUtilities.KID) : (RenaterNode)dst.getProtocol(NodeUtilities.RID);
+		TopologyNode sourc =(RenaterNode)src.getProtocol(NodeUtilities.RID);
+		TopologyNode dest = (RenaterNode)dst.getProtocol(NodeUtilities.RID);
 		
 		Transport tr = (Transport)src.getProtocol(NodeUtilities.TRID);
 		
 		if(NodeUtilities.RPID >= 0){
-        	KoalaMessage msg = new KoalaMessage( new KoalaRouteMsgContent(dest.getID()));
+        	KoalaMessage msg = new KoalaMessage( new KoalaRouteMsgContent((RenaterNode)dst.getProtocol(NodeUtilities.RID)));
         	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
         	tr.send(null, src, msg, NodeUtilities.RPID);
 		}
 		
 		if(NodeUtilities.KPID >= 0){
-			KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(dest.getID()));
+			KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent((KoalaNode)dst.getProtocol(NodeUtilities.KID)));
         	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
         	tr.send(null, src, msg, NodeUtilities.KPID);
 		}
 		
 		if(NodeUtilities.FKPID >= 0){
-			KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent(dest.getID()));
+			KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent((KoalaNode)dst.getProtocol(NodeUtilities.FKID)));
         	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
         	tr.send(null, src, msg, NodeUtilities.FKPID);
 		}
@@ -118,7 +118,7 @@ public class TrafficGenerator extends GraphObserver {
 		}
 		
 		
-		System.out.println("(" + CommonState.getTime() + ") ROUTE " + sourc.getID() + " -> " + dest.getID());
+		System.out.println("(" + CommonState.getTime() + ") ROUTE " + sourc.getCID() + " -> " + dest.getCID());
 		ResultCollector.addSentMsg(msgID, dst);
 		msgID++;
 		

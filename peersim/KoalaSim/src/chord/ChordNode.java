@@ -16,28 +16,28 @@ public class ChordNode extends TopologyNode implements Comparable<ChordNode>{
 
 	public ChordNode predecessor;
 	public ChordNode[] fingerTable, successorList;
-	public BigInteger chordId;
-
+	
 	public int fingerToFix=0;
 
-	public ChordNode(String prefix) {
-		super(prefix);
-	}
+//	public ChordNode(String prefix, String chordId) {
+//		super(prefix);
+//		this.setSID(chordId);
+//	}
 	
-	public ChordNode(BigInteger chordId) {
+	public ChordNode(String chordId) {
 		super("xxx");
-		this.chordId = chordId;
+		this.setSID(chordId);
 	}
 	
-	public ChordNode closestPrecedingNode(BigInteger id, BigInteger joiningId ) {
+	public ChordNode closestPrecedingNode(String id, String joiningId ) {
 
 		ArrayList<ChordNode> fullTable = getFullTable();
 		ChordNode found = null;
 		for (int i = fullTable.size()-1; i >= 0; i--) {
 			ChordNode entry = fullTable.get(i);
-			if(entry != null && joiningId != null && entry.chordId.equals(joiningId))
+			if(entry != null && joiningId != null && entry.getSID().equals(joiningId))
 				continue;
-			if (entry != null && entry.isUp() && inAB(entry.chordId, this.chordId, id) ) {
+			if (entry != null && entry.isUp() && inAB(entry.getSID(), this.getSID(), id) ) {
 				found = entry;
 				break;
 			}
@@ -56,8 +56,8 @@ public class ChordNode extends TopologyNode implements Comparable<ChordNode>{
 		Collections.sort(fullTable,new Comparator<ChordNode>() {
 			@Override
 			public int compare(ChordNode arg0, ChordNode arg1) {
-				int dist1 = ChordNode.distance(chordId, arg0.chordId);
-				int dist2 = ChordNode.distance(chordId, arg1.chordId);
+				int dist1 = ChordNode.distance(getSID(), arg0.getSID());
+				int dist2 = ChordNode.distance(getSID(), arg1.getSID());
 				return dist1 -dist2;
 			}
 		});
@@ -66,18 +66,18 @@ public class ChordNode extends TopologyNode implements Comparable<ChordNode>{
 		return fullTable;
 	}
 
-	public static int distance(BigInteger a, BigInteger b){
-		int ia = a.intValue(); 
-		int ib = b.intValue();
+	public static int distance(String a, String b){
+		int ia = Integer.parseInt(a); 
+		int ib = Integer.parseInt(b);
 		if(ib >= ia) return ib-ia;
 		return ib+(int)Math.pow(2, NodeUtilities.M)-ia;
 		
 	}
 
-	public static boolean inAB(BigInteger bid, BigInteger ba, BigInteger bb){
-		long id = bid.longValue();
-		long a = ba.longValue();
-		long b = bb.longValue();
+	public static boolean inAB(String bid, String ba, String bb){
+		long id = Long.parseLong(bid);
+		long a = Long.parseLong(ba);
+		long b = Long.parseLong(bb);
 		if (id == a || id == b) return true;
 		
 		if(id > a && id < b)
@@ -92,11 +92,14 @@ public class ChordNode extends TopologyNode implements Comparable<ChordNode>{
 		return false;
 	}
 	
+	public long getLID(){
+		return Long.parseLong(getSID());
+	}
 	
 	public String toString(){
-		if(chordId == null)
-			return getID(); 
-		return  getID() + " ("+chordId.toString()+")";
+		if( getSID() == null)
+			return getCID(); 
+		return  getCID() + " ("+getSID()+")";
 	}
 	
 	public boolean equals(Object arg0){
@@ -109,7 +112,12 @@ public class ChordNode extends TopologyNode implements Comparable<ChordNode>{
 	@Override
 	public int compareTo(ChordNode arg0) {
 		if (arg0 == null) return 100; 
-		return this.chordId.compareTo(arg0.chordId);
+		return (int) (this.getLID() - arg0.getLID());
+	}
+	
+	public int compareTo(String lid) {
+		if (lid == null) return 100; 
+		return (int) (this.getLID() - Long.parseLong(lid) );
 	}
 	
 	public boolean isJoining(){

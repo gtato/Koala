@@ -9,6 +9,7 @@ import messaging.KoalaRouteMsgContent;
 import peersim.config.Configuration;
 import peersim.core.Node;
 import topology.TopologyNode;
+import topology.TopologyPathNode;
 import utilities.KoaLite;
 import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
@@ -72,34 +73,37 @@ public class RenaterNode extends TopologyNode{
 //	}
 
 	public String getRoute(String dest, KoalaMessage msg){
+		ArrayList<String> path = new ArrayList<String>();
 		if(!isGateway())
 			return gateway;
 		
+		
 		RenaterNode rnDest = NodeUtilities.getRenaterNode(dest);
-		if(getID().equals(rnDest.getGateway()))
+		if(getCID().equals(rnDest.getGateway()))
 			return dest;
 		
 		KoalaRouteMsgContent krc = (KoalaRouteMsgContent) msg.getContent();
-		ArrayList<String> shortestPath = krc.getShortestPath();
-		if(shortestPath == null || shortestPath.size() == 0){
+		path = krc.getShortestPath();
+		if(path == null || path.size() == 0){
 			if (Configuration.getBoolean("dijkstraplus", false))
-				shortestPath =  rnDest.isGateway() ?  KoaLite.getPath(this.getID(), dest) : KoaLite.getPath(this.getID(), rnDest.getGateway());
+				path =  rnDest.isGateway() ?  KoaLite.getPath(this.getCID(), dest) : KoaLite.getPath(this.getCID(), rnDest.getGateway());
 			else{
-				String sp = rnDest.isGateway() ? PhysicalDataProvider.getPath(getID(), dest) : PhysicalDataProvider.getPath(getID(), rnDest.getGateway()) ;
-				shortestPath = new ArrayList<String>(Arrays.asList(sp.split(" "))); 
+				path = rnDest.isGateway() ? PhysicalDataProvider.getPath(getCID(), dest) : PhysicalDataProvider.getPath(getCID(), rnDest.getGateway()) ;
 			}
-			shortestPath.remove(0);
-			krc.setShortestPath(shortestPath);
+			path.remove(0);
+			krc.setShortestPath(path);
 		}
 			
-		return shortestPath.remove(0);
+		return path.remove(0);
 	}
 
 	public void setAllRoute(String dest, KoalaMessage msg){
 		
-		String sp = PhysicalDataProvider.getPath(getID(), dest);
-		double lat = PhysicalDataProvider.getLatency(getID(), dest);
-		ArrayList<String> shortestPath= new ArrayList<String>(Arrays.asList(sp.split(" ")));
+		ArrayList<String> sp = PhysicalDataProvider.getPath(getCID(), dest);
+		double lat = PhysicalDataProvider.getLatency(getCID(), dest);
+		ArrayList<TopologyPathNode> shortestPath= new ArrayList<TopologyPathNode>();
+		for(String n : sp)
+			shortestPath.add(new TopologyPathNode(n, n));
 		msg.addLatency(lat);
 		msg.setPath(shortestPath);
 	}
@@ -158,6 +162,6 @@ public class RenaterNode extends TopologyNode{
 	}
 
 	public String toString(){
-		return getID();
+		return getCID();
 	}
 }

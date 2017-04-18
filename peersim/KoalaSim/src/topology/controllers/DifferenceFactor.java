@@ -48,9 +48,9 @@ public class DifferenceFactor extends NodeObserver{
 			double coef=0;nodeTotCoef=0;
 			for(KoalaNeighbor ll: current.getRoutingTable().getLongLinks()){
 				
-				String nnid =  NodeUtilities.isDefault(ll.getNodeID())? ll.getNodeID() : NodeUtilities.getStrDCID(ll.getNodeID()) + "-0";
+				String nnid =  NodeUtilities.isDefault(ll.getSID())? ll.getSID() : NodeUtilities.getStrDCID(ll.getSID()) + "-0";
 				String iid = NodeUtilities.isDefault(ll.getIdealID())? ll.getIdealID(): NodeUtilities.getStrDCID(ll.getIdealID())+ "-0";
-				String nid = NodeUtilities.isDefault(current.getID())? current.getID(): NodeUtilities.getStrDCID(current.getID())+ "-0";
+				String nid = NodeUtilities.isDefault(current.getSID())? current.getSID(): NodeUtilities.getStrDCID(current.getSID())+ "-0";
 				int lld = NodeUtilities.distance(nnid, iid);
 				int myd = NodeUtilities.distance(nid, iid);
 //				coef += (double) lld/myd;

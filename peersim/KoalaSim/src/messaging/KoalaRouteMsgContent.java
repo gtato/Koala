@@ -2,27 +2,37 @@ package messaging;
 
 import java.util.ArrayList;
 
+import topology.TopologyNode;
+import topology.TopologyPathNode;
+
 public class KoalaRouteMsgContent extends KoalaMsgContent {
 
-	String id;
+	TopologyPathNode node;
 	private boolean updateLatency;
 	private ArrayList<String> shortestPath;
 	
-	public String getId() {
-		return id;
+	public TopologyPathNode getNode() {
+		return node;
 	}
-	public void setId(String id) {
-		this.id = id;
+	public void setNode(TopologyPathNode node) {
+		this.node = node;
 	}
-	public KoalaRouteMsgContent(String id) {
+	public KoalaRouteMsgContent(TopologyPathNode node) {
 		super(KoalaMessage.ROUTE);
-		this.id = id;
+		this.node = node;
 		this.updateLatency = false;
 	}
 	
-	public KoalaRouteMsgContent(String id, boolean updateLatency) {
+	public KoalaRouteMsgContent(TopologyNode node) {
 		super(KoalaMessage.ROUTE);
-		this.id = id;
+		this.node = new TopologyPathNode( node.getCID(), node.getSID());
+		this.updateLatency = false;
+	}
+	
+	
+	public KoalaRouteMsgContent(TopologyPathNode node, boolean updateLatency) {
+		super(KoalaMessage.ROUTE);
+		this.node = node;
 		this.updateLatency = updateLatency;
 	}
 	

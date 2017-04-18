@@ -49,6 +49,7 @@ public class NodeUtilities {
 	public static int RID = -1, KID = -1, CID = -1, FKID = -1;
 	public static int RPID = -1, KPID=-1, CPID=-1, FKPID=-1;
 	public static int TRID = -1;
+	public static int CURRENT_PID = -1;
 	
 	public static double[] hopCategories;
 	public static double[] latencyCategories;
@@ -56,25 +57,28 @@ public class NodeUtilities {
 	public static int PiggybackLength = 0;
 //	public static double WORLD_SIZE = 1.0;
 	
+	public static int SIZE = 0;
 	public static int SUCC_SIZE = 0;
 	public static int M = 0;
 	public static int CC = Configuration.getInt("CC", 2);
 	public static int NEIGHBORS = Configuration.getInt("NEIGHBORS", 2);
 	public static int LONG_LINKS = Configuration.getInt("LONG_LINKS", 3);
+	public static int FLAT_LONG_LINKS = Configuration.getInt("FLAT_LONG_LINKS", 3);
 	
 	public static boolean NESTED = Configuration.getBoolean("koala.settings.nested", false);
 	
 	public static Map<String, Node> Nodes =  new HashMap<String, Node>();
-	public static HashMap<BigInteger, Node> CHORD_NODES = new HashMap<BigInteger, Node>();
+	public static HashMap<String, Node> CHORD_NODES = new HashMap<String, Node>();
 	public static Map<String, RenaterNode> Gateways =  new HashMap<String, RenaterNode>();
 	public static double[][] CenterPerDC;
 
 	public static HashMap<String, Node> UPS =  new HashMap<String, Node>();
 	public static HashMap<String, Node> DOWNS =  new HashMap<String, Node>();
 	public static HashMap<String, Node> ALT_DOWNS =  new HashMap<String, Node>();
-	public static HashMap<String, String> FlatMap =  new HashMap<String, String>();
+//	public static HashMap<String, String> FlatMap =  new HashMap<String, String>();
 	
 	public static void initialize(){
+		SIZE = Configuration.getInt("SIZE", 0);
 		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
 		NR_DC = Configuration.getInt("NR_DC");
 //		A = (double) 1 / NR_DC;
@@ -83,16 +87,12 @@ public class NodeUtilities {
 		C = 1-B;
 		
 		SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
-		M = Configuration.getInt("M", 10);
+		M = Configuration.getInt("M", getLog2(SIZE));
 		
-		double doubleLength = Math.log(NR_DC) / Math.log(2);
-		M = (int)(doubleLength); 
-		if(doubleLength > M)
-			M++;
 		
-		LONG_LINKS = CC * M;
+		LONG_LINKS = CC * getLog2(NR_DC);
+		FLAT_LONG_LINKS = CC * M;
 		
-//		NEIGHBORS= Configuration.getInt("NEIGHBORS", 2);
 		
 		PiggybackLength = Configuration.getInt("koala.settings.piggyback", 10);
 		String dijktraStr = Configuration.getString("koala.settings.dijkstramethod", "ram");
@@ -110,28 +110,28 @@ public class NodeUtilities {
 //		WORLD_SIZE *= 5;
 	}
 	
-	public static void initializeCategories()
-	{
-		int nrCategories = Configuration.getInt("msg.categories",1);
-		double latDiff = PhysicalDataProvider.getMaxInterLatency() - PhysicalDataProvider.getMinInterLatency();
-		double latUnit = (double)latDiff/nrCategories;
-		
-		double hopUnit = (double)NR_DC/(2*nrCategories);
-		
-		hopCategories = new double[nrCategories-1];
-		latencyCategories = new double[nrCategories-1];
-		
-		for(int i=0; i < latencyCategories.length;i++){
-			if(i==0){
-				latencyCategories[i] = latUnit;
-				hopCategories[i] = hopUnit;
-			}else{
-				latencyCategories[i] = latencyCategories[i-1] + latUnit;
-				hopCategories[i] = hopCategories[i-1] + hopUnit;
-			}
-		}
-		System.out.println();
-	}
+//	public static void initializeCategories()
+//	{
+//		int nrCategories = Configuration.getInt("msg.categories",1);
+//		double latDiff = PhysicalDataProvider.getMaxInterLatency() - PhysicalDataProvider.getMinInterLatency();
+//		double latUnit = (double)latDiff/nrCategories;
+//		
+//		double hopUnit = (double)NR_DC/(2*nrCategories);
+//		
+//		hopCategories = new double[nrCategories-1];
+//		latencyCategories = new double[nrCategories-1];
+//		
+//		for(int i=0; i < latencyCategories.length;i++){
+//			if(i==0){
+//				latencyCategories[i] = latUnit;
+//				hopCategories[i] = hopUnit;
+//			}else{
+//				latencyCategories[i] = latencyCategories[i-1] + latUnit;
+//				hopCategories[i] = hopCategories[i-1] + hopUnit;
+//			}
+//		}
+//		System.out.println();
+//	}
 	
 	
 	public static void intializeDCCenters(List<String> lines){
@@ -173,26 +173,21 @@ public class NodeUtilities {
 		return -1;
 	}
 	
+	private static int getLog2(int nr){
+		double doubleLength = Math.log(nr) / Math.log(2);
+		int lgNr = (int)(doubleLength); 
+		if(doubleLength > lgNr)
+			lgNr++;
+		return lgNr;
+	}
+	
 	public static RenaterNode getRenaterNode(String id){
-//		String commonid = id;
-//		Node n = Nodes.get(id);
-//		
-//		if(n == null)
-//			commonid = FlatMap.get(id);
-//		else{
-//			KoalaNode fkn = (KoalaNode)n.getProtocol(FKID);
-//			KoalaNode kn = (KoalaNode)n.getProtocol(KID);
-//			
-//			if 
-//			commonid = kn.getCommonID();
-//		}
-			
 		return (RenaterNode) Nodes.get(id).getProtocol(RID);
 	}
 	
-//	public static KoalaNode getKoalaNode(String id){
-//		return (KoalaNode) Nodes.get(id).getProtocol(KID);
-//	}
+	public static KoalaNode getKoalaNode(String id){
+		return (KoalaNode) Nodes.get(id).getProtocol(KID);
+	}
 	
 	
 	public static ChordNode getChordNode(String id){
@@ -228,7 +223,7 @@ public class NodeUtilities {
 	}
 	
 	public static boolean sameDC(TopologyNode tp1, TopologyNode tp2){
-		if(getDCID(tp1.getID()) == getDCID(tp2.getID()))
+		if(getDCID(tp1.getSID()) == getDCID(tp2.getSID()))
 			return true;
 		return false;
 	}
@@ -253,8 +248,9 @@ public class NodeUtilities {
 	
 	public static int signDistance(String srcID, String targetID){
 		int dist = distance(srcID, targetID);
-		String succ = (getDCID(srcID)+1)%NR_DC +"-"+getNodeID(srcID);
-		String pred = (getDCID(srcID)+NR_DC-1)%NR_DC +"-"+getNodeID(srcID);
+		int size = getSize();
+		String succ = (getDCID(srcID)+1)%size +"-"+getNodeID(srcID);
+		String pred = (getDCID(srcID)+size-1)%size +"-"+getNodeID(srcID);
 		int distsucc = distance(succ, targetID);
 		int distpred = distance(pred, targetID);
 		if(distsucc > distpred) 
@@ -262,6 +258,17 @@ public class NodeUtilities {
 		else 
 			return dist;
 	}
+	
+	public static int getSize(){
+		int size = CURRENT_PID == KPID ? NodeUtilities.NR_DC : NodeUtilities.SIZE;
+		return size;
+	}
+	
+	public static int getLongLinks(){
+		int size = CURRENT_PID == KPID ? LONG_LINKS : FLAT_LONG_LINKS;
+		return size;
+	}
+	
 	
 	public static int distance(String srcID, String targetID, boolean forceLocal, boolean forceGlobal){
 		if(srcID.equals(NodeUtilities.DEFAULTID) || targetID.equals(NodeUtilities.DEFAULTID))
@@ -283,7 +290,7 @@ public class NodeUtilities {
             b = src_id;
         }
         
-        int size = local ? NR_NODE_PER_DC : NR_DC;
+        int size = local ? NR_NODE_PER_DC : getSize();
         int d1 = b - a;
         int d2 = (size - b + a) % size;
 
@@ -291,7 +298,7 @@ public class NodeUtilities {
 	}
 	
 	public static boolean isDefault(KoalaNeighbor n){
-		return n == null || n.getNodeID().equals(NodeUtilities.DEFAULTID);
+		return n == null || n.getSID().equals(NodeUtilities.DEFAULTID);
 	}
 	
 	public static boolean isDefault(String n){
@@ -335,31 +342,25 @@ public class NodeUtilities {
 		return new int[]{Integer.parseInt(sp[0]), Integer.parseInt(sp[1])};
 	}
 	
-	public static String[] getIDFromDistance(String id, int distance, boolean local){
+	public static String[] getIDFromDistance(String id, int distance){
 		String[] ids = new String[2];
-		if(local){
-			int retid1 = (getNodeID(id) + distance) % NR_NODE_PER_DC;
-			int retid2 = getNodeID(id) - distance >= 0 ? getNodeID(id) - distance : getNodeID(id) - distance + NR_NODE_PER_DC;
-			ids[0] =  getDCID(id) + "-" + retid1;
-			ids[1] =  getDCID(id) + "-" + retid2;
-		}else{
-			int retid1 = (getDCID(id) + distance) % NR_DC;
-			int retid2 = getDCID(id) - distance >= 0 ? getDCID(id) - distance : getDCID(id) - distance + NR_DC;
-			ids[0] =  retid1  + "-" + getNodeID(id);
-			ids[1] =  retid2  + "-" + getNodeID(id);
-		}
-		
+		int size = getSize();
+		int retid1 = (getDCID(id) + distance) % size;
+		int retid2 = getDCID(id) - distance >= 0 ? getDCID(id) - distance : getDCID(id) - distance + size;
+		ids[0] =  retid1  + "-" + getNodeID(id);
+		ids[1] =  retid2  + "-" + getNodeID(id);
 		return ids;
 	}
 	
-	public static BigInteger generateNewChordID(){
+	public static String generateNewChordID(){
 		BigInteger newId;
 		do
 			newId= new BigInteger(M, CommonState.r);
 		while(CHORD_NODES.containsKey(newId));
 		
-		return newId;
+		return newId.toString();
 	}
+	
 	
 //	public static double normalizeLatency(int totDistance, double latency) {
 //		double x1 = PhysicalDataProvider.getMinInterLatency();
@@ -413,15 +414,15 @@ public class NodeUtilities {
 	public static void up(Node n){
 		KoalaNode kn = (KoalaNode) n.getProtocol(KID);
 		n.setFailState(Fallible.OK);
-		UPS.put(kn.getID(), n);
-		DOWNS.remove(kn.getID());
+		UPS.put(kn.getSID(), n);
+		DOWNS.remove(kn.getSID());
 	}
 	
 	public static void down(Node n){
 		KoalaNode kn = (KoalaNode) n.getProtocol(KID);
 		n.setFailState(Fallible.DOWN);
-		DOWNS.put(kn.getID(), n);
-		UPS.remove(kn.getID());
+		DOWNS.put(kn.getSID(), n);
+		UPS.remove(kn.getSID());
 	}
 	
 	

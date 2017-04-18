@@ -3,19 +3,19 @@ package messaging;
 
 
 import java.util.ArrayList;
-import utilities.KoalaJsonParser;
 import utilities.NodeUtilities;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 
 public class KoalaRTMsgConent extends KoalaMsgContent {
 
-	String id;
+	String cid;
+	String sid;
 	boolean joining;
 	boolean neighborsDown;
 	String bootstrap;
-	String[] neighbors;
-	String[] oldNeighbors;
+	ArrayList<KoalaNeighbor> neighbors;
+	ArrayList<KoalaNeighbor> oldNeighbors;
 	
 	
 	
@@ -31,43 +31,36 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 		boolean predDown = NodeUtilities.isDefault(kn.getRoutingTable().getGlobalPredecessor(0)); 
  		boolean succDown = NodeUtilities.isDefault(kn.getRoutingTable().getGlobalSucessor(0));
 		neighborsDown = predDown || succDown; 
-		id = kn.getID();
+		cid = kn.getCID();
+		sid = kn.getSID();
 		joining = kn.isJoining();
 		bootstrap = kn.getBootstrapID();
 		ArrayList<KoalaNeighbor> neigs = kn.getRoutingTable().getNeighbors();
-		neighbors = new String[neigs.size()];
-		int i=0;
-		for(KoalaNeighbor neig : neigs){
-			neighbors[i] = KoalaJsonParser.toJson(neig);
-			i++;
-		}
+		neighbors = new ArrayList<KoalaNeighbor>();
+		
+		for(KoalaNeighbor neig : neigs)
+//			neighbors[i] = KoalaJsonParser.toJson(neig);
+			neighbors.add(neig.clone());
+		
 		
 		ArrayList<KoalaNeighbor> oldNeigs = kn.getRoutingTable().getOldNeighborsContainer();
-		oldNeighbors = new String[oldNeigs.size()];
-		i=0;
-		for(KoalaNeighbor oldNeig : oldNeigs){
-			oldNeighbors[i] = KoalaJsonParser.toJson(oldNeig);
-			i++;
-		}
+		oldNeighbors = new ArrayList<KoalaNeighbor>();
+		for(KoalaNeighbor oldNeig : oldNeigs)
+//			oldNeighbors[i] = KoalaJsonParser.toJson(oldNeig);
+			oldNeighbors.add(oldNeig.clone());
+			
+		
 	}
 	
 	public KoalaNode getNode(){
 		KoalaNode kn = new KoalaNode("");
-		
-		kn.setID(id);
+		kn.setCID(cid);
+		kn.setSID(sid);
 		kn.setJoining(joining);
 		kn.setBootstrapID(bootstrap);
-		ArrayList<KoalaNeighbor> neighs = new ArrayList<KoalaNeighbor>();
-		for(String neig : neighbors)
-			neighs.add(KoalaJsonParser.jsonToObject(neig, KoalaNeighbor.class));
 		
-		
-		ArrayList<KoalaNeighbor> oldNeighs = new ArrayList<KoalaNeighbor>();
-		for(String oldNeig : oldNeighbors)
-			oldNeighs.add(KoalaJsonParser.jsonToObject(oldNeig, KoalaNeighbor.class));
-		
-		kn.getRoutingTable().setNeighborsContainer(neighs);
-		kn.getRoutingTable().setOldNeighborsContainer(oldNeighs); 
+		kn.getRoutingTable().setNeighborsContainer(neighbors);
+		kn.getRoutingTable().setOldNeighborsContainer(oldNeighbors); 
 		return kn;
 	}
 	

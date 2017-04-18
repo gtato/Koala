@@ -127,16 +127,16 @@ public abstract class NodeObserver extends GraphObserver {
 //		}
 //	}
 	
-	protected KoalaNode getNodeFromID(String id)
-	{
-		for (int i = 0; i < g.size(); i++) 
-		{
-			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(NodeUtilities.KID);
-			if(current.getID().equals(id))
-				return current;
-		}
-		return null;
-	}
+//	protected KoalaNode getNodeFromID(String id)
+//	{
+//		for (int i = 0; i < g.size(); i++) 
+//		{
+//			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(NodeUtilities.KID);
+//			if(current.getID().equals(id))
+//				return current;
+//		}
+//		return null;
+//	}
 
 	protected abstract void printGraph(PrintStream ps, int psIndex);
 	

@@ -26,6 +26,11 @@ import utilities.PhysicalDataProvider;
 
 public class FlatKoalaProtocol extends KoalaProtocol{
 
+	public static HashMap<Integer, TopologyMessage> REC_MSG =  new HashMap<Integer, TopologyMessage>();
+	public static int SUCCESS = 0;
+	public static int FAIL = 0;
+	public static int INT_FAIL = 0;
+	
 	public FlatKoalaProtocol(String prefix) {
 		super(prefix);
 		nested = false;
@@ -35,12 +40,27 @@ public class FlatKoalaProtocol extends KoalaProtocol{
 	public void intializeMyNode(Node node, int pid) {
 		super.intializeMyNode(node, pid);
 		myNode = (KoalaNode) node.getProtocol(NodeUtilities.FKID);
-		
+	}
+
+	protected void onSuccess(TopologyMessage msg) {
+		msg.setReceivedCycle(CommonState.getTime());
+		REC_MSG.put(msg.getID(), msg);
+		SUCCESS++;
+//		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
 	}
 	
-	
-	protected Node getNodeFromID(String id)
-	{
-		return NodeUtilities.Nodes.get(NodeUtilities.FlatMap.get(id) );
+	protected void onFail(TopologyMessage msg){
+		KoalaMessage kmsg = (KoalaMessage) msg;
+		String failmsg = "failed to sent from " + kmsg.getFirstSender();
+		if(msg.getContent() instanceof KoalaRouteMsgContent){
+			String nid = ((KoalaRouteMsgContent)msg.getContent()).getNode().getSID();
+			failmsg += " to " + nid;
+			FAIL++;
+		}else
+			INT_FAIL++;
+		
+				
+		System.out.println(failmsg);
+		
 	}
 }

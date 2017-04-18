@@ -73,7 +73,9 @@ public class SPClient {
 		System.out.println(reply);
 		
 		b = new Body();
-		b.setPath(new String[]{"A", "D"});
+		ArrayList<String> p = new ArrayList<String>();
+		p.add("A"); p.add("D");
+		b.setPath(p);
 		req = new Request("sp", b);
 		data = gson.toJson(req);
 		
@@ -104,11 +106,11 @@ public class SPClient {
 		for(int i = 0; i < g.size(); i++){
 			peersim.core.Node n = (peersim.core.Node) g.getNode(i);   
             RenaterNode rn = (RenaterNode)n.getProtocol(NodeUtilities.RID);
-            nodes[i] = new Node(rn.getID(), rn.getX(), rn.getY());
+            nodes[i] = new Node(rn.getCID(), rn.getX(), rn.getY());
             for(int j = 0; j < rn.degree(); j++){
             	RenaterNode rm = (RenaterNode)rn.getNeighbor(j).getProtocol(NodeUtilities.RID);
-            	RenaterEdge re = rn.getEdge(rm.getID());
-            	edgesList.add(new Edge(rn.getID(), rm.getID(), re.getLatency()));
+            	RenaterEdge re = rn.getEdge(rm.getCID());
+            	edgesList.add(new Edge(rn.getCID(), rm.getCID(), re.getLatency()));
             }
 		}
 		Edge[] edges = new Edge[edgesList.size()];
@@ -131,7 +133,9 @@ public class SPClient {
 		}
 		cacheMiss++;
 		Body b = new Body();
-		b.setPath(new String[]{source, dst});
+		ArrayList<String> p = new ArrayList<String>();
+		p.add(source); p.add(dst);
+		b.setPath(p);
 		Request req = new Request("sp", b);
 //		req.setParameters("dijkstra");
 //		req.setParameters("astar");
@@ -139,9 +143,9 @@ public class SPClient {
 		
 		String reply = post(data);
 		Body response = gson.fromJson(reply, Body.class);
-		String[] path = response.getPath();
+		ArrayList<String> path = response.getPath();
 		double latency = response.getLatency();
-		sp = new ShortestPath(Arrays.asList(path), latency);
+		sp = new ShortestPath(path, latency);
 		addToCache(source, dst, sp);
 		return sp;
 	}

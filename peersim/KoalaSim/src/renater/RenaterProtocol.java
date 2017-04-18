@@ -9,6 +9,7 @@ import peersim.config.Configuration;
 import peersim.core.CommonState;
 
 import peersim.core.Node;
+import topology.TopologyPathNode;
 import topology.TopologyProtocol;
 import utilities.NodeUtilities;
 
@@ -30,12 +31,9 @@ public class RenaterProtocol extends TopologyProtocol {
 	public void join() {
 		myNode.setJoined(true);
 	}
-
-
-
 	
 	protected void onRoute(KoalaMessage msg) {
-		String nid = ((KoalaRouteMsgContent) msg.getContent()).getId();
+		String nid = ((KoalaRouteMsgContent) msg.getContent()).getNode().getCID();
 		
 		if(skip){
 			myNode.setAllRoute(nid, msg);
@@ -43,10 +41,10 @@ public class RenaterProtocol extends TopologyProtocol {
 			return;
 		}
 		
-		if (!nid.equals(myNode.getID())){
+		if (!nid.equals(myNode.getCID())){
 			String dest = myNode.getRoute(nid, msg);
 			if (dest != null)
-				send(dest, msg);
+				send(new TopologyPathNode(dest), msg);
 			else
 				onFail(msg); // happens if the graph is disconnected, in that case we are in a real trouble
 		}else {
@@ -71,7 +69,7 @@ public class RenaterProtocol extends TopologyProtocol {
 
 	
 	@Override
-	protected void onReceiveLatency(String dest, double l) {
+	protected void onReceiveLatency(TopologyPathNode dest, double l) {
 		// TODO Auto-generated method stub
 		
 	}

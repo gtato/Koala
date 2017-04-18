@@ -42,13 +42,13 @@ public class KoalaTopologyObserver extends NodeObserver {
 		Collections.sort(orderedGraph, new Comparator<KoalaNode>(){
 			@Override
 			public int compare(KoalaNode arg0, KoalaNode arg1) {
-				return NodeUtilities.compare(arg0.getID(), arg1.getID());
+				return NodeUtilities.compare(arg0.getSID(), arg1.getSID());
 			}});
 		
 		int lastdc = 0;
 		
 		for(KoalaNode each: orderedGraph){
-			int dcid = NodeUtilities.getDCID(each.getID());
+			int dcid = NodeUtilities.getDCID(each.getSID());
 			if(dcid - lastdc > 1)
 				for(int i = 1; i < dcid - lastdc; i++)
 					getNextCoordinate(lastdc+i);
@@ -115,11 +115,11 @@ public class KoalaTopologyObserver extends NodeObserver {
             first = true;
             for(String gnID : gneigs){
             	if(NodeUtilities.isDefault(gnID)) continue;
-            	KoalaNode n = getNodeFromID(gnID);
+            	KoalaNode n = NodeUtilities.getKoalaNode(gnID);
             	if(n == null) return;
             	double x_from =  n.getX();
                 double y_from =   n.getY();
-                String label = first ? current.getID() : "";
+                String label = first ? current.getSID() : "";
                 ps.println(x_from + " " + y_from);
                 ps.println(x_to + " " + y_to + " " + label);
                 ps.println();

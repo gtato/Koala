@@ -19,6 +19,8 @@ public class IDInitializer implements Control{
 		NodeUtilities.CPID = Configuration.getPid(prefix + ".cpid", -1);
     
 		NodeUtilities.TRID = Configuration.getPid(prefix + ".trid", -1);
+		
+		NodeUtilities.CURRENT_PID = NodeUtilities.KPID;
 	}
 	
 	

@@ -48,11 +48,11 @@ public class MyHipster {
 			for (Node nnode : rn.getNeighbors()) {
 				RenaterNode rm = (RenaterNode) nnode.getProtocol(NodeUtilities.RID);
 				if(!rm.isGateway()) continue;
-				RenaterEdge re = rn.getEdge(rm.getID());
-				gb.connect(rn.getID()).to(rm.getID()).withEdge(re.getLatency());
+				RenaterEdge re = rn.getEdge(rm.getCID());
+				gb.connect(rn.getCID()).to(rm.getCID()).withEdge(re.getLatency());
 //				System.out.println(rn.getID() + " ---" + re.getLatency() + "--- " + rm.getID());
 			}
-			System.out.println((i++) + " " +rn.getID());
+			System.out.println((i++) + " " +rn.getCID());
 		}
 		hg = gb.createUndirectedGraph();
 	}
@@ -62,7 +62,7 @@ public class MyHipster {
 		return sp.getLatency();
 	}
 	
-	public static List<String> getSPPath(String src, String dst) {
+	public static ArrayList<String> getSPPath(String src, String dst) {
 		ShortestPath sp = getSP(src, dst);
 		return sp.getPath();
 	}
@@ -77,7 +77,7 @@ public class MyHipster {
 	                .build();
 			SearchResult sr = Hipster.createDijkstra(p).search(dst);
 			WeightedNode fn = (WeightedNode)sr.getGoalNode();
-			sp = new ShortestPath((List<String>) sr.getOptimalPaths().get(0), (double)fn.getCost());
+			sp = new ShortestPath((ArrayList<String>) sr.getOptimalPaths().get(0), (double)fn.getCost());
 			addToCache(src, dst,  sp);
 			cacheMiss++;
 		}else
@@ -111,7 +111,7 @@ public class MyHipster {
 	}
 
 	public static double[] getMinMax() {
-		String src = ((RenaterNode) Network.get(CommonState.r.nextInt(Network.size())).getProtocol(NodeUtilities.RID)).getID();
+		String src = ((RenaterNode) Network.get(CommonState.r.nextInt(Network.size())).getProtocol(NodeUtilities.RID)).getCID();
 		SearchProblem p = GraphSearchProblem.startingFrom(src).in(hg).takeCostsFromEdges().build();
 		MinMaxListener<WeightedNode> mml = new MinMaxListener<WeightedNode>();
 		Hipster.createDijkstra(p).search(mml);

@@ -1,15 +1,16 @@
 package utilities;
 
 import messaging.TopologyMessage;
+import topology.TopologyPathNode;
 
 public class ErrorDetection {
 	
 	
-	public static boolean hasLoopCommunication( TopologyMessage km, String dst){
+	public static boolean hasLoopCommunication( TopologyMessage km, TopologyPathNode dst){
 		
 		int occurrences = 0;
-		for(String nodeId : km.getPath())
-			if(nodeId.equals(dst))
+		for(TopologyPathNode nodeId : km.getPath())
+			if(nodeId.getCID().equals(dst.getCID()))
 				occurrences++;
 			
 			

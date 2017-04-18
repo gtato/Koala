@@ -1,9 +1,13 @@
 package utilities;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
+
+import com.google.common.collect.Lists;
+
 import peersim.core.CommonState;
 import renater.RenaterNode;
 import spaasclient.SPClient;
@@ -13,7 +17,7 @@ public class PhysicalDataProvider {
 	  
 
 	private static HashMap<String, Double> latencies = new HashMap<String, Double>();
-	private static HashMap<String, String> paths= new HashMap<String, String>();
+	private static HashMap<String, ArrayList<String>> paths= new HashMap<String, ArrayList<String>>();
 	private static double maxInterLatency = 0;
 	private static double minInterLatency = Double.MAX_VALUE;
 	private static double avgInterLatency = 0;
@@ -36,7 +40,7 @@ public class PhysicalDataProvider {
 		}
 	}
 	
-	public static void addPath(String srcdst, String strPath){
+	public static void addPath(String srcdst, ArrayList<String> strPath){
 		if(strPath == null)
 			return;
 		if(!paths.containsKey(srcdst)){
@@ -47,26 +51,22 @@ public class PhysicalDataProvider {
 	public static void addPath(String src, String dst, LinkedList<RenaterNode> path){
 		if(path == null)
 			return;
-		
 		String id = NodeUtilities.getKeyStrID(src, dst);
 		if(!paths.containsKey(id)){
-			String strPath = "";
-			for(RenaterNode rn : path){
-				strPath += rn.getID() + " ";
-			}
-			strPath = strPath.trim();
-//			strPath = strPath.trim().replace(" ", ", ");
+			ArrayList<String> strPath = new ArrayList<String>();
+			for(RenaterNode rn : path)
+				strPath.add(rn.getCID());
 			paths.put(id, strPath);
 		}
 	}
 	
-	public static void addPath(String src, String dst, String path){
+	public static void addPath(String src, String dst, ArrayList<String> path){
 		if(path == null)
 			return;
 		
 		String id = NodeUtilities.getKeyStrID(src, dst);
 		if(!paths.containsKey(id)){
-			paths.put(id, path.substring(1, path.length()-1).replaceAll(", ", " " ));
+			paths.put(id, path);
 		}
 	}
 	
@@ -243,58 +243,61 @@ public class PhysicalDataProvider {
 	}
 	
 	
-	public static String getPath(String src, String dst){
+	public static ArrayList<String> getPath(String src, String dst){
+		ArrayList<String> path = new ArrayList<String>();
 		if(src.equals(dst))
-			return src;
-		
-		int srcDC = NodeUtilities.getDCID(src); 
-		int dstDC = NodeUtilities.getDCID(dst);
-		if(srcDC == dstDC){
-			if(NodeUtilities.getRenaterNode(src).isGateway() || NodeUtilities.getRenaterNode(dst).isGateway())
-				return src + " " + dst; 
-			return src +" " + getGW(src)  + " " + dst;
-		}
-		String path = getDCPath(src, dst);
-		if(path != null){
-			if(path.startsWith(src))
-				return path;
-			String reversePath = "";
-			String[] splitPath = path.split(" ");
-			for(int i = splitPath.length-1; i >= 0; i--)
-				reversePath += splitPath[i] + " ";
-			return reversePath.trim();
-		}else{
-			String gwSrc = getGW(src);
-			String gwDst = getGW(dst);
-			if ((gwSrc+gwDst).equals(src+dst)){
-				System.out.println("Something is wrong");
-				System.exit(1);
+			path.add(src);
+		else{
+			int srcDC = NodeUtilities.getDCID(src); 
+			int dstDC = NodeUtilities.getDCID(dst);
+			if(srcDC == dstDC){
+				if(NodeUtilities.getRenaterNode(src).isGateway() || NodeUtilities.getRenaterNode(dst).isGateway()){
+					path.add(src); path.add(dst); 
+				}else{
+					path.add(src); path.add(getGW(src)); path.add(dst);
+				}
+			}else{
+				path.addAll(getDCPath(src, dst));
+				if(path.size() > 0){
+					if(!path.get(0).equals(src))
+						Collections.reverse(path);
+				}else{
+					String gwSrc = getGW(src);
+					String gwDst = getGW(dst);
+					if ((gwSrc+gwDst).equals(src+dst)){
+						System.out.println("Something is wrong");
+						System.exit(1);
+					}
+					ArrayList<String> path1 = getPath(src, gwSrc);
+					ArrayList<String> path2 = getPath(gwSrc, gwDst);
+					ArrayList<String> path3 = getPath(gwDst, dst);
+					path2.remove(0);
+					path3.remove(0);
+					path.addAll(path1);
+					path.addAll(path2);
+					path.addAll(path3);
+				}
 			}
-			String path1 = getPath(src, gwSrc)+ " ";
-			String path2 = getPath(gwSrc, gwDst)+ " ";
-			path2 = path2.substring(path2.indexOf(" ")+1);
-			String path3 = getPath(gwDst, dst);
-			path3 = path3.substring(path3.indexOf(" ")+1);
-			return path1 + path2 + path3; 
 		}
+		return path;
 		
 	}
 	
-	private static String getDCPath(String src, String dst){
+	private static ArrayList<String> getDCPath(String src, String dst){
 		
 		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraDB){
-			 return KoaLite.getPath(src, dst).toString().replace("[", "").replace("]", "").replace(",", "");
+			 return KoaLite.getPath(src, dst);
 		}else if(NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS) {
-			return SPClient.getSP(src, dst).getPath().toString().replace("[", "").replace("]", "").replace(",", "");
+			return SPClient.getSP(src, dst).getPath();
 		}else if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraHipster)
-			return MyHipster.getSPPath(src, dst).toString().replace("[", "").replace("]", "").replace(",", "");
+			return MyHipster.getSPPath(src, dst);
 		else{
 			if(paths.containsKey(NodeUtilities.getKeyStrID(src, dst)))
 				return paths.get(NodeUtilities.getKeyStrID(src, dst));
 		}
 		
 		
-		return null;
+		return new ArrayList<String>();
 	}
 	
 	
@@ -332,7 +335,7 @@ public class PhysicalDataProvider {
 	private static String getGW(String id){
 		RenaterNode rn = NodeUtilities.getRenaterNode(id);
 		if(rn.isGateway())
-			return rn.getID();
+			return rn.getCID();
 		return rn.getGateway();
 	}
 	

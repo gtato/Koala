@@ -2,44 +2,44 @@ package koala;
 
 import java.util.Comparator;
 
+import topology.TopologyNode;
+import topology.TopologyPathNode;
 import utilities.NodeUtilities;
 
-public class KoalaNeighbor{
+public class KoalaNeighbor extends TopologyPathNode{
 
-	private String nodeID;
+	
 	private String idealID;
 	private double latency = -1;
 	private int latencyQuality = -1;
 	 
 	
-	public KoalaNeighbor(String nodeID) {
-		super();
-		this.nodeID = nodeID;
-		this.idealID = nodeID;
+	public KoalaNeighbor(TopologyNode knd) {
+		super(knd.getCID(), knd.getSID());
+		this.idealID = knd.getSID();
 	}
 	
-	public KoalaNeighbor(String nodeID, double latency, int latencyQuality) {
-		super();
-		this.nodeID = nodeID;
+	public KoalaNeighbor(TopologyPathNode knd) {
+		super(knd.getCID(), knd.getSID());
+		this.idealID = knd.getSID();
+	}
+	
+//	public KoalaNeighbor(String nodeID, String koalaID) {
+//		super(nodeID, koalaID);
+//		this.idealID = koalaID;
+//	}
+	
+	public KoalaNeighbor(TopologyPathNode tpn, double latency, int latencyQuality) {
+		super(tpn.getCID(), tpn.getSID());
 		this.latency = latency;
 		this.latencyQuality = latencyQuality;
-		this.idealID = nodeID;
+		this.idealID = tpn.getSID();
 	}
 	
-	public KoalaNeighbor(String nodeID, double latency) {
-		super();
-		this.nodeID = nodeID;
+	public KoalaNeighbor(TopologyPathNode tpn,  double latency) {
+		super(tpn.getCID(), tpn.getSID());
 		this.latency = latency;
-		this.idealID = nodeID;
-	}
-	
-	
-	public String getNodeID() {
-		return nodeID;
-	}
-	
-	public void setNodeID(String nodeID) {
-		this.nodeID = nodeID;
+		this.idealID = tpn.getSID();
 	}
 	
 	public double getLatency() {
@@ -67,12 +67,11 @@ public class KoalaNeighbor{
 		return false;
 	}
 	
-	public boolean equals(KoalaNeighbor n){
-		return this.getNodeID().equals(n.getNodeID());
+	public KoalaNeighbor clone(){
+		return new KoalaNeighbor(super.clone(), latency, latencyQuality);
 	}
-	public boolean equals(KoalaNode n){
-		return this.getNodeID().equals(n.getID());
-	}
+	
+	
 
 	public int getLatencyQuality() {
 		return latencyQuality;
@@ -85,7 +84,7 @@ public class KoalaNeighbor{
 	
 	public String toString(){
 		String ideal = getIdealID() == null? "": " " + getIdealID();
-		return getNodeID() + " ["+getLatency()+", " + getLatencyQuality()+"]" + ideal;
+		return "(id:" + getSID() + " iid:" +  ideal+" lat:"+(int)getLatency()+" lq:" + getLatencyQuality()+")";
 	}
 
 	public String getIdealID() {
@@ -99,7 +98,13 @@ public class KoalaNeighbor{
 	public void reset(){
 		latency = -1;
 		latencyQuality = -1;
-		nodeID = NodeUtilities.DEFAULTID;
+		setCID(NodeUtilities.DEFAULTID);
+		setSID(NodeUtilities.DEFAULTID);
+	}
+	
+	public static KoalaNeighbor getDefaultNeighbor(){
+		TopologyPathNode tpd = new TopologyPathNode(NodeUtilities.DEFAULTID);
+		return new KoalaNeighbor(tpd);
 	}
 	
 	public static class NeighborComparator implements Comparator<KoalaNeighbor>{
@@ -109,8 +114,8 @@ public class KoalaNeighbor{
 		}
 		@Override
 		public int compare(KoalaNeighbor arg0, KoalaNeighbor arg1) {
-			int dist1 = NodeUtilities.distance(referenceId, arg0.getNodeID());
-			int dist2 = NodeUtilities.distance(referenceId, arg1.getNodeID());
+			int dist1 = NodeUtilities.distance(referenceId, arg0.getSID());
+			int dist2 = NodeUtilities.distance(referenceId, arg1.getSID());
 			return dist1 - dist2;
 		}
 		

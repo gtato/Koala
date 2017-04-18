@@ -18,6 +18,8 @@ import peersim.core.Network;
 import peersim.core.Node;
 import peersim.dynamics.NodeInitializer;
 import renater.RenaterProtocol;
+import topology.TopologyNode;
+import topology.TopologyPathNode;
 import topology.TopologyProtocol;
 import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
@@ -105,6 +107,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	
 
 	private void initialize(ArrayList<Integer> inx, int pid){
+		NodeUtilities.CURRENT_PID = pid;
 		double perc,prevPerc=0;
 		for (int i = 0; i < nr; i++) {
 			Node n = Network.get(inx.get(i));
@@ -137,28 +140,14 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		System.out.println(" Done.");
 	} 
 	
-	private ArrayList<KoalaNeighbor> getLongLinksRand(int n){
-		ArrayList<KoalaNeighbor> pll = new ArrayList<KoalaNeighbor>();
-		for(int i =0; i < n; i++){
-			Node node = Network.get(CommonState.r.nextInt(Network.size()));
-			KoalaNode kn = (KoalaNode )node.getProtocol(NodeUtilities.KPID);
-			String id = initialize ? kn.getID() : NodeUtilities.DEFAULTID;
-			KoalaNeighbor kneigh = new KoalaNeighbor(id, PhysicalDataProvider.getDefaultInterLatency());
-			kneigh.setIdealID(kn.getID());
-			pll.add(kneigh);
-		}
-		
-
-		return pll;
-	}
-	
 	
 	private ArrayList<KoalaNeighbor> getLongLinksKleinsberg(KoalaNode kn){
 		ArrayList<KoalaNeighbor> pll = new ArrayList<KoalaNeighbor>();
-		int k = NodeUtilities.LONG_LINKS;
-		int n = NodeUtilities.NR_DC / 2;
-		if(NodeUtilities.NR_DC <= k)
-			k = NodeUtilities.NR_DC/4;
+		int k = NodeUtilities.getLongLinks();
+		int size = NodeUtilities.getSize(); 
+		int n = size / 2;
+		if(size <= k)
+			k = size/4;
 //		int n = NodeUtilities.NR_DC;
 		HashSet<Integer> nids = new HashSet<Integer>();
 		int limit = 50;
@@ -178,10 +167,10 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		
 		
 		for(Integer dist : nids){
-			String[] ids = NodeUtilities.getIDFromDistance(kn.getID(), dist, false);
+			String[] ids = NodeUtilities.getIDFromDistance(kn.getSID(), dist);
 			String realId = CommonState.r.nextInt() % 2 == 0 ? ids[0] : ids[1]; 
 			String id = initialize ? getFromNeighborhood(realId) : NodeUtilities.DEFAULTID;
-			KoalaNeighbor kneigh = new KoalaNeighbor(id, PhysicalDataProvider.getDefaultInterLatency());
+			KoalaNeighbor kneigh = new KoalaNeighbor(new TopologyPathNode(id), PhysicalDataProvider.getDefaultInterLatency());
 			kneigh.setIdealID(realId);
 			pll.add(kneigh);
 		}
@@ -192,8 +181,9 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	private String getFromNeighborhood(String realId) {
 		if(NodeUtilities.isUp(realId))
 			return realId;
-		for(int i= 0; i < NodeUtilities.NR_DC; i++){
-			String[] ids = NodeUtilities.getIDFromDistance(realId, i, false);
+		int size = NodeUtilities.getSize(); 
+		for(int i= 0; i < size; i++){
+			String[] ids = NodeUtilities.getIDFromDistance(realId, i);
 			if(NodeUtilities.isUp(ids[0]))
 				return ids[0];
 			if(NodeUtilities.isUp(ids[1]))
@@ -207,9 +197,9 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		
 		int succi = 0, i=0; 
 		while(succi < NodeUtilities.NEIGHBORS){
-			String succid = (NodeUtilities.getDCID(kn.getID())+i+1)%NodeUtilities.NR_DC + "-0";
+			String succid = (NodeUtilities.getDCID(kn.getSID())+i+1)%NodeUtilities.NR_DC + "-0";
 			if(NodeUtilities.isUp(succid)){
-				KoalaNeighbor succ = new KoalaNeighbor(succid, PhysicalDataProvider.getDefaultInterLatency());
+				KoalaNeighbor succ = new KoalaNeighbor(new TopologyPathNode(succid), PhysicalDataProvider.getDefaultInterLatency());
 				kn.getRoutingTable().setGlobalSucessor(succ, succi);
 				succi++;
 			}
@@ -218,9 +208,9 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		
 		int predi = 0; i=0; 
 		while(predi < NodeUtilities.NEIGHBORS){
-			String predid =  (NodeUtilities.getDCID(kn.getID())-(i+1)+NodeUtilities.NR_DC)%NodeUtilities.NR_DC + "-0";
+			String predid =  (NodeUtilities.getDCID(kn.getSID())-(i+1)+NodeUtilities.NR_DC)%NodeUtilities.NR_DC + "-0";
 			if(NodeUtilities.isUp(predid)){
-				KoalaNeighbor pred = new KoalaNeighbor(predid, PhysicalDataProvider.getDefaultInterLatency());
+				KoalaNeighbor pred = new KoalaNeighbor(new TopologyPathNode(predid), PhysicalDataProvider.getDefaultInterLatency());
 				kn.getRoutingTable().setGlobalPredecessor(pred, predi);
 				predi++;
 			}

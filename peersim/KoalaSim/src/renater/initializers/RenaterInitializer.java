@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import chord.ChordNode;
-import koala.FlatKoalaNode;
 import koala.KoalaNode;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
@@ -17,7 +16,6 @@ import peersim.core.Network;
 import peersim.core.Node;
 import peersim.dynamics.NodeInitializer;
 import renater.RenaterNode;
-import utilities.KoalaJsonParser;
 import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
 
@@ -73,7 +71,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
         }
 		
 		
-		KoalaJsonParser.intitialize();
+//		KoalaJsonParser.intitialize();
 		NodeUtilities.initialize();
 		//NodeUtilities.setNodePIDs(phid, pid, cpid);
 		NodeUtilities.intializeDCCenters(lines);
@@ -203,25 +201,26 @@ public class RenaterInitializer implements Control, NodeInitializer {
 		ChordNode chordNode = null;
 		if(NodeUtilities.CID >= 0)
 			chordNode= (ChordNode) node.getProtocol(NodeUtilities.CID);
-		FlatKoalaNode flatKoalaNode = null;
+		KoalaNode flatKoalaNode = null;
 		if(NodeUtilities.FKID >= 0)
-			flatKoalaNode = (FlatKoalaNode) node.getProtocol(NodeUtilities.FKID);
+			flatKoalaNode = (KoalaNode) node.getProtocol(NodeUtilities.FKID);
 		
         
         String id = nested ? getID() : getFastID(node);
         int dcID = NodeUtilities.getDCID(id);
         
-        koalaNode.setID(id);
-        renaterNode.setID(id);
+        renaterNode.setCID(id); renaterNode.setSID(id);
+        
+        koalaNode.setCID(id); koalaNode.setSID(id);
+        
         if(NodeUtilities.CID >= 0)
-        	chordNode.setID(id);
+        	chordNode.setCID(id);
         
         if(NodeUtilities.FKID >= 0){
         	String fid = getFastID(node);
-        	flatKoalaNode.setID(fid);
-        	flatKoalaNode.setCommonID(id);
+        	flatKoalaNode.setCID(id);
+        	flatKoalaNode.setSID(fid);
         	flatKoalaNode.setNode(node);
-        	NodeUtilities.FlatMap.put(fid, id);
         }
         
         koalaNode.setNode(node);
@@ -232,7 +231,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
         
         double[] cords;
         if(nested && NodeUtilities.Gateways.containsKey(dcID+"")){
-        	renaterNode.setGateway(NodeUtilities.Gateways.get(dcID+"").getID());
+        	renaterNode.setGateway(NodeUtilities.Gateways.get(dcID+"").getCID());
         	cords = this.getRandomCirclePoint(NodeUtilities.CenterPerDC[dcID][0], NodeUtilities.CenterPerDC[dcID][1], distance);
 //        	System.out.println(id + " is not gateway, its gateway is " +  NodeUtilities.Gateways.get(dcID+"").getID());
         }else{
