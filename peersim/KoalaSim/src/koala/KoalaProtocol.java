@@ -107,23 +107,7 @@ public class KoalaProtocol extends TopologyProtocol{
 	}
 	
 	
-	private Node getBootstrap_old()
-	{
-
-		KoalaNode each;
-		ArrayList<Node> joined = new ArrayList<Node>();
-		for (int i = 0; i < Network.size(); i++) {
-            each = (KoalaNode) Network.get(i).getProtocol(NodeUtilities.getLinkable(myPid));
-            if(each.hasJoined())
-            	joined.add(Network.get(i));   	
-		}
-		if(joined.size() == 0)
-			return null;
-		
-		return joined.get(CommonState.r.nextInt(joined.size()));
-	}
-	
-	private Node getBootstrap()
+	protected Node getBootstrap()
 	{
 
 		KoalaNode each;
@@ -136,7 +120,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		
 		for (int i = 0; i < Network.size(); i++) {
             each = (KoalaNode) Network.get(i).getProtocol(NodeUtilities.getLinkable(myPid));
-            if(each.isUp() && each.hasJoined()){
+            if(getBootCond(Network.get(i))){
             	joined.add(Network.get(i));
             	if(myNode.isLocal(each.getSID()))
             		joinedInMyDC.add(Network.get(i));
@@ -166,6 +150,10 @@ public class KoalaProtocol extends TopologyProtocol{
 		return joined.get(CommonState.r.nextInt(joined.size()));
 	}
 	
+	protected boolean getBootCond(Node n){
+		KoalaNode each = (KoalaNode) n.getProtocol(NodeUtilities.getLinkable(myPid));
+		return each.isUp() && each.hasJoined();
+	}
 
 	
 
@@ -208,10 +196,9 @@ public class KoalaProtocol extends TopologyProtocol{
 		
 		ArrayList<KoalaNeighbor> myOldNeighbors = new ArrayList<KoalaNeighbor>();
 		for(KoalaNeighbor recNeighbor: receivedNeighbors){
+			if(recNeighbor.equals(myNode)) continue;
 			boolean isSource = recNeighbor.getSID().equals(source.getSID());
 			boolean isSender = recNeighbor.getSID().equals(msgSender.getSID());
-			if(recNeighbor.equals(myNode))
-				continue;
 			if(selfJoining && myNode.isLocal(source.getSID()))
 				dcsBefore.add(NodeUtilities.getDCID(recNeighbor.getSID()));
 
@@ -284,7 +271,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		myNode.getRoutingTable().addLocal(content.getNeighbor());
 	}
 	
-	private void broadcastLocalNeighbor(KoalaNeighbor newNeig) {
+	protected void broadcastLocalNeighbor(KoalaNeighbor newNeig) {
 		for(KoalaNeighbor kn : myNode.getRoutingTable().getLocals()){
 			if(kn.getSID().equals(newNeig.getSID())) continue;
 			KoalaNLNMsgContent msgContent = new KoalaNLNMsgContent(newNeig);
@@ -293,7 +280,7 @@ public class KoalaProtocol extends TopologyProtocol{
 	}
 
 	
-	private void broadcastGlobalNeighbor(KoalaNeighbor newNeig) {
+	protected void broadcastGlobalNeighbor(KoalaNeighbor newNeig) {
 //        Set<String> candidates = myNode.createRandomIDs(NodeUtilities.MAGIC);
 //        ArrayList<KoalaNeighbor> localNeigs = new ArrayList<KoalaNeighbor>(); 
 //        localNeigs.add(myNode.getRoutingTable().getLocalSucessor(0));
@@ -337,16 +324,16 @@ public class KoalaProtocol extends TopologyProtocol{
         }else{
         	onSuccess(msg);
         	
-        	if(/*!initializeMode &&*/ learn){
-	        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(),PhysicalDataProvider.getDefaultInterLatency(), 0);
-	        	boolean added = myNode.getRoutingTable().addLongLink(ll);
-	        	if(added){
-	        		//here we are not forcing the long link to be added but maybe it is a good practice to force it give the 
-	        		//fact that there was some interest shown (maybe start counting and force after a threshold) 
-		        	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
-		        	send(msg.getFirstSender(), newMsg);
-	        	}
-        	}        	
+//        	if(/*!initializeMode &&*/ learn){
+//	        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(),PhysicalDataProvider.getDefaultInterLatency(), 0);
+//	        	boolean added = myNode.getRoutingTable().addLongLink(ll);
+//	        	if(added){
+//	        		//here we are not forcing the long link to be added but maybe it is a good practice to force it give the 
+//	        		//fact that there was some interest shown (maybe start counting and force after a threshold) 
+//		        	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
+//		        	send(msg.getFirstSender(), newMsg);
+//	        	}
+//        	}        	
         }
         
         if(/*!initializeMode && */wantsToUpdateLatency){
@@ -356,7 +343,7 @@ public class KoalaProtocol extends TopologyProtocol{
         	
 	}
 	
-	private KoalaNeighbor getRoute(KoalaNode kn, KoalaMessage msg){
+	protected KoalaNeighbor getRoute(KoalaNode kn, KoalaMessage msg){
 		KoalaNeighbor ret;
 		
 		if(msg.getContent() instanceof KoalaRouteMsgContent)
@@ -374,14 +361,14 @@ public class KoalaProtocol extends TopologyProtocol{
 		
 		if(NodeUtilities.getDCID(kn.getSID())  ==  NodeUtilities.getDCID(myNode.getSID())  
 	    && NodeUtilities.getDCID(ret.getSID()) != NodeUtilities.getDCID(myNode.getSID())){
-			System.out.println("I am calling foreigners to solve my problems");
+			System.out.println("I am calling outsiders to solve my problems");
 		}
 			
 		
 		return ret;
 	}
 	
-	private void areNeighborsDown() {
+	protected void areNeighborsDown() {
 //		check first neighbors
  		boolean predDown = NodeUtilities.isDefault(myNode.getRoutingTable().getGlobalPredecessor(0)); 
  		boolean succDown = NodeUtilities.isDefault(myNode.getRoutingTable().getGlobalSucessor(0));

@@ -60,10 +60,8 @@ public class RenaterInitializer implements Control, NodeInitializer {
 		System.out.println("ALPHA set to " + alpha);
 		
 		System.out.println("\nSetting up renater nodes, positioning and gateways ");
-		//initialize the gson parser
-		List<String> lines = null;
 		
-        
+		List<String> lines = null;
         if(Files.exists(Paths.get(dc_file))){
         	 lines = getDcCordsFromFile();
         	 if(lines != null)
@@ -201,18 +199,24 @@ public class RenaterInitializer implements Control, NodeInitializer {
 		ChordNode chordNode = null;
 		if(NodeUtilities.CID >= 0)
 			chordNode= (ChordNode) node.getProtocol(NodeUtilities.CID);
-		KoalaNode flatKoalaNode = null;
+		KoalaNode flatKoalaNode = null, leadKoalaNode = null;
 		if(NodeUtilities.FKID >= 0)
 			flatKoalaNode = (KoalaNode) node.getProtocol(NodeUtilities.FKID);
+		
+		if(NodeUtilities.LKID >= 0)
+			leadKoalaNode = (KoalaNode) node.getProtocol(NodeUtilities.LKID);
 		
         
         String id = nested ? getID() : getFastID(node);
         int dcID = NodeUtilities.getDCID(id);
         
-        renaterNode.setCID(id); renaterNode.setSID(id);
+        if(NodeUtilities.RID >= 0){
+        	renaterNode.setCID(id); renaterNode.setSID(id); renaterNode.setNode(node);
+        }
         
-        koalaNode.setCID(id); koalaNode.setSID(id);
-        
+        if(NodeUtilities.KID >= 0){
+        	koalaNode.setCID(id); koalaNode.setSID(id); koalaNode.setNode(node);
+        }
         if(NodeUtilities.CID >= 0)
         	chordNode.setCID(id);
         
@@ -223,9 +227,9 @@ public class RenaterInitializer implements Control, NodeInitializer {
         	flatKoalaNode.setNode(node);
         }
         
-        koalaNode.setNode(node);
-        renaterNode.setNode(node);
-        
+        if(NodeUtilities.LKID >= 0){
+        	leadKoalaNode.setCID(id); leadKoalaNode.setSID(id); leadKoalaNode.setNode(node);
+        }
         
         NodeUtilities.Nodes.put(id, node);
         

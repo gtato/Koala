@@ -16,6 +16,7 @@ import java.util.Set;
 import messaging.KoalaMessage;
 import peersim.core.CommonState;
 import peersim.core.Node;
+import renater.RenaterNode;
 import topology.TopologyNode;
 import utilities.NodeUtilities;
 
@@ -68,6 +69,23 @@ public class KoalaNode extends TopologyNode{
 		this.latencyPerDC = new HashMap<Integer, Double>();
 	}
 	
+	public boolean isLeader(){
+		RenaterNode rn = (RenaterNode)this.getNode().getProtocol(NodeUtilities.RID);
+		return rn.isGateway();
+	}
+	
+	public KoalaNode getLeader(){
+		RenaterNode rn = (RenaterNode )this.getNode().getProtocol(NodeUtilities.RID);
+		return NodeUtilities.getKoalaNode(rn.getGateway());
+	}
+	
+	public KoalaNeighbor getLeaderNeighor(){
+		RenaterNode rn = (RenaterNode )this.getNode().getProtocol(NodeUtilities.RID);
+		for(KoalaNeighbor kn : getRoutingTable().getLocals())
+			if(kn.getCID().equals(rn.getGateway()))
+				return kn;
+		return null;
+	}
 //
 //    public int getNodeID() {
 //		return nodeID;
@@ -120,6 +138,7 @@ public class KoalaNode extends TopologyNode{
 		return getSID();
 	}
 
+	
 	
 	/* The relevant methods start here */
 	

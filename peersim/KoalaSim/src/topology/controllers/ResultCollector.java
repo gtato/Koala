@@ -8,6 +8,7 @@ import java.util.Map;
 import chord.ChordProtocol;
 import koala.FlatKoalaProtocol;
 import koala.KoalaProtocol;
+import koala.LeaderKoalaProtocol;
 import messaging.TopologyMessage;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
@@ -47,7 +48,7 @@ public class ResultCollector extends NodeObserver {
 	ArrayList<String> msgToPrint = new ArrayList<String>();
 	PrintStream[] pss;
 	
-	int lastMsg, lastCFail, lastKFail, lastFKFail;
+	int lastMsg, lastCFail, lastKFail, lastFKFail, lastLKFail;
 	public ResultCollector(String prefix) {
 		super(prefix);
 //		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
@@ -74,9 +75,10 @@ public class ResultCollector extends NodeObserver {
 //		System.out.println(CommonState.getTime() + " - " + CommonState.getEndTime());
 		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
 			System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg));
-			System.out.println("CHORD: success: " + ChordProtocol.SUCCESS + " fails: " + ChordProtocol.FAIL);
-			System.out.println("KOALA: success: " + KoalaProtocol.SUCCESS + " fails: " + KoalaProtocol.FAIL + " internal fails: " + KoalaProtocol.INT_FAIL);
-			System.out.println("FLAT KOALA: success: " + FlatKoalaProtocol.SUCCESS + " fails: " + FlatKoalaProtocol.FAIL + " internal fails: " + FlatKoalaProtocol.INT_FAIL);
+			if(NodeUtilities.CPID >= 0) System.out.println("CHORD: success: " + ChordProtocol.SUCCESS + " fails: " + ChordProtocol.FAIL);
+			if(NodeUtilities.KPID >= 0) System.out.println("KOALA: success: " + KoalaProtocol.SUCCESS + " fails: " + KoalaProtocol.FAIL + " internal fails: " + KoalaProtocol.INT_FAIL);
+			if(NodeUtilities.FKPID >= 0) System.out.println("FLAT KOALA: success: " + FlatKoalaProtocol.SUCCESS + " fails: " + FlatKoalaProtocol.FAIL + " internal fails: " + FlatKoalaProtocol.INT_FAIL);
+			if(NodeUtilities.LKPID >= 0) System.out.println("LEADER KOALA: success: " + LeaderKoalaProtocol.SUCCESS + " fails: " + LeaderKoalaProtocol.FAIL + " internal fails: " + FlatKoalaProtocol.INT_FAIL);
 			SPClient.printCacheStats();
 			
 			flush();
@@ -100,7 +102,7 @@ public class ResultCollector extends NodeObserver {
 //		int rps, kps, cps, nr; rps = kps = cps = nr = 0;
 //		int rl, kl, cl; rl = kl = cl = 0;
 //		int rtSize = 0;
-		TopologyMessage rm=null,km=null,fkm=null,cm=null;
+		TopologyMessage rm=null,km=null,fkm=null,lkm=null,cm=null;
 		for(Map.Entry<Integer, Node> msg : sentMgs.entrySet()){
 //			RenaterProtocol rp = (RenaterProtocol) msg.getValue().getProtocol(renProtPid);
 //			KoalaProtocol kp = (KoalaProtocol) msg.getValue().getProtocol(koaProtPid);
@@ -110,16 +112,14 @@ public class ResultCollector extends NodeObserver {
 			&& (KoalaProtocol.REC_MSG.containsKey(msg.getKey()) || NodeUtilities.KPID < 0)
 			&& (ChordProtocol.REC_MSG.containsKey(msg.getKey()) || NodeUtilities.CPID < 0)
 			&& (FlatKoalaProtocol.REC_MSG.containsKey(msg.getKey()) || NodeUtilities.FKPID < 0)
+			&& (LeaderKoalaProtocol.REC_MSG.containsKey(msg.getKey()) || NodeUtilities.LKPID < 0)
 			){
 			
-				if(NodeUtilities.RPID >= 0)
-					rm = RenaterProtocol.REC_MSG.get(msg.getKey());
-				if(NodeUtilities.KPID >= 0)
-					km = KoalaProtocol.REC_MSG.get(msg.getKey());
-				if(NodeUtilities.FKPID >= 0)
-					fkm = FlatKoalaProtocol.REC_MSG.get(msg.getKey());
-				if(NodeUtilities.CPID >= 0)
-					cm = ChordProtocol.REC_MSG.get(msg.getKey());
+				if(NodeUtilities.RPID >= 0) rm = RenaterProtocol.REC_MSG.get(msg.getKey());
+				if(NodeUtilities.KPID >= 0) km = KoalaProtocol.REC_MSG.get(msg.getKey());
+				if(NodeUtilities.FKPID >= 0) fkm = FlatKoalaProtocol.REC_MSG.get(msg.getKey());
+				if(NodeUtilities.LKPID >= 0) lkm = LeaderKoalaProtocol.REC_MSG.get(msg.getKey());
+				if(NodeUtilities.CPID >= 0) cm = ChordProtocol.REC_MSG.get(msg.getKey());
 				
 //				renaterTotalLatency += rm.getLatency();
 //				koalaTotalLatency += km.getLatency();
@@ -157,6 +157,7 @@ public class ResultCollector extends NodeObserver {
 				if(NodeUtilities.RPID >= 0) RenaterProtocol.REC_MSG.remove(msg.getKey());
 				if(NodeUtilities.KPID >= 0) KoalaProtocol.REC_MSG.remove(msg.getKey());
 				if(NodeUtilities.FKPID >= 0) FlatKoalaProtocol.REC_MSG.remove(msg.getKey());
+				if(NodeUtilities.LKPID >= 0) LeaderKoalaProtocol.REC_MSG.remove(msg.getKey());
 				if(NodeUtilities.CPID >= 0) ChordProtocol.REC_MSG.remove(msg.getKey());
 				
 				
@@ -169,28 +170,33 @@ public class ResultCollector extends NodeObserver {
 				printstr += NodeUtilities.CPID >= 0 ? "\t"+cm.getTotalLatency() : "\t0";
 				printstr += NodeUtilities.KPID >= 0 ? "\t"+km.getTotalLatency() : "\t0";
 				printstr += NodeUtilities.FKPID >= 0 ? "\t"+fkm.getTotalLatency() : "\t0";
+				printstr += NodeUtilities.LKPID >= 0 ? "\t"+lkm.getTotalLatency() : "\t0";
 				
 				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.getHops() : "\t0"; 
 				printstr += NodeUtilities.CPID >= 0 ? "\t"+ cm.getHops() : "\t0";
 				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.getHops() : "\t0";
 				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ fkm.getHops() : "\t0";
+				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ lkm.getHops() : "\t0";
 
 //				printstr += renProtPid >= 0 ? "\t"+ rm.getHopCategory() + "\t"+ rm.getLatencyCategory(): "\t0\t0";
- 				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.pathToStrArray(): "\t[]";
+// 				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.pathToStrArray(): "\t[]";
 // 				printstr += NodeUtilities.CPID >= 0 ? "\t"+ cm.getChordPath(): "\t[]";
 // 				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.pathToStrArray(): "\t[]";
- 				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ fkm.pathToStrArray(): "\t[]";
+// 				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ fkm.pathToStrArray(): "\t[]";
+// 				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ lkm.pathToStrArray(): "\t[]";
 // 				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.getPhysicalPathToStrArray(): "\t[]";
 				
-// 				printstr += "\t"+ (nrInterDCMsg - lastMsg);
-// 				printstr += NodeUtilities.CPID >= 0 ? "\t"+ (ChordProtocol.FAIL - lastCFail): "\t0";
-// 				printstr += NodeUtilities.KPID >= 0 ? "\t"+ (KoalaProtocol.FAIL - lastKFail): "\t0";
-// 				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ (FlatKoalaProtocol.FAIL - lastFKFail): "\t0";
+ 				printstr += "\t"+ (nrInterDCMsg - lastMsg);
+ 				printstr += NodeUtilities.CPID >= 0 ? "\t"+ (ChordProtocol.FAIL - lastCFail): "\t0";
+ 				printstr += NodeUtilities.KPID >= 0 ? "\t"+ (KoalaProtocol.FAIL - lastKFail): "\t0";
+ 				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ (FlatKoalaProtocol.FAIL - lastFKFail): "\t0";
+ 				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ (LeaderKoalaProtocol.FAIL - lastLKFail): "\t0";
  				
  				lastMsg = nrInterDCMsg;
  				lastCFail = ChordProtocol.FAIL;
  				lastKFail = KoalaProtocol.FAIL;
  				lastFKFail = FlatKoalaProtocol.FAIL;
+ 				lastLKFail = LeaderKoalaProtocol.FAIL;
  				msgToPrint.add(printstr);
  				
 //				System.out.println(cm.getPath());

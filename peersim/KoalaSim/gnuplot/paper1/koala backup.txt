@@ -1,0 +1,431 @@
+
+%%%%%%%%%%%%%%%%%%%%%%% file typeinst.tex %%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This is the LaTeX source for the instructions to authors using
+% the LaTeX document class 'llncs.cls' for contributions to
+% the Lecture Notes in Computer Sciences series.
+% http://www.springer.com/lncs       Springer Heidelberg 2006/05/04
+%
+% It may be used as a template for your own input - copy it
+% to a new file with a new name and use it as the basis
+% for your article.
+%
+% NB: the document class 'llncs' has its own and detailed documentation, see
+% ftp://ftp.springer.de/data/pubftp/pub/tex/latex/llncs/latex2e/llncsdoc.pdf
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\documentclass[runningheads,a4paper]{llncs}
+
+\usepackage{amssymb}
+\setcounter{tocdepth}{3}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage[utf8]{inputenc}
+\usepackage{authblk}
+
+\usepackage{caption}
+\usepackage{subcaption}
+\captionsetup{compatibility=false}
+\usepackage{float}
+\usepackage{url}
+\urldef{\mailsa}\path|{genc.tato, cedric.tedeschi}@inria.fr|    
+\urldef{\mailsb}\path|{marin.bertier}@irisa.fr|    
+\newcommand{\keywords}[1]{\par\addvspace\baselineskip
+\noindent\keywordname\enspace\ignorespaces#1}
+\newcommand{\cmmnt}[1]{\ignorespaces}
+
+\begin{document}
+
+\mainmatter  % start of an individual contribution
+
+% first the title is needed
+\title{Koala: A Lazy Locality-Aware Overlay Network}
+
+% a short form should be given in case it is too long for the running head
+\titlerunning{Koala}
+
+% the name(s) of the author(s) follow(s) next
+%
+% NB: Chinese authors should write their first names(s) in front of
+% their surnames. This ensures that the names appear correctly in
+% the running heads and the author index.
+%
+% \author{Genc Tato\inst{1} \and Cédric Tedeschi\inst{1} \and Marin Bertier\inst{2}}
+% % \author[*]{Genc Tato}
+% % \author[*]{Cédric Tedeschi}
+% % \author[**]{Marin Bertier}
+% %
+% \authorrunning{Lecture Notes in Computer Science: Authors' Instructions}
+% % (feature abused for this document to repeat the title also on left hand pages)
+
+% % the affiliations are given next; don't give your e-mail address
+% % unless you accept that it will be published
+% % \institute{* Inria}
+% % \institute{** Irisa}
+% \institute{Springer-Verlag, Computer Science Editorial,\\
+% Tiergartenstr. 17, 69121 Heidelberg, Germany\\
+% \mails\\
+% \url{http://www.springer.com/lncs}}
+
+
+\author{
+Genc Tato\inst{1}  \and 
+Marin Bertier\inst{2} \and
+Cédric Tedeschi\inst{1}
+
+}
+\institute{
+Myriads Research Group, INRIA, Universit\'{e} de Rennes 1, Rennes, France\\
+\mailsa
+\and
+ASAP Research Group, INSA, Rennes, France\\
+\mailsb\\
+}
+
+
+%
+% NB: a more complex sample for affiliations and the mapping to the
+% corresponding authors can be found in the file "llncs.dem"
+% (search for the string "\mainmatter" where a contribution starts).
+% "llncs.dem" accompanies the document class "llncs.cls".
+%
+
+\toctitle{Lecture Notes in Computer Science}
+\tocauthor{Authors' Instructions}
+\maketitle
+
+
+\begin{abstract}
+Current utility computing infrastructures rely on centralized architectures, and therefore they are subject to latency, energy and legal constraints. Decentralized architectures have emerged as a solution to these problems but they present new challenges with respect to network utilization, leveraging locality and overlay maintenance. 
+In order to address these problems, we introduce Koala, a locality-aware overlay which is built and maintained lazily, using application traffic. Although Koala’s performance depends on application traffic, our experiments show that for a uniformly distributed traffic, Koala delivers similar 
+routing complexity and even reduced latencies compared to traditional proactive protocols. Additionally, we show that despite its passive maintenance, Koala
+can appropriately deal with reasonable churn by keeping the number of failures low and without significantly degrading performance.
+\end{abstract}
+
+\section{Introduction}
+%Marin
+Over the last decade, utility computing and, more specifically, Cloud computing has grown into a major factor which has completely reshaped the way computing infrastructure is managed. This is a result of a vast amount of
+research conducted not only by universities but also by industrial research centers. Major industry actors such as Amazon, Google etc. are currently the principal owners of the cloud infrastructure.
+
+While these companies continuously build datacenters in different locations around the world in order to be closer to their clients, their Cloud architecture remain primarily centralized. Centralized architectures have certain advantages such as easy management and more optimization opportunities. However, the distance of a centralized datacenter from its clients is often significant. This results in increased latency, higher energy consumption as well as it might be subject to legal restrictions.
+
+Various initiatives such as Discovery~\cite{discovery}, have suggested an alternative to the centralized architecture, by bringing the cloud even closer to the clients. They propose a fully decentralized architecture which leverages the existing ISP\footnote{Internet Service Provider} backbone network infrastructure by introducing some computing capacity on each Point of Presence (PoP). As a result, each PoP represents a small datacenter which interacts with other datacenters (PoPs) in a decentralized, peer-to-peer way in order to provide globally the same cloud services as traditional clouds.
+
+This new architecture introduces new challenges with respect to networking. First, although we assume that most of the traffic is local, nodes in different PoPs are still required to efficiently contact each other based on a local partial view of the network. Additionally, given that in a decentralized cloud the management and client traffic use the same network links, minimizing the management traffic is crucial for saving bandwidth for the clients. 
+
+In order to address these issues, we introduce Koala, an overlay network which provides locality-aware efficient routing while it minimizes management traffic. Koala leverages the Kleinberg model~\cite{kleinberg} which uses the distance between node identifiers as a criteria for selecting a node's routing table. This model guarantees a logarithmic complexity in terms of hops, when a greedy routing algorithm is used. However, we focus on reducing the routing latency rather than hops, even though they are closely related. Koala takes into account the latency of previously received messages and offers a trade-off between latency-based and greedy routing. In addition, Koala's overlay is maintained lazily by letting each node discover the network as application traffic goes through it. More specifically, Koala piggybacks information about the state of the network in the application traffic. This means that if no application traffic is generated, nodes do not uselessly maintain the overlay. Consequently, the performance of Koala depends on the amount of traffic generated by applications running on top of it. Koala is a general purpose overlay adapted to high traffic and low churn environments, therefore, we believe it would be a perfect solution for inter-datacenter routing in decentralized clouds.
+
+
+Our experiments show that in spite of its lazy maintenance, Koala still delivers a similar performance to other proactive protocols. It delivers a logarithmic complexity in terms of number of hops, while it furtherly reduces latencies by providing a balance between locality-aware and greedy algorithm. Furthermore, our experiments on churn show that this passive maintenance is sufficient for repairing the overlay in case of limited levels of churn. 
+
+The rest of this paper is organized as follows. Section~\ref{sec:rw} presents Koala's related work. Section~\ref{sec:model} presents the system model. Section~\ref{sec:protocol} presents the detail of the Koala protocol. Section~\ref{sec:experiments} presents our simulation results. Section~\ref{sec:ccl} concludes.
+
+\section{Related Work\label{sec:rw}}
+%% Symphony
+Koala provides a routing protocol and an overlay selection mechanism and as such, it can be seen
+as a primordial Distributed hash table (DHTs) which does not support data distribution and retrieval yet. DHTs have been a popular tool to organize routing and
+distribute data over large scale networks for more than a decade. 
+%Koala is an overlay targeting the interconnection of geographically distributed small data-centers. 
+%Thus it provides the fundamental routing layer to support a distributed hash table in such an environment. 
+Early DHTs such as Chord~\cite{chord} or Pastry~\cite{pastry} commonly ensure that the
+overlay network is able to route in a
+number of hops logarithmic to the size of the network.
+This routing process has been optimized towards several
+directions over the years, in terms of flexibility and proximity-awareness.
+
+\paragraph{Randomness for flexibility.}
+%In particular, 
+Inspired by Kleinberg's work on the small world 
+phenomenon and using a harmonic distribution, the authors of Symphony
+~\cite{symphony} show that choosing randomly $k = O(1)$ long links to 
+fill the routing table leads to a $O(1/k \log^2(n))$ routing path complexity, $n$ being the size of the network. 
+The authors note that the distribution of the outgoing links of a node is similar to that of incoming links but backwards on the ring. Therefore, they consider both incoming and outgoing links during routing, routing in both directions and thus again reducing the number of hops.
+%The authors note that the way long links are picked allows to make long links them bidirectional so as to speed up the routing process. The nodes choosing me as a long link follows the same distribution as the one used to pick my own long links, but backwards on the ring. 
+%Consequently, each routing step can go in one
+%of the two possible directions and tries to minimize the absolute distance to
+%destination. 
+Every Symphony node actively maintains $k$ long links upon
+joins and leaves. One such operation results in an average of $(O(log^2
+n))$ to re-wire the network. Note that, in Symphony, picking the long
+links require to have en estimation of $n$, which is done periodically and 
+results in another extra-cost. Symphony's ability to scale at an intercontinental
+scale is questioned by the Symphony's authors themselves, which suggest taking
+latency into account to choose long links.
+%%%%
+In contrast to Symphony, Koala maintains long links
+lazily using application's traffic and route according to both
+logical distance covered and latency.
+
+\paragraph{Routing performance.}
+
+Several studies focus in reducing the routing complexity of lookup
+operations towards $O(1)$. This is the path followed by Beehive~\cite{beehive}
+that proactively caches objects according to their popularity. The
+more popular an object is, the more it will be replicated along the paths towards 
+the node actually responsible for it. Nodes estimate the popularity of
+objects they store based  on an aggregation of the statistics regarding the
+number of queries for this object. This technique can be used for partially adjusting the overlay to the application traffic.
+Zero-Hop DHT (ZHT)~\cite{zht} targets the reduction of the routing
+complexity by directly acting on the links a node maintains.
+ZHT authors argue for a direct knowledge of every node at every node,
+making each lookup either a 0-hop or 1-hop process. While a complete view of the network is viable on tightly coupled nodes within a supercomputer of few thousand nodes, the efficiency of such an approach at a larger scale is not clear. 
+%ZHT's authors mention network-awareness as future work.
+
+\paragraph{Proximity awareness.}
+
+As detailed in~\cite{druschel-proximity}, injecting proximity awareness
+into overlays, can be done primarily through
+(i) topology-aware overlay construction, (ii) topology-aware neighbor
+selection and (iii) proximity routing. Topology-aware overlay construction
+consists in choosing logical neighbours according to their physical proximity, as
+done in~\cite{expressway}. It is potentially the most efficient approach, but it unfortunately breaks the good balancing properties brought by the uniform distribution
+of nodes in the logical structure and requires significant approximation anyway.
+Topology-aware neighbor selection consists in choosing for each entry of
+the routing table the
+physically closest neighbor among the candidate nodes satisfying the logical
+constraints of the logical overlay structure~\cite{pastry}. The possibility
+of such an optimization depends on the actual overlay structure used and is not
+always possible. Proximity routing consists in taking routing
+decisions not only according to the optimization of the logical distance
+covered toward the destination, but based on a compromise between it and a low-delay
+hop. It is a lightweight approach as it does not require specific maintenance in the routing table. It can be efficient if latency is not uniform in the network
+%
+HyPeer~\cite{hypeer} builds upon the
+observation that while Chord's routing paths is composed of $\log n$
+hops, each one covering half of the remaining distance to destinations, there is no need to make these hops from the largest one to the smallest one.
+Making them in another order may help improving other criteria than the number
+of logical hops, such as load balancing or latency. This is done by allowing
+the next routing step to be chosen according to their latency with the current node. This strategy, while
+increasing the average number of hops, decreases the average delay of a
+request. Koala's routing decision is close to HyPeer's one. Note that HyPeer requires that most links in
+the routing table are actually perfectly aligned (exactly $2^i$ away from the
+current node) making the construction of the routing table quite rigid. HyPeer does
+not take the lazy path either.
+
+\paragraph{Maintenance costs.}
+
+Reducing maintenance cost was explored by Relax-DHT~\cite{relaxdht}. Relax-DHT
+relaxes the invariant that each data block is replicated on the $k$ closest
+nodes of a block's root, thus avoiding the need for a systematic rearrangement of blocks whenever a node joins or leaves. Relax-DHT allows the copies to be
+stored a bit further away from the root. This introduces flexibility and maintenance cost reduction. Relax-DHT does not deal, as Koala, with the network structure itself, and is also not as lazy, as it still relies on a periodic trigger of the maintenance protocol.
+
+
+% I am starting to think that maybe the world won't be a better place if we remove this section
+% but for sure it will make space reduction much easier. I think we already say "high traffic, low churn" a bit everywhere including in the introduction and the conclusion. 
+\section{Model\label{sec:model}}
+%Marin
+Koala is an overlay design to interconnect a big number of clouds. Our main assumptions are 
+
+Low churn
+High distribution in a wide world
+
+
+\section{Protocol\label{sec:protocol}}
+
+Koala combines existing DHT and gossip-like techniques to disseminate information passively without compromising 
+its performance. For this reason, it shares some of the basic concepts with well-known protocols. Nevertheless, Koala revises these concepts and introduces additional ones in order to support laziness and locality awareness.
+
+\subsection{The basic structure}
+
+%Similar to Chord, 
+Koala is a ring-based protocol. Nodes are identified by an $m$-bit ID and evenly distributed \cmmnt{by a hash function} through an identifier circular space modulo $2^m$. Each node has a routing table which is composed of (i) neighbors and (ii) long links. Neighbors are nodes with successor and predecessor IDs in the identifier space. The number of neighbors can be configured based on a trade-off between resilience and maintenance cost.
+%Given our focus on low maintenance cost, we use commonly 4 neighbors (2 predecessors, 2 successors). 
+Long links are nodes with IDs that range in distance from the ID of the node itself and allow shortcuts in the ring. For each entry in the routing table we maintain, among others, the ID, the IP, the Round Trip Time (RTT) and another field, called the \emph{ideal ID (IID)}, which we explain later. 
+Fig.~\ref{fig:structure} shows an example of a node and its routing table.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[height=3.2cm]{img/koala}
+\caption{Routing table of a koala node with ID=0 and 2 neighbors and 4 long links in a m=4 network.}
+\label{fig:structure}
+\end{figure}
+
+The choice of long links is crucial for the routing performance. Similarly to Symphony, Koala's
+selection of long links is based on a continuous form of Kleinberg’s model. This model is characterized by a probability distribution 
+%function 
+which defines the likelihood for a node to have a long link at a distance $d$ as follows $pdf(d) =1/(d \ln N)$, where $N$ is the size of the network and $d$ varies from $1/N$ to $1$. 
+In Koala, as in Chord, we consider the maximum number of supported nodes instead of the actual size of the network as that is not known by the nodes, so $N=2^{m-1}$. In addition, Koala's routing is bidirectional so $d$ varies from $1/2^{m-1}$ to $1$.
+
+By drawing probabilities from this distribution function, we determine the logical distance in the ring between a node and its long links. We randomly select the direction on which that distance is applied and hence, we generate ideal IDs for a node's long links. 
+%Note that nodes with these IDs might not even exist. 
+We do not actively try to contact these nodes, but rather store the ideal ID in the routing table and leave the ID field empty. The number of long links is configurable, but we commonly opt for a multiple of $m$: $Nr_{ll} = C * m$. We allow ourselves to have more long links than other similar protocols in order to even out the fact that their quality might not be optimal. We will see later that the maintenance cost is generally negligible. %We show the effect on the performance of varying the factor $C$ in the experiments section.
+
+\subsection{Lazy learning}
+
+Before joining, a node is assigned a random ID. Based on this ID, it defines the ideal IDs for its long links, but it has no actual node and their IP information for contacting them. The only actual node it knows is the one of a random node already present in the network, the \emph{bootstrap} node. The join procedure starts by sending a join request to the the bootstrap node. Based on a routing strategy that we describe later, this node forwards the request to other nodes 
+%in its routing table, and so on, 
+until the request arrives at one of the potential neighbors of the joining node. At that point, the potential neighbor will contact the joining node and its current neighbor, which is about to be replaced by the joining node, to let it know that a new neighbor will be in between. The joining node then exchanges routing table information with both neighbors and places itself on the right position in the ring. 
+
+During a routing table exchange, nodes also look for potential long links.
+%In addition, to discovering neighbors, the routing table exchanges during the join procedure are used also discover long links. 
+A node confronts the ID of each entry in the received routing table against each ideal ID in its routing table. In case the distance between an ideal ID and the received entry is smaller than that between the ideal ID and the current actual ID, the latter one is updated and the RTT is replaced with a default value $L_{def}$. This value might not reflect the actual RTT, but it gets soon updated to a real value once a message with that entry is exchanged. 
+
+%Joining is not the only phase where a node discovers potential long links, the same happens during routing. 
+In addition to routing table exchanges, long links can be discovered also during routing requests for the application. 
+The routed message itself contains piggybacked information about nodes present in the network. This information derives from two sources: its own path, and the routing table of the nodes in its path. The effectiveness of using the path for discovering new nodes depends on the diversity of these paths.
+%Discovering nodes from the message path is particularly useful for reducing the hops of the routes which go on the opposite direction but its effectiveness depends on the diversity of the paths. 
+
+We try to improve this diversity by piggybacking also IDs from the routing table of each node in the path. Upon message creation, we generate a fixed number of evenly distributed random IDs, which play the same role as the ideal IDs of long links that we explained before. Whenever a message reaches an intermediate node, the node compares its routing table entries with the message ideal IDs and, same as before, it piggybacks the ID of the entry in case it is better than the actual ID present in the message.
+
+These simple mechanisms can be thought of as a passive gossiping. Each node gossips information about the state of the network, but without periodically contacting any node solely for this purpose. As a result, the speed of learning about the network depends on the amount of application traffic.
+
+\subsection{Routing: greedy, locality-aware, or both?}
+
+The Kleinberg distribution guarantees a logarithmic complexity in terms of hops when a greedy algorithm is used. However, even though the number of hops is a significant factor for determining the delivery time of the message, the cost of the hop is very important as well. A message can be delivered faster using many cheap hops rather than a few expensive ones.
+
+We show that by controlling the trade-off between greediness and locality-awareness of our routing algorithm, we can gain in delivery time in spite of slightly increasing the number of hops. A purely greedy algorithm would select the next step based only on the minimization of the logical distance. On the other hand, a purely locality-based algorithm would select the entry which is cheapest in terms of RTT, but which also reduces the logical distance. The latter condition is added in order to make sure that the message will eventually reach the destination. 
+
+We investigate an algorithm which takes into consideration both factors, namely logical distance and physical distance (in terms of RTT). 
+%for selecting the next step. 
+This simple algorithm examines all the entries in the routing table and for each of them it gives a rating based on the following formula:
+$$ R_{entry} = 1 / ( \alpha * d(entry.ID, dest.ID) + (1 - \alpha) * norm(entry.RTT)) $$%
+
+%$$ R_{entry} = \frac{1}{\alpha * d(entry.ID, dest.ID) + (1 - \alpha) * norm(entry.RTT)} $$
+
+Where 
+$d(entry.ID, dest.ID)$ is the remaining logical distance if we choose this entry, $norm()$ is a normalization function which converts the value of RTT into the same scale as the distance, and $\alpha$ is a coefficient which determines the weight of each of the factors.% in our decision. 
+The  entry with the highest rating $R$ is selected.
+%The algorithm selects the entry with the highest rating $R$.
+
+%The rating formula above is a simplified version of the actual one and it omits some details. For instance, it is worth remarking that entries for which $d(node.ID, dest.ID)$ is smaller than $d(entry.ID, dest.ID)$ are discarded. In addition, the normalization function is based on mapping the minimum and maximum values for the remaining distance to those of the RTT, and deriving the values in between based on a linear function. The remaining distance can vary from 0, when the next step is the final destination, to $d(node.ID, dest.ID) - 1$ if we progress just by one step. While for the RTT these values should be introduced empirically or based on some QoS specifications. %
+
+From a different perspective, the function above provides a tool for determining if getting as logically close as possible to the destination can justify its cost in terms of latency. And the other way around, if going to the closest node justifies this potentially extra hop. The coefficient lets a node decide which factor it values the most. An $\alpha = 1$ results in a purely greedy algorithm, and an $\alpha = 0$ in a purely locality based one. We are interested to investigate the values in the middle. 
+
+\subsection{Resilience}
+
+The extent to which a protocol is resilient to continuous changes in the network depends 
+%significantly 
+on the rigorosity of maintaining 
+%and updating 
+the links in the routing table. However, continuous maintenance procedures are not compatible with our main principle which is to be as lazy as possible. For this reason, our protocol is not designed to support very high degrees of churn. Nevertheless, we take a few measures to support some occasional churn without significantly degrading our performance. % or even failing to deliver. 
+
+Node joining and departing are handled differently in Koala depending on the relation that current nodes have with the new comer or with the departed node. In case these events affect node neighbors, taking an action immediately is much more important than when a long link is affected. As we described before, when a node joins the network, its future neighbors are immediately notified. Whereas, upon a node departure, its neighbors are not notified until one of them tries to contact the departed node. In that case, it will remove it from the routing table and it will exchange routing tables with the next node in its neighbors list. For this to work, the list of neighbors needs to be relatively updated. We do this by piggybacking neighbor information only when messages are exchanged between neighbors. For instance, when node n sends a message to its successor s, it also reports which is its predecessor p. So in case, n departs, s and p will exchange routing tables. This lazy way for knowing neighbors’ neighbors does not guarantee that the information won’t be  outdated. In that case the node will try to find its real neighbor by contacting a long link in the vicinity. 
+
+In case a long link joins or departs the management is more straightforward. Joining nodes which might be ideal long links for current nodes are noticed only as information gets disseminated as explained before. A node will realize that a long link is down only when trying to forward to it. In that case, it will forward to the link with the second highest rating, and it will mark this link as down. That means that it can be replaced even with other links with higher difference form the ideal ID. In order to avoid rediscovering the same link, we use Lamport timestamps ~\cite{lamport}. When the rating of all entries in the routing table are smaller than the one of the node itself, the node declares failure to the sender of the message. 
+
+
+\section{Experimental Validation\label{sec:experiments}}
+
+In order to evaluate the behaviour of our overlay under different circumstances we have conducted various experiments using the PeerSim~\cite{peersim} simulator. For each of these experiments, we use the same basic setup. We assign random coordinates to each node on a unit coordinative system. We then use the Waxman model~\cite{waxman} for creating the links between these nodes. The resulting topology represents for us the physical network. In order to simulate the IP routing in the physical network we use Dijkstra shortest path algorithm, where the cost of the edges are a function of the euclidian distance between the nodes. The cost of a physical path represents the RTT for that path. Consequently, the RTT of a logical path is the sum of RTTs of all physical paths by which it is composed.  
+
+In order to compare Koala with physical routing or other logical protocols, the simulator provides the same task to all the protocols. This task can be routing, or in case of logical protocols, node joining or node leaving. At the end of the task we collect data about it, such as RTT, physical and logical hops, failures, etc and confront them. Even though we use PeerSim in the event-based mode, tasks are introduced to the network on a cyclic basis. On each cycle we perform one or more tasks.
+
+\subsection{Number of long links and scalability}
+In the first experiment we study the behaviour of our overlay as the network expands under some uniform application traffic. This means that on each cycle, a node joins the network and also a message is sent from a random source to a random destination. We expand the network up to 100K nodes and we assume no node leaves the network. We run the same experiment for different number of long links, by varying the constant C. We fix $\alpha$ to 1, therefore we do not take into account the RTT in our routing algorithm. Fig.~\ref{fig:exp1} shows how latency and number of hops are affected as the network scales up.
+
+\begin{figure}[!htb]
+\makebox[\textwidth][c]{
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{img/exp1latency}
+  %\caption{A subfigure}
+  %\label{fig:exp1latency}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{img/exp1hops}
+  %\caption{A subfigure}
+  %\label{fig:exp1hops}
+\end{subfigure}
+}
+\caption{Latency and number of hops as network scales up to 100K nodes.}
+\label{fig:exp1}
+\end{figure}
+
+As mentioned earlier $Nr_{ll} = C * m$. For $N = 100K$, $m = 17$, therefore $C=1, 2, 4$ correspond to $17, 34$ and $68$ long links. From the results above we observe that regardless of the number of links, latency and hops grow logarithmically as more nodes join the network. It is clear that the higher the number of long links, the lower the latency and the hops. However, by doubling the number of links, we do not reduce twice the latency. Therefore, at some point increasing further the number of number of long links would not provide significant additional benefit, while it might introduce additional latency in case of multiple attempts to connect to stale long links.
+
+\subsection{Lazy learning and greedy, locality-awareness balance}
+In the following experiment we demonstrate the ability of Koala to discover the network in a lazy way, as application messages are routed. We focus in particular on the impact of the coefficient alpha on latency and hops. We use a static network of 10K nodes, where no new nodes join or leave the network. For this experiment we compare our protocol with Chord. Therefore, on each cycle both protocols are required to route a message from the same random source to the same random random destination. We fix the number of long links by setting $C=2$ (28 long links) and vary alpha from 0 to 1, by adding each time 0.25. Fig.~\ref{fig:exp2} shows the impact of this variation on latency and number of hops.
+
+\begin{figure}[!htb]
+\makebox[\textwidth][c]{
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{img/exp2latency}
+  %\caption{A subfigure}
+  %\label{fig:exp2latency}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{img/exp2hops}
+  %\caption{A subfigure}
+  %\label{fig:exp2hops}
+\end{subfigure}}
+\caption{Impact of $\alpha$ on latency and hops. }
+\label{fig:exp2}
+\end{figure}
+
+From the figure above we can observe that regardless from the value of alpha, as more and more messages are exchanged, Koala nodes discover long links which are closer to their ideal ones and therefore the latency decreases over time. It is also evident, that this learning is faster at the beginning. Once the discovered long links comply with the Kleinberg model, finding the exact ideal link would not result in significant latency improvements. We also notice that Koala delivers the messages faster than Chord. This is mainly due to the fact that Koala is using twice as many long links, but also due to the latency awareness introduced by varying the parameter alpha. 
+
+Concerning this impact of alpha on latency and hops there are a few aspects worth noticing. Firstly, for $\alpha=0$, when the routing decisions are primarily based on latency and almost not at all on logical distance, on each hop a message is always forwarded to nearby nodes without significantly approaching to the destination. This results in many hops and as a consequence, in very high latencies. However, it is interesting the fact that if we consider just a bit more the logical distance ($\alpha=0.25$), we still have a relatively high number of hops, but we significantly improve the latency. 
+
+On the other hand, for $\alpha=1$, when base routing solely on logical distance, we achieve the lowest number of hops, but that does not mean the lowest latency. In order to improve latency we need to take RTT more into account by reducing alpha. This is done until an equilibrium is found when reducing it more, gives higher latency as the number of hops also increases. For our simulation this equilibrium happened to be for $\alpha=0.5$, but this value depends on various factors such as network topology, traffic pattern, normalization function, etc.
+
+
+\subsection{Churn resilience} 
+
+For the last two experiments we focus on analyzing how Koala deals with dynamic networks. One of the features of lazy protocols with respect to churn is that these protocols learn from the failures rather than avoid them by actively contacting the nodes in the routing table. Therefore we focus on the ability of Koala to repair itself once a failure has been detected.
+For the first experiment we consider a network of 5K nodes. Again, at each cycle a message is routed between a random source and destination. However, every 80 cycles a number of CH node leaves the network, and the same number joins. These two events do not necessarily happen on the same cycle. We analyze how Koala deals with various levels of churn by varying the number CH. The other parameters are fixed $C=2$ and $\alpha=0.5$. Fig.~\ref{fig:exp31} shows the effect of churn on latency and number of failures.
+
+\begin{figure}[!htb]
+\makebox[\textwidth][c]{
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{img/exp3-1latency}
+  %\caption{A subfigure}
+  %\label{fig:exp31latency}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{img/exp3-1fails}
+  %\caption{A subfigure}
+  %\label{fig:exp31fails}
+\end{subfigure}}
+\caption{Impact of various levels of churn on latency and number failures.}
+\label{fig:exp31}
+\end{figure}
+
+The figure on the left shows that as the level of churn increases, the routing latency of successfully delivered messages increases as well but that happens rather gracefully. This is due to our learning techniques which help nodes to update their stale links without significantly breaking the Kleinberg distribution. 
+Nevertheless, the same thing can not be said for the number of failures. The figure on the right shows that for low levels of churn (CH=1 or 2), the lazy reparation is efficient enough to keep failure rate quite low. However as churn levels increase (CH=8), the overlay does not have enough time to repair before other changes in the network occur. In that case the number of failures continuously grows.
+
+In the next experiment we analyze the ability of Koala to repair itself in case of an abrupt failure of a whole section of the network. In this case, we consider a network of 10K nodes where no node joins. At each cycle we route as in the previous experiments, but at cycle 5K we introduce the unexpected failure. We vary the number of these failed nodes and show its effects on latency and failures in Fig.~\ref{fig:exp32}.
+
+\begin{figure}[H]
+\makebox[\textwidth][c]{
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{img/exp3-2latency}
+ % \caption{A subfigure}
+ % \label{fig:exp32latency}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{img/exp3-2fails}
+  %\caption{A subfigure}
+  %\label{fig:exp32fails}
+\end{subfigure}}
+\caption{Impact of a massive failure on latency and number of failed messages.}
+\label{fig:exp32}
+\end{figure}
+
+Considering that the amount of long links per node affected by this sort of failure is significantly higher than the previous experiment, the Kleinberg distribution is initially broken, and that results in higher latencies. However, in general, as the ring starts repairing and the number of nodes gets reduced, the latencies are reduced as well. 
+Nevertheless, on the right side of the figure we see that the ability of Koala to repair depends on the amount of failing nodes. We can observe that the higher this amount, the longer it takes for the overlay to rebuild itself. Moreover, if this section of the network is too large (90\%), Koala is not able to recover anymore.   
+
+
+
+
+\section{Conclusions and Future Directions\label{sec:ccl}}
+Peer-to-peer routing protocols have been widely studied in the last two decades, and therefore many of the concepts described in this paper are not entirely new. However, the context under which these studies were conducted has continuously changed. Initial protocols focused on algorithmic complexity, later ones targeted locality-awareness, while gossiping algorithms aimed at resilience. Koala’s target is to relax the constraints regarding overlay maintenance in such a way that we reduce useless traffic while we still provide similar complexity, locality-awareness and a reasonable degree of resilience.
+
+Our experiments based on uniform traffic show that, similarly to other traditional protocols, Koala is a $O(\log(n))$ protocol. Additionally, they suggest that by finely tuning the degree of locality-awareness we can furtherly improve message latencies. And finally, experiments show that Koala can appropriately handle moderate churn by lazily repairing the overlay. As a consequence, Koala would be an appropriate choice in a high traffic and low churn network such as in a decentralized cloud environment. 
+
+Our next goal for future research is to extend Koala in order to support also intra-PoP routing. We would like to investigate on how we can combine internal and external routing to improve latency without introducing any hierarchy. We envision Koala as a unique protocol throughout a decentralized cloud.
+
+
+\bibliographystyle{splncs03}
+\bibliography{koala}
+
+\end{document}

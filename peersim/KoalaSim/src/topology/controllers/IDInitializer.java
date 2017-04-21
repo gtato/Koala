@@ -11,11 +11,13 @@ public class IDInitializer implements Control{
 		NodeUtilities.RID = Configuration.getPid(prefix + ".rid", -1);
 		NodeUtilities.KID = Configuration.getPid(prefix + ".kid", -1);
 		NodeUtilities.FKID = Configuration.getPid(prefix + ".fkid", -1);
+		NodeUtilities.LKID = Configuration.getPid(prefix + ".lkid", -1);
 		NodeUtilities.CID = Configuration.getPid(prefix + ".cid", -1);
 		
 		NodeUtilities.RPID = Configuration.getPid(prefix + ".rpid", -1);
 		NodeUtilities.KPID = Configuration.getPid(prefix + ".kpid", -1);
 		NodeUtilities.FKPID = Configuration.getPid(prefix + ".fkpid", -1);
+		NodeUtilities.LKPID = Configuration.getPid(prefix + ".lkpid", -1);
 		NodeUtilities.CPID = Configuration.getPid(prefix + ".cpid", -1);
     
 		NodeUtilities.TRID = Configuration.getPid(prefix + ".trid", -1);

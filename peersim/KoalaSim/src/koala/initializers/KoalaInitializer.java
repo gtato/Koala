@@ -9,6 +9,7 @@ import koala.FlatKoalaProtocol;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import koala.KoalaProtocol;
+import koala.LeaderKoalaProtocol;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
@@ -17,6 +18,7 @@ import peersim.core.Fallible;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.dynamics.NodeInitializer;
+import renater.RenaterNode;
 import renater.RenaterProtocol;
 import topology.TopologyNode;
 import topology.TopologyPathNode;
@@ -58,6 +60,10 @@ public class KoalaInitializer implements Control, NodeInitializer {
 				FlatKoalaProtocol fkp = (FlatKoalaProtocol )n.getProtocol(NodeUtilities.FKPID);
 				fkp.intializeMyNode(n, NodeUtilities.FKPID);
 			}
+			if(NodeUtilities.LKPID > 0){
+				LeaderKoalaProtocol fkp = (LeaderKoalaProtocol )n.getProtocol(NodeUtilities.LKPID);
+				fkp.intializeMyNode(n, NodeUtilities.LKPID);
+			}
 			
 			NodeUtilities.down(Network.get(i));
 			
@@ -83,6 +89,8 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			initialize(inx, NodeUtilities.KPID);
 		if(NodeUtilities.FKPID > 0)
 			initialize(inx, NodeUtilities.FKPID);
+		if(NodeUtilities.LKPID > 0)
+			initializeLeader(inx, NodeUtilities.LKPID);
 		
 //		printing neighbors assignment
 //		for (int i = 0; i < nr; i++) {
@@ -111,12 +119,8 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		double perc,prevPerc=0;
 		for (int i = 0; i < nr; i++) {
 			Node n = Network.get(inx.get(i));
-//			KoalaProtocol kp = (KoalaProtocol )n.getProtocol(pid);
 			KoalaNode kn = (KoalaNode )n.getProtocol(NodeUtilities.getLinkable(pid));
-//				kp.intializeMyNode(n, NodeUtilities.KPID);
-//				kp.join();
-//				System.out.println(kn.getID());
-			if(initialize){ //if we are setting long links then why not set also th 
+			if(initialize){ //if we are setting long links then why not set also the neighbors 
 				setNextNNeighbors(kn);
 				kn.setJoined(true);
 			}
@@ -127,15 +131,60 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		if(!initialize){		
 			for (int i = 0; i < nr; i++) {
 				Node n = Network.get(inx.get(i));
-				KoalaProtocol kp = (KoalaProtocol )n.getProtocol(pid);
+				KoalaProtocol kp = (KoalaProtocol)n.getProtocol(pid);
 				kp.join();
-				perc = (double)100*i/nr;
+				perc = (double)100*(i+1)/nr;
 				String txt = i < nr-1 ? perc + "%, " : perc + "%"; 
-				if(perc - prevPerc > 10){
+				if(perc - prevPerc > 10 || i == nr-1){
 					System.out.print(txt);
 					prevPerc = perc;
 				}
 			}
+		}
+		System.out.println(" Done.");
+	} 
+	
+	private void initializeLeader(ArrayList<Integer> inx, int pid){
+		NodeUtilities.CURRENT_PID = pid;
+		double perc,prevPerc=0;
+		for (int i = 0; i < nr; i++) {
+			Node n = Network.get(inx.get(i));
+			KoalaNode kn = (KoalaNode )n.getProtocol(NodeUtilities.getLinkable(pid));
+			RenaterNode rn = (RenaterNode )n.getProtocol(NodeUtilities.RID);
+			if(initialize && rn.isGateway()){ //if we are setting long links then why not set also the neighbors 
+				setNextNNeighbors(kn);
+				kn.setJoined(true);
+			}
+			if(rn.isGateway()){
+				ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(kn);
+				kn.getRoutingTable().setLongLinks(lls);
+			}
+		}	
+		
+		if(!initialize){		
+			for (int i = 0; i < nr; i++) {
+				Node n = Network.get(inx.get(i));
+				KoalaProtocol kp = (KoalaProtocol)n.getProtocol(pid);
+				RenaterNode rn = (RenaterNode )n.getProtocol(NodeUtilities.RID);
+				if(rn.isGateway())
+					kp.join();				
+			}
+
+			for (int i = 0; i < nr; i++) {
+				Node n = Network.get(inx.get(i));
+				KoalaProtocol kp = (KoalaProtocol)n.getProtocol(pid);
+				RenaterNode rn = (RenaterNode )n.getProtocol(NodeUtilities.RID);
+				if(!rn.isGateway()){
+					kp.join();
+					perc = (double)100*(i+1)/nr;
+					String txt = i < nr-1 ? perc + "%, " : perc + "%"; 
+					if(perc - prevPerc > 10 || i == nr-1){
+						System.out.print(txt);
+						prevPerc = perc;
+					}
+				}
+			}
+			
 		}
 		System.out.println(" Done.");
 	} 

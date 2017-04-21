@@ -109,6 +109,12 @@ public class TrafficGenerator extends GraphObserver {
         	tr.send(null, src, msg, NodeUtilities.FKPID);
 		}
 		
+		if(NodeUtilities.LKPID >= 0){
+			KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent((KoalaNode)dst.getProtocol(NodeUtilities.LKID)));
+        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
+        	tr.send(null, src, msg, NodeUtilities.LKPID);
+		}
+		
 		if(NodeUtilities.CPID >= 0){
 			ChordNode destCn = (ChordNode)dst.getProtocol(NodeUtilities.CID);
 			ChordLookUpContent cc = new ChordLookUpContent(ChordMessage.LOOK_UP, destCn);

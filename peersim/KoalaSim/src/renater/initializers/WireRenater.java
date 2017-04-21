@@ -508,9 +508,9 @@ public class WireRenater extends WireGraph {
     			PhysicalDataProvider.addPath(rn.getCID(), rm.getCID(), path);
         	}
         	
-        	perc = (double)100*i/gateways.size();
+        	perc = (double)100*(i+1)/gateways.size();
 			String txt = i < gateways.size()-1 ? perc + "%, " : perc + "%"; 
-			if(perc - prevPerc > 10){
+			if(perc - prevPerc > 10 || i == gateways.size()-1){
 				System.out.print(txt);
 				prevPerc = perc;
 			}

@@ -27,19 +27,8 @@ public class KoalaRoutingTable {
 	
 	
 	public KoalaRoutingTable(){
-		KoalaNeighbor defaultNeighbor = KoalaNeighbor.getDefaultNeighbor();
-//		localPredecessors = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
-//		localSucessors = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
-		globalPredecessors = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
-		globalSucessors = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
-		for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
-//			localPredecessors[i] = defaultNeighbor;
-//			localSucessors[i] = defaultNeighbor;
-			globalPredecessors[i] = defaultNeighbor;
-			globalSucessors[i] = defaultNeighbor;
-		}
+		resetGlobals();
 	}
-
 	
 	
 //	public KoalaNeighbor[] getLocalPredecessors() {
@@ -79,14 +68,30 @@ public class KoalaRoutingTable {
 	}
 	
 	public boolean addLocal(KoalaNeighbor kn){
+		boolean add = true;
 		for(KoalaNeighbor n : locals)
-			if(n.equals(kn))
-				return false;
-		return locals.add(kn);
+			if(n.equals(kn)){
+				n.setLatency(kn.getLatency());
+				n.setLatencyQuality(kn.getLatencyQuality());
+				add = false;
+			}
+		if(add)
+			locals.add(kn);
+		return add;
 	}
 	
 	public ArrayList<KoalaNeighbor> getLocals(){
 		return locals;
+	}
+	
+	public void resetGlobals(){
+		KoalaNeighbor defaultNeighbor = KoalaNeighbor.getDefaultNeighbor();
+		globalPredecessors = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
+		globalSucessors = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
+		for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
+			globalPredecessors[i] = defaultNeighbor;
+			globalSucessors[i] = defaultNeighbor;
+		}
 	}
 	
 //	public KoalaNeighbor getLocalPredecessor(int index) {
@@ -136,8 +141,6 @@ public class KoalaRoutingTable {
 			//update
 			globalPredecessors[index].update(kn);
 		}else{
-//			oldEntry = globalPredecessors[index]; 
-//			globalPredecessors[index] = kn;
 			oldEntry = last(globalPredecessors);
 			setIndex(globalPredecessors, index, kn);
 		}
@@ -154,8 +157,6 @@ public class KoalaRoutingTable {
 			//update
 			globalSucessors[index].update(kn);
 		}else{ 
-//			oldEntry = globalSucessors[index]; 
-//			globalSucessors[index] = kn;
 			oldEntry = last(globalSucessors);
 			setIndex(globalSucessors, index, kn);
 
@@ -173,10 +174,6 @@ public class KoalaRoutingTable {
 	}
 	
 	public boolean addLongLink(KoalaNeighbor kn){
-		
-//		if(this.getNeighboursIDs(1).contains(kn.getNodeID())
-//		||this.getNeighboursIDs(2).contains(kn.getNodeID()))
-//			return false;
 //		Discard down neighbors (like Lamport would do)
 		Node nn = NodeUtilities.Nodes.get(kn.getCID());
 		if(nn==null || !nn.isUp())
@@ -203,8 +200,7 @@ public class KoalaRoutingTable {
 					ll.setLatencyQuality(kn.getLatencyQuality());
 					added=true;
 				}
-			}
-			
+			}			
 		}
 		
 		return added;

@@ -46,8 +46,8 @@ public class NodeUtilities {
 	public static int NR_DC = 0; //Configuration.getInt("NR_DC")
 	public static int ACTUAL_NR_DC = 0;
 	
-	public static int RID = -1, KID = -1, CID = -1, FKID = -1;
-	public static int RPID = -1, KPID=-1, CPID=-1, FKPID=-1;
+	public static int RID = -1, KID = -1, CID = -1, FKID = -1, LKID = -1;
+	public static int RPID = -1, KPID=-1, CPID=-1, FKPID=-1, LKPID=-1;
 	public static int TRID = -1;
 	public static int CURRENT_PID = -1;
 	
@@ -170,6 +170,8 @@ public class NodeUtilities {
 			return CID;
 		if(pid == FKPID)
 			return FKID;
+		if(pid == LKPID)
+			return LKID;
 		return -1;
 	}
 	
@@ -182,19 +184,23 @@ public class NodeUtilities {
 	}
 	
 	public static RenaterNode getRenaterNode(String id){
+		if(id==null) return null;
 		return (RenaterNode) Nodes.get(id).getProtocol(RID);
 	}
 	
 	public static KoalaNode getKoalaNode(String id){
+		if(id==null) return null;
 		return (KoalaNode) Nodes.get(id).getProtocol(KID);
 	}
 	
 	
 	public static ChordNode getChordNode(String id){
+		if(id==null) return null;
 		return (ChordNode) Nodes.get(id).getProtocol(CID);
 	}
 	
 	public static ChordNode getChordNodeByCID(BigInteger id){
+		if(id==null) return null;
 		return (ChordNode) CHORD_NODES.get(id).getProtocol(CID);
 	}
 	
@@ -260,12 +266,12 @@ public class NodeUtilities {
 	}
 	
 	public static int getSize(){
-		int size = CURRENT_PID == KPID ? NodeUtilities.NR_DC : NodeUtilities.SIZE;
+		int size = CURRENT_PID == KPID || CURRENT_PID == LKPID ? NodeUtilities.NR_DC : NodeUtilities.SIZE;
 		return size;
 	}
 	
 	public static int getLongLinks(){
-		int size = CURRENT_PID == KPID ? LONG_LINKS : FLAT_LONG_LINKS;
+		int size = CURRENT_PID == KPID || CURRENT_PID == LKPID ? LONG_LINKS : FLAT_LONG_LINKS;
 		return size;
 	}
 	
@@ -414,15 +420,15 @@ public class NodeUtilities {
 	public static void up(Node n){
 		KoalaNode kn = (KoalaNode) n.getProtocol(KID);
 		n.setFailState(Fallible.OK);
-		UPS.put(kn.getSID(), n);
-		DOWNS.remove(kn.getSID());
+		UPS.put(kn.getCID(), n);
+		DOWNS.remove(kn.getCID());
 	}
 	
 	public static void down(Node n){
 		KoalaNode kn = (KoalaNode) n.getProtocol(KID);
 		n.setFailState(Fallible.DOWN);
-		DOWNS.put(kn.getSID(), n);
-		UPS.remove(kn.getSID());
+		DOWNS.put(kn.getCID(), n);
+		UPS.remove(kn.getCID());
 	}
 	
 	
