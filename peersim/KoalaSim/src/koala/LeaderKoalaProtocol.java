@@ -2,6 +2,7 @@ package koala;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import messaging.KoalaMessage;
@@ -95,6 +96,22 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 		
 		return ret;
 	}
+	
+	
+	protected void addPiggybacked(KoalaMessage km, String dest){
+		// if I am forwarding to a neighbor 
+		if(myNode.isLeader() && myNode.inNeighborsList(dest)){
+			if (!myNode.isLocal(dest)){
+				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getGlobalSucessors()));
+				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getGlobalPredecessors()));
+			}
+		}
+	}
+
+	
+//	protected void checkPiggybackedBefore(KoalaMessage msg) {
+//		
+//	}
 	
 	protected void broadcastGlobalNeighbor(KoalaNeighbor newNeig) {
 		return;

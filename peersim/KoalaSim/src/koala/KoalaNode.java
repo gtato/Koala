@@ -385,7 +385,7 @@ public class KoalaNode extends TopologyNode{
 			boolean isDown = !NodeUtilities.isUp(rentry.getCID()); 
 			if(isDown)
 				downEntries.add(rentry);
-			if(rentry.getSID().equals(dest) && isDown)
+			if(rentry.equals(dest) && isDown)
 				break;
 			if(msg.getPath().contains(rentry) || 
 					destNeigs.contains(rentry.getSID()) ||

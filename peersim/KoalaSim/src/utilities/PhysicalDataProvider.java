@@ -210,16 +210,15 @@ public class PhysicalDataProvider {
 			return round(2 * intraLatency);
 		}
 		double dclat = getDCLatency(src, dst);
-		if(dclat > 0)
-			return dclat;
-		else{
+		if(dclat <= 0){
 			String gwSrc = getGW(src);
 			String gwDst = getGW(dst);
-			return getLatency(src, gwSrc) +
+			dclat = getLatency(src, gwSrc) +
 				   getLatency(gwSrc, gwDst) +
 				   getLatency(gwDst, dst);
 					
 		}
+		return dclat;
 		
 	}
 	
@@ -370,6 +369,14 @@ public class PhysicalDataProvider {
 		
 	}
 
+	public static double getTheoreticalMaxLatency(){
+		return adjustDistanceValue(Math.sqrt(2));
+	}
+	
+	public static double getCloseLatency(){
+		return NodeUtilities.CLOSE_LAT * PhysicalDataProvider.getTheoreticalMaxLatency(); //of max latency
+	}
+	
 	
 	public static double getBitRate(){
 		double[] bitrates = {1e9, 2.5e9, 10e9};

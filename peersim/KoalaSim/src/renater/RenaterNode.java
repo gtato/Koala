@@ -7,6 +7,7 @@ import java.util.HashMap;
 import messaging.KoalaMessage;
 import messaging.KoalaRouteMsgContent;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Node;
 import topology.TopologyNode;
 import topology.TopologyPathNode;
@@ -20,12 +21,13 @@ public class RenaterNode extends TopologyNode{
 	
 	private ArrayList<Node> neighbors;
 	private HashMap<String, RenaterEdge> edges;
-//	private HashMap<String, String> routes;
+	private ArrayList<Node> friends;
 	
 	
 	public RenaterNode(String prefix) {
 		super(prefix);
 		neighbors = new ArrayList<Node>();
+		friends = new ArrayList<Node>();
 //        routes = new  HashMap<String, String>();
         edges = new  HashMap<String, RenaterEdge>();
 	}
@@ -34,7 +36,8 @@ public class RenaterNode extends TopologyNode{
 		RenaterNode inp = null;
         inp = (RenaterNode) super.clone();
         neighbors = new ArrayList<Node>();
-//        routes = new  HashMap<String, String>();
+        friends = new ArrayList<Node>();
+        //        routes = new  HashMap<String, String>();
         edges = new  HashMap<String, RenaterEdge>();
         return inp;
     }
@@ -108,9 +111,47 @@ public class RenaterNode extends TopologyNode{
 		msg.setPath(shortestPath);
 	}
 	
+	public RenaterNode getUnvisitedChildNode() {
+		for(Node n : this.getNeighbors()){
+			RenaterNode rn = (RenaterNode)n.getProtocol(NodeUtilities.RID);
+			if(!rn.isVisited())
+				return rn;
+		}
+		return null;
+	}
 	
 	public ArrayList<Node> getNeighbors() {
 		return neighbors;
+	}
+	
+	public boolean isFriend(Node f) {
+		if(f != null){
+			for(Node n : friends)
+				if(n.equals(f))
+					return true;
+		}
+		return false;
+	}
+	
+	public void addFriend(Node f) {
+		if(f != null)
+			friends.add(f);
+	}
+	
+	public ArrayList<Node> getFriends(){
+		return friends;
+	}
+	
+	public Node getRandomFriend(){
+		if(friends.size()==0) return null;
+		int ind = CommonState.r.nextInt(friends.size());
+		return friends.get(ind);
+	}
+	
+	public RenaterNode getRandomRenaterFriend(){
+		if(friends.size()==0) return null;
+		int ind = CommonState.r.nextInt(friends.size());
+		return (RenaterNode)friends.get(ind).getProtocol(NodeUtilities.RID);
 	}
 	
 	@Override

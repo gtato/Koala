@@ -52,9 +52,18 @@ public class TopologyPathNode{
 		
 	}
 	
+	public boolean equals(Object n){
+		if (KoalaNode.class.isInstance(n))
+			return this.equals((KoalaNode)n);
+		if (TopologyPathNode.class.isInstance(n))
+			return this.equals((TopologyPathNode)n);
+		return false;
+	}
+	
 	public boolean equals(TopologyPathNode n){
 		return this.getSID().equals(n.getSID());
 	}
+	
 	public boolean equals(KoalaNode n){
 		return this.getSID().equals(n.getSID());
 	}

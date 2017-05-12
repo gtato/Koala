@@ -24,7 +24,6 @@ import topology.TopologyNode;
 public class NodeUtilities {
 	public static final String DEFAULTID = "xxx";
 
-	
 	public static double A = 0;
 	public static double B = 0; //a.k.a alpha
 	public static double C = 0; //a.k.a beta 
@@ -66,6 +65,8 @@ public class NodeUtilities {
 	public static int FLAT_LONG_LINKS = Configuration.getInt("FLAT_LONG_LINKS", 3);
 	
 	public static boolean NESTED = Configuration.getBoolean("koala.settings.nested", false);
+	public static String LOCALITY = Configuration.getString("koala.settings.locality", "local");
+	public static double CLOSE_LAT = Configuration.getDouble("koala.settings.close_latency_rate", 0.25);
 	
 	public static Map<String, Node> Nodes =  new HashMap<String, Node>();
 	public static HashMap<String, Node> CHORD_NODES = new HashMap<String, Node>();
@@ -439,7 +440,8 @@ public class NodeUtilities {
 	}
 	
 	
-	public static ArrayList<Node> getRandNodes(int upOrDown, int nr){
+	
+	public static ArrayList<Node> getUniformRandNodes(int upOrDown, int nr){
 		ArrayList<Node> ret = new ArrayList<Node>();
 		if(nr < 1) return ret;
 		
@@ -453,6 +455,14 @@ public class NodeUtilities {
 			ret.add(upDowns.get(upDownKeys.get(i)));
 		
 		return ret;
+	}
+	
+	
+	public static void cleanAllVisited(){
+		for(int i =0; i < Network.size();i++){
+			RenaterNode rn = (RenaterNode) Network.get(i).getProtocol(NodeUtilities.RID);
+			rn.setVisited(false);
+		}
 	}
 	
 }

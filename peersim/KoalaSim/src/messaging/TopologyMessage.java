@@ -222,6 +222,23 @@ public abstract class TopologyMessage {
 	public int getHops(){
 		return this.getPath().size()-1;
 	}
+	
+	public int getLocalHops(){
+		TopologyPathNode lastpn = null;
+		int lh = 0;
+		for(TopologyPathNode pn : path){
+			if(lastpn == null) continue;
+			if(NodeUtilities.getDCID(lastpn.getSID()) == NodeUtilities.getDCID(pn.getSID()))
+				lh++;
+			lastpn = pn;
+		}
+		return lh;
+	}
+	
+	public int getGlobalHops(){
+		return getHops()-getLocalHops();
+	}
+	
 //	
 //	public int getLatencyCategory(){
 //		double lat = PhysicalDataProvider.getLatency(getFirstSender(), getReceiver());

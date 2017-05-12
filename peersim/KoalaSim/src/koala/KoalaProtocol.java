@@ -197,8 +197,8 @@ public class KoalaProtocol extends TopologyProtocol{
 		ArrayList<KoalaNeighbor> myOldNeighbors = new ArrayList<KoalaNeighbor>();
 		for(KoalaNeighbor recNeighbor: receivedNeighbors){
 			if(recNeighbor.equals(myNode)) continue;
-			boolean isSource = recNeighbor.getSID().equals(source.getSID());
-			boolean isSender = recNeighbor.getSID().equals(msgSender.getSID());
+			boolean isSource = recNeighbor.equals(source);
+			boolean isSender = recNeighbor.equals(msgSender);
 			if(selfJoining && myNode.isLocal(source.getSID()))
 				dcsBefore.add(NodeUtilities.getDCID(recNeighbor.getSID()));
 
@@ -273,7 +273,7 @@ public class KoalaProtocol extends TopologyProtocol{
 	
 	protected void broadcastLocalNeighbor(KoalaNeighbor newNeig) {
 		for(KoalaNeighbor kn : myNode.getRoutingTable().getLocals()){
-			if(kn.getSID().equals(newNeig.getSID())) continue;
+			if(kn.equals(newNeig)) continue;
 			KoalaNLNMsgContent msgContent = new KoalaNLNMsgContent(newNeig);
 			send(kn, new KoalaMessage(msgContent));
 		}
@@ -299,8 +299,8 @@ public class KoalaProtocol extends TopologyProtocol{
 	
 	protected void onRoute(KoalaMessage msg){
         TopologyPathNode destNode = ((KoalaRouteMsgContent)msg.getContent()).getNode();
-        boolean wantsToUpdateLatency = ((KoalaRouteMsgContent)msg.getContent()).wantsToUpdateLatency();
-        if(msgSender != null && !msgSender.getSID().equals(myNode.getSID())){
+//        boolean wantsToUpdateLatency = ((KoalaRouteMsgContent)msg.getContent()).wantsToUpdateLatency();
+        if(msgSender != null && !msgSender.equals(myNode)){
 	        myNode.updateLatencyPerDC(msgSender.getSID(), msg.getLatency(), 3);
 	        myNode.updateLatencies();
         }
@@ -311,6 +311,10 @@ public class KoalaProtocol extends TopologyProtocol{
         if(!destNode.equals(myNode)){
         	myNode.nrMsgRouted++;
             KoalaNeighbor kn = getRoute(new KoalaNode("", destNode.getCID(), destNode.getSID()), msg);
+            if(NodeUtilities.CURRENT_PID == NodeUtilities.KPID && !kn.getCID().equals(kn.getSID())){
+            	System.out.println("dafuq there is smth wrong");
+            }
+            
             if(kn != null){
 	            //TODO: maybe ask to update latency even in other cases (for the moment ask only if quality is really bad)
 	            boolean updateLat = kn.getLatencyQuality() <= 0? true:false;
@@ -336,10 +340,10 @@ public class KoalaProtocol extends TopologyProtocol{
 //        	}        	
         }
         
-        if(/*!initializeMode && */wantsToUpdateLatency){
-        	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
-        	send(msgSender, newMsg);
-        }
+//        if(/*!initializeMode && */wantsToUpdateLatency){
+//        	KoalaMessage newMsg = new KoalaMessage(new KoalaMsgContent(KoalaMessage.LL));
+//        	send(msgSender, newMsg);
+//        }
         	
 	}
 	
@@ -359,10 +363,10 @@ public class KoalaProtocol extends TopologyProtocol{
 		}
 		areNeighborsDown();
 		
-		if(NodeUtilities.getDCID(kn.getSID())  ==  NodeUtilities.getDCID(myNode.getSID())  
-	    && NodeUtilities.getDCID(ret.getSID()) != NodeUtilities.getDCID(myNode.getSID())){
+		if(NodeUtilities.sameDC(kn.getSID(), myNode.getSID())
+		&&	!NodeUtilities.sameDC(ret.getSID(), myNode.getSID()))	
 			System.out.println("I am calling outsiders to solve my problems");
-		}
+		
 			
 		
 		return ret;
@@ -493,31 +497,29 @@ public class KoalaProtocol extends TopologyProtocol{
 	 * @param msg
 	 */
 	protected void checkPiggybackedBefore(KoalaMessage msg) {
-		Object[] ids = myNode.getRoutingTable().getNeighboursIDs().toArray();
-		String[] idsIknow = Arrays.copyOf(ids, ids.length, String[].class);
-		
-		for(int i = 0; i < idsIknow.length; i++){
-			String ll = idsIknow[i];
-			for(int j = 0; j < msg.getPiggyBack().size(); j++){
-				KoalaNeighbor kn = msg.getPiggyBack().get(j);
-				if(kn.getIdealID() != null){
-					int dist = NodeUtilities.distance(kn.getIdealID(), ll);
-					int currentDist = NodeUtilities.distance(kn.getIdealID(), kn.getSID());
-					if(dist < currentDist)
-						kn.setSID(ll);
+		ArrayList<KoalaNeighbor> myNeigs = myNode.getRoutingTable().getNeighbors();
+		for(KoalaNeighbor neig : myNeigs){
+			for(KoalaNeighbor pl : msg.getPiggyBack()){
+				if(pl.getIdealID() == null) continue;
+				int dist = NodeUtilities.distance(pl.getIdealID(), neig.getSID());
+				int currentDist = NodeUtilities.distance(pl.getIdealID(), pl.getSID());
+				if(dist < currentDist){
+					pl.setCID(neig.getCID()); pl.setSID(neig.getSID());
 				}
-				
 			}
 		}
 	}
 	
-	private void addPiggybacked(KoalaMessage km, String dest){
+	protected void addPiggybacked(KoalaMessage km, String dest){
 		// if I am forwarding to a neighbor 
 		if(myNode.inNeighborsList(dest)){
 			if (myNode.isLocal(dest)){
 //				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getLocalSucessors()));
 //				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getLocalPredecessors()));
 				km.getPiggyBack().add(myNode.getResponsibleLocalNeighbor(dest));
+				for(KoalaNeighbor ll : myNode.getRoutingTable().getLongLinks())
+					km.getPiggyBack().add(ll);
+				
 			}else{
 				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getGlobalSucessors()));
 				km.getPiggyBack().addAll(Arrays.asList(myNode.getRoutingTable().getGlobalPredecessors()));

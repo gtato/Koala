@@ -105,8 +105,8 @@ public class KoalaDynamicNetwork implements Control{
 			toRemove = NodeUtilities.UPS.size() - realMinSize;
 		
 		int upind = alt ? -1:0;
-		ArrayList<Node> toUp = NodeUtilities.getRandNodes(upind, toAdd);
-		ArrayList<Node> toDown = NodeUtilities.getRandNodes(1, toRemove);
+		ArrayList<Node> toUp = NodeUtilities.getUniformRandNodes(upind, toAdd);
+		ArrayList<Node> toDown = NodeUtilities.getUniformRandNodes(1, toRemove);
 				
 		for(int i=0; i < toAdd; i++){
 			Node node = toUp.get(i);

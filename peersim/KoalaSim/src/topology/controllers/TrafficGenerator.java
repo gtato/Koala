@@ -2,6 +2,9 @@ package topology.controllers;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
 import javax.xml.stream.events.NotationDeclaration;
@@ -24,6 +27,7 @@ import renater.RenaterNode;
 import renater.RenaterProtocol;
 import topology.TopologyNode;
 import utilities.NodeUtilities;
+import utilities.PhysicalDataProvider;
 
 public class TrafficGenerator extends GraphObserver {
 
@@ -74,11 +78,10 @@ public class TrafficGenerator extends GraphObserver {
 			if(NodeUtilities.UPS.size() <= 1){
 				trials = 0; break;
 			}
-			srcdst = NodeUtilities.getRandNodes(1, 2);
+			srcdst = getRandNodes(1, 2);
 			src = srcdst.get(0);
 			dst = srcdst.get(1);
-			 
-		}while(src.equals(dst) && trials > 0);
+		}while((src.equals(dst) || src==null || dst==null) && --trials > 0);
 		
 		
 		if(trials == 0){
@@ -129,6 +132,12 @@ public class TrafficGenerator extends GraphObserver {
 		msgID++;
 		
 	}
+	
+//	private Node getDestination(Node src)
+//	{
+//		if(NodeUtilities.LOCALITY.equals(NodeUtilities.LOC_UNIFORM))
+//		return null;
+//	}
 
 	private Node[] extraSrcDst() {
 		ArrayList<Node> ups = new ArrayList<Node>();
@@ -164,33 +173,96 @@ public class TrafficGenerator extends GraphObserver {
 	
 	
 	
-//	private ArrayList<Node> getRandomNodes(int n, boolean joined, ArrayList<Node> except){
-//		ArrayList<Node> toRet = new ArrayList<Node>();
-//		ArrayList<Integer> complyingIndexes = new ArrayList<Integer>();
-//		for (int i = 0; i < Network.size(); i++) {
-//			if(except.contains(Network.get(i)))
-//				continue;
-//        	//int id = koaProtPid >= 0 ? koaProtPid : renProtPid;
-//        	int nid = koaProtPid >= 0 ? koaNodePid : renNodePid;
-//        	//TopologyProtocol currentNode = (TopologyProtocol)((Node)g.getNode(i)).getProtocol(id);
-//        	TopologyNode ncurrentNode = (TopologyNode)(Network.get(i)).getProtocol(nid);
-//        	//boolean cond = joined ? currentNode.hasJoined() : !currentNode.hasJoined();
-//        	boolean cond = joined ? ncurrentNode.hasJoined() : !ncurrentNode.hasJoined();
-////        	if(id == renProtPid)
-////        		cond = true;
-////        	if(cond && ((KoalaNode)((Node)g.getNode(i)).getProtocol(targetNodePid)).isGateway()  )
-//        	if(cond)
-//            	complyingIndexes.add(i);
-//        }
-//		
-//		int max = Math.min(n, complyingIndexes.size());
-//		
-//		for(int i = 0; i< max; i++){
-//			int sel = CommonState.r.nextInt(complyingIndexes.size());
-//			toRet.add(Network.get(complyingIndexes.get(sel)));
+	public ArrayList<Node> getRandNodes(int upOrDown, int nr){
+		
+		String[] vals = NodeUtilities.LOCALITY.split(" "); 
+		
+		if(vals.length != 3)
+			return NodeUtilities.getUniformRandNodes(upOrDown,nr);
+		
+		double loc = Double.parseDouble(vals[0])/100;
+		double close = Double.parseDouble(vals[1])/100;
+//		double global = Double.parseDouble(vals[2])/100;
+		
+		ArrayList<Node> ret = new ArrayList<Node>();
+		Node src = NodeUtilities.getUniformRandNodes(1,1).get(0);
+		Node dst = null;
+		ret.add(src);
+		RenaterNode rsrc = (RenaterNode)src.getProtocol(NodeUtilities.RID);
+		double r = CommonState.r.nextDouble();
+		if(r<loc)
+			dst = getLocalDest(rsrc);
+		else if(r<loc+close)
+			dst = getCloseDest(rsrc);
+		else 
+			dst = getGlobalDest(rsrc);
+		
+		ret.add(dst);
+		return ret;
+	}
+	
+	private Node getLocalDest(RenaterNode src){
+		Node dst = null; int trials=0, max_trials = 10;
+		while(trials <= max_trials){
+			//a bit cheating here but maybe it is faster
+			String potentialid = NodeUtilities.getStrDCID(src.getCID()) + "-"+CommonState.r.nextInt(NodeUtilities.NR_NODE_PER_DC);
+			dst = NodeUtilities.Nodes.get(potentialid);
+			if(dst!=null && !dst.equals(src.getNode()) && dst.isUp()) break;
+			trials++;
+		}
+		return dst;
+	}
+	private Node getCloseDest(RenaterNode src){
+		Node dst = null; int trials=0, max_trials = 10;
+	 
+		while(trials <= max_trials){
+			RenaterNode potDst = null;
+			if(src.isGateway())
+				potDst = src.getRandomRenaterFriend();
+			else{
+				//gateway
+				potDst = (RenaterNode)NodeUtilities.Nodes.get(src.getGateway()).getProtocol(NodeUtilities.RID);
+				potDst = potDst.getRandomRenaterFriend();
+			}
+			if(potDst==null) break;
+				
+			dst = getLocalDest(potDst);
+			if(dst.isUp()) break;
+			trials++;
+		}
+		
+		return dst; 
+	}
+	private Node getGlobalDest(RenaterNode src){
+		Node dst = null; int trials=0, max_trials = 30;
+		while(trials <= max_trials){
+			dst = NodeUtilities.getUniformRandNodes(1,1).get(0);
+			if(dst!=null && !dst.equals(src.getNode())&& !src.isFriend(dst) && dst.isUp()) break;
+			trials++;
+		}
+		return dst; 
+	}
+	
+	
+//	public ArrayList<Node> getNeighborsToLatency(RenaterNode rn, double lat) {
+//		ArrayList<Node> bucket = new ArrayList<Node>();
+//		Queue<RenaterNode> queue = new LinkedList<RenaterNode>();
+//		queue.add(rn);
+//		rn.setVisited(true);
+//		double clat = 0;
+//		while(!queue.isEmpty()) {
+//			RenaterNode node = queue.remove();
+//			RenaterNode child = null;
+//			while((child=node.getUnvisitedChildNode())!=null) {
+//				child.setVisited(true);
+//				queue.add(child);
+//			}
 //		}
-//		return toRet;
 //		
+//		//clean bucket
+//		
+//		
+//		return bucket;
 //	}
 	
 

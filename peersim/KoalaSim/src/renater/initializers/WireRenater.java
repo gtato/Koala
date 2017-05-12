@@ -165,7 +165,7 @@ public class WireRenater extends WireGraph {
 //			}
 //		}
 		
-		double L = PhysicalDataProvider.adjustDistanceValue(Math.sqrt(2));
+		double L = PhysicalDataProvider.getTheoreticalMaxLatency();
 //		double L = maxDist;
 		double a,b;
 //	   	double a = 0.05;
@@ -455,9 +455,9 @@ public class WireRenater extends WireGraph {
 			}
 
 		}
+		NodeUtilities.cleanAllVisited();
 		return reps; 
 	}
-	
 	
 
 	public void addNeighborsToSetNonRecursive(RenaterNode rn) {
@@ -467,21 +467,14 @@ public class WireRenater extends WireGraph {
 		while(!queue.isEmpty()) {
 			RenaterNode node = queue.remove();
 			RenaterNode child = null;
-			while((child=getUnvisitedChildNode(node))!=null) {
+			while((child=node.getUnvisitedChildNode())!=null) {
 				child.setVisited(true);
 				queue.add(child);
 			}
 		}
 	}
 	
-	private RenaterNode getUnvisitedChildNode(RenaterNode node) {
-		for(Node n : node.getNeighbors()){
-			RenaterNode rn = (RenaterNode)n.getProtocol(NodeUtilities.RID);
-			if(!rn.isVisited())
-				return rn;
-		}
-		return null;
-	}
+	
 
 	private Dijkstra computeDijsktra(ArrayList<RenaterNode> gateways) {
 		long startTime = System.currentTimeMillis();
@@ -504,6 +497,8 @@ public class WireRenater extends WireGraph {
 				LinkedList<RenaterNode> path = dijkstra.getPath(rm);
     			double dist = dijkstra.getShortestDistance(rm);
     			dijkstra.setDistance(rn, rm, dist);
+    			if(dist <= PhysicalDataProvider.getCloseLatency())
+    				rn.addFriend(rm.getNode());
     			PhysicalDataProvider.addLatency(rn.getCID(), rm.getCID(), dist );
     			PhysicalDataProvider.addPath(rn.getCID(), rm.getCID(), path);
         	}

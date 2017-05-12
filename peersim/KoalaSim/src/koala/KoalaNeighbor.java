@@ -8,7 +8,7 @@ import utilities.NodeUtilities;
 
 public class KoalaNeighbor extends TopologyPathNode{
 
-	
+	 
 	private String idealID;
 	private double latency = -1;
 	private int latencyQuality = -1;
@@ -59,13 +59,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 		}
 	}
 	
-	public boolean equals(Object n){
-		if (KoalaNode.class.isInstance(n))
-			return this.equals((KoalaNode)n);
-		if (KoalaNeighbor.class.isInstance(n))
-			return this.equals((KoalaNeighbor)n);
-		return false;
-	}
+	
 	
 	public KoalaNeighbor clone(){
 		return new KoalaNeighbor(super.clone(), latency, latencyQuality);
