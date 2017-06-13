@@ -1,25 +1,24 @@
 package messaging;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashSet;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
+import java.util.ArrayList;
+
+
 
 import topology.TopologyPathNode;
 import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
 
 public abstract class TopologyMessage {
+	public static int CAT_LOCAL = 0;
+	public static int CAT_CLOSE = 1;
+	public static int CAT_GLOBAL = 2;
+	
 	protected ArrayList<Double> latencies = new ArrayList<Double>();
 	protected ArrayList<TopologyPathNode> path = new ArrayList<TopologyPathNode>();
 	protected int id;
 	protected int type;
+	protected int category;
 	protected String label;
 	protected TopologyMessageContent content;
 	
@@ -72,6 +71,14 @@ public abstract class TopologyMessage {
 	
 	public void setLabel(String label) {
 		this.label = label;
+	}
+	
+	public int getCategory() {
+		return category;
+	}
+	
+	public void setCategory(int cat) {
+		this.category = cat;
 	}
 	
 	public double getLatency() {
@@ -227,7 +234,7 @@ public abstract class TopologyMessage {
 		TopologyPathNode lastpn = null;
 		int lh = 0;
 		for(TopologyPathNode pn : path){
-			if(lastpn == null) continue;
+			if(lastpn == null){lastpn = pn; continue;}
 			if(NodeUtilities.getDCID(lastpn.getSID()) == NodeUtilities.getDCID(pn.getSID()))
 				lh++;
 			lastpn = pn;

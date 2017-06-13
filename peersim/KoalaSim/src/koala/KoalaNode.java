@@ -12,12 +12,22 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 import messaging.KoalaMessage;
 import peersim.core.CommonState;
 import peersim.core.Node;
 import renater.RenaterNode;
 import topology.TopologyNode;
+import topology.TopologyPathNode;
+import utilities.KoalaJsonParser;
 import utilities.NodeUtilities;
 
 
@@ -47,6 +57,10 @@ public class KoalaNode extends TopologyNode{
 		super(prefix);
 	}
 	
+	
+	public KoalaNode(String prefix, TopologyPathNode kn) {
+		super(prefix, kn.getCID(), kn.getSID());
+	}
 	
 	public KoalaNode(String prefix, String cid, String sid) {
 		super(prefix, cid, sid);
@@ -142,8 +156,11 @@ public class KoalaNode extends TopologyNode{
 	
 	/* The relevant methods start here */
 	
-	
 	public int tryAddNeighbour(KoalaNeighbor n){
+		return tryAddNeighbour(n, true);
+	}
+	
+	public int tryAddNeighbour(KoalaNeighbor n, boolean allowLocalexhange){
 //      Discard down neighbors (like Lamport would do)
 		Node nn = NodeUtilities.Nodes.get(n.getCID());
 		if(nn==null || !nn.isUp())
@@ -156,19 +173,31 @@ public class KoalaNode extends TopologyNode{
         oldS = oldP = null;
         
         
-        
+        boolean isLocalExchange;
         boolean local = this.isLocal(n.getSID());
 		if(local){
 			addedS = getRoutingTable().addLocal(n) ? 1 : 0;
 		}else{
-	        for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
-			    if(this.isSuccessor(n.getSID(), i)){
+	        KoalaNeighbor kgp, kgs;
+			for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
+				kgp = getRoutingTable().getGlobalPredecessor(i);
+				kgs = getRoutingTable().getGlobalSucessor(i);
+	        	if(this.isSuccessor(n.getSID(), i)){
 			    	if(i==0) addedS = 0;
-			        oldS = getRoutingTable().setGlobalSucessor(n,i);
+			    	isLocalExchange=NodeUtilities.sameDC(kgs.getSID(), n.getSID()) &&  !kgs.getSID().equals(n.getSID());
+			    	if(!isLocalExchange || isLocalExchange && allowLocalexhange)
+			    		oldS = getRoutingTable().setGlobalSucessor(n,i);
+			    	else 
+			    		addedS = addedP = -1; //reset this so that canBeNeigbhor check returns true
+			    	
 			    }
 			    if (this.isPredecessor(n.getSID(), i)){
 			    	if(i==0) addedP = 0;
-			        oldP = getRoutingTable().setGlobalPredecessor(n,i);
+			    	isLocalExchange=NodeUtilities.sameDC(kgp.getSID(), n.getSID()) &&  !kgp.getSID().equals(n.getSID());
+			    	if(!isLocalExchange || isLocalExchange && allowLocalexhange)
+			    		oldP = getRoutingTable().setGlobalPredecessor(n,i);
+			    	else 
+			    		addedS = addedP = -1;
 			    }
 			    if(i==0){
 			    	addedS = oldS != null ? 1 : addedS;
@@ -349,14 +378,20 @@ public class KoalaNode extends TopologyNode{
     	
     
     public KoalaNeighbor getRoute(KoalaNode dest,  KoalaMessage msg) {
-    	KoalaNeighbor normal = getRouteForAlpha(dest, msg, NodeUtilities.B);
-    	KoalaNeighbor no_latency = getRouteForAlpha(dest, msg, 1);
-    	if(normal!=null && no_latency!=null && !normal.equals(no_latency))
+    	AbstractMap.SimpleEntry<Double, KoalaNeighbor> normal = getRouteForAlpha(dest, msg, NodeUtilities.B);
+    	AbstractMap.SimpleEntry<Double, KoalaNeighbor> no_latency = getRouteForAlpha(dest, msg, 1);
+    	if(normal!=null && no_latency!=null && !normal.getValue().equals(no_latency.getValue()))
     		this.nrMsgRoutedByLatency++;
-    	return normal;
+    	if(normal==null) return null;
+    	return  normal.getValue();
     }
     
-    public KoalaNeighbor getRouteForAlpha(KoalaNode dest,  KoalaMessage msg, double alpha) {
+    public AbstractMap.SimpleEntry<Double, KoalaNeighbor> getRouteResult(KoalaNode dest,  KoalaMessage msg) {
+    	return getRouteForAlpha(dest, msg, NodeUtilities.B);
+    }
+    
+    
+    public AbstractMap.SimpleEntry<Double, KoalaNeighbor> getRouteForAlpha(KoalaNode dest,  KoalaMessage msg, double alpha) {
 		ArrayList<String> destNeigs = dest.getRoutingTable().getNeighborsContainerIDs();
     	AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
 		double v=0;
@@ -378,7 +413,7 @@ public class KoalaNode extends TopologyNode{
 			}
 			}));
 		
-		KoalaNeighbor ret = null; 
+		AbstractMap.SimpleEntry<Double, KoalaNeighbor> ret = null; 
 		ArrayList<KoalaNeighbor> downEntries = new ArrayList<KoalaNeighbor>();
 		for(AbstractMap.SimpleEntry<Double, KoalaNeighbor> entry : potentialDests){
 			KoalaNeighbor rentry = entry.getValue();
@@ -392,7 +427,7 @@ public class KoalaNode extends TopologyNode{
 					isDown)
 				continue;
 			
-			ret = rentry;
+			ret = entry;
 			break;
 		}
 		
@@ -529,63 +564,93 @@ public class KoalaNode extends TopologyNode{
 		return ids.contains(id);
 	}
 	
-//	public static class KoalaNodeSerializer implements JsonSerializer<KoalaNode> {
-//
-//		@Override
-//		public JsonElement serialize(KoalaNode src, Type typeOfSrc, JsonSerializationContext context) {
-//			JsonArray neighbors = new JsonArray();
-//			ArrayList<KoalaNeighbor> neigs = src.getRoutingTable().getNeighbors();
-//			for(KoalaNeighbor neig : neigs){
-//				neighbors.add(KoalaJsonParser.toJsonTree(neig));
-//			}
-//			
-//			JsonArray oldNeighbors = new JsonArray();
-//			ArrayList<KoalaNeighbor> oldNeigs = src.getRoutingTable().getOldNeighborsContainer();
-//			for(KoalaNeighbor oldNeig : oldNeigs){
-//				oldNeighbors.add(KoalaJsonParser.toJsonTree(oldNeig));
-//			}
-//			
-//			JsonObject obj = new JsonObject();
-//			obj.addProperty("id", src.getSID());
-//			obj.addProperty("actid", src.getActualID());
-//			obj.addProperty("joining", src.isJoining());
-//			
-//			obj.add("neighbors", (JsonElement)neighbors);
-//			obj.add("oldNeighbors", (JsonElement)oldNeighbors);
-//			return obj;
-//		}
-//		
-//	}
-//	
-//	public static class KoalaNodeDeserializer implements JsonDeserializer<KoalaNode> {
+	public void copyRTFrom(KoalaNode kn){
+		this.routingTable = kn.getRoutingTable();
+	}
+	
+	public static class KoalaNodeSerializer implements JsonSerializer<KoalaNode> {
+
+		@Override
+		public JsonElement serialize(KoalaNode src, Type typeOfSrc, JsonSerializationContext context) {
+			JsonArray succs = new JsonArray();
+			JsonArray preds = new JsonArray();
+			JsonArray locals = new JsonArray();
+			JsonArray longlinks = new JsonArray();
+			
+			for(KoalaNeighbor s : src.getRoutingTable().getGlobalSucessors())
+				succs.add(KoalaJsonParser.toJsonTree(s));
+			
+			for(KoalaNeighbor p : src.getRoutingTable().getGlobalPredecessors())
+				preds.add(KoalaJsonParser.toJsonTree(p));
+			
+			for(KoalaNeighbor l : src.getRoutingTable().getLocals())
+				locals.add(KoalaJsonParser.toJsonTree(l));
+			
+			for(KoalaNeighbor ll : src.getRoutingTable().getLongLinks())
+				longlinks.add(KoalaJsonParser.toJsonTree(ll));
+			
+			
+			JsonObject obj = new JsonObject();
+			obj.addProperty("cid", src.getCID());
+			obj.addProperty("sid", src.getSID());
+			
+			obj.add("succs", (JsonElement)succs);
+			obj.add("preds", (JsonElement)preds);
+			obj.add("locals", (JsonElement)locals);
+			obj.add("longlinks", (JsonElement)longlinks);
+			
+			return obj;
+		}
+		
+	}
+	
+	public static class KoalaNodeDeserializer implements JsonDeserializer<KoalaNode> {
 //		private KoalaNode sample;
 //		public KoalaNodeDeserializer(KoalaNode sample){
 //			this.sample = sample;
 //		}
-//		
-//		@Override
-//		public KoalaNode deserialize(JsonElement src, Type typeOfSrc, JsonDeserializationContext context) throws JsonParseException {
-//			JsonObject srcJO = src.getAsJsonObject();
-//			KoalaNode kn = (KoalaNode) sample.clone();
-//			kn.setID(srcJO.get("id").getAsString());
-//			//TODO: check whats happening with actid here 
-//			kn.setJoining(srcJO.get("joining").getAsBoolean());
-//		
-//			JsonArray neigs = srcJO.getAsJsonArray("neighbors");
-//			ArrayList<KoalaNeighbor> neighbors = new ArrayList<KoalaNeighbor>();
-//			for(JsonElement neig : neigs)
-//				neighbors.add(KoalaJsonParser.jsonTreeToObject(neig, KoalaNeighbor.class));
-//			
-//			JsonArray oldNeigs = srcJO.getAsJsonArray("oldNeighbors");
-//			ArrayList<KoalaNeighbor> oldNeighbors = new ArrayList<KoalaNeighbor>();
-//			for(JsonElement neig : oldNeigs)
-//				oldNeighbors.add(KoalaJsonParser.jsonTreeToObject(neig, KoalaNeighbor.class));
-//			
-//			kn.getRoutingTable().setNeighborsContainer(neighbors);
-//			kn.getRoutingTable().setOldNeighborsContainer(oldNeighbors); 
-//			return kn;
-//		}
-//		
-//	}
+		
+		@Override
+		public KoalaNode deserialize(JsonElement src, Type typeOfSrc, JsonDeserializationContext context) throws JsonParseException {
+			JsonObject srcJO = src.getAsJsonObject();
+			KoalaNode kn = new KoalaNode("");
+			kn.setCID(srcJO.get("cid").getAsString());
+			kn.setSID(srcJO.get("sid").getAsString());
+			
+			KoalaNeighbor[] succs = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
+			KoalaNeighbor[] preds = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
+			ArrayList<KoalaNeighbor> locals = new ArrayList<KoalaNeighbor>();
+			ArrayList<KoalaNeighbor> longlinks = new ArrayList<KoalaNeighbor>();
+			
+			
+			JsonArray jsuccs = srcJO.getAsJsonArray("succs");
+			for(int i = 0; i < jsuccs.size(); i++)
+				succs[i] = KoalaJsonParser.jsonTreeToObject(jsuccs.get(i), KoalaNeighbor.class);
+			
+			JsonArray jpreds = srcJO.getAsJsonArray("preds");
+			for(int i = 0; i < jpreds.size(); i++)
+				preds[i] = KoalaJsonParser.jsonTreeToObject(jpreds.get(i), KoalaNeighbor.class);
+			
+			JsonArray jlocals = srcJO.getAsJsonArray("locals");
+			for(JsonElement l : jlocals)
+				locals.add(KoalaJsonParser.jsonTreeToObject(l, KoalaNeighbor.class));
+			
+			JsonArray jlonglinks = srcJO.getAsJsonArray("longlinks");
+			for(JsonElement ll : jlonglinks)
+				longlinks.add(KoalaJsonParser.jsonTreeToObject(ll, KoalaNeighbor.class));
+
+			for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
+				kn.getRoutingTable().setGlobalSucessor(succs[i], i);
+				kn.getRoutingTable().setGlobalPredecessor(preds[i], i);
+			}
+			
+			kn.getRoutingTable().setLocals(locals);
+			kn.getRoutingTable().setLongLinks(longlinks);
+			
+			return kn;
+		}
+		
+	}
+	
 
 }

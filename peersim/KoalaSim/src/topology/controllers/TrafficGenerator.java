@@ -14,6 +14,7 @@ import messaging.ChordLookUpContent;
 import messaging.ChordMessage;
 import messaging.KoalaMessage;
 import messaging.KoalaRouteMsgContent;
+import messaging.TopologyMessage;
 import koala.KoalaNode;
 import koala.KoalaProtocol;
 import peersim.config.Configuration;
@@ -34,6 +35,7 @@ public class TrafficGenerator extends GraphObserver {
 
 	
 	private int msgID;
+	private int msgCategory;
 //	private boolean allAdded = false; 
 	
 //	private ArrayList<Node[]> routes = new ArrayList<Node[]>();
@@ -96,25 +98,25 @@ public class TrafficGenerator extends GraphObserver {
 		
 		if(NodeUtilities.RPID >= 0){
         	KoalaMessage msg = new KoalaMessage( new KoalaRouteMsgContent((RenaterNode)dst.getProtocol(NodeUtilities.RID)));
-        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
+        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime()); msg.setCategory(msgCategory);
         	tr.send(null, src, msg, NodeUtilities.RPID);
 		}
 		
 		if(NodeUtilities.KPID >= 0){
 			KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent((KoalaNode)dst.getProtocol(NodeUtilities.KID)));
-        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
+        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime()); msg.setCategory(msgCategory);
         	tr.send(null, src, msg, NodeUtilities.KPID);
 		}
 		
 		if(NodeUtilities.FKPID >= 0){
 			KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent((KoalaNode)dst.getProtocol(NodeUtilities.FKID)));
-        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
+        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime()); msg.setCategory(msgCategory);
         	tr.send(null, src, msg, NodeUtilities.FKPID);
 		}
 		
 		if(NodeUtilities.LKPID >= 0){
 			KoalaMessage msg = new KoalaMessage(new KoalaRouteMsgContent((KoalaNode)dst.getProtocol(NodeUtilities.LKID)));
-        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
+        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime()); msg.setCategory(msgCategory);
         	tr.send(null, src, msg, NodeUtilities.LKPID);
 		}
 		
@@ -122,7 +124,7 @@ public class TrafficGenerator extends GraphObserver {
 			ChordNode destCn = (ChordNode)dst.getProtocol(NodeUtilities.CID);
 			ChordLookUpContent cc = new ChordLookUpContent(ChordMessage.LOOK_UP, destCn);
 			ChordMessage msg = new ChordMessage(cc);
-        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime());
+        	msg.setID(msgID); msg.setSentCycle(CommonState.getTime()); msg.setCategory(msgCategory);
         	tr.send(null, src, msg, NodeUtilities.CPID);
 		}
 		
@@ -210,11 +212,12 @@ public class TrafficGenerator extends GraphObserver {
 			if(dst!=null && !dst.equals(src.getNode()) && dst.isUp()) break;
 			trials++;
 		}
+		msgCategory = TopologyMessage.CAT_LOCAL;
 		return dst;
 	}
 	private Node getCloseDest(RenaterNode src){
 		Node dst = null; int trials=0, max_trials = 10;
-	 
+		
 		while(trials <= max_trials){
 			RenaterNode potDst = null;
 			if(src.isGateway())
@@ -230,7 +233,7 @@ public class TrafficGenerator extends GraphObserver {
 			if(dst.isUp()) break;
 			trials++;
 		}
-		
+		msgCategory = TopologyMessage.CAT_CLOSE;
 		return dst; 
 	}
 	private Node getGlobalDest(RenaterNode src){
@@ -240,6 +243,7 @@ public class TrafficGenerator extends GraphObserver {
 			if(dst!=null && !dst.equals(src.getNode())&& !src.isFriend(dst) && dst.isUp()) break;
 			trials++;
 		}
+		msgCategory = TopologyMessage.CAT_GLOBAL;
 		return dst; 
 	}
 	

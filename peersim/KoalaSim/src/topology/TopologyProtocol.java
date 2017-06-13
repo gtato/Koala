@@ -159,7 +159,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 			msg.addLatency(l);
 			if(msg.getLastSender() == null)
 				msg.addToPath(new TopologyPathNode(myNode));
-			msg.addToPath(dest);
+			msg.addToPath(dest.copy());
 			
 			
 			if(NodeUtilities.getDCID(myNode.getSID()) == NodeUtilities.getDCID(dest.getSID()))
@@ -201,7 +201,9 @@ public abstract class TopologyProtocol implements EDProtocol {
 			System.out.println(logmsg);
 		
 		msgSender = msg.getLastSender();
-		msgPath = (ArrayList<TopologyPathNode>) msg.getPath().clone();
+		msgPath = new ArrayList<TopologyPathNode>();
+		for(TopologyPathNode tpn : msg.getPath())
+			msgPath.add(tpn.copy());
 		
 		handleMessage(msg);
 	}

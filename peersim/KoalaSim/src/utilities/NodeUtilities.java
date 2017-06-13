@@ -64,6 +64,8 @@ public class NodeUtilities {
 	public static int LONG_LINKS = Configuration.getInt("LONG_LINKS", 3);
 	public static int FLAT_LONG_LINKS = Configuration.getInt("FLAT_LONG_LINKS", 3);
 	
+	public static boolean COLLABORATE = Configuration.getBoolean("koala.settings.collaborate", false);
+	
 	public static boolean NESTED = Configuration.getBoolean("koala.settings.nested", false);
 	public static String LOCALITY = Configuration.getString("koala.settings.locality", "local");
 	public static double CLOSE_LAT = Configuration.getDouble("koala.settings.close_latency_rate", 0.25);
@@ -218,6 +220,8 @@ public class NodeUtilities {
 	}
 	
 	public static int getDCID(String id){
+		if(id.equals(DEFAULTID))
+			return -1;
 		return Integer.parseInt(id.split("-")[0]);
 	}
 	

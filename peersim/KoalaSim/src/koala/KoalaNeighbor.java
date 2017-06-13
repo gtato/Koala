@@ -59,11 +59,19 @@ public class KoalaNeighbor extends TopologyPathNode{
 		}
 	}
 	
-	
-	
-	public KoalaNeighbor clone(){
-		return new KoalaNeighbor(super.clone(), latency, latencyQuality);
+	public KoalaNeighbor copy(){
+		String oldIID = getIdealID(); 
+		KoalaNeighbor kn = new KoalaNeighbor(super.copy(), latency, latencyQuality);
+		kn.setIdealID(oldIID);
+		return kn; 
 	}
+	
+//	public KoalaNeighbor clone(){
+//		String oldIID = getIdealID(); 
+//		KoalaNeighbor kn = new KoalaNeighbor(super.clone(), latency, latencyQuality);
+//		kn.setIdealID(oldIID);
+//		return kn; 
+//	}
 	
 	
 

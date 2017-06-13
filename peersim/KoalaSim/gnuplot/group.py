@@ -13,7 +13,7 @@ options, args = parser.parse_args()
 
 groupby = 100
 data = {'rlat':0,'clat':0, 'klat':0, 'fklat':0, 'lklat':0, 
-        'rhop':0, 'chop':0, 'khop':0, 'fkhop':0, 'lkhop':0,
+        'lrhop':0, 'grhop':0, 'lchop':0, 'gchop':0, 'lkhop':0, 'gkhop':0, 'lfkhop':0, 'gfkhop':0,'llkhop':0, 'glkhop':0,
         'msg':0, 'cfail':0, 'kfail':0, 'fkfail':0, 'lkfail':0}
 j = i = ln = ll = 0
  
@@ -31,32 +31,50 @@ with open(options.file) as f:
         data['klat'] += float(words[3])
         data['fklat'] += float(words[4])
         data['lklat'] += float(words[5])
-        data['rhop'] += float(words[6])
-        data['chop'] += float(words[7])
-        data['khop'] += float(words[8])
-        data['fkhop'] += float(words[9])
+        
+        data['lrhop'] += float(words[6])
+        data['grhop'] += float(words[7])
+        
+        data['lchop'] += float(words[8])
+        data['gchop'] += float(words[9])
+        
         data['lkhop'] += float(words[10])
-        if len(words) >= 12: 
-            data['msg'] += float(words[11])
-            data['cfail'] += float(words[12])
-            data['kfail'] += float(words[13])
-            data['fkfail'] += float(words[14])
-            data['lkfail'] += float(words[15])
+        data['gkhop'] += float(words[11])
+        
+        data['lfkhop'] += float(words[12])
+        data['gfkhop'] += float(words[13])
+        
+        data['llkhop'] += float(words[14])
+        data['glkhop'] += float(words[15])
+        
+        if len(words) >= 17: 
+            data['msg'] += float(words[16])
+            data['cfail'] += float(words[17])
+            data['kfail'] += float(words[18])
+            data['fkfail'] += float(words[19])
+            data['lkfail'] += float(words[20])
          
 #        print line
         if i%options.n == 0:
 #         if ln >= options.n:
-            print "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (words[0], 
+            print "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (words[0], 
                                             data['rlat']/options.n,
                                             data['clat']/options.n,
                                             data['klat']/options.n,
                                             data['fklat']/options.n,
                                             data['lklat']/options.n,
-                                            data['rhop']/options.n,
-                                            data['chop']/options.n,
-                                            data['khop']/options.n,
-                                            data['fkhop']/options.n,
+                                            
+                                            data['lrhop']/options.n,
+                                            data['grhop']/options.n,
+                                            data['lchop']/options.n,
+                                            data['gchop']/options.n,
                                             data['lkhop']/options.n,
+                                            data['gkhop']/options.n,
+                                            data['lfkhop']/options.n,
+                                            data['gfkhop']/options.n,
+                                            data['llkhop']/options.n,
+                                            data['glkhop']/options.n,
+                                            
                                             data['msg']/options.n,
                                             data['cfail']/ln,
                                             data['kfail']/ln,
@@ -64,23 +82,30 @@ with open(options.file) as f:
                                             data['lkfail']/ln
                                             )
             data = {'rlat':0,'clat':0, 'klat':0, 'fklat':0, 'lklat':0, 
-                    'rhop':0, 'chop':0, 'khop':0, 'fkhop':0, 'lkhop':0,
+                    'lrhop':0, 'grhop':0, 'lchop':0, 'gchop':0, 'lkhop':0, 'gkhop':0, 'lfkhop':0, 'gfkhop':0,'llkhop':0, 'glkhop':0,
                     'msg':0, 'cfail':0, 'kfail':0, 'fkfail':0, 'lkfail':0}
             ln=0
             j=0
 
     if j != 0:
-        print "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (words[0], 
+        print "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (words[0], 
                                         data['rlat']/j,
                                         data['clat']/j,
                                         data['klat']/j,
                                         data['fklat']/j,
                                         data['lklat']/j,
-                                        data['rhop']/j,
-                                        data['chop']/j,
-                                        data['khop']/j,
-                                        data['fkhop']/j,
+                                        
+                                        data['lrhop']/j,
+                                        data['grhop']/j,
+                                        data['lchop']/j,
+                                        data['gchop']/j,
                                         data['lkhop']/j,
+                                        data['gkhop']/j,
+                                        data['lfkhop']/j,
+                                        data['gfkhop']/j,
+                                        data['llkhop']/j,
+                                        data['glkhop']/j,
+                                        
                                         data['msg']/j,
                                         data['cfail']/ln,
                                         data['kfail']/ln,

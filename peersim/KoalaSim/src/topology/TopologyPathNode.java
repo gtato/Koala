@@ -47,9 +47,12 @@ public class TopologyPathNode{
 		return specificID;
 	}
 	
-	public TopologyPathNode clone(){
+//	public TopologyPathNode clone(){
+//		return new TopologyPathNode(commonID, specificID);
+//	}
+	
+	public TopologyPathNode copy(){
 		return new TopologyPathNode(commonID, specificID);
-		
 	}
 	
 	public boolean equals(Object n){

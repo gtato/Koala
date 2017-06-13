@@ -84,6 +84,10 @@ public class KoalaRoutingTable {
 		return locals;
 	}
 	
+	public void setLocals(ArrayList<KoalaNeighbor> l){
+		locals = l;
+	}
+	
 	public void resetGlobals(){
 		KoalaNeighbor defaultNeighbor = KoalaNeighbor.getDefaultNeighbor();
 		globalPredecessors = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
@@ -312,6 +316,22 @@ public class KoalaRoutingTable {
 		
 		
 		for(KoalaNeighbor n: neighborsContainer)
+            if(!NodeUtilities.isDefault(n) && !idhs.contains(n.getSID())){
+            	hs.add(n); idhs.add(n.getSID());
+            }
+		
+        return hs;
+	}
+	
+	public ArrayList<KoalaNeighbor> getGlobalNeighbors(){
+		ArrayList<KoalaNeighbor> neighs = new ArrayList<KoalaNeighbor>();
+		ArrayList<KoalaNeighbor> hs = new ArrayList<KoalaNeighbor>();
+		neighs.addAll(Arrays.asList(globalPredecessors)); neighs.addAll(Arrays.asList(globalSucessors));
+		neighs.addAll(longLinks);
+		
+		Set<String> idhs = new LinkedHashSet<String>();
+		
+		for(KoalaNeighbor n: neighs)
             if(!NodeUtilities.isDefault(n) && !idhs.contains(n.getSID())){
             	hs.add(n); idhs.add(n.getSID());
             }

@@ -45,8 +45,10 @@ f2="/tmp/$RANDOM.mpl"
 f1="/tmp/$RANDOM.mpl"
 f2="/tmp/$RANDOM.mpl"
 ./group.py -f '../out/results/resultsC1CH1A0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
-#./group.py -f '../out/results/resultsC1CH1A0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
-#./group.py -f '../out/results/resultsC1CH1A0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
+
+
+f1="/tmp/$RANDOM.mpl"
+./group.py -f '../out/results/resultsC1CH1A0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotHopsCategories.plt &
 
 #comparision of hops for the 3 protocols
 f1="/tmp/$RANDOM.mpl"

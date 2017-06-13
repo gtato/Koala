@@ -8,7 +8,6 @@ public class KoalaNLNMsgContent extends KoalaMsgContent{
 	
 	public KoalaNLNMsgContent(KoalaNeighbor neighbor) {
 		super(KoalaMessage.NLN);
-		
 		this.neighbor = neighbor;
 	}
 
@@ -21,3 +20,4 @@ public class KoalaNLNMsgContent extends KoalaMsgContent{
 	}
 	
 }
+

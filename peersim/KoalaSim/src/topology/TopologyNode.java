@@ -16,6 +16,8 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 	private Node node;
 	boolean visited;
 	
+	
+	
 	public boolean isVisited() {
 		return visited;
 	}

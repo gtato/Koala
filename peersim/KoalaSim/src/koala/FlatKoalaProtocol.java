@@ -11,6 +11,7 @@ import messaging.KoalaMessage;
 import messaging.KoalaMsgContent;
 import messaging.KoalaNGNMsgContent;
 import messaging.KoalaNLNMsgContent;
+import messaging.KoalaRHMsgContent;
 import messaging.KoalaRTMsgConent;
 import messaging.KoalaRouteMsgContent;
 import messaging.TopologyMessage;
@@ -26,6 +27,7 @@ import utilities.PhysicalDataProvider;
 
 public class FlatKoalaProtocol extends KoalaProtocol{
 
+	
 	public static HashMap<Integer, TopologyMessage> REC_MSG =  new HashMap<Integer, TopologyMessage>();
 	public static int SUCCESS = 0;
 	public static int FAIL = 0;
@@ -34,6 +36,7 @@ public class FlatKoalaProtocol extends KoalaProtocol{
 	public FlatKoalaProtocol(String prefix) {
 		super(prefix);
 		nested = false;
+		helpSupported = false;
 	}
 
 	@Override
@@ -42,6 +45,8 @@ public class FlatKoalaProtocol extends KoalaProtocol{
 		myNode = (KoalaNode) node.getProtocol(NodeUtilities.FKID);
 	}
 
+	
+	
 	protected void onSuccess(TopologyMessage msg) {
 		msg.setReceivedCycle(CommonState.getTime());
 		REC_MSG.put(msg.getID(), msg);
@@ -51,7 +56,7 @@ public class FlatKoalaProtocol extends KoalaProtocol{
 	
 	protected void onFail(TopologyMessage msg){
 		KoalaMessage kmsg = (KoalaMessage) msg;
-		String failmsg = "failed to sent from " + kmsg.getFirstSender();
+		String failmsg = "FLAT failed to sent from " + kmsg.getFirstSender();
 		if(msg.getContent() instanceof KoalaRouteMsgContent){
 			String nid = ((KoalaRouteMsgContent)msg.getContent()).getNode().getSID();
 			failmsg += " to " + nid;

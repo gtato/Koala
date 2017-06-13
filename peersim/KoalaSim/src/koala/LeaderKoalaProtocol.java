@@ -4,6 +4,8 @@ package koala;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import messaging.KoalaMessage;
 import messaging.KoalaRTMsgConent;
@@ -12,7 +14,9 @@ import messaging.TopologyMessage;
 import peersim.core.CommonState;
 import peersim.core.Node;
 import renater.RenaterNode;
+import topology.TopologyPathNode;
 import utilities.NodeUtilities;
+import utilities.PhysicalDataProvider;
 
 
 public class LeaderKoalaProtocol extends KoalaProtocol{
@@ -24,13 +28,14 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 	
 	public LeaderKoalaProtocol(String prefix) {
 		super(prefix);
+		helpSupported = false;
 	}
 
-	protected boolean getBootCond(Node n){
-		KoalaNode each = (KoalaNode) n.getProtocol(NodeUtilities.getLinkable(myPid));
-		RenaterNode eachRn = (RenaterNode) n.getProtocol(NodeUtilities.RID);
-		return each.isUp() && each.hasJoined() && eachRn.isGateway();
-	}
+//	protected boolean getBootCond(Node n){
+//		KoalaNode each = (KoalaNode) n.getProtocol(NodeUtilities.getLinkable(myPid));
+//		RenaterNode eachRn = (RenaterNode) n.getProtocol(NodeUtilities.RID);
+//		return each.isUp() && each.hasJoined() && eachRn.isGateway();
+//	}
 	
 	protected void onRoutingTable(KoalaMessage msg) {
 		KoalaNode source = ((KoalaRTMsgConent)msg.getContent()).getNode();
@@ -47,7 +52,7 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 				int lq = myNode.getLatencyQuality(isSender, source.getSID(), recNeighbor);
 				
 				KoalaNeighbor potentialKN = new KoalaNeighbor(recNeighbor, l, lq);
-				int res  = myNode.tryAddNeighbour(potentialKN);
+				int res  = myNode.tryAddNeighbour(potentialKN, false);
 				if(res == 2 && isSource && source.isJoining()){
 					KoalaMessage newMsg = new KoalaMessage(new KoalaRTMsgConent(myNode));
 					broadcastLocalNeighbor(recNeighbor);
@@ -66,17 +71,17 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 	protected KoalaNeighbor getRoute(KoalaNode kn, KoalaMessage msg){
 		KoalaNeighbor ret = null;
 		
-		if(msg.getContent() instanceof KoalaRouteMsgContent){
-			if(myNode.isLeader())
+//		if(msg.getContent() instanceof KoalaRouteMsgContent){
+		if(myNode.isLeader())
+			ret = myNode.getRoute(kn, msg);
+		else{
+			if(myNode.isLocal(kn.getSID()))
 				ret = myNode.getRoute(kn, msg);
-			else{
-				if(myNode.isLocal(kn.getSID()))
-					ret = myNode.getRoute(kn, msg);
-				else
-					ret = myNode.getLeaderNeighor();
-					
-			}
+			else
+				ret = myNode.getLeaderNeighor();
+				
 		}
+//		}
 //		else{
 //			boolean neighDown = ((KoalaRTMsgConent)msg.getContent()).getNeighborsDown();
 //			boolean isJoining = ((KoalaRTMsgConent)msg.getContent()).getNode().isJoining();
@@ -98,6 +103,7 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 	}
 	
 	
+	
 	protected void addPiggybacked(KoalaMessage km, String dest){
 		// if I am forwarding to a neighbor 
 		if(myNode.isLeader() && myNode.inNeighborsList(dest)){
@@ -108,10 +114,24 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 		}
 	}
 
-	
-//	protected void checkPiggybackedBefore(KoalaMessage msg) {
-//		
+//	protected int addNeighbor(KoalaNeighbor n){
+//		if(myNode.isLeader() || myNode.isLocal(n))
+//			return myNode.tryAddNeighbour(n);
+//		return -1;
 //	}
+	
+	
+	protected ArrayList<TopologyPathNode> getPath(){
+		ArrayList<TopologyPathNode> pathcp = new ArrayList<TopologyPathNode>();
+		for(TopologyPathNode tpn : msgPath)
+			pathcp.add(tpn.copy());
+		pathcp.remove(0);
+		return pathcp;
+	} 
+	
+	protected ArrayList<KoalaNeighbor> getNeighbors(){
+		return myNode.getRoutingTable().getGlobalNeighbors();
+	}
 	
 	protected void broadcastGlobalNeighbor(KoalaNeighbor newNeig) {
 		return;
@@ -133,7 +153,7 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 	
 	protected void onFail(TopologyMessage msg){
 		KoalaMessage kmsg = (KoalaMessage) msg;
-		String failmsg = "failed to sent from " + kmsg.getFirstSender();
+		String failmsg = "LEADER failed to sent from " + kmsg.getFirstSender();
 		if(msg.getContent() instanceof KoalaRouteMsgContent){
 			String nid = ((KoalaRouteMsgContent)msg.getContent()).getNode().getSID();
 			failmsg += " to " + nid;

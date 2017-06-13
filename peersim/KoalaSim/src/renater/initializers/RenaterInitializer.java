@@ -1,10 +1,13 @@
 package renater.initializers;
 
+import java.awt.Toolkit;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import chord.ChordNode;
 import koala.KoalaNode;
@@ -16,6 +19,7 @@ import peersim.core.Network;
 import peersim.core.Node;
 import peersim.dynamics.NodeInitializer;
 import renater.RenaterNode;
+import utilities.KoalaJsonParser;
 import utilities.NodeUtilities;
 import utilities.PhysicalDataProvider;
 
@@ -69,7 +73,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
         }
 		
 		
-//		KoalaJsonParser.intitialize();
+		KoalaJsonParser.intitialize();
 		NodeUtilities.initialize();
 		//NodeUtilities.setNodePIDs(phid, pid, cpid);
 		NodeUtilities.intializeDCCenters(lines);
@@ -80,7 +84,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
         
         NodeUtilities.ACTUAL_NR_DC = Network.size();
         
-        
+        createIDs();
 //        assigning nodes an id and setting their coordinates according to their data-center
         initializationMode = true;
         for (int i = 0; i < Network.size(); i++) {
@@ -88,7 +92,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
         }
         initializationMode = false;
         
-        
+//        System.exit(0);
 //        System.setErr(new PrintStream(new OutputStream() {
 //            public void write(int b) {
 //                //DO NOTHING
@@ -159,33 +163,56 @@ public class RenaterInitializer implements Control, NodeInitializer {
 	}
 	
 	
-	
-
+	int dcid=0, nodeid=0;
+	ArrayList<String> possibleIDs = new ArrayList<>();
+	private void createIDs(){
+		for(int i =0; i < Network.size(); i++){
+			String id = dcid + "-" + nodeid;
+			if(++nodeid == NodeUtilities.NR_NODE_PER_DC){nodeid=0; dcid++;}
+			possibleIDs.add(id);
+		}
+//		Collections.shuffle(possibleIDs, CommonState.r);
+		
+	}
 	
 	private String getID(){
-		ArrayList<String> emptyDC = new ArrayList<String>();
-		for(int i = 0; i < NodeUtilities.NR_DC; i++){
-			if(!NodeUtilities.Gateways.containsKey(i+""))
-				emptyDC.add(i+"");
-		}
-		
-		if (emptyDC.size() != 0)
-			return emptyDC.get(CommonState.r.nextInt(emptyDC.size())) + "-" + CommonState.r.nextInt(NodeUtilities.NR_NODE_PER_DC);
-		
-		ArrayList<String> emptyNodeID = new ArrayList<String>();
-		for(int i = 0; i < NodeUtilities.NR_DC; i++){
-			for(int j = 0; j < NodeUtilities.NR_NODE_PER_DC; j++){
-				String id = i+"-"+j;
-				if(!NodeUtilities.Nodes.containsKey(id))
-					emptyNodeID.add(id);
-			}
-		}
-		
-		if(emptyNodeID.size() == 0)
-			return null;
-			
-		return emptyNodeID.get(CommonState.r.nextInt(emptyNodeID.size()));
+		return possibleIDs.remove(0);
 	}
+	
+	
+//	private String getID(){
+//		String id = dcid + "-" + nodeid;
+//		
+//		if(++nodeid == NodeUtilities.NR_NODE_PER_DC){
+//			nodeid=0; dcid++;
+//		}
+//		return id;
+//	}
+	
+//	private String getID(){
+//		ArrayList<String> emptyDC = new ArrayList<String>();
+//		for(int i = 0; i < NodeUtilities.NR_DC; i++){
+//			if(!NodeUtilities.Gateways.containsKey(i+""))
+//				emptyDC.add(i+"");
+//		}
+//		
+//		if (emptyDC.size() != 0)
+//			return emptyDC.get(CommonState.r.nextInt(emptyDC.size())) + "-" + CommonState.r.nextInt(NodeUtilities.NR_NODE_PER_DC);
+//		
+//		ArrayList<String> emptyNodeID = new ArrayList<String>();
+//		for(int i = 0; i < NodeUtilities.NR_DC; i++){
+//			for(int j = 0; j < NodeUtilities.NR_NODE_PER_DC; j++){
+//				String id = i+"-"+j;
+//				if(!NodeUtilities.Nodes.containsKey(id))
+//					emptyNodeID.add(id);
+//			}
+//		}
+//		
+//		if(emptyNodeID.size() == 0)
+//			return null;
+//			
+//		return emptyNodeID.get(CommonState.r.nextInt(emptyNodeID.size()));
+//	}
 	
 	private String getFastID(Node node){
 		return node.getIndex()+"-0";
@@ -208,6 +235,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
 		
         
         String id = nested ? getID() : getFastID(node);
+//        System.out.println(id);
         int dcID = NodeUtilities.getDCID(id);
         
         if(NodeUtilities.RID >= 0){

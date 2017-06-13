@@ -40,14 +40,14 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 		
 		for(KoalaNeighbor neig : neigs)
 //			neighbors[i] = KoalaJsonParser.toJson(neig);
-			neighbors.add(neig.clone());
+			neighbors.add(neig.copy());
 		
 		
 		ArrayList<KoalaNeighbor> oldNeigs = kn.getRoutingTable().getOldNeighborsContainer();
 		oldNeighbors = new ArrayList<KoalaNeighbor>();
 		for(KoalaNeighbor oldNeig : oldNeigs)
 //			oldNeighbors[i] = KoalaJsonParser.toJson(oldNeig);
-			oldNeighbors.add(oldNeig.clone());
+			oldNeighbors.add(oldNeig.copy());
 			
 		
 	}

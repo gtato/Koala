@@ -18,12 +18,13 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 public class KoalaMessage extends TopologyMessage /*implements JsonSerializer< KoalaMessage>, JsonDeserializer<KoalaMessage>*/{
-	public static final int RT = 0;
-	public static final int NGN = 1;
-	public static final int NLN = 2;
+	public static final int RT = 0; //routing table
+	public static final int NGN = 1; //new global neighbor
+	public static final int NLN = 2; //new local neighbor
 	public static final int ROUTE = 3;
 	public static final int JOIN = 4;
-	public static final int LL = 5;
+	public static final int LL = 5; //long link
+	public static final int RH = 6; //route help
 	
 //	private static final int PiggybackLength = 10;
 	
