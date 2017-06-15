@@ -133,7 +133,6 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		
 		if(loadFromFile(pid)){ System.out.println("Loaded from the file."); return;}
 		
-		double perc,prevPerc=0;
 		for (int i = 0; i < nr; i++) {
 			Node n = Network.get(inx.get(i));
 			KoalaNode kn = (KoalaNode )n.getProtocol(NodeUtilities.getLinkable(pid));
@@ -145,23 +144,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			kn.getRoutingTable().setLongLinks(lls);
 		}	
 		
-		if(!initialize){		
-			for (int i = 0; i < nr; i++) {
-				Node n = Network.get(inx.get(i));
-				KoalaProtocol kp = (KoalaProtocol)n.getProtocol(pid);
-				System.out.println(i+ ". joining " + kp.getMyNode().getCID());
-				kp.join();
-				
-				perc = (double)100*(i+1)/nr;
-				String txt = i < nr-1 ? perc + "%, " : perc + "%"; 
-				if(perc - prevPerc > 10 || i == nr-1){
-					System.out.print(txt);
-					prevPerc = perc;
-				}
-			}
-		}
-		saveToFile(pid);
-		System.out.println(" Done.");
+		joinList(inx, pid);
 		
 	} 
 	
@@ -173,7 +156,6 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		ArrayList<Integer> linx = new ArrayList<Integer>();
 		ArrayList<Integer> nolinx = (ArrayList<Integer>)inx.clone();
 
-		double perc,prevPerc=0;
 		for (int i = 0; i < nr; i++) {
 			Node n = Network.get(inx.get(i));
 			KoalaNode kn = (KoalaNode )n.getProtocol(NodeUtilities.getLinkable(pid));
@@ -194,9 +176,16 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			nolinx.remove(i);
 		linx.addAll(nolinx);
 		
+		joinList(linx, pid);
+	} 
+	
+	
+	private void joinList(ArrayList<Integer> inx, int pid){
+		double perc,prevPerc=0;
+		System.out.println("Joining " + NodeUtilities.getProtocolName(pid));
 		if(!initialize){
 			for (int i = 0; i < nr; i++) {
-				Node n = Network.get(linx.get(i));
+				Node n = Network.get(inx.get(i));
 				KoalaProtocol kp = (KoalaProtocol)n.getProtocol(pid);				
 				System.out.println(i+ ". joining " + kp.getMyNode().getCID());
 				kp.join();
@@ -206,16 +195,13 @@ public class KoalaInitializer implements Control, NodeInitializer {
 					System.out.print(txt);
 					prevPerc = perc;
 				}
-				
-				
 			}
 			
 		}
-		
 		saveToFile(pid);
-		System.out.println(" Done.");
-	} 
-	
+		System.out.println("\nDone joining "+ NodeUtilities.getProtocolName(pid));
+		System.exit(0);
+	}
 	
 	private ArrayList<KoalaNeighbor> getLongLinksKleinsberg(KoalaNode kn){
 		ArrayList<KoalaNeighbor> pll = new ArrayList<KoalaNeighbor>();

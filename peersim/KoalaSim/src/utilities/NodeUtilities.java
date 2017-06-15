@@ -178,6 +178,10 @@ public class NodeUtilities {
 		return -1;
 	}
 	
+	public static String getProtocolName(int pid){
+		return Network.get(0).getProtocol(pid).getClass().getName();
+	}
+	
 	private static int getLog2(int nr){
 		double doubleLength = Math.log(nr) / Math.log(2);
 		int lgNr = (int)(doubleLength); 

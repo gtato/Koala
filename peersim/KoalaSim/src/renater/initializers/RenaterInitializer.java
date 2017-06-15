@@ -1,8 +1,12 @@
 package renater.initializers;
 
 import java.awt.Toolkit;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -57,7 +61,11 @@ public class RenaterInitializer implements Control, NodeInitializer {
     	
 	@Override
 	public boolean execute() {
-		
+		if(Configuration.getBoolean("logging.file", false)){
+        	String filename = "out/log."+System.currentTimeMillis();
+        	System.setOut(outputFile(filename+".out"));
+        	System.setErr(outputFile(filename+".err"));
+        }
 		
 		PhysicalDataProvider.SimTime = System.currentTimeMillis();
 		double alpha = Configuration.getDouble("ALPHA", -2.0);
@@ -99,7 +107,19 @@ public class RenaterInitializer implements Control, NodeInitializer {
 //            }
 //        }));
         
+        
+        
         return false;
+	}
+	
+	protected PrintStream outputFile(String name) {
+	    try {
+			return new PrintStream(new BufferedOutputStream(new FileOutputStream(name)),true);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	private List<String> getDcCordsFromFile(){

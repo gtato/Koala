@@ -35,8 +35,10 @@ public class Dijkstra {
 	}
 	
 	public void execute(RenaterNode source) {
-		settledNodes = new HashSet<RenaterNode>();
-		unSettledNodes = new HashSet<RenaterNode>();
+//		settledNodes = new HashSet<RenaterNode>();
+//		unSettledNodes = new HashSet<RenaterNode>();
+		settledNodes = new LinkedHashSet<RenaterNode>();
+		unSettledNodes = new LinkedHashSet<RenaterNode>();
 		distance = new HashMap<RenaterNode, Double>();
 		predecessors = new HashMap<RenaterNode, RenaterNode>();
 		distance.put(source, 0.0);
