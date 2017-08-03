@@ -1,6 +1,6 @@
 #!/usr/bin/gnuplot
 
-if (!exists("outfile")) outfile='out/exp1latency.pdf'
+if (!exists("outfile")) outfile='paper1/out/exp1latency.pdf'
 
 set terminal pdf
 set output outfile

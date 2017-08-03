@@ -33,6 +33,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
 //	private static final String PAR_CHORD_PROT = "cprotocol";
 	private static final String PAR_DC_FILE = "dc_file";
 	private static final String PAR_DC_DISTANCE = "distance";
+	private static final String PAR_RAND = "rand";
 	
 //	public static Map<String, Node> Nodes =  new HashMap<String, Node>(); 
 
@@ -46,6 +47,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
     protected int nrNodePerDC;
     protected double distance;
     boolean initializationMode;
+    boolean randomize;
     boolean nested;
     
     public RenaterInitializer(String prefix) {
@@ -53,9 +55,10 @@ public class RenaterInitializer implements Control, NodeInitializer {
         nrDC = Configuration.getInt("NR_DC", 1);
         nrNodePerDC = Configuration.getInt("NR_NODE_PER_DC", 1);
         
-        dc_file = (Configuration.getString(prefix + "." + PAR_DC_FILE, "nofilewiththisname"));
-        distance = (Configuration.getDouble(prefix + "." + PAR_DC_DISTANCE, 0.01));
+        dc_file = Configuration.getString(prefix + "." + PAR_DC_FILE, "nofilewiththisname");
+        distance = Configuration.getDouble(prefix + "." + PAR_DC_DISTANCE, 0.01);
         nested = Configuration.getBoolean("koala.settings.nested", false);
+        randomize = Configuration.getBoolean(prefix + "." + PAR_RAND, false);
     }
 
     	
@@ -191,7 +194,8 @@ public class RenaterInitializer implements Control, NodeInitializer {
 			if(++nodeid == NodeUtilities.NR_NODE_PER_DC){nodeid=0; dcid++;}
 			possibleIDs.add(id);
 		}
-//		Collections.shuffle(possibleIDs, CommonState.r);
+		if(randomize)
+			Collections.shuffle(possibleIDs, CommonState.r);
 		
 	}
 	
@@ -253,7 +257,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
 		if(NodeUtilities.LKID >= 0)
 			leadKoalaNode = (KoalaNode) node.getProtocol(NodeUtilities.LKID);
 		
-        
+		String fid = getFastID(node);
         String id = nested ? getID() : getFastID(node);
 //        System.out.println(id);
         int dcID = NodeUtilities.getDCID(id);
@@ -265,14 +269,12 @@ public class RenaterInitializer implements Control, NodeInitializer {
         if(NodeUtilities.KID >= 0){
         	koalaNode.setCID(id); koalaNode.setSID(id); koalaNode.setNode(node);
         }
-        if(NodeUtilities.CID >= 0)
-        	chordNode.setCID(id);
-        
+        if(NodeUtilities.CID >= 0){
+        	chordNode.setCID(id); chordNode.setSID(fid.split("-")[0]); chordNode.setNode(node);
+        }
+        	
         if(NodeUtilities.FKID >= 0){
-        	String fid = getFastID(node);
-        	flatKoalaNode.setCID(id);
-        	flatKoalaNode.setSID(fid);
-        	flatKoalaNode.setNode(node);
+        	flatKoalaNode.setCID(id); flatKoalaNode.setSID(fid); flatKoalaNode.setNode(node);
         }
         
         if(NodeUtilities.LKID >= 0){

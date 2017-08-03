@@ -592,6 +592,7 @@ public class WireRenater extends WireGraph {
     		DijkstraPlus.Vertex each = vertexMap.get(rn.getCID());
     		for(int j = 0; j < rn.degree(); j++){
     			RenaterNode rm = (RenaterNode) rn.getNeighbor(j).getProtocol(NodeUtilities.RID);
+    			if(!rm.isGateway()) continue;
     			RenaterEdge re = rn.getEdge(rm.getCID());
     			DijkstraPlus.Vertex other = vertexMap.get(rm.getCID());
     			

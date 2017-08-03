@@ -179,9 +179,10 @@ public class TrafficGenerator extends GraphObserver {
 		
 		String[] vals = NodeUtilities.LOCALITY.split(" "); 
 		
-		if(vals.length != 3)
+		if(vals.length != 3){
+			msgCategory = TopologyMessage.CAT_UNDEFINED;
 			return NodeUtilities.getUniformRandNodes(upOrDown,nr);
-		
+		}
 		double loc = Double.parseDouble(vals[0])/100;
 		double close = Double.parseDouble(vals[1])/100;
 //		double global = Double.parseDouble(vals[2])/100;

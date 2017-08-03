@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Random;
 
 import chord.ChordNode;
@@ -19,34 +20,26 @@ import utilities.ChordGlobalInfo;
 import utilities.NodeUtilities;
 
 public class ChordInitializer implements NodeInitializer, Control {
-
-	private static final String PAR_PROT = "protocol";
 	
 
-	int pid = 0;
-
-	
-
-	public ChordInitializer(String prefix) {
-		pid = Configuration.getPid(prefix + "." + PAR_PROT);
-	}
+	public ChordInitializer(String prefix) {}
 
 	
 	public boolean execute() {
-		ArrayList<String> ids = generateIDs(Network.size());
+//		ArrayList<String> ids = generateIDs(Network.size());
 		
 		for (int i = 0; i < Network.size(); i++) {
 			Node node = (Node) Network.get(i);
 			ChordNode cp = NodeUtilities.getChordFromNode(node);
-			cp.setNode(node);
-			cp.setSID(ids.get(i));
+//			cp.setNode(node);
+//			cp.setSID(ids.get(i));
 			cp.setJoined(true);
 			NodeUtilities.CHORD_NODES.put(cp.getSID(), node);
 			cp.fingerTable = new ChordNode[NodeUtilities.M];
 			cp.successorList = new ChordNode[NodeUtilities.SUCC_SIZE];
 			ChordGlobalInfo.network.add(cp);
-			ChordProtocol cprot = (ChordProtocol) node.getProtocol(pid);
-			cprot.intializeMyNode(node, pid);
+			ChordProtocol cprot = (ChordProtocol) node.getProtocol(NodeUtilities.CPID);
+			cprot.intializeMyNode(node, NodeUtilities.CPID);
 		}
 		
 		Collections.sort(ChordGlobalInfo.network, 
@@ -66,27 +59,41 @@ public class ChordInitializer implements NodeInitializer, Control {
 	
 	
 	public void initialize(Node n) {
-		ChordProtocol cp = (ChordProtocol) n.getProtocol(pid);
-		cp.intializeMyNode(n, pid);
+		ChordProtocol cp = (ChordProtocol) n.getProtocol(NodeUtilities.CPID);
+		ChordNode ch = (ChordNode )n.getProtocol(NodeUtilities.CID);
+		System.out.println("Joining " + ch.getSID());
+		cp.intializeMyNode(n, NodeUtilities.CPID);
 		cp.join();
 	}
 
+//	public ChordNode findNodeforId(String id) {
+//		for (int i = 0; i < ChordGlobalInfo.network.size(); i++) {
+//			ChordNode cp = ChordGlobalInfo.get(i);
+//			if(cp.compareTo(id) >= 0)
+//				return cp;
+//		}
+//		return NodeUtilities.getChordFromNode(Network.get(0));
+//	}
+	
 	public ChordNode findNodeforId(String id) {
-		for (int i = 0; i < ChordGlobalInfo.network.size(); i++) {
-			ChordNode cp = ChordGlobalInfo.get(i);
-			if(cp.compareTo(id) >= 0)
-				return cp;
+		int iid = Integer.parseInt(id);
+		iid = iid % ChordGlobalInfo.network.size();
+		
+		Node node = NodeUtilities.CHORD_NODES.get(iid+"");
+		if (node==null){
+			System.out.println("asdfasdf");
 		}
-		return NodeUtilities.getChordFromNode(Network.get(0));
+		return (ChordNode) node.getProtocol(NodeUtilities.CID);
 	}
 	
 	
 	
 	public void myCreateFingerTable() {
-		
+		System.out.println("Creating finger tables");
 		for (int i = 0; i < ChordGlobalInfo.network.size(); i++) {
 			
 			ChordNode cp =  ChordGlobalInfo.network.get(i);
+			System.out.println(i+ " " + cp.getSID());
 			for (int a = 0; a < NodeUtilities.SUCC_SIZE; a++) 
 				cp.successorList[a] = ChordGlobalInfo.get((a + i + 1)%ChordGlobalInfo.network.size());
 			if (i > 0)
@@ -104,7 +111,7 @@ public class ChordInitializer implements NodeInitializer, Control {
 	
 	
 	public static ArrayList<String> generateIDs(int nr){
-		HashSet<String> ids = new HashSet<String>();
+		LinkedHashSet<String> ids = new LinkedHashSet<String>();
 		while(ids.size() != nr)		
 			ids.add(new BigInteger(NodeUtilities.M, CommonState.r).toString());
 		

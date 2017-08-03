@@ -167,7 +167,7 @@ public class KoalaRoutingTable {
 		}
 		return oldEntry;
 	}
-
+	
 	private void setIndex(KoalaNeighbor[] a, int index, KoalaNeighbor val){
 		System.arraycopy(a, index, a, index+1, a.length-index-1);
 		a[index] = val;
@@ -182,6 +182,10 @@ public class KoalaRoutingTable {
 		Node nn = NodeUtilities.Nodes.get(kn.getCID());
 		if(nn==null || !nn.isUp())
         	return false;
+		
+		if(kn.getLatency() < 0){
+			System.err.println("again negative latency!");
+		}
 		
 		boolean added = false;
 		for(int i = 0; i < longLinks.size(); i++){

@@ -19,6 +19,7 @@ datafile = filename
 plot "<(tail -n +2  ".datafile.")"  using 4 title "Koala" smooth csplines with lines lc rgb "blue" , \
 	"<(tail -n +2  ".datafile.")"  using 5 title "Flatoala" smooth csplines with lines lc rgb "orange" , \
 	"<(tail -n +2  ".datafile.")"  using 6 title "Hierarkoala" smooth csplines with lines lc rgb "violet" , \
+	"<(tail -n +2  ".datafile.")"  using 3 title "Chord" smooth csplines with lines lc rgb "red" , \
 	"<(tail -n +2  ".datafile.")"  using 2 title "Physical" smooth csplines with lines  lc rgb "forest-green"
 
 # no smoothing

@@ -47,7 +47,7 @@ public class KoalaNode extends TopologyNode{
 	
 	
 	
-
+	
 	private boolean isJoining;
 	private KoalaRoutingTable routingTable;
 	
@@ -147,7 +147,7 @@ public class KoalaNode extends TopologyNode{
 	public void setJoining(boolean isJoining) {
 		this.isJoining = isJoining;
 	}
-
+	
 	public String toString(){
 		return getSID();
 	}
@@ -231,14 +231,20 @@ public class KoalaNode extends TopologyNode{
 		return 1;
 	}
 	
+//	public boolean isJoining(){
+//		if(this.getBootstrapID() == null)
+//			return false;
+//		ArrayList<KoalaNeighbor> neighbors = getRoutingTable().getNeighbors();
+//		for(KoalaNeighbor kn : neighbors)
+//			if(!NodeUtilities.isDefault(kn) && kn.getLatency() != -1)
+//				return false;
+//		return true;
+//	}
+	
 	public boolean isJoining(){
 		if(this.getBootstrapID() == null)
 			return false;
-		ArrayList<KoalaNeighbor> neighbors = getRoutingTable().getNeighbors();
-		for(KoalaNeighbor kn : neighbors)
-			if(!NodeUtilities.isDefault(kn) && kn.getLatency() != -1)
-				return false;
-		return true;
+		return isJoining;
 	}
 	
 	
@@ -379,11 +385,15 @@ public class KoalaNode extends TopologyNode{
     
     public KoalaNeighbor getRoute(KoalaNode dest,  KoalaMessage msg) {
     	AbstractMap.SimpleEntry<Double, KoalaNeighbor> normal = getRouteForAlpha(dest, msg, NodeUtilities.B);
-    	AbstractMap.SimpleEntry<Double, KoalaNeighbor> no_latency = getRouteForAlpha(dest, msg, 1);
-    	if(normal!=null && no_latency!=null && !normal.getValue().equals(no_latency.getValue()))
-    		this.nrMsgRoutedByLatency++;
+//    	AbstractMap.SimpleEntry<Double, KoalaNeighbor> no_latency = getRouteForAlpha(dest, msg, 1);
+//    	if(normal!=null && no_latency!=null && !normal.getValue().equals(no_latency.getValue()))
+//    		this.nrMsgRoutedByLatency++;
     	if(normal==null) return null;
-    	return  normal.getValue();
+    	if(normal.getValue().getLatency() < 0){
+    		System.err.println("negateive latency"); 
+    		System.exit(1);
+    	}
+    	return  normal.getValue().copy();
     }
     
     public AbstractMap.SimpleEntry<Double, KoalaNeighbor> getRouteResult(KoalaNode dest,  KoalaMessage msg) {
@@ -392,7 +402,8 @@ public class KoalaNode extends TopologyNode{
     
     
     public AbstractMap.SimpleEntry<Double, KoalaNeighbor> getRouteForAlpha(KoalaNode dest,  KoalaMessage msg, double alpha) {
-		ArrayList<String> destNeigs = dest.getRoutingTable().getNeighborsContainerIDs();
+//    	if(msg.pathContains(this)) alpha = 1;
+    	ArrayList<String> destNeigs = dest.getRoutingTable().getNeighborsContainerIDs();
     	AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
 		double v=0;
 		ArrayList<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
@@ -422,8 +433,9 @@ public class KoalaNode extends TopologyNode{
 				downEntries.add(rentry);
 			if(rentry.equals(dest) && isDown)
 				break;
-			if(msg.getPath().contains(rentry) || 
-					destNeigs.contains(rentry.getSID()) ||
+			if(
+//					msg.pathContains(rentry) || 
+//					destNeigs.contains(rentry.getSID()) ||
 					isDown)
 				continue;
 			

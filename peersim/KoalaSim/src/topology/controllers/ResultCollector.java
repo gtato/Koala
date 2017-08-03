@@ -42,7 +42,7 @@ public class ResultCollector extends NodeObserver {
 	private static int nrInterDCMsg = 0;
 	private static int nrIntraDCMsg = 0;
 
-	private static int local=0, close=0, global=0;
+	private static int local=0, close=0, global=0, undefined=0;
 	
 	private static int flush = 0;
 	private boolean ended = false;
@@ -73,7 +73,7 @@ public class ResultCollector extends NodeObserver {
 	public boolean execute() {
 		updateGraph();
 		
-		if(NodeUtilities.KPID > 0)
+		if(NodeUtilities.KPID > 0 || NodeUtilities.CPID > 0 || NodeUtilities.FKPID > 0 || NodeUtilities.LKPID > 0)
 			compare();
 		else
 			reportRenater();
@@ -131,6 +131,7 @@ public class ResultCollector extends NodeObserver {
 				if(rm.getCategory() == TopologyMessage.CAT_LOCAL) local++;
 				if(rm.getCategory() == TopologyMessage.CAT_CLOSE) close++;
 				if(rm.getCategory() == TopologyMessage.CAT_GLOBAL) global++;
+				if(rm.getCategory() == TopologyMessage.CAT_UNDEFINED) undefined++;
 				
 //				renaterTotalLatency += rm.getLatency();
 //				koalaTotalLatency += km.getLatency();
@@ -303,11 +304,14 @@ public class ResultCollector extends NodeObserver {
 		return super.getOutputFileBase() +  "results/";
 	}
 
+//	@Override
+//	protected String[] getOutputFileNames() {
+//		return new String[]{"resultsC"+Configuration.getString("CC")+"CH"+Configuration.getString("CHURN")};
+//	}
 	@Override
 	protected String[] getOutputFileNames() {
-		return new String[]{"resultsC"+Configuration.getString("CC")+"CH"+Configuration.getString("CHURN")};
+		return new String[]{"resultsC"+Configuration.getString("CC")+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC")+"norand"};
 	}
-	
 	
 	
 }

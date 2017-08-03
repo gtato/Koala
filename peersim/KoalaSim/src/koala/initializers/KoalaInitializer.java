@@ -38,12 +38,14 @@ import utilities.PhysicalDataProvider;
 
 public class KoalaInitializer implements Control, NodeInitializer {
 		
+	private static final String PAR_PROT = "protocol";
 	private static final String PAR_KOALA_NR= "nr";
 	private static final String PAR_KOALA_INIT= "initialize";
 
 	private final int nr;
+	private int pid;
 	private final boolean initialize;
-	
+	private final int flushload;
 	
 //	private FileOutputStream[] foss = new FileOutputStream[10];
 //	private PrintStream[] pss = new PrintStream[10];
@@ -52,8 +54,9 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	public KoalaInitializer(String prefix) {
 		nr = Configuration.getInt(prefix + "." + PAR_KOALA_NR, Network.size());
 		initialize = Configuration.getBoolean(prefix + "." + PAR_KOALA_INIT, false);
-	
+		pid = Configuration.getPid(prefix + "." + PAR_PROT, -1);
 		fromFile = Configuration.getBoolean(prefix + ".fromfile", false);
+		flushload = Configuration.getInt(prefix + ".flushload", 50000);
 	}
 	
 	@Override
@@ -67,8 +70,10 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			RenaterProtocol rp = (RenaterProtocol )n.getProtocol(NodeUtilities.RPID);
 			rp.intializeMyNode(n, NodeUtilities.RPID);
 			rp.join();
-			KoalaProtocol kp = (KoalaProtocol )n.getProtocol(NodeUtilities.KPID);
-			kp.intializeMyNode(n, NodeUtilities.KPID);
+			if(NodeUtilities.KPID > 0){
+				KoalaProtocol kp = (KoalaProtocol )n.getProtocol(NodeUtilities.KPID);
+				kp.intializeMyNode(n, NodeUtilities.KPID);
+			}
 			if(NodeUtilities.FKPID > 0){
 				FlatKoalaProtocol fkp = (FlatKoalaProtocol )n.getProtocol(NodeUtilities.FKPID);
 				fkp.intializeMyNode(n, NodeUtilities.FKPID);
@@ -98,12 +103,10 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		NodeUtilities.copyAltDowns();
 		
 		
-		
-		
 		if(NodeUtilities.KPID > 0)
-			initialize(inx, NodeUtilities.KPID);
+			initialize(inx, NodeUtilities.KPID);		
 		if(NodeUtilities.LKPID > 0)
-			initializeLeader(inx, NodeUtilities.LKPID);
+			initializeLeader(inx, NodeUtilities.LKPID);		
 		if(NodeUtilities.FKPID > 0)
 			initialize(inx, NodeUtilities.FKPID);
 //		printing neighbors assignment
@@ -122,8 +125,10 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		
 //		System.exit(0);
 		
-		
+		 
+		System.out.println("Initialization lasted " + (System.currentTimeMillis() - PhysicalDataProvider.SimTime)/1000 + " seconds");
 		TopologyProtocol.setInitializeMode(false);
+//		System.exit(0);
 		return false;
 	}
 	
@@ -187,8 +192,9 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			for (int i = 0; i < nr; i++) {
 				Node n = Network.get(inx.get(i));
 				KoalaProtocol kp = (KoalaProtocol)n.getProtocol(pid);				
-				System.out.println(i+ ". joining " + kp.getMyNode().getCID());
+				System.out.print(i+ ". joining " + kp.getMyNode().getCID());
 				kp.join();
+				System.out.println(" in " + KoalaProtocol.joinHops);
 				perc = (double)100*(i+1)/nr;
 				String txt = i < nr-1 ? perc + "%, " : perc + "%"; 
 				if(perc - prevPerc > 10 || i == nr-1){
@@ -298,6 +304,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	private boolean checkNeighbors(int pid)
 	{
 		boolean isLeader = pid == NodeUtilities.LKPID;
+		int fails = 0;
 		for (int i = 0; i < nr; i++) {
 			Node n = Network.get(i);
 			KoalaNode kn = (KoalaNode )n.getProtocol(NodeUtilities.getLinkable(pid));
@@ -314,20 +321,23 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			int currentPredDc = NodeUtilities.getDCID(kn.getRoutingTable().getGlobalPredecessor(0).getSID());
 			
 			if(idealSuccDC != currentSuccDc || idealPredDC != currentPredDc)
-				return false;
+				fails++;
 			
 		}	
 		
-		return true;
+		return fails == 0;
 	}
 	
 	private void saveToFile(int pid){
-		if(!fromFile) return;
+		
 		
 		if(!checkNeighbors(pid)){
-			System.out.println("WRONG ASSIGNEMNT OF NEIGHBORS");
+			System.out.println("WRONG NEIGHBOR ASSIGNEMNT");
 			System.exit(1);
-		}
+		}else
+			System.out.println("CORRECT NEIGHBOR ASSIGNEMNT");
+		
+		if(!fromFile) return;
 		
 		try {
 			File file = new File("out/koala/init"+ pid+".dat");
@@ -421,8 +431,9 @@ public class KoalaInitializer implements Control, NodeInitializer {
 
 	@Override
 	public void initialize(Node n) {
-		KoalaProtocol kp = (KoalaProtocol) n.getProtocol(NodeUtilities.KPID);
-		kp.intializeMyNode(n, NodeUtilities.KPID);
+		int p = pid != -1? pid : NodeUtilities.KPID;
+		KoalaProtocol kp = (KoalaProtocol) n.getProtocol(p);
+		kp.intializeMyNode(n, p);
 		KoalaNode kn = (KoalaNode)kp.getMyNode();
 		ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(kn);
 		kn.getRoutingTable().setLongLinks(lls);

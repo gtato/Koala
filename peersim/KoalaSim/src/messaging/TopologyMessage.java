@@ -13,6 +13,7 @@ public abstract class TopologyMessage {
 	public static int CAT_LOCAL = 0;
 	public static int CAT_CLOSE = 1;
 	public static int CAT_GLOBAL = 2;
+	public static int CAT_UNDEFINED = 3;
 	
 	protected ArrayList<Double> latencies = new ArrayList<Double>();
 	protected ArrayList<TopologyPathNode> path = new ArrayList<TopologyPathNode>();
@@ -26,9 +27,10 @@ public abstract class TopologyMessage {
 	private long sentCycle;
 	private long receivedCycle;
 
-	public TopologyMessage(){}
+	public TopologyMessage(){setCategory(CAT_UNDEFINED);}
 	
 	public TopologyMessage(TopologyMessageContent content){
+		setCategory(CAT_UNDEFINED);
 		this.type = content.getMsgType();
 		this.content = content;
 		
@@ -122,12 +124,13 @@ public abstract class TopologyMessage {
 		return path;
 	}
 	
-	public boolean pathContains(TopologyPathNode n){
+	public boolean pathContains(Object n){
 		for(TopologyPathNode tpn : path)
 			if(tpn.equals(n))
 				return true;
 		return false;
 	}
+	
 	
 //	public ArrayList<String> getChordPath(){
 //		ArrayList<String> chordPath = new ArrayList<String>();

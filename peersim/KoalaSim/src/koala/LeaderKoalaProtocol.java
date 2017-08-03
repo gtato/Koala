@@ -37,17 +37,25 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 //		return each.isUp() && each.hasJoined() && eachRn.isGateway();
 //	}
 	
+	protected Node getBootstrap(){
+		if(lastBootstraps.size()==0) return null;
+		if(!myNode.isLeader())
+			return getCloseBootstrap();
+		return NodeUtilities.Nodes.get(lastBootstraps.get(CommonState.r.nextInt(lastBootstraps.size())));
+	}
+	
 	protected void onRoutingTable(KoalaMessage msg) {
 		KoalaNode source = ((KoalaRTMsgConent)msg.getContent()).getNode();
-		
+		TopologyPathNode msgSender = msg.getLastSender();
+//      TopologyPathNode msgSender = receviedMsg.getSender();
 		if(myNode.isLocal(source.getSID())){
 			ArrayList<KoalaNeighbor> receivedNeighbors = source.getRoutingTable().getNeighborsContainer();
 			receivedNeighbors.add(new KoalaNeighbor(source));
 			
 			for(KoalaNeighbor recNeighbor: receivedNeighbors){
 				if(recNeighbor.equals(myNode) || !myNode.isLocal(recNeighbor)) continue;
-				boolean isSender = recNeighbor.getSID().equals(msgSender.getSID());
-				boolean isSource = recNeighbor.getSID().equals(source.getSID());
+				boolean isSender = recNeighbor.equals(msgSender);
+				boolean isSource = recNeighbor.equals(source);
 				double l = isSender ? msg.getLatency() : recNeighbor.getLatency();
 				int lq = myNode.getLatencyQuality(isSender, source.getSID(), recNeighbor);
 				
@@ -123,7 +131,7 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 	
 	protected ArrayList<TopologyPathNode> getPath(){
 		ArrayList<TopologyPathNode> pathcp = new ArrayList<TopologyPathNode>();
-		for(TopologyPathNode tpn : msgPath)
+		for(TopologyPathNode tpn : receviedMsg.getPath())
 			pathcp.add(tpn.copy());
 		pathcp.remove(0);
 		return pathcp;

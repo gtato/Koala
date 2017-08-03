@@ -5,6 +5,7 @@ import java.util.Comparator;
 import topology.TopologyNode;
 import topology.TopologyPathNode;
 import utilities.NodeUtilities;
+import utilities.PhysicalDataProvider;
 
 public class KoalaNeighbor extends TopologyPathNode{
 
@@ -17,11 +18,13 @@ public class KoalaNeighbor extends TopologyPathNode{
 	public KoalaNeighbor(TopologyNode knd) {
 		super(knd.getCID(), knd.getSID());
 		this.idealID = knd.getSID();
+		this.latency = PhysicalDataProvider.getDefaultInterLatency();
 	}
 	
 	public KoalaNeighbor(TopologyPathNode knd) {
 		super(knd.getCID(), knd.getSID());
 		this.idealID = knd.getSID();
+		this.latency = PhysicalDataProvider.getDefaultInterLatency();
 	}
 	
 //	public KoalaNeighbor(String nodeID, String koalaID) {
@@ -86,7 +89,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 	
 	public String toString(){
 		String ideal = getIdealID() == null? "": " " + getIdealID();
-		return "(id:" + getSID() + " iid:" +  ideal+" lat:"+(int)getLatency()+" lq:" + getLatencyQuality()+")";
+		return "(id:" + getSID() + " iid:" +  ideal+" lat:"+ PhysicalDataProvider.round(getLatency())+" lq:" + getLatencyQuality()+")";
 	}
 
 	public String getIdealID() {

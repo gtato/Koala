@@ -115,7 +115,7 @@ public class KoalaDynamicNetwork implements Control{
 			if(NodeUtilities.CID >= 0)
 				tn = (ChordNode)node.getProtocol(NodeUtilities.CID);
 			else
-				tn = (KoalaNode)node.getProtocol(NodeUtilities.KID);
+				tn = (KoalaNode)node.getProtocol(NodeUtilities.FKID);
 			System.out.println("Node " + tn + " is in da house");
 			
 			for (int j = 0; j < inits.length; ++j) 

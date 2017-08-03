@@ -6,6 +6,7 @@ import java.util.HashMap;
 import koala.KoalaNeighbor;
 import koala.KoalaProtocol;
 import messaging.TopologyMessage;
+import messaging.TopologyMessageReplica;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
@@ -25,6 +26,9 @@ public abstract class TopologyProtocol implements EDProtocol {
 	protected TopologyNode myNode = null;
 	protected Transport myTransport = null;
 
+	protected HashMap<Integer, ArrayList<Node>> bootstraps = new HashMap<Integer, ArrayList<Node>>();
+	protected ArrayList<String> lastBootstraps = new ArrayList<String>();
+	
 //	protected HashMap<Integer, KoalaMessage> receivedMsgs;
 	
 //	protected int linkPid = -1;
@@ -35,10 +39,11 @@ public abstract class TopologyProtocol implements EDProtocol {
 	protected boolean logMsg;
 	protected static boolean initializeMode; //true only when the koala ring is being statically initialized (false during the simulation)
 	
-	protected TopologyPathNode msgSender;
-	protected ArrayList<TopologyPathNode> msgPath;
-	protected ArrayList<KoalaNeighbor> msgPiggyBack;
-	
+	protected TopologyMessageReplica receviedMsg;
+//	protected TopologyPathNode msgSender;
+//	protected ArrayList<TopologyPathNode> msgPath;
+//	protected ArrayList<KoalaNeighbor> msgPiggyBack;
+//	
 	
 	public TopologyProtocol(String prefix) {
 
@@ -95,6 +100,36 @@ public abstract class TopologyProtocol implements EDProtocol {
 //		return receivedMsgs.get(msgID);
 //	}
 	
+	protected void addBootStrap(){
+		int dcid = NodeUtilities.getDCID(myNode.getSID());
+//		lastBootstraps.add(0, myNode.getCID());  if(lastBootstraps.size()==11)lastBootstraps.remove(10);
+		lastBootstraps.add(myNode.getCID());
+		if(!bootstraps.containsKey(dcid)){
+			ArrayList<Node> l = new ArrayList<Node>();
+			l.add(myNode.getNode());
+			bootstraps.put(dcid, l);
+		}
+	}
+	
+	protected Node getCloseBootstrap(){
+		if(lastBootstraps.size()==0) return null;
+		int dcid = NodeUtilities.getDCID(myNode.getSID());
+		for(int i=0;i<50;i++){
+			int p = dcid+i>=NodeUtilities.NR_DC? dcid+i-NodeUtilities.NR_DC:dcid+i;
+			int m = dcid-i<0? NodeUtilities.NR_DC-dcid-i:dcid-i;
+			ArrayList<Node> l = null;
+			if(bootstraps.containsKey(p))
+				l = bootstraps.get(p);
+			if(bootstraps.containsKey(m))
+				l = bootstraps.get(m);
+			if(l!=null)
+				return l.get(CommonState.r.nextInt(l.size())); 
+		}
+		
+		return null;		
+	}
+	
+	
 	public String toString(){
 		String nodeid = myNode == null ? "not initialized" : myNode.toString(); 
 		return "("+ getProtocolName()+") " + nodeid;
@@ -127,6 +162,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 
 	public void send(TopologyPathNode dest, TopologyMessage msg)
 	{
+		
 		if(dest == null || dest.getSID().equals(myNode.getSID())){
 			handleMessage(msg);
 			return;
@@ -173,12 +209,14 @@ public abstract class TopologyProtocol implements EDProtocol {
 				return;
 			}
 			
+			onReceiveLatency(dest, l);
+			
 			if(initializeMode)
 				((KoalaProtocol)destNode.getProtocol(myPid)).receive(msg);
 			else
 				myTransport.send(node, destNode, msg, myPid);
 			
-			onReceiveLatency(dest, l);
+			
 		}
 		
 	}
@@ -200,10 +238,12 @@ public abstract class TopologyProtocol implements EDProtocol {
 		if(logMsg)
 			System.out.println(logmsg);
 		
-		msgSender = msg.getLastSender();
-		msgPath = new ArrayList<TopologyPathNode>();
-		for(TopologyPathNode tpn : msg.getPath())
-			msgPath.add(tpn.copy());
+		receviedMsg = new TopologyMessageReplica(msg);
+		
+//		msgSender = msg.getLastSender();
+//		msgPath = new ArrayList<TopologyPathNode>();
+//		for(TopologyPathNode tpn : msg.getPath())
+//			msgPath.add(tpn.copy());
 		
 		handleMessage(msg);
 	}
