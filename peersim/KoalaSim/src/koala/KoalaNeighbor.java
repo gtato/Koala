@@ -2,6 +2,8 @@ package koala;
 
 import java.util.Comparator;
 
+import peersim.config.Configuration;
+import peersim.core.CommonState;
 import topology.TopologyNode;
 import topology.TopologyPathNode;
 import utilities.NodeUtilities;
@@ -13,7 +15,8 @@ public class KoalaNeighbor extends TopologyPathNode{
 	private String idealID;
 	private double latency = -1;
 	private int latencyQuality = -1;
-	 
+	private double rating = -1; 
+	private boolean recentlyAdded = false;
 	
 	public KoalaNeighbor(TopologyNode knd) {
 		super(knd.getCID(), knd.getSID());
@@ -31,6 +34,13 @@ public class KoalaNeighbor extends TopologyPathNode{
 //		super(nodeID, koalaID);
 //		this.idealID = koalaID;
 //	}
+	
+	public KoalaNeighbor(TopologyNode knd, double latency, int latencyQuality) {
+		super(knd.getCID(), knd.getSID());
+		this.latency = latency;
+		this.latencyQuality = latencyQuality;
+		this.idealID = knd.getSID();
+	}
 	
 	public KoalaNeighbor(TopologyPathNode tpn, double latency, int latencyQuality) {
 		super(tpn.getCID(), tpn.getSID());
@@ -55,7 +65,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 	
 	public void update(KoalaNeighbor updated)
 	{
-		if(updated.getLatencyQuality() >= getLatency())
+		if(updated.getLatencyQuality() >= getLatencyQuality())
 		{
 			setLatency(updated.getLatency());
 			setLatencyQuality(updated.getLatencyQuality());
@@ -66,6 +76,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 		String oldIID = getIdealID(); 
 		KoalaNeighbor kn = new KoalaNeighbor(super.copy(), latency, latencyQuality);
 		kn.setIdealID(oldIID);
+		kn.setRating(rating);
 		return kn; 
 	}
 	
@@ -76,8 +87,22 @@ public class KoalaNeighbor extends TopologyPathNode{
 //		return kn; 
 //	}
 	
+	public void setRating(double r){
+		rating = r;
+	}
 	
+	public double getRating(){
+		return rating;
+	}
 
+	public void setRecentlyAdded(boolean ra){
+		recentlyAdded = ra;
+	}
+	
+	public boolean isRecentlyAdded(){
+		return recentlyAdded;
+	}
+	
 	public int getLatencyQuality() {
 		return latencyQuality;
 	}
@@ -105,6 +130,12 @@ public class KoalaNeighbor extends TopologyPathNode{
 		latencyQuality = -1;
 		setCID(NodeUtilities.DEFAULTID);
 		setSID(NodeUtilities.DEFAULTID);
+	}
+	
+	public boolean isBelowThreshold(){
+		double helpTH = Configuration.getDouble("koala.settings.collaborate_threshold", 20);
+		helpTH /= 100;
+		return rating < 1+helpTH;
 	}
 	
 	public static KoalaNeighbor getDefaultNeighbor(){

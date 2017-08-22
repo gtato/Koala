@@ -48,12 +48,14 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 		KoalaNode source = ((KoalaRTMsgConent)msg.getContent()).getNode();
 		TopologyPathNode msgSender = msg.getLastSender();
 //      TopologyPathNode msgSender = receviedMsg.getSender();
+		boolean selfJoining = myNode.isJoining();
 		if(myNode.isLocal(source.getSID())){
 			ArrayList<KoalaNeighbor> receivedNeighbors = source.getRoutingTable().getNeighborsContainer();
 			receivedNeighbors.add(new KoalaNeighbor(source));
 			
 			for(KoalaNeighbor recNeighbor: receivedNeighbors){
 				if(recNeighbor.equals(myNode) || !myNode.isLocal(recNeighbor)) continue;
+				if(initializeMode && selfJoining && myNode.isLocal(recNeighbor) && myNode.getRoutingTable().getLocals().size()>0 ) continue;
 				boolean isSender = recNeighbor.equals(msgSender);
 				boolean isSource = recNeighbor.equals(source);
 				double l = isSender ? msg.getLatency() : recNeighbor.getLatency();
@@ -73,6 +75,8 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 			else
 				send(myNode.getLeaderNeighor(), msg);
 		}
+		
+		myNode.setJoining(false);//not sure about this
 	}
 	
 	

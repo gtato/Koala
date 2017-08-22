@@ -306,12 +306,11 @@ public class ResultCollector extends NodeObserver {
 
 //	@Override
 //	protected String[] getOutputFileNames() {
-//		return new String[]{"resultsC"+Configuration.getString("CC")+"CH"+Configuration.getString("CHURN")};
+//		return new String[]{"resultsC"+NodeUtilities.C+"CH"+Configuration.getString("CHURN")};
 //	}
 	@Override
 	protected String[] getOutputFileNames() {
-		return new String[]{"resultsC"+Configuration.getString("CC")+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC")+"norand"};
+		return new String[]{"results.C"+NodeUtilities.C+"."+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC")+".CCL"+NodeUtilities.getStringCycles()+"."};
 	}
-	
 	
 }

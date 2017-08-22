@@ -44,20 +44,20 @@ public class RenaterInitializer implements Control, NodeInitializer {
     private final String dc_file;
     
     protected int nrDC;
-    protected int nrNodePerDC;
+//    protected int nrNodePerDC;
     protected double distance;
     boolean initializationMode;
     boolean randomize;
-    boolean nested;
+//    boolean nested;
     
     public RenaterInitializer(String prefix) {
       
-        nrDC = Configuration.getInt("NR_DC", 1);
-        nrNodePerDC = Configuration.getInt("NR_NODE_PER_DC", 1);
+        nrDC = NodeUtilities.NR_DC;
+//        nrNodePerDC = Configuration.getInt("NR_NODE_PER_DC", 1);
         
         dc_file = Configuration.getString(prefix + "." + PAR_DC_FILE, "nofilewiththisname");
         distance = Configuration.getDouble(prefix + "." + PAR_DC_DISTANCE, 0.01);
-        nested = Configuration.getBoolean("koala.settings.nested", false);
+//        nested = NodeUtilities.NESTED Configuration.getBoolean("koala.settings.nested", false);
         randomize = Configuration.getBoolean(prefix + "." + PAR_RAND, false);
     }
 
@@ -71,8 +71,8 @@ public class RenaterInitializer implements Control, NodeInitializer {
         }
 		
 		PhysicalDataProvider.SimTime = System.currentTimeMillis();
-		double alpha = Configuration.getDouble("ALPHA", -2.0);
-		System.out.println("ALPHA set to " + alpha);
+//		double alpha = Configuration.getDouble("ALPHA", -2.0);
+		System.out.println("ALPHA set to " + NodeUtilities.ALPHA);
 		
 		System.out.println("\nSetting up renater nodes, positioning and gateways ");
 		
@@ -258,7 +258,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
 			leadKoalaNode = (KoalaNode) node.getProtocol(NodeUtilities.LKID);
 		
 		String fid = getFastID(node);
-        String id = nested ? getID() : getFastID(node);
+        String id = NodeUtilities.NESTED ? getID() : getFastID(node);
 //        System.out.println(id);
         int dcID = NodeUtilities.getDCID(id);
         
@@ -284,7 +284,7 @@ public class RenaterInitializer implements Control, NodeInitializer {
         NodeUtilities.Nodes.put(id, node);
         
         double[] cords;
-        if(nested && NodeUtilities.Gateways.containsKey(dcID+"")){
+        if(NodeUtilities.NESTED && NodeUtilities.Gateways.containsKey(dcID+"")){
         	renaterNode.setGateway(NodeUtilities.Gateways.get(dcID+"").getCID());
         	cords = this.getRandomCirclePoint(NodeUtilities.CenterPerDC[dcID][0], NodeUtilities.CenterPerDC[dcID][1], distance);
 //        	System.out.println(id + " is not gateway, its gateway is " +  NodeUtilities.Gateways.get(dcID+"").getID());

@@ -211,14 +211,14 @@ public class KoalaNode extends TopologyNode{
         
         int ret = Math.max(addedS, addedP);
          
-        if( ret == 1)
+        if( ret == 1)  
             ret++;
 
         if( ret ==-1 && canBeNeighbour(n.getSID(),0))
             ret = 1;
 
         getRoutingTable().setOldNeighborsContainer(oldNeighbors);
-        // 2: added, 1: potential neighbor, 0: updated , -1:not neighbor
+        // 2: added, 1:potential neighbor , 0:updated, -1:not neighbor
         return ret; // should return oldNeighbors as well
 	}
 	
@@ -384,54 +384,68 @@ public class KoalaNode extends TopologyNode{
     	
     
     public KoalaNeighbor getRoute(KoalaNode dest,  KoalaMessage msg) {
-    	AbstractMap.SimpleEntry<Double, KoalaNeighbor> normal = getRouteForAlpha(dest, msg, NodeUtilities.B);
-//    	AbstractMap.SimpleEntry<Double, KoalaNeighbor> no_latency = getRouteForAlpha(dest, msg, 1);
+    	KoalaNeighbor normal = getRouteForAlpha(dest, msg, NodeUtilities.ALPHA);
+//    	KoalaNeighbor no_latency = getRouteForAlpha(dest, msg, 1);
 //    	if(normal!=null && no_latency!=null && !normal.getValue().equals(no_latency.getValue()))
 //    		this.nrMsgRoutedByLatency++;
     	if(normal==null) return null;
-    	if(normal.getValue().getLatency() < 0){
+    	if(normal.getLatency() < 0){
     		System.err.println("negateive latency"); 
     		System.exit(1);
     	}
-    	return  normal.getValue().copy();
+    	return  normal.copy();
     }
     
-    public AbstractMap.SimpleEntry<Double, KoalaNeighbor> getRouteResult(KoalaNode dest,  KoalaMessage msg) {
-    	return getRouteForAlpha(dest, msg, NodeUtilities.B);
-    }
+//    public AbstractMap.SimpleEntry<Double, KoalaNeighbor> getRouteResult(KoalaNode dest,  KoalaMessage msg) {
+//    	return getRouteForAlpha(dest, msg, NodeUtilities.B);
+//    }
     
     
-    public AbstractMap.SimpleEntry<Double, KoalaNeighbor> getRouteForAlpha(KoalaNode dest,  KoalaMessage msg, double alpha) {
+    public KoalaNeighbor getRouteForAlpha(KoalaNode dest,  KoalaMessage msg, double alpha) {
 //    	if(msg.pathContains(this)) alpha = 1;
     	ArrayList<String> destNeigs = dest.getRoutingTable().getNeighborsContainerIDs();
     	AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
 		double v=0;
 		ArrayList<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
-		ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>(); 
+//		ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>();
+		ArrayList<KoalaNeighbor> potentialDests = new ArrayList<KoalaNeighbor>();
 	
 		for(KoalaNeighbor re : rt){
+			if(re.isRecentlyAdded()) continue;
 			v = getRouteValue(dest.getSID(), re, alpha);
-			mre = new AbstractMap.SimpleEntry<Double, KoalaNeighbor>(v, re);
-			if(v>0) // add only those better than myself
-				potentialDests.add(mre);
-	
+//			mre = new AbstractMap.SimpleEntry<Double, KoalaNeighbor>(v, re);
+			if(v>0){ // add only those better than myself
+//				potentialDests.add(mre);
+				re.setRating(v);
+				potentialDests.add(re);
+			}
 		}
-		Collections.sort(potentialDests, Collections.reverseOrder(new Comparator<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>() {
+//		Collections.sort(potentialDests, Collections.reverseOrder(new Comparator<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>() {
+//			@Override
+//			public int compare(AbstractMap.SimpleEntry<Double, KoalaNeighbor> o1, AbstractMap.SimpleEntry<Double, KoalaNeighbor> o2) {
+//				return o1.getKey().compareTo(o2.getKey());
+//				
+//			}
+//			}));
+		
+		Collections.sort(potentialDests, Collections.reverseOrder(new Comparator<KoalaNeighbor>() {
 			@Override
-			public int compare(AbstractMap.SimpleEntry<Double, KoalaNeighbor> o1, AbstractMap.SimpleEntry<Double, KoalaNeighbor> o2) {
-				return o1.getKey().compareTo(o2.getKey());
+			public int compare(KoalaNeighbor o1, KoalaNeighbor o2) {
+				return  new Double(o1.getRating()).compareTo(new Double(o2.getRating()));
 				
 			}
 			}));
 		
-		AbstractMap.SimpleEntry<Double, KoalaNeighbor> ret = null; 
+//		AbstractMap.SimpleEntry<Double, KoalaNeighbor> ret = null;
+		KoalaNeighbor ret = null;
 		ArrayList<KoalaNeighbor> downEntries = new ArrayList<KoalaNeighbor>();
-		for(AbstractMap.SimpleEntry<Double, KoalaNeighbor> entry : potentialDests){
-			KoalaNeighbor rentry = entry.getValue();
-			boolean isDown = !NodeUtilities.isUp(rentry.getCID()); 
+//		for(AbstractMap.SimpleEntry<Double, KoalaNeighbor> entry : potentialDests){
+		for(KoalaNeighbor entry : potentialDests){
+//			KoalaNeighbor rentry = entry.getValue();
+			boolean isDown = !NodeUtilities.isUp(entry.getCID()); 
 			if(isDown)
-				downEntries.add(rentry);
-			if(rentry.equals(dest) && isDown)
+				downEntries.add(entry);
+			if(entry.equals(dest) && isDown)
 				break;
 			if(
 //					msg.pathContains(rentry) || 
@@ -464,10 +478,10 @@ public class KoalaNode extends TopologyNode{
              res = -1;
  		
  		else if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getSID()))
-             res = max - (double)NodeUtilities.A * (double)NodeUtilities.distance(re.getSID(), dest);
+             res = max - (double)NodeUtilities.BETA * (double)NodeUtilities.distance(re.getSID(), dest);
          
  		else if( NodeUtilities.getDCID(getSID()) == NodeUtilities.getDCID(re.getSID()))
-             res = NodeUtilities.A * NodeUtilities.distance(this.getSID(), re.getSID());
+             res = NodeUtilities.BETA * NodeUtilities.distance(this.getSID(), re.getSID());
          
  		else if( NodeUtilities.distance(this.getSID(), dest) > NodeUtilities.distance(re.getSID(), dest)){
              int tot_distance = NodeUtilities.distance(this.getSID(), dest);
@@ -510,7 +524,7 @@ public class KoalaNode extends TopologyNode{
 		int minDist = Integer.MAX_VALUE;
 		KoalaNeighbor closestEntry = null;
 		for( KoalaNeighbor re: getRoutingTable().getNeighbors()){
-			
+			if(re.isRecentlyAdded()) continue;
 			int sdistfromre = NodeUtilities.signDistance(this.getSID(), re.getSID());
 			int distfromre = NodeUtilities.distance(this.getSID(), re.getSID());
 			if(sdistfromme*sdistfromre < 0) continue;

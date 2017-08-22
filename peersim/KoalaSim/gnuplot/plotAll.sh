@@ -42,9 +42,9 @@ group=1000
 #./path_occurrences.py -f '../out/results/resultsA0.5.dat' -n 5 -p 'k' > $f2 ; gnuplot -e "filename='$f2'" plotPathOccurrence.plt &
 
 #comparision of latency for the 3 protocols 
-# f1="/tmp/$RANDOM.mpl"
+f1="/tmp/$RANDOM.mpl"
 # f2="/tmp/$RANDOM.mpl"
-# ./group.py -f '../out/results/resultsC1CH1A0.5.datnos' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
+./group.py -f '../out/results/resultsC21000x100A0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
 # ./group.py -f '../out/results/resultsC1CH1A0.5.datnos10' -n $group > $f1 ; gnuplot -e "filename='$f1'" paper1/plotLatency.plt &
 
 
@@ -77,11 +77,11 @@ group=1000
 # ./group.py -f '../out/results/resultsC21000x100randA0.5.dat' -n $group > $f3 ;\
 # gnuplot -e "filename1='$f1'; filename2='$f2'; filename3='$f3'; outfile='paper1/out/random.pdf'" paper1/plotLatency.plt &
  
-f1="/tmp/$RANDOM.mpl"
-f2="/tmp/$RANDOM.mpl"
-./group.py -f '../out/results/resultsC21000x10randA0.5.dat' -n $group > $f1 ;\
-./group.py -f '../out/results/resultsC21000x10norandA0.5.dat' -n $group > $f2 ;\
-gnuplot -e "filename1='$f1'; filename2='$f2'; outfile='paper1/out/interlac210.pdf'" paper1/plotLatencyLA.plt &
+# f1="/tmp/$RANDOM.mpl"
+# f2="/tmp/$RANDOM.mpl"
+# ./group.py -f '../out/results/resultsC21000x10randA0.5.dat' -n $group > $f1 ;\
+# ./group.py -f '../out/results/resultsC21000x10norandA0.5.dat' -n $group > $f2 ;\
+# gnuplot -e "filename1='$f1'; filename2='$f2'; outfile='paper1/out/interlac210.pdf'" paper1/plotLatencyLA.plt &
   
 
  

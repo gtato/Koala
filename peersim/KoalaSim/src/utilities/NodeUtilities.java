@@ -24,10 +24,6 @@ import topology.TopologyNode;
 public class NodeUtilities {
 	public static final String DEFAULTID = "xxx";
 
-	public static double A = 0;
-	public static double B = 0; //a.k.a alpha
-	public static double C = 0; //a.k.a beta 
-	
 	public static int DijkstraRAM = 1;
 	public static int DijkstraDB = 2;
 	public static int DijkstraSPAAS = 3;
@@ -37,12 +33,15 @@ public class NodeUtilities {
 	public static int MAGIC = 2;
 	
 	
-	
 //	public static double MAX_INTER_LATENCY = 2000;
 //	public static double MAX_INTRA_LATENCY = 500;
 	
-	public static int NR_NODE_PER_DC = 0; //Configuration.getInt("NR_NODE_PER_DC")
-	public static int NR_DC = 0; //Configuration.getInt("NR_DC")
+	public static int CYCLES = Configuration.getInt("CYCLES", 100); 
+	public static double ALPHA = Configuration.getDouble("ALPHA", 0.5);
+	public static double BETA;
+	
+	public static int NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
+	public static int NR_DC = Configuration.getInt("NR_DC");
 	public static int ACTUAL_NR_DC = 0;
 	
 	public static int RID = -1, KID = -1, CID = -1, FKID = -1, LKID = -1;
@@ -56,15 +55,18 @@ public class NodeUtilities {
 	public static int PiggybackLength = 0;
 //	public static double WORLD_SIZE = 1.0;
 	
-	public static int SIZE = 0;
-	public static int SUCC_SIZE = 0;
+	public static int SIZE = Configuration.getInt("SIZE", 0);
+	public static int SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
 	public static int M = 0;
-	public static int CC = Configuration.getInt("CC", 2);
-	public static int NEIGHBORS = Configuration.getInt("NEIGHBORS", 2);
-	public static int LONG_LINKS = Configuration.getInt("LONG_LINKS", 3);
-	public static int FLAT_LONG_LINKS = Configuration.getInt("FLAT_LONG_LINKS", 3);
+	public static int C = Configuration.getInt("koala.settings.c", 2);
+	public static int RESP_C = Configuration.getInt("koala.settings.responsible_for_c", 1);
+	public static int NEIGHBORS = Configuration.getInt("koala.settings.neighbors", 2);
+	public static int RESP_LINKS;
+	public static int LONG_LINKS;
+	public static int FLAT_LONG_LINKS;
 	
 	public static boolean COLLABORATE = Configuration.getBoolean("koala.settings.collaborate", false);
+	public static int NR_COLLABORATORS = Configuration.getInt("koala.settings.collaborate_nr", 2);
 	
 	public static boolean NESTED = Configuration.getBoolean("koala.settings.nested", false);
 	public static String LOCALITY = Configuration.getString("koala.settings.locality", "local");
@@ -81,21 +83,19 @@ public class NodeUtilities {
 //	public static HashMap<String, String> FlatMap =  new HashMap<String, String>();
 	
 	public static void initialize(){
-		SIZE = Configuration.getInt("SIZE", 0);
-		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
-		NR_DC = Configuration.getInt("NR_DC");
+//		SIZE = Configuration.getInt("SIZE", 0);
+//		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
+//		NR_DC = Configuration.getInt("NR_DC");
 //		A = (double) 1 / NR_DC;
-		A = (double) 1 / NR_NODE_PER_DC;
-		B = Configuration.getDouble("ALPHA", 0.5);
-		C = 1-B;
+		BETA = (double) 1 / NR_NODE_PER_DC;
+//		ALPHA = Configuration.getDouble("ALPHA", 0.5);
+//		C = 1-B;
 		
-		SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
+//		SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
 		M = Configuration.getInt("M", getLog2(SIZE));
-		
-		
-		LONG_LINKS = CC * getLog2(NR_DC);
-		FLAT_LONG_LINKS = CC * M;
-		
+		LONG_LINKS = C * getLog2(NR_DC);
+		FLAT_LONG_LINKS = C * M;
+		RESP_LINKS = RESP_C * getLog2(NR_DC/NR_NODE_PER_DC);
 		
 		PiggybackLength = Configuration.getInt("koala.settings.piggyback", 10);
 		String dijktraStr = Configuration.getString("koala.settings.dijkstramethod", "ram");
@@ -179,7 +179,7 @@ public class NodeUtilities {
 	}
 	
 	public static String getProtocolName(int pid){
-		return Network.get(0).getProtocol(pid).getClass().getName();
+		return Network.get(0).getProtocol(pid).getClass().getSimpleName();
 	}
 	
 	private static int getLog2(int nr){
@@ -471,6 +471,10 @@ public class NodeUtilities {
 			RenaterNode rn = (RenaterNode) Network.get(i).getProtocol(NodeUtilities.RID);
 			rn.setVisited(false);
 		}
+	}
+
+	public static String getStringCycles() {
+		return (CYCLES+"").replaceAll("000000", "M").replaceAll("000", "K");
 	}
 	
 }

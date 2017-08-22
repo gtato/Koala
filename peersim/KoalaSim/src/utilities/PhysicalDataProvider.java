@@ -23,8 +23,9 @@ public class PhysicalDataProvider {
 	private static double avgInterLatency = 0;
 	private static double stdInterLatency = 0;
 	
-	private static double maxInraLatency = 0;
-	
+	private static double minInraLatency = 0.5;
+	private static double maxInraLatency = 0.5;
+
 	public static long SimTime;
 	
 	
@@ -88,7 +89,7 @@ public class PhysicalDataProvider {
 		double avg, std, tot;
 		tot = 0;
 		int i = 0;
-		ArrayList<Double> lats = new ArrayList<Double>(latencies.values());
+//		ArrayList<Double> lats = new ArrayList<Double>(latencies.values());
 		for(Double lat : latencies.values()){
 			tot += lat;
 			i++;
@@ -140,9 +141,9 @@ public class PhysicalDataProvider {
 	
 	 
 
-	public static double getMaxIntraLatency(){
-		return maxInraLatency * NodeUtilities.NR_NODE_PER_DC;
-	}
+//	public static double getMaxIntraLatency(){
+//		return maxInraLatency * NodeUtilities.NR_NODE_PER_DC;
+//	}
 	
 	public static double getMinInterLatency(){
 		if (NodeUtilities.DijkstraMethod == NodeUtilities.DijkstraSPAAS
@@ -160,7 +161,7 @@ public class PhysicalDataProvider {
 	}
 	
 	public static double getDefaultIntraLatency(){
-		return getMaxIntraLatency()/16;
+		return (double)(minInraLatency+maxInraLatency)/2;
 	}
 	
 	public static void setLatencyStats(){
@@ -182,7 +183,7 @@ public class PhysicalDataProvider {
 //			double avg, std, tot;
 			double tot = 0;
 			int i = 0;
-			ArrayList<Double> lats = new ArrayList<Double>(latencies.values());
+//			ArrayList<Double> lats = new ArrayList<Double>(latencies.values());
 			for(Double lat : latencies.values()){
 				tot += lat;
 				i++;
@@ -302,17 +303,13 @@ public class PhysicalDataProvider {
 	
 	
 	public static double getIntraDCLatency(int dcID){
-		Random random = new Random(dcID);
-		double latency;
-		double min, max;
-//		max = 0.5;
-//		min = 0.05;
-		max = 0.0005;
-		min = 0.00005;
-//		latency = 1.8;
-		latency  = random.nextDouble() * (max - min) + min;
-		if (latency > maxInraLatency)
-			maxInraLatency = latency;
+		Random random = new Random();
+		random.setSeed((long)dcID*100);
+		double randdbl = random.nextDouble();
+		double  latency  = randdbl * (maxInraLatency - minInraLatency) + minInraLatency;
+//		if (latency > maxInraLatency)
+//			maxInraLatency = latency;
+//		return 2;
 		return latency;
 	}
 	

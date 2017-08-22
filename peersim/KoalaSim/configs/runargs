@@ -1,0 +1,1 @@
+-Xms4G -Xmx6G -XX:PermSize=512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:ParallelGCThreads=20 -XX:ConcGCThreads=2 -XX:InitiatingHeapOccupancyPercent=70

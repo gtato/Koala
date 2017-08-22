@@ -102,8 +102,9 @@ public abstract class TopologyProtocol implements EDProtocol {
 	
 	protected void addBootStrap(){
 		int dcid = NodeUtilities.getDCID(myNode.getSID());
-//		lastBootstraps.add(0, myNode.getCID());  if(lastBootstraps.size()==11)lastBootstraps.remove(10);
-		lastBootstraps.add(myNode.getCID());
+		int lbsize = 1000;
+		lastBootstraps.add(0, myNode.getCID());  if(lastBootstraps.size()==lbsize)lastBootstraps.remove(lbsize-1);
+//		lastBootstraps.add(myNode.getCID());
 		if(!bootstraps.containsKey(dcid)){
 			ArrayList<Node> l = new ArrayList<Node>();
 			l.add(myNode.getNode());

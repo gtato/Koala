@@ -85,7 +85,8 @@ public class KoalaRoutingTable {
 	}
 	
 	public void setLocals(ArrayList<KoalaNeighbor> l){
-		locals = l;
+		if(l!=null)
+			locals = l;
 	}
 	
 	public void resetGlobals(){
@@ -183,10 +184,6 @@ public class KoalaRoutingTable {
 		if(nn==null || !nn.isUp())
         	return false;
 		
-		if(kn.getLatency() < 0){
-			System.err.println("again negative latency!");
-		}
-		
 		boolean added = false;
 		for(int i = 0; i < longLinks.size(); i++){
 			KoalaNeighbor ll = longLinks.get(i);
@@ -206,6 +203,7 @@ public class KoalaRoutingTable {
 					ll.setSID(kn.getSID());
 					ll.setLatency(kn.getLatency());
 					ll.setLatencyQuality(kn.getLatencyQuality());
+					ll.setRecentlyAdded(kn.isRecentlyAdded());
 					added=true;
 				}
 			}			
@@ -303,6 +301,11 @@ public class KoalaRoutingTable {
         return hs;
 	}
 	
+	public void confirmNeighbors(){
+		ArrayList<KoalaNeighbor> neighs = getNeighbors();
+		for(KoalaNeighbor n: neighs)
+			n.setRecentlyAdded(false);
+	}
 	
 	public ArrayList<KoalaNeighbor> getNeighbors(){
 		ArrayList<KoalaNeighbor> neighs = new ArrayList<KoalaNeighbor>();
