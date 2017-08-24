@@ -238,7 +238,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		receivedNeighbors.addAll(senderOldNeighbors);
 		receivedNeighbors.add(sourceNeig);
 		
-		myNode.getRoutingTable().addRandLink(sourceNeig);
+		
 		
 		joinHops++;
 		Set<String> processed = new HashSet<String>(); 
@@ -275,6 +275,7 @@ public class KoalaProtocol extends TopologyProtocol{
 
 //			if(!isSource || !sourceJoining) //avoid adding non joined links before forwarding
 			myNode.getRoutingTable().addLongLink(potentialKN);
+			if(isSource) myNode.getRoutingTable().addRandLink(potentialKN);
 			myNode.updateLatencyPerDC(recNeighbor.getSID(), l, lq);
 			
 //			if( res == 2 || (res == 0 && isSource && sourceJoining))
@@ -481,8 +482,8 @@ public class KoalaProtocol extends TopologyProtocol{
         
         if(msgSender == null)
         	msg.setIdealPiggyBack();
-        
-        myNode.getRoutingTable().addRandLink(new KoalaNeighbor(msg.getFirstSender()));
+        else
+        	myNode.getRoutingTable().addRandLink(new KoalaNeighbor(msg.getFirstSender()));
         
         if(!destNode.equals(myNode)){
         	myNode.nrMsgRouted++;
@@ -491,7 +492,7 @@ public class KoalaProtocol extends TopologyProtocol{
             	System.out.println("dafuq, there is smth wrong");
             }
             
-            if(NodeUtilities.COLLABORATE
+            if(NodeUtilities.NR_COLLABORATORS > 0
             	&& !NodeUtilities.sameDC(myNode.getSID(), destNode.getSID()) 
                //&& maybe take into account also the result of getroute
             	&& kn.isBelowThreshold()

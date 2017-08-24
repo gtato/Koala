@@ -65,7 +65,7 @@ public class NodeUtilities {
 	public static int LONG_LINKS;
 	public static int FLAT_LONG_LINKS;
 	
-	public static boolean COLLABORATE = Configuration.getBoolean("koala.settings.collaborate", false);
+//	public static boolean COLLABORATE = Configuration.getBoolean("koala.settings.collaborate", false);
 	public static int NR_COLLABORATORS = Configuration.getInt("koala.settings.collaborate_nr", 2);
 	
 	public static boolean NESTED = Configuration.getBoolean("koala.settings.nested", false);

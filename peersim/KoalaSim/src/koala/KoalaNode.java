@@ -610,8 +610,8 @@ public class KoalaNode extends TopologyNode{
 			for(KoalaNeighbor p : src.getRoutingTable().getGlobalPredecessors())
 				preds.add(KoalaJsonParser.toJsonTree(p));
 			
-			for(KoalaNeighbor l : src.getRoutingTable().getLocals())
-				locals.add(KoalaJsonParser.toJsonTree(l));
+//			for(KoalaNeighbor l : src.getRoutingTable().getLocals())
+//				locals.add(KoalaJsonParser.toJsonTree(l));
 			
 			for(KoalaNeighbor ll : src.getRoutingTable().getLongLinks())
 				longlinks.add(KoalaJsonParser.toJsonTree(ll));
