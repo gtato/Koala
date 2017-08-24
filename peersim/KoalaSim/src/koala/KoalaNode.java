@@ -602,6 +602,7 @@ public class KoalaNode extends TopologyNode{
 			JsonArray preds = new JsonArray();
 			JsonArray locals = new JsonArray();
 			JsonArray longlinks = new JsonArray();
+			JsonArray randlinks = new JsonArray();
 			
 			for(KoalaNeighbor s : src.getRoutingTable().getGlobalSucessors())
 				succs.add(KoalaJsonParser.toJsonTree(s));
@@ -615,6 +616,8 @@ public class KoalaNode extends TopologyNode{
 			for(KoalaNeighbor ll : src.getRoutingTable().getLongLinks())
 				longlinks.add(KoalaJsonParser.toJsonTree(ll));
 			
+			for(KoalaNeighbor rl : src.getRoutingTable().getRandLinks())
+				randlinks.add(KoalaJsonParser.toJsonTree(rl));
 			
 			JsonObject obj = new JsonObject();
 			obj.addProperty("cid", src.getCID());
@@ -624,6 +627,7 @@ public class KoalaNode extends TopologyNode{
 			obj.add("preds", (JsonElement)preds);
 			obj.add("locals", (JsonElement)locals);
 			obj.add("longlinks", (JsonElement)longlinks);
+			obj.add("randlinks", (JsonElement)randlinks);
 			
 			return obj;
 		}
@@ -647,7 +651,7 @@ public class KoalaNode extends TopologyNode{
 			KoalaNeighbor[] preds = new KoalaNeighbor[NodeUtilities.NEIGHBORS];
 			ArrayList<KoalaNeighbor> locals = new ArrayList<KoalaNeighbor>();
 			ArrayList<KoalaNeighbor> longlinks = new ArrayList<KoalaNeighbor>();
-			
+			ArrayList<KoalaNeighbor> randlinks = new ArrayList<KoalaNeighbor>();
 			
 			JsonArray jsuccs = srcJO.getAsJsonArray("succs");
 			for(int i = 0; i < jsuccs.size(); i++)
@@ -665,6 +669,10 @@ public class KoalaNode extends TopologyNode{
 			for(JsonElement ll : jlonglinks)
 				longlinks.add(KoalaJsonParser.jsonTreeToObject(ll, KoalaNeighbor.class));
 
+			JsonArray jrandlinks = srcJO.getAsJsonArray("randlinks");
+			for(JsonElement rl : jrandlinks)
+				randlinks.add(KoalaJsonParser.jsonTreeToObject(rl, KoalaNeighbor.class));
+			
 			for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
 				kn.getRoutingTable().setGlobalSucessor(succs[i], i);
 				kn.getRoutingTable().setGlobalPredecessor(preds[i], i);
@@ -672,6 +680,7 @@ public class KoalaNode extends TopologyNode{
 			
 			kn.getRoutingTable().setLocals(locals);
 			kn.getRoutingTable().setLongLinks(longlinks);
+			kn.getRoutingTable().setLongLinks(randlinks);
 			
 			return kn;
 		}

@@ -18,6 +18,7 @@ public class KoalaRoutingTable {
 	private KoalaNeighbor[] globalPredecessors;
 	private KoalaNeighbor[] globalSucessors;
 	private ArrayList<KoalaNeighbor> longLinks = new ArrayList<KoalaNeighbor>();
+	private ArrayList<KoalaNeighbor> randLinks = new ArrayList<KoalaNeighbor>();
 	private ArrayList<KoalaNeighbor> locals = new ArrayList<KoalaNeighbor>();
 	
 	
@@ -213,21 +214,36 @@ public class KoalaRoutingTable {
 		
 	}	
 	
+	/*
+	 * These are some simple utility functions
+	 */
+	
 	public void setLongLinks(ArrayList<KoalaNeighbor> longLinks){
 		this.longLinks = longLinks;
 	}
 	
-	public void clearLongLinks(){
-		longLinks.clear();
-	}
+//	public void clearLongLinks(){
+//		longLinks.clear();
+//	}
 	
 	public ArrayList<KoalaNeighbor> getLongLinks(){
 		return longLinks;
 	}
 	
-	/*
-	 * These are some simple utility functions
-	 */
+	public void addRandLink(KoalaNeighbor randLink){
+		if(NodeUtilities.isDefault(randLink)) return;
+		for(KoalaNeighbor each : randLinks)
+			if(NodeUtilities.getDCID(randLink.getSID()) == NodeUtilities.getDCID(each.getSID()))
+				return;
+		randLinks.add(0, randLink);
+		if(randLinks.size() > NodeUtilities.RAND_LINKS)
+			randLinks.remove(randLinks.size()-1);
+	}
+
+	
+	public ArrayList<KoalaNeighbor> getRandLinks(){
+		return randLinks;
+	}
 	
 	
 	public ArrayList<KoalaNeighbor> getOldNeighborsContainer() {
@@ -277,9 +293,8 @@ public class KoalaRoutingTable {
 		}else{ //everything 
 			neighs.addAll(locals);
 			neighs.addAll(Arrays.asList(globalPredecessors)); neighs.addAll(Arrays.asList(globalSucessors));
-			
-			for(KoalaNeighbor ll : longLinks)
-				neighs.add(ll);
+			neighs.addAll(longLinks);
+			neighs.addAll(randLinks);
 		}
 		Set<String> hs = new LinkedHashSet<String>();
         
@@ -313,6 +328,7 @@ public class KoalaRoutingTable {
 		neighs.addAll(locals);
 		neighs.addAll(Arrays.asList(globalPredecessors)); neighs.addAll(Arrays.asList(globalSucessors));
 		neighs.addAll(longLinks);
+		neighs.addAll(randLinks);
 		
 		Set<String> idhs = new LinkedHashSet<String>();
 		
@@ -335,6 +351,7 @@ public class KoalaRoutingTable {
 		ArrayList<KoalaNeighbor> hs = new ArrayList<KoalaNeighbor>();
 		neighs.addAll(Arrays.asList(globalPredecessors)); neighs.addAll(Arrays.asList(globalSucessors));
 		neighs.addAll(longLinks);
+		neighs.addAll(randLinks);
 		
 		Set<String> idhs = new LinkedHashSet<String>();
 		

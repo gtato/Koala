@@ -58,10 +58,10 @@ public class NodeUtilities {
 	public static int SIZE = Configuration.getInt("SIZE", 0);
 	public static int SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
 	public static int M = 0;
-	public static int C = Configuration.getInt("koala.settings.c", 2);
-	public static int RESP_C = Configuration.getInt("koala.settings.responsible_for_c", 1);
+	public static int C = Configuration.getInt("koala.settings.c", 1);
+	public static int RAND_C = Configuration.getInt("koala.settings.random_c", 1);
 	public static int NEIGHBORS = Configuration.getInt("koala.settings.neighbors", 2);
-	public static int RESP_LINKS;
+	public static int RAND_LINKS;
 	public static int LONG_LINKS;
 	public static int FLAT_LONG_LINKS;
 	
@@ -95,7 +95,7 @@ public class NodeUtilities {
 		M = Configuration.getInt("M", getLog2(SIZE));
 		LONG_LINKS = C * getLog2(NR_DC);
 		FLAT_LONG_LINKS = C * M;
-		RESP_LINKS = RESP_C * getLog2(NR_DC/NR_NODE_PER_DC);
+		RAND_LINKS = RAND_C * getLog2(NR_DC);
 		
 		PiggybackLength = Configuration.getInt("koala.settings.piggyback", 10);
 		String dijktraStr = Configuration.getString("koala.settings.dijkstramethod", "ram");

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import com.google.gson.Gson;
 
@@ -236,9 +237,15 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			kn.getRoutingTable().setLocals(locals.get(dcid));
 		}
 		
-		if(pid==NodeUtilities.KPID){
-			System.out.print("Assigning responsabilities...");
-		}
+//		if(pid==NodeUtilities.KPID){
+//			System.out.print("Assigning responsabilities...");
+//			for(int i = 0; i < nr; i+=NodeUtilities.NR_NODE_PER_DC){
+//				for(int j = i; j < NodeUtilities.NR_NODE_PER_DC; j++){
+//					KoalaNode kn = (KoalaNode)Network.get(j).getProtocol(NodeUtilities.KID);
+//					kn.getRoutingTable().setRandpLinks(getRespLinksKleinsberg(j*NodeUtilities.NR_DC/NodeUtilities.NR_NODE_PER_DC));
+//				}
+//			}
+//		}
 		
 		System.out.println("Done!");
 	}
@@ -251,7 +258,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		if(size <= k)
 			k = size/4;
 //		int n = NodeUtilities.NR_DC;
-		HashSet<Integer> nids = new HashSet<Integer>();
+		HashSet<Integer> nids = new LinkedHashSet<Integer>();
 		int limit = 50;
 		int trials = 0;
 		while(nids.size() != k && trials < limit){
@@ -277,6 +284,38 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		return pll;
 		 
 	}
+	
+//	private ArrayList<KoalaNeighbor> getRespLinksKleinsberg(int low){
+//		ArrayList<KoalaNeighbor> prl = new ArrayList<KoalaNeighbor>();
+//		int k = NodeUtilities.RESP_LINKS;
+//		int high = low + NodeUtilities.NR_DC/NodeUtilities.NR_NODE_PER_DC; 
+//		int n = (high-low) / 2;
+//		int center = (high+low) / 2;
+//		HashSet<Integer> nids = new LinkedHashSet<Integer>();
+//		int limit = 50;
+//		int trials = 0;
+//		while(nids.size() != k && trials < limit){
+//			int sizebefore = nids.size();
+//			int nid = (int) Math.round(Math.exp(Math.log(n) * (CommonState.r.nextDouble()-1.0))*n);
+//			nids.add(nid);
+//			if(sizebefore == nids.size())
+//				trials++;
+//			else
+//				trials = 0;
+//		}
+//		
+//		for(Integer dist : nids){
+//			String[] ids = NodeUtilities.getIDFromDistance(center+"-"+0, dist);
+//			String realId = CommonState.r.nextInt() % 2 == 0 ? ids[0] : ids[1]; 
+//			String id = initialize ? getFromNeighborhood(realId) : NodeUtilities.DEFAULTID;
+//			KoalaNeighbor kneigh = new KoalaNeighbor(new TopologyPathNode(id), PhysicalDataProvider.getDefaultInterLatency());
+//			kneigh.setIdealID(realId);
+//			prl.add(kneigh);
+//		}
+//		return prl;
+//		 
+//	}
+	
 	
 	private String getFromNeighborhood(String realId) {
 		if(NodeUtilities.isUp(realId))
@@ -392,7 +431,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	}
 	
 	private String getFilename(int pid){
-		return "out/koala/init.C"+NodeUtilities.C +"."+NodeUtilities.getProtocolName(pid)+"."+NodeUtilities.NR_DC+"x"+NodeUtilities.NR_NODE_PER_DC +".dat";
+		return "out/koala/init.C"+NodeUtilities.C +".RC" + NodeUtilities.RAND_C +"." + NodeUtilities.getProtocolName(pid)+"."+NodeUtilities.NR_DC+"x"+NodeUtilities.NR_NODE_PER_DC +".dat";
 	}
 	
 	private boolean loadFromFile(int pid){

@@ -223,6 +223,7 @@ public class KoalaProtocol extends TopologyProtocol{
 	
 	protected void onRoutingTable(KoalaMessage msg) {
 		KoalaNode source = ((KoalaRTMsgConent)msg.getContent()).getNode();
+		KoalaNeighbor sourceNeig = new KoalaNeighbor(source);
 		TopologyPathNode msgSender = msg.getLastSender();
 //      TopologyPathNode msgSender = receviedMsg.getSender();
 //		KoalaNeighbor firstLocal= null;
@@ -235,8 +236,9 @@ public class KoalaProtocol extends TopologyProtocol{
 		ArrayList<KoalaNeighbor> receivedNeighbors = new ArrayList<KoalaNeighbor>();
 		receivedNeighbors.addAll(source.getRoutingTable().getNeighborsContainer());
 		receivedNeighbors.addAll(senderOldNeighbors);
-		receivedNeighbors.add(new KoalaNeighbor(source));
+		receivedNeighbors.add(sourceNeig);
 		
+		myNode.getRoutingTable().addRandLink(sourceNeig);
 		
 		joinHops++;
 		Set<String> processed = new HashSet<String>(); 
@@ -479,6 +481,8 @@ public class KoalaProtocol extends TopologyProtocol{
         
         if(msgSender == null)
         	msg.setIdealPiggyBack();
+        
+        myNode.getRoutingTable().addRandLink(new KoalaNeighbor(msg.getFirstSender()));
         
         if(!destNode.equals(myNode)){
         	myNode.nrMsgRouted++;
