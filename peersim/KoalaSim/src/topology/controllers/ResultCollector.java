@@ -41,18 +41,21 @@ public class ResultCollector extends NodeObserver {
 	
 	private static int nrInterDCMsg = 0;
 	private static int nrIntraDCMsg = 0;
+	private static int nrHelpMsg = 0;
 
 	private static int local=0, close=0, global=0, undefined=0;
 	
 	private static int flush = 0;
 	private boolean ended = false;
 	private static String filter;
+	private String[] outfilenames;
 //	private ArrayList<ArrayList<Integer>> aggregated = new ArrayList<ArrayList<Integer>>(); 
 //	ArrayList<String> toPrint = new ArrayList<String>();
 	ArrayList<String> msgToPrint = new ArrayList<String>();
+	ArrayList<String> helpToPrint = new ArrayList<String>();
 	PrintStream[] pss;
 	
-	int lastMsg, lastCFail, lastKFail, lastFKFail, lastLKFail;
+	int lastMsg, lastHelp, lastCFail, lastKFail, lastFKFail, lastLKFail;
 	public ResultCollector(String prefix) {
 		super(prefix);
 //		renProtPid = Configuration.getPid(prefix + "." + PAR_RENATER_PROTOCOL);
@@ -63,8 +66,10 @@ public class ResultCollector extends NodeObserver {
 		flush = Configuration.getInt(prefix + "." +PAR_FLUSH, 100);
 		filter = Configuration.getString(prefix + "."+ PAR_FILTER, "local close global");
 //		plotScript = "gnuplot/plotResults.plt";
+		outfilenames = new String[]{"results.C"+NodeUtilities.C+".RC"+NodeUtilities.RAND_C+"."+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC")+".CCL"+NodeUtilities.getStringCycles()+".COL"+NodeUtilities.NR_COLLABORATORS+".T"+(int)NodeUtilities.COLABORATIVE_THRESHOLD+"."
+								  , "help.C"+NodeUtilities.C+".RC"+NodeUtilities.RAND_C+"."+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC")+".CCL"+NodeUtilities.getStringCycles()+".COL"+NodeUtilities.NR_COLLABORATORS+".T"+(int)NodeUtilities.COLABORATIVE_THRESHOLD+"."};
 		deleteFiles();
-		lastMsg = lastCFail = lastKFail = 0;
+		lastMsg = lastHelp = lastCFail = lastKFail = 0;
 		msgToPrint.add("cycle\trlat\tclat\tklat\trhop\tchop\tkhop\tmsgs\trpath\tcpath\tkpath\tcfail\tkfail");
 	}
 
@@ -73,13 +78,14 @@ public class ResultCollector extends NodeObserver {
 	public boolean execute() {
 		updateGraph();
 		
+		
 		if(NodeUtilities.KPID > 0 || NodeUtilities.CPID > 0 || NodeUtilities.FKPID > 0 || NodeUtilities.LKPID > 0)
 			compare();
 		else
 			reportRenater();
 //		System.out.println(CommonState.getTime() + " - " + CommonState.getEndTime());
 		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
-			System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg));
+			System.out.println("Inter: " + nrInterDCMsg + " Intra: " + nrIntraDCMsg + " Total: " + (nrInterDCMsg + nrIntraDCMsg) + " Help: " + ((double)nrHelpMsg/nrInterDCMsg)*100 + " of interDCs");
 			System.out.println("Local: " + local + " Close: " + close + " global: " + global);
 			if(NodeUtilities.CPID >= 0) System.out.println("CHORD: success: " + ChordProtocol.SUCCESS + " fails: " + ChordProtocol.FAIL);
 			if(NodeUtilities.KPID >= 0) System.out.println("KOALA: success: " + KoalaProtocol.SUCCESS + " fails: " + KoalaProtocol.FAIL + " internal fails: " + KoalaProtocol.INT_FAIL);
@@ -209,7 +215,11 @@ public class ResultCollector extends NodeObserver {
  				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ (FlatKoalaProtocol.FAIL - lastFKFail): "\t0"; //19
  				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ (LeaderKoalaProtocol.FAIL - lastLKFail): "\t0"; //20
  				
+ 				if(nrInterDCMsg - lastMsg>0)
+ 					helpToPrint.add((double)(nrHelpMsg-lastHelp)/(nrInterDCMsg - lastMsg)*100+"");
+ 				
  				lastMsg = nrInterDCMsg;
+ 				lastHelp = nrHelpMsg;
  				lastCFail = ChordProtocol.FAIL;
  				lastKFail = KoalaProtocol.FAIL;
  				lastFKFail = FlatKoalaProtocol.FAIL;
@@ -220,6 +230,7 @@ public class ResultCollector extends NodeObserver {
 				if(rm.getCategory() == TopologyMessage.CAT_GLOBAL && !filter.contains("global")) continue;
 				
  				msgToPrint.add(printstr);
+ 				
  				
 //				System.out.println(cm.getPath());
 			}
@@ -283,11 +294,18 @@ public class ResultCollector extends NodeObserver {
 		nrIntraDCMsg++;
 	}
 	
+	public static void countHelp(){
+		nrHelpMsg++;
+	}
+	
 	protected void flush(){
 		pss = openFiles();
 		for(String line : msgToPrint)
 			pss[0].println(line);
+		for(String line : helpToPrint)
+			pss[1].println(line);
 		msgToPrint.clear();
+		helpToPrint.clear();
 		closeFiles(pss);
 	}
 
@@ -310,7 +328,7 @@ public class ResultCollector extends NodeObserver {
 //	}
 	@Override
 	protected String[] getOutputFileNames() {
-		return new String[]{"results.C"+NodeUtilities.C+".RC"+NodeUtilities.RAND_C+"."+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC")+".CCL"+NodeUtilities.getStringCycles()+"."};
+		return outfilenames;
 	}
 	
 }

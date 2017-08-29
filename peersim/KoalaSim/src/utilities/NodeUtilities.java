@@ -24,6 +24,8 @@ import topology.TopologyNode;
 public class NodeUtilities {
 	public static final String DEFAULTID = "xxx";
 
+	
+
 	public static int DijkstraRAM = 1;
 	public static int DijkstraDB = 2;
 	public static int DijkstraSPAAS = 3;
@@ -61,6 +63,7 @@ public class NodeUtilities {
 	public static int C = Configuration.getInt("koala.settings.c", 1);
 	public static int RAND_C = Configuration.getInt("koala.settings.random_c", 1);
 	public static int NEIGHBORS = Configuration.getInt("koala.settings.neighbors", 2);
+	public static double COLABORATIVE_THRESHOLD = Configuration.getDouble("koala.settings.collaborate_threshold", 20);
 	public static int RAND_LINKS;
 	public static int LONG_LINKS;
 	public static int FLAT_LONG_LINKS;
@@ -474,7 +477,10 @@ public class NodeUtilities {
 	}
 
 	public static String getStringCycles() {
-		return (CYCLES+"").replaceAll("000000", "M").replaceAll("000", "K");
+		String cyc = CYCLES+"";
+		String revcyc = new StringBuilder(cyc).reverse().toString();
+		revcyc = revcyc.replaceAll("000000", "M").replaceAll("000", "K");
+		return new StringBuilder(revcyc).reverse().toString();
 	}
 	
 }

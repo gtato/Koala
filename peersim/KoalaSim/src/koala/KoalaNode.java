@@ -47,7 +47,6 @@ public class KoalaNode extends TopologyNode{
 	
 	
 	
-	
 	private boolean isJoining;
 	private KoalaRoutingTable routingTable;
 	
@@ -383,7 +382,7 @@ public class KoalaNode extends TopologyNode{
     }
     	
     
-    public KoalaNeighbor getRoute(KoalaNode dest,  KoalaMessage msg) {
+    public KoalaNeighbor getRoute(String dest,  KoalaMessage msg) {
     	KoalaNeighbor normal = getRouteForAlpha(dest, msg, NodeUtilities.ALPHA);
 //    	KoalaNeighbor no_latency = getRouteForAlpha(dest, msg, 1);
 //    	if(normal!=null && no_latency!=null && !normal.getValue().equals(no_latency.getValue()))
@@ -393,7 +392,7 @@ public class KoalaNode extends TopologyNode{
     		System.err.println("negateive latency"); 
     		System.exit(1);
     	}
-    	return  normal.copy();
+    	return  normal.cclone();
     }
     
 //    public AbstractMap.SimpleEntry<Double, KoalaNeighbor> getRouteResult(KoalaNode dest,  KoalaMessage msg) {
@@ -401,10 +400,10 @@ public class KoalaNode extends TopologyNode{
 //    }
     
     
-    public KoalaNeighbor getRouteForAlpha(KoalaNode dest,  KoalaMessage msg, double alpha) {
+    public KoalaNeighbor getRouteForAlpha(String dest,  KoalaMessage msg, double alpha) {
 //    	if(msg.pathContains(this)) alpha = 1;
-    	ArrayList<String> destNeigs = dest.getRoutingTable().getNeighborsContainerIDs();
-    	AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
+//    	ArrayList<String> destNeigs = dest.getRoutingTable().getNeighborsContainerIDs();
+//    	AbstractMap.SimpleEntry<Double, KoalaNeighbor> mre;
 		double v=0;
 		ArrayList<KoalaNeighbor> rt = getRoutingTable().getNeighbors();
 //		ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>> potentialDests = new ArrayList<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>();
@@ -412,7 +411,7 @@ public class KoalaNode extends TopologyNode{
 	
 		for(KoalaNeighbor re : rt){
 			if(re.isRecentlyAdded()) continue;
-			v = getRouteValue(dest.getSID(), re, alpha);
+			v = getRouteValue(dest, re, alpha);
 //			mre = new AbstractMap.SimpleEntry<Double, KoalaNeighbor>(v, re);
 			if(v>0){ // add only those better than myself
 //				potentialDests.add(mre);
@@ -680,7 +679,7 @@ public class KoalaNode extends TopologyNode{
 			
 			kn.getRoutingTable().setLocals(locals);
 			kn.getRoutingTable().setLongLinks(longlinks);
-			kn.getRoutingTable().setLongLinks(randlinks);
+			kn.getRoutingTable().setRandLinks(randlinks);
 			
 			return kn;
 		}

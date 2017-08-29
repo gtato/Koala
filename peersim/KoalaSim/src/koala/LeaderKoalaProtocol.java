@@ -80,15 +80,15 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 	}
 	
 	
-	protected KoalaNeighbor getRoute(KoalaNode kn, KoalaMessage msg){
+	protected KoalaNeighbor getRoute(String dest, KoalaMessage msg){
 		KoalaNeighbor ret = null;
 		
 //		if(msg.getContent() instanceof KoalaRouteMsgContent){
 		if(myNode.isLeader())
-			ret = myNode.getRoute(kn, msg);
+			ret = myNode.getRoute(dest, msg);
 		else{
-			if(myNode.isLocal(kn.getSID()))
-				ret = myNode.getRoute(kn, msg);
+			if(myNode.isLocal(dest))
+				ret = myNode.getRoute(dest, msg);
 			else
 				ret = myNode.getLeaderNeighor();
 				
@@ -126,6 +126,11 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 		}
 	}
 
+	protected void addRandomLink(KoalaNeighbor rl){
+		if(myNode.isLeader())
+			myNode.getRoutingTable().addRandLink(rl);
+	}
+	
 //	protected int addNeighbor(KoalaNeighbor n){
 //		if(myNode.isLeader() || myNode.isLocal(n))
 //			return myNode.tryAddNeighbour(n);
@@ -136,7 +141,7 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 	protected ArrayList<TopologyPathNode> getPath(){
 		ArrayList<TopologyPathNode> pathcp = new ArrayList<TopologyPathNode>();
 		for(TopologyPathNode tpn : receviedMsg.getPath())
-			pathcp.add(tpn.copy());
+			pathcp.add(tpn.cclone());
 		pathcp.remove(0);
 		return pathcp;
 	} 

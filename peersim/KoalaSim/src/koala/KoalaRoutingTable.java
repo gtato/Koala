@@ -100,43 +100,7 @@ public class KoalaRoutingTable {
 		}
 	}
 	
-//	public KoalaNeighbor getLocalPredecessor(int index) {
-//		return localPredecessors[index];
-//	}
-//
-//	public KoalaNeighbor setLocalPredecessor(KoalaNeighbor kn, int index) {
-//		KoalaNeighbor oldEntry = null;
-//		
-//		if(localPredecessors[index].equals(kn)){
-//			//update
-//			localPredecessors[index].update(kn);
-//		}else{
-////			oldEntry = localPredecessors[index]; 
-////			localPredecessors[index] = kn;
-//			oldEntry = last(localPredecessors);
-//			setIndex(localPredecessors, index, kn);
-//		}
-//		return oldEntry;
-//	}
-//	
-//	public KoalaNeighbor getLocalSucessor(int index) {
-//		return localSucessors[index];
-//	}
-//
-//	public KoalaNeighbor setLocalSucessor(KoalaNeighbor kn, int index) {
-//		KoalaNeighbor oldEntry = null;		
-//		if(localSucessors[index].equals(kn)){
-//			//update
-//			localSucessors[index].update(kn);
-//		}else{
-////			oldEntry = localSucessors[index]; 
-////			localSucessors[index] = kn;
-//			oldEntry = last(localSucessors);
-//			setIndex(localSucessors, index, kn);
-//		}
-//		return oldEntry;
-//	}
-
+	
 	public KoalaNeighbor getGlobalPredecessor(int index) {
 		return globalPredecessors[index];
 	}
@@ -145,7 +109,7 @@ public class KoalaRoutingTable {
 		KoalaNeighbor oldEntry = null;
 		if(globalPredecessors[index].equals(kn)){
 			//update
-			globalPredecessors[index].update(kn);
+			globalPredecessors[index].updateLatency(kn);
 		}else{
 			oldEntry = last(globalPredecessors);
 			setIndex(globalPredecessors, index, kn);
@@ -161,7 +125,7 @@ public class KoalaRoutingTable {
 		KoalaNeighbor oldEntry = null;
 		if(globalSucessors[index].equals(kn)){
 			//update
-			globalSucessors[index].update(kn);
+			globalSucessors[index].updateLatency(kn);
 		}else{ 
 			oldEntry = last(globalSucessors);
 			setIndex(globalSucessors, index, kn);
@@ -200,11 +164,12 @@ public class KoalaRoutingTable {
 				int currentDist = NodeUtilities.distance(ll.getIdealID(), ll.getSID());
 				if(dist < currentDist){
 					//here there might be a situation where we would have to chose between a better id or a better latency quality
-					ll.setCID(kn.getCID());
-					ll.setSID(kn.getSID());
-					ll.setLatency(kn.getLatency());
-					ll.setLatencyQuality(kn.getLatencyQuality());
-					ll.setRecentlyAdded(kn.isRecentlyAdded());
+					ll.copy(kn, false);
+//					ll.setCID(kn.getCID());
+//					ll.setSID(kn.getSID());
+//					ll.setLatency(kn.getLatency());
+//					ll.setLatencyQuality(kn.getLatencyQuality());
+//					ll.setRecentlyAdded(kn.isRecentlyAdded());
 					added=true;
 				}
 			}			
@@ -230,16 +195,33 @@ public class KoalaRoutingTable {
 		return longLinks;
 	}
 	
+	public void setRandLinks(ArrayList<KoalaNeighbor> randLinks){
+		this.randLinks = randLinks;
+	}
+	
+	public void resetRands(){
+		randLinks = new ArrayList<KoalaNeighbor>();
+		KoalaNeighbor defaultNeighbor;
+		for(int i = 0; i < NodeUtilities.RAND_LINKS; i++){
+			defaultNeighbor = KoalaNeighbor.getDefaultNeighbor();
+			randLinks.add(defaultNeighbor);
+		}
+	}
+	
 	public void addRandLink(KoalaNeighbor randLink){
 		if(NodeUtilities.isDefault(randLink)) return;
 		for(KoalaNeighbor each : randLinks)
 			if(NodeUtilities.getDCID(randLink.getSID()) == NodeUtilities.getDCID(each.getSID()))
 				return;
-		randLinks.add(0, randLink);
-		if(randLinks.size() > NodeUtilities.RAND_LINKS)
-			randLinks.remove(randLinks.size()-1);
+		if(randLinks.size() == 0)
+			resetRands();
+		KoalaNeighbor oldie = randLinks.remove(randLinks.size()-1);
+		oldie.copy(randLink, true);
+		randLinks.add(0, oldie);
+			
 	}
 
+	
 	
 	public ArrayList<KoalaNeighbor> getRandLinks(){
 		return randLinks;

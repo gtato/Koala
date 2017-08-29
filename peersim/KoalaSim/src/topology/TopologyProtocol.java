@@ -39,7 +39,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	protected boolean logMsg;
 	protected static boolean initializeMode; //true only when the koala ring is being statically initialized (false during the simulation)
 	
-	protected TopologyMessageReplica receviedMsg;
+	protected TopologyMessageReplica receviedMsg = new TopologyMessageReplica();
 //	protected TopologyPathNode msgSender;
 //	protected ArrayList<TopologyPathNode> msgPath;
 //	protected ArrayList<KoalaNeighbor> msgPiggyBack;
@@ -164,7 +164,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 	public void send(TopologyPathNode dest, TopologyMessage msg)
 	{
 		
-		if(dest == null || dest.getSID().equals(myNode.getSID())){
+		if(dest == null || dest.equals(myNode)){
 			handleMessage(msg);
 			return;
 		}
@@ -196,7 +196,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 			msg.addLatency(l);
 			if(msg.getLastSender() == null)
 				msg.addToPath(new TopologyPathNode(myNode));
-			msg.addToPath(dest.copy());
+			msg.addToPath(dest.cclone());
 			
 			
 			if(NodeUtilities.getDCID(myNode.getSID()) == NodeUtilities.getDCID(dest.getSID()))
@@ -239,7 +239,8 @@ public abstract class TopologyProtocol implements EDProtocol {
 		if(logMsg)
 			System.out.println(logmsg);
 		
-		receviedMsg = new TopologyMessageReplica(msg);
+//		receviedMsg = new TopologyMessageReplica(msg);
+		receviedMsg.updateReplica(msg);
 		
 //		msgSender = msg.getLastSender();
 //		msgPath = new ArrayList<TopologyPathNode>();

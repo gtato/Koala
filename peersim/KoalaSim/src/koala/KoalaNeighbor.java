@@ -63,7 +63,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 		this.latency = latency;
 	}
 	
-	public void update(KoalaNeighbor updated)
+	public void updateLatency(KoalaNeighbor updated)
 	{
 		if(updated.getLatencyQuality() >= getLatencyQuality())
 		{
@@ -72,14 +72,22 @@ public class KoalaNeighbor extends TopologyPathNode{
 		}
 	}
 	
-	public KoalaNeighbor copy(){
+	public KoalaNeighbor cclone(){
 		String oldIID = getIdealID(); 
-		KoalaNeighbor kn = new KoalaNeighbor(super.copy(), latency, latencyQuality);
+		KoalaNeighbor kn = new KoalaNeighbor(super.cclone(), latency, latencyQuality);
 		kn.setIdealID(oldIID);
 		kn.setRating(rating);
 		return kn; 
 	}
 	
+	public void copy(KoalaNeighbor kn, boolean alsoIdeal){
+		this.setCID(kn.getCID());
+		this.setSID(kn.getSID());
+		this.setLatency(kn.getLatency());
+		this.setLatencyQuality(kn.getLatencyQuality());
+		this.setRecentlyAdded(kn.isRecentlyAdded());
+		if(alsoIdeal) this.setIdealID(kn.getIdealID());
+	}
 //	public KoalaNeighbor clone(){
 //		String oldIID = getIdealID(); 
 //		KoalaNeighbor kn = new KoalaNeighbor(super.clone(), latency, latencyQuality);
@@ -133,7 +141,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 	}
 	
 	public boolean isBelowThreshold(){
-		double helpTH = Configuration.getDouble("koala.settings.collaborate_threshold", 20);
+		double helpTH = NodeUtilities.COLABORATIVE_THRESHOLD; 
 		helpTH /= 100;
 		return rating < 1+helpTH;
 	}

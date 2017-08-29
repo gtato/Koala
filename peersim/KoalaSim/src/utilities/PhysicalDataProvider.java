@@ -23,8 +23,8 @@ public class PhysicalDataProvider {
 	private static double avgInterLatency = 0;
 	private static double stdInterLatency = 0;
 	
-	private static double minInraLatency = 0.5;
-	private static double maxInraLatency = 0.5;
+	private static double minIntraLatency = 0.5;
+	private static double maxIntraLatency = 0.5;
 
 	public static long SimTime;
 	
@@ -161,7 +161,7 @@ public class PhysicalDataProvider {
 	}
 	
 	public static double getDefaultIntraLatency(){
-		return (double)(minInraLatency+maxInraLatency)/2;
+		return (double)(minIntraLatency+maxIntraLatency)/2;
 	}
 	
 	public static void setLatencyStats(){
@@ -306,7 +306,7 @@ public class PhysicalDataProvider {
 		Random random = new Random();
 		random.setSeed((long)dcID*100);
 		double randdbl = random.nextDouble();
-		double  latency  = randdbl * (maxInraLatency - minInraLatency) + minInraLatency;
+		double  latency  = randdbl * (maxIntraLatency - minIntraLatency) + minIntraLatency;
 //		if (latency > maxInraLatency)
 //			maxInraLatency = latency;
 //		return 2;

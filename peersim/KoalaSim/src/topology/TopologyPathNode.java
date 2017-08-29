@@ -51,7 +51,7 @@ public class TopologyPathNode{
 //		return new TopologyPathNode(commonID, specificID);
 //	}
 	
-	public TopologyPathNode copy(){
+	public TopologyPathNode cclone(){
 		return new TopologyPathNode(commonID, specificID);
 	}
 	

@@ -43,8 +43,9 @@ group=1000
 
 #comparision of latency for the 3 protocols 
 f1="/tmp/$RANDOM.mpl"
-# f2="/tmp/$RANDOM.mpl"
-./group.py -f '../out/results/resultsC21000x100A0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'" plotLatency.plt &
+f2="/tmp/$RANDOM.mpl"         
+./group.py -f '../out/results/results.C1.RC1.1000x100.CCL500K.COL8.T75.A0.5.dat' -n $group > $f2 
+./group.py -f '../out/results/results.C1.RC1.1000x100.CCL500K.COL2.T50.A0.5.dat' -n $group > $f1 ; gnuplot -e "filename='$f1'; koalafile='$f2'" plotLatency.plt &
 # ./group.py -f '../out/results/resultsC1CH1A0.5.datnos10' -n $group > $f1 ; gnuplot -e "filename='$f1'" paper1/plotLatency.plt &
 
 
