@@ -14,8 +14,8 @@ set yrange [ 0 : * ]
 
 datafile = filename
 
-# plot datafile title "distribution" smooth csplines with points lc rgb "blue" 
-plot datafile title "distribution" with points lc rgb "blue"	 
+plot datafile title "distribution" smooth csplines with lines lc rgb "blue" 
+#plot datafile title "distribution" with points lc rgb "blue"	 
 
 # no smoothing
 #plot datafile using 1 title "Koala" with lines, \

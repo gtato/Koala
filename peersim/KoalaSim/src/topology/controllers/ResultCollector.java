@@ -215,8 +215,8 @@ public class ResultCollector extends NodeObserver {
  				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ (FlatKoalaProtocol.FAIL - lastFKFail): "\t0"; //19
  				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ (LeaderKoalaProtocol.FAIL - lastLKFail): "\t0"; //20
  				
- 				if(nrInterDCMsg - lastMsg>0)
- 					helpToPrint.add((double)(nrHelpMsg-lastHelp)/(nrInterDCMsg - lastMsg)*100+"");
+ 				
+ 				helpToPrint.add((nrHelpMsg-lastHelp) + "\t" + (nrInterDCMsg - lastMsg));
  				
  				lastMsg = nrInterDCMsg;
  				lastHelp = nrHelpMsg;
