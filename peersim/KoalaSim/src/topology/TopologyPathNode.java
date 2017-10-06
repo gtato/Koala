@@ -2,6 +2,7 @@ package topology;
 
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
+import utilities.NodeUtilities;
 
 public class TopologyPathNode{
 	private String commonID;
@@ -45,6 +46,14 @@ public class TopologyPathNode{
 	
 	public String toString(){
 		return specificID;
+	}
+	
+	public int getDCID(){
+		return NodeUtilities.getDCID(specificID);
+	}
+	
+	public int getNodeID(){
+		return NodeUtilities.getNodeID(specificID);
 	}
 	
 //	public TopologyPathNode clone(){

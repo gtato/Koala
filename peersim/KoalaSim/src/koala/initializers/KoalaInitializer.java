@@ -109,6 +109,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		
 		if(NodeUtilities.FKPID > 0)
 			initialize(inx, NodeUtilities.FKPID);
+//		System.exit(0);
 		if(NodeUtilities.KPID > 0)
 			initialize(inx, NodeUtilities.KPID);		
 		if(NodeUtilities.LKPID > 0)
@@ -148,6 +149,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 				setNextNNeighbors(kn);
 				kn.setJoined(true);
 			}
+			System.out.println("generating kleinberg for the " + i + "th node");
 			ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(kn);
 			kn.getRoutingTable().setLongLinks(lls);
 		}	
@@ -159,7 +161,23 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	private void initializeLeader(ArrayList<Integer> inx, int pid){
 		NodeUtilities.CURRENT_PID = pid;
 		
-		if(loadFromFile(pid)) return;
+		if(loadFromFile(pid)) {
+//			for (int i = 0; i < nr; i++) {
+//				Node n = Network.get(inx.get(i));
+//				KoalaNode kn = (KoalaNode )n.getProtocol(NodeUtilities.getLinkable(pid));
+//				ArrayList<KoalaNeighbor> neigs  = kn.getRoutingTable().getNeighbors();
+//				for(KoalaNeighbor ni : neigs){
+//					for(KoalaNeighbor nj : neigs){
+//						if(ni.equals(nj)) continue;
+//						if(ni.getDCID() == nj.getDCID() && ni.getDCID() != kn.getDCID()) 
+//							System.out.println("asdfasfasdfasdfasd");
+//						
+//					}
+//					
+//				}
+//			}
+			
+		return;}
 		
 		ArrayList<Integer> linx = new ArrayList<Integer>();
 //		ArrayList<Integer> nolinx = (ArrayList<Integer>)inx.clone();
@@ -250,6 +268,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		System.out.println("Done!");
 	}
 	
+	HashSet<Integer> nids = new LinkedHashSet<Integer>();
 	private ArrayList<KoalaNeighbor> getLongLinksKleinsberg(KoalaNode kn){
 		ArrayList<KoalaNeighbor> pll = new ArrayList<KoalaNeighbor>();
 		int k = NodeUtilities.getLongLinks();
@@ -258,7 +277,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		if(size <= k)
 			k = size/4;
 //		int n = NodeUtilities.NR_DC;
-		HashSet<Integer> nids = new LinkedHashSet<Integer>();
+		
 		int limit = 50;
 		int trials = 0;
 		while(nids.size() != k && trials < limit){
@@ -281,6 +300,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			kneigh.setIdealID(realId);
 			pll.add(kneigh);
 		}
+		nids.clear();
 		return pll;
 		 
 	}

@@ -20,7 +20,7 @@ public class KoalaRoutingTable {
 	private ArrayList<KoalaNeighbor> longLinks = new ArrayList<KoalaNeighbor>();
 	private ArrayList<KoalaNeighbor> randLinks = new ArrayList<KoalaNeighbor>();
 	private ArrayList<KoalaNeighbor> locals = new ArrayList<KoalaNeighbor>();
-	
+//	private ArrayList<KoalaNeighbor> temps = new ArrayList<KoalaNeighbor>();
 	
 	/*these two are supposed to be used only when the object is transmitted*/
 	private ArrayList<KoalaNeighbor> neighborsContainer = new ArrayList<KoalaNeighbor>();
@@ -49,6 +49,19 @@ public class KoalaRoutingTable {
 	}
 
 
+//	public void copyGlobalsToTemps(){
+//		for(KoalaNeighbor g : globalPredecessors){
+//			if(!g.getSID().equals(NodeUtilities.DEFAULTID)) continue;
+//			g.setRecentlyAdded(false);
+//			temps.add(g);
+//		}
+//		
+//		for(KoalaNeighbor g : globalSucessors){
+//			if(!g.getSID().equals(NodeUtilities.DEFAULTID)) continue;
+//			g.setRecentlyAdded(false);
+//			temps.add(g);
+//		}
+//	}
 
 	public boolean hasAllDefaultLocals(){
 		for(KoalaNeighbor ln : locals){
@@ -277,6 +290,7 @@ public class KoalaRoutingTable {
 			neighs.addAll(Arrays.asList(globalPredecessors)); neighs.addAll(Arrays.asList(globalSucessors));
 			neighs.addAll(longLinks);
 			neighs.addAll(randLinks);
+//			neighs.addAll(temps);
 		}
 		Set<String> hs = new LinkedHashSet<String>();
         
@@ -302,6 +316,7 @@ public class KoalaRoutingTable {
 		ArrayList<KoalaNeighbor> neighs = getNeighbors();
 		for(KoalaNeighbor n: neighs)
 			n.setRecentlyAdded(false);
+//		temps.clear();
 	}
 	
 	public ArrayList<KoalaNeighbor> getNeighbors(){
@@ -311,6 +326,7 @@ public class KoalaRoutingTable {
 		neighs.addAll(Arrays.asList(globalPredecessors)); neighs.addAll(Arrays.asList(globalSucessors));
 		neighs.addAll(longLinks);
 		neighs.addAll(randLinks);
+//		neighs.addAll(temps);
 		
 		Set<String> idhs = new LinkedHashSet<String>();
 		
@@ -334,6 +350,7 @@ public class KoalaRoutingTable {
 		neighs.addAll(Arrays.asList(globalPredecessors)); neighs.addAll(Arrays.asList(globalSucessors));
 		neighs.addAll(longLinks);
 		neighs.addAll(randLinks);
+//		neighs.addAll(temps);
 		
 		Set<String> idhs = new LinkedHashSet<String>();
 		

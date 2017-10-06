@@ -4,7 +4,7 @@ rm -f /tmp/*.mpl
 
 
 
-group=100
+group=10
 
 
 

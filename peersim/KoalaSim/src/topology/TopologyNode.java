@@ -4,6 +4,7 @@ import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.core.Protocol;
+import utilities.NodeUtilities;
 import example.hot.InetCoordinates;
 
 public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
@@ -16,7 +17,13 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 	private Node node;
 	boolean visited;
 	
+	public int getDCID(){
+		return NodeUtilities.getDCID(specificID);
+	}
 	
+	public int getNodeID(){
+		return NodeUtilities.getNodeID(specificID);
+	}
 	
 	public boolean isVisited() {
 		return visited;

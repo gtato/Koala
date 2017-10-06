@@ -127,8 +127,18 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 	}
 
 	protected void addRandomLink(KoalaNeighbor rl){
-		if(myNode.isLeader())
+		//Normally the following info should have been embeded inside the neighbor, but that is not so important for the moment 
+		KoalaNode krl= (KoalaNode)NodeUtilities.Nodes.get(rl.getCID()).getProtocol(NodeUtilities.LKID);
+		if(myNode.isLeader() && krl.isLeader())
 			myNode.getRoutingTable().addRandLink(rl);
+	}
+	
+	protected boolean addLongLink(KoalaNeighbor ll){
+		//Normally the following info should have been embeded inside the neighbor, but that is not so important for the moment 
+		KoalaNode krl= (KoalaNode)NodeUtilities.Nodes.get(ll.getCID()).getProtocol(NodeUtilities.LKID);
+		if(myNode.isLeader() && krl.isLeader())
+			myNode.getRoutingTable().addLongLink(ll);
+		return false;
 	}
 	
 //	protected int addNeighbor(KoalaNeighbor n){

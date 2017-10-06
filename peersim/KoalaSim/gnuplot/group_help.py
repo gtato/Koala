@@ -25,13 +25,13 @@ with open(options.file) as f:
 #         print line
         if i%options.n == 0:
             print "%s" % (
-                            data['help']/data['total']
+                            data['help']*100/data['total']
                             )
             data = {'help':0,'total':0}
             j=0
 
     if j != 0:
         print "%s" % ( 
-                        data['help']/data['total']
+                        data['help']*100/data['total']
                         )
 

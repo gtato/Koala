@@ -238,7 +238,7 @@ public abstract class TopologyMessage {
 		int lh = 0;
 		for(TopologyPathNode pn : path){
 			if(lastpn == null){lastpn = pn; continue;}
-			if(NodeUtilities.getDCID(lastpn.getSID()) == NodeUtilities.getDCID(pn.getSID()))
+			if(NodeUtilities.getDCID(lastpn.getCID()) == NodeUtilities.getDCID(pn.getCID()))
 				lh++;
 			lastpn = pn;
 		}

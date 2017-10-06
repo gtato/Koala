@@ -22,6 +22,7 @@ import messaging.KoalaRHMsgContent;
 import messaging.KoalaRTMsgConent;
 import messaging.KoalaRouteMsgContent;
 import messaging.TopologyMessage;
+import messaging.TopologyMessageReplica;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
@@ -107,6 +108,7 @@ public class KoalaProtocol extends TopologyProtocol{
 	public void join()
 	{
 		joinHops = 0;
+		receviedMsg = new TopologyMessageReplica();
 		if(myNode.hasJoined())
 			return;
 		
@@ -244,6 +246,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		for(String neighID : neighborsBefore)
 			dcsBefore.add(NodeUtilities.getDCID(neighID));
 		dcsBefore.add(NodeUtilities.getDCID(myNode.getSID()));
+//		myNode.getRoutingTable().copyGlobalsToTemps();
 		
 		ArrayList<KoalaNeighbor> myOldNeighbors = new ArrayList<KoalaNeighbor>();
 		for(KoalaNeighbor recNeighbor: receivedNeighbors){
@@ -265,7 +268,7 @@ public class KoalaProtocol extends TopologyProtocol{
 			ArrayList<KoalaNeighbor> oldies = myNode.getRoutingTable().getOldNeighborsContainer();
 			myOldNeighbors.addAll(oldies);
 
-			myNode.getRoutingTable().addLongLink(potentialKN);
+			addLongLink(potentialKN); 
 			if(isSource) addRandomLink(potentialKN);
 			myNode.updateLatencyPerDC(recNeighbor.getSID(), l, lq);
 			
@@ -369,7 +372,7 @@ public class KoalaProtocol extends TopologyProtocol{
         	
 //        	if(/*!initializeMode &&*/ learn){
 //	        	KoalaNeighbor ll = new KoalaNeighbor(msg.getFirstSender(),PhysicalDataProvider.getDefaultInterLatency(), 0);
-//	        	boolean added = myNode.getRoutingTable().addLongLink(ll);
+//	        	boolean added = addLongLink(ll);
 //	        	if(added){
 //	        		//here we are not forcing the long link to be added but maybe it is a good practice to force it give the 
 //	        		//fact that there was some interest shown (maybe start counting and force after a threshold) 
@@ -589,7 +592,7 @@ public class KoalaProtocol extends TopologyProtocol{
 		
 	protected void onLongLink(KoalaMessage msg) {
 		KoalaNeighbor ll = new KoalaNeighbor(msg.getLastSender(), msg.getLatency(), 3);
-		boolean added = myNode.getRoutingTable().addLongLink(ll);
+		boolean added = addLongLink(ll); 
 		if(added)
 			send(ll, msg);
 	}
@@ -652,7 +655,7 @@ public class KoalaProtocol extends TopologyProtocol{
 //				send(recNeighbor.getNodeID(), newMsg);
 //			}
 			if(res == -1 /*&& !initializeMode*/ && learn)
-				myNode.getRoutingTable().addLongLink(recNeighbor);
+				addLongLink(recNeighbor);
 		}
 		
 //		if(neighs.size() > 0){
@@ -680,6 +683,10 @@ public class KoalaProtocol extends TopologyProtocol{
 
 	protected void addRandomLink(KoalaNeighbor rl){
 		myNode.getRoutingTable().addRandLink(rl);
+	}
+	
+	protected boolean addLongLink(KoalaNeighbor ll){
+		return myNode.getRoutingTable().addLongLink(ll);
 	}
 	
 	@Override

@@ -215,7 +215,7 @@ public class KoalaNode extends TopologyNode{
 
         if( ret ==-1 && canBeNeighbour(n.getSID(),0))
             ret = 1;
-
+        
         getRoutingTable().setOldNeighborsContainer(oldNeighbors);
         // 2: added, 1:potential neighbor , 0:updated, -1:not neighbor
         return ret; // should return oldNeighbors as well
