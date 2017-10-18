@@ -99,28 +99,7 @@ public class KoalaNode extends TopologyNode{
 				return kn;
 		return null;
 	}
-//
-//    public int getNodeID() {
-//		return nodeID;
-//	}
-//
-//	public void setNodeID(int nodeID) {
-//		this.nodeID = nodeID;
-//	}
-//
-//	public void setID(int dcID, int nodeID) {
-//		this.dcID = dcID;
-//		this.nodeID = nodeID;
-//	}
-//	
-//	public void setID(String id) {
-//		this.dcID = Integer.parseInt(id.split("-")[0]);
-//		this.nodeID = Integer.parseInt(id.split("-")[1]);
-//	}
-//	
-//	public String getSID() {
-//		return this.dcID + "-" + this.nodeID;
-//	}
+
 	
 	public String getBootstrapID() {
 		return bootstrapID;
@@ -417,6 +396,7 @@ public class KoalaNode extends TopologyNode{
 //				potentialDests.add(mre);
 				re.setRating(v);
 				potentialDests.add(re);
+//				System.out.println(v);
 			}
 		}
 //		Collections.sort(potentialDests, Collections.reverseOrder(new Comparator<AbstractMap.SimpleEntry<Double, KoalaNeighbor>>() {
@@ -474,25 +454,29 @@ public class KoalaNode extends TopologyNode{
  		max = 100000;
  
  		if(NodeUtilities.distanceGlobal(this.getSID(), dest) < NodeUtilities.distanceGlobal(re.getSID(), dest))
-             res = -1;
+            res = -1;
  		
  		else if( NodeUtilities.getDCID(dest) == NodeUtilities.getDCID(re.getSID()))
              res = max - (double)NodeUtilities.BETA * (double)NodeUtilities.distance(re.getSID(), dest);
          
  		else if( NodeUtilities.getDCID(getSID()) == NodeUtilities.getDCID(re.getSID()))
-             res = NodeUtilities.BETA * NodeUtilities.distance(this.getSID(), re.getSID());
+            res = NodeUtilities.BETA * NodeUtilities.distance(this.getSID(), re.getSID());
          
  		else if( NodeUtilities.distance(this.getSID(), dest) > NodeUtilities.distance(re.getSID(), dest)){
-             int tot_distance = NodeUtilities.distance(this.getSID(), dest);
-             int rem_distance = NodeUtilities.distance(dest, re.getSID());
+// 		else{
+ 			int tot_distance = NodeUtilities.distanceGlobal(this.getSID(), dest);
+ 			int rem_distance = NodeUtilities.distanceGlobal(dest, re.getSID());
              
-             double norm_dist =  1 - (double)rem_distance/tot_distance;
-             double norm_latency = NodeUtilities.normalizeLatency(tot_distance, re.getLatency());
-             res = 1 + alpha * norm_dist + (1-alpha) * norm_latency;
+            double norm_dist = 1 - (double)rem_distance/tot_distance;
+            double norm_latency = NodeUtilities.normalizeLatency(tot_distance, re.getLatency());
+//          double bonus = rem_distance != 0 ? 0 : 1-NodeUtilities.BETA * (double)NodeUtilities.distanceLocal(re.getSID(), dest);
+//          res = 1 + alpha * norm_dist + (1-alpha) * norm_latency + bonus;
+            res = 1 + alpha * norm_dist + (1-alpha) * norm_latency;
+
              
-             if(alpha == -1)
-             	res = 1+CommonState.r.nextInt(100);
-         }
+            if(alpha == -1)
+            	res = 1+CommonState.r.nextInt(100);
+        }
          
  		
          
@@ -602,6 +586,7 @@ public class KoalaNode extends TopologyNode{
 			JsonArray locals = new JsonArray();
 			JsonArray longlinks = new JsonArray();
 			JsonArray randlinks = new JsonArray();
+			JsonArray vicinitylinks = new JsonArray();
 			
 			for(KoalaNeighbor s : src.getRoutingTable().getGlobalSucessors())
 				succs.add(KoalaJsonParser.toJsonTree(s));
@@ -618,6 +603,9 @@ public class KoalaNode extends TopologyNode{
 			for(KoalaNeighbor rl : src.getRoutingTable().getRandLinks())
 				randlinks.add(KoalaJsonParser.toJsonTree(rl));
 			
+			for(KoalaNeighbor vl : src.getRoutingTable().getVicinityLinks())
+				vicinitylinks.add(KoalaJsonParser.toJsonTree(vl));
+			
 			JsonObject obj = new JsonObject();
 			obj.addProperty("cid", src.getCID());
 			obj.addProperty("sid", src.getSID());
@@ -627,6 +615,7 @@ public class KoalaNode extends TopologyNode{
 			obj.add("locals", (JsonElement)locals);
 			obj.add("longlinks", (JsonElement)longlinks);
 			obj.add("randlinks", (JsonElement)randlinks);
+			obj.add("vicinitylinks", (JsonElement)vicinitylinks);
 			
 			return obj;
 		}
@@ -651,6 +640,7 @@ public class KoalaNode extends TopologyNode{
 			ArrayList<KoalaNeighbor> locals = new ArrayList<KoalaNeighbor>();
 			ArrayList<KoalaNeighbor> longlinks = new ArrayList<KoalaNeighbor>();
 			ArrayList<KoalaNeighbor> randlinks = new ArrayList<KoalaNeighbor>();
+			ArrayList<KoalaNeighbor> vicinitylinks = new ArrayList<KoalaNeighbor>();
 			
 			JsonArray jsuccs = srcJO.getAsJsonArray("succs");
 			for(int i = 0; i < jsuccs.size(); i++)
@@ -672,6 +662,10 @@ public class KoalaNode extends TopologyNode{
 			for(JsonElement rl : jrandlinks)
 				randlinks.add(KoalaJsonParser.jsonTreeToObject(rl, KoalaNeighbor.class));
 			
+			JsonArray jvicinitylinks = srcJO.getAsJsonArray("vicinitylinks");
+			for(JsonElement vl : jvicinitylinks)
+				vicinitylinks.add(KoalaJsonParser.jsonTreeToObject(vl, KoalaNeighbor.class));
+			
 			for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
 				kn.getRoutingTable().setGlobalSucessor(succs[i], i);
 				kn.getRoutingTable().setGlobalPredecessor(preds[i], i);
@@ -680,6 +674,7 @@ public class KoalaNode extends TopologyNode{
 			kn.getRoutingTable().setLocals(locals);
 			kn.getRoutingTable().setLongLinks(longlinks);
 			kn.getRoutingTable().setRandLinks(randlinks);
+			kn.getRoutingTable().setVicinityLinks(vicinitylinks);
 			
 			return kn;
 		}

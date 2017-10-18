@@ -11,7 +11,7 @@ set xlabel "Time (1K cycles)"
 set ylabel 'Latency (ms)'
 
 set ytics "100"
-set yrange [ 0 : 1100 ]
+#set yrange [ 0 : 1100 ]
 #set key horizontal 
 #set key at 250,300 cent
 

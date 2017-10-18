@@ -143,6 +143,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 	public boolean isBelowThreshold(){
 		double helpTH = NodeUtilities.COLABORATIVE_THRESHOLD; 
 		helpTH /= 100;
+		if(helpTH == 1) return true;
 		return rating < 1+helpTH;
 	}
 	

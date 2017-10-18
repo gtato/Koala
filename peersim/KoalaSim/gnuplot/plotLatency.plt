@@ -24,12 +24,11 @@ plot koala0 using 4 title "Koala no collaboration" smooth csplines with lines lw
 	koala4  using 4 title "Koala col 4" smooth csplines with lines lw 1.3 dt 3 lc rgb "blue", \
 	koala8  using 4 title "Koala col 8" smooth csplines with lines lw 1.3 dt 4 lc rgb "blue" , \
 	koala16  using 4 title "Koala col 16" smooth csplines with lines lw 1.3 dt 5 lc rgb "blue", \
-	koala32  using 4 title "Koala col 32" smooth csplines with lines lw 1.3 dt "-" lc rgb "blue" , \
-	koala0  using 5 title "Flatoala" smooth csplines with lines lw 1.3 lc rgb "orange" , \
-	koala0  using 6 title "Hierarkoala" smooth csplines with lines lw 1.3 lc rgb "violet" , \
-	koala0  using 2 title "Physical" smooth csplines with lines lw 1.3 lc rgb "forest-green"
+	koala0  using 5 title "Flat koala" smooth csplines with lines lw 1.3 lc rgb "forest-green" , \
+	koala0  using 6 title "Hierarchy koala" smooth csplines with lines lw 1.3 lc rgb "red" , \
+	koala0  using 2 title "Physical" smooth csplines with lines lw 1.3 lc rgb "grey"
 
-
+#koala32  using 4 title "Koala col 32" smooth csplines with lines lw 1.3 dt "-" lc rgb "blue" , \
 
 # no smoothing
 #plot "<(tail -n +2  ".koalafile.")"  using 12 title "Koala"  with lines lc rgb "blue" , \

@@ -149,7 +149,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 				setNextNNeighbors(kn);
 				kn.setJoined(true);
 			}
-			System.out.println("generating kleinberg for the " + i + "th node");
+//			System.out.println("generating kleinberg for the " + i + "th node");
 			ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(kn);
 			kn.getRoutingTable().setLongLinks(lls);
 		}	
@@ -305,6 +305,59 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		 
 	}
 	
+	
+	private ArrayList<KoalaNeighbor> getLongLinksChord(KoalaNode kn){
+		ArrayList<KoalaNeighbor> pll = new ArrayList<KoalaNeighbor>();
+		int k = NodeUtilities.getLongLinks();
+		int size = NodeUtilities.getSize(); 
+		int n = size / 2;
+		if(size <= k)
+			k = size/4;
+		
+		
+		for(int i = 0; i < k; i++){
+			
+		}
+		
+		
+		
+		
+		
+		
+		int limit = 50;
+		int trials = 0;
+		
+		
+		
+		
+		
+		
+		while(nids.size() != k && trials < limit){
+			int sizebefore = nids.size();
+			int nid = (int) Math.round(Math.exp(Math.log(n) * (CommonState.r.nextDouble()-1.0))*n);
+			if(nid >  NodeUtilities.NEIGHBORS) //skip neighbors, we already have them
+				nids.add(nid);
+//			System.out.println(nids.size());
+			if(sizebefore == nids.size())
+				trials++;
+			else
+				trials = 0;
+		}
+		
+		for(Integer dist : nids){
+			String[] ids = NodeUtilities.getIDFromDistance(kn.getSID(), dist);
+			String realId = CommonState.r.nextInt() % 2 == 0 ? ids[0] : ids[1]; 
+			String id = initialize ? getFromNeighborhood(realId) : NodeUtilities.DEFAULTID;
+			KoalaNeighbor kneigh = new KoalaNeighbor(new TopologyPathNode(id), PhysicalDataProvider.getDefaultInterLatency());
+			kneigh.setIdealID(realId);
+			pll.add(kneigh);
+		}
+		nids.clear();
+		return pll;
+		 
+	}
+	
+	
 //	private ArrayList<KoalaNeighbor> getRespLinksKleinsberg(int low){
 //		ArrayList<KoalaNeighbor> prl = new ArrayList<KoalaNeighbor>();
 //		int k = NodeUtilities.RESP_LINKS;
@@ -451,7 +504,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	}
 	
 	private String getFilename(int pid){
-		return "out/koala/init.C"+NodeUtilities.C +".RC" + NodeUtilities.RAND_C +"." + NodeUtilities.getProtocolName(pid)+"."+NodeUtilities.NR_DC+"x"+NodeUtilities.NR_NODE_PER_DC +".dat";
+		return "out/koala/init.C"+NodeUtilities.C +".RC" + NodeUtilities.RAND_C +".VC" + NodeUtilities.VICINITY_C +"."+ NodeUtilities.getProtocolName(pid)+"."+NodeUtilities.NR_DC+"x"+NodeUtilities.NR_NODE_PER_DC +".dat";
 	}
 	
 	private boolean loadFromFile(int pid){

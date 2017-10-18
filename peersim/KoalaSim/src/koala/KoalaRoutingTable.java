@@ -19,8 +19,9 @@ public class KoalaRoutingTable {
 	private KoalaNeighbor[] globalSucessors;
 	private ArrayList<KoalaNeighbor> longLinks = new ArrayList<KoalaNeighbor>();
 	private ArrayList<KoalaNeighbor> randLinks = new ArrayList<KoalaNeighbor>();
+	private ArrayList<KoalaNeighbor> vicinityLinks = new ArrayList<KoalaNeighbor>();
 	private ArrayList<KoalaNeighbor> locals = new ArrayList<KoalaNeighbor>();
-//	private ArrayList<KoalaNeighbor> temps = new ArrayList<KoalaNeighbor>();
+	
 	
 	/*these two are supposed to be used only when the object is transmitted*/
 	private ArrayList<KoalaNeighbor> neighborsContainer = new ArrayList<KoalaNeighbor>();
@@ -31,15 +32,6 @@ public class KoalaRoutingTable {
 		resetGlobals();
 	}
 	
-	
-//	public KoalaNeighbor[] getLocalPredecessors() {
-//		return localPredecessors;
-//	}
-//
-//	public KoalaNeighbor[] getLocalSucessors() {
-//		return localSucessors;
-//	}
-
 	public KoalaNeighbor[] getGlobalPredecessors() {
 		return globalPredecessors;
 	}
@@ -47,21 +39,6 @@ public class KoalaRoutingTable {
 	public KoalaNeighbor[] getGlobalSucessors() {
 		return globalSucessors;
 	}
-
-
-//	public void copyGlobalsToTemps(){
-//		for(KoalaNeighbor g : globalPredecessors){
-//			if(!g.getSID().equals(NodeUtilities.DEFAULTID)) continue;
-//			g.setRecentlyAdded(false);
-//			temps.add(g);
-//		}
-//		
-//		for(KoalaNeighbor g : globalSucessors){
-//			if(!g.getSID().equals(NodeUtilities.DEFAULTID)) continue;
-//			g.setRecentlyAdded(false);
-//			temps.add(g);
-//		}
-//	}
 
 	public boolean hasAllDefaultLocals(){
 		for(KoalaNeighbor ln : locals){
@@ -178,18 +155,11 @@ public class KoalaRoutingTable {
 				if(dist < currentDist){
 					//here there might be a situation where we would have to chose between a better id or a better latency quality
 					ll.copy(kn, false);
-//					ll.setCID(kn.getCID());
-//					ll.setSID(kn.getSID());
-//					ll.setLatency(kn.getLatency());
-//					ll.setLatencyQuality(kn.getLatencyQuality());
-//					ll.setRecentlyAdded(kn.isRecentlyAdded());
 					added=true;
 				}
 			}			
 		}
-		
 		return added;
-		
 	}	
 	
 	/*
@@ -199,17 +169,17 @@ public class KoalaRoutingTable {
 	public void setLongLinks(ArrayList<KoalaNeighbor> longLinks){
 		this.longLinks = longLinks;
 	}
-	
-//	public void clearLongLinks(){
-//		longLinks.clear();
-//	}
-	
+		
 	public ArrayList<KoalaNeighbor> getLongLinks(){
 		return longLinks;
 	}
 	
 	public void setRandLinks(ArrayList<KoalaNeighbor> randLinks){
 		this.randLinks = randLinks;
+	}
+	
+	public ArrayList<KoalaNeighbor> getRandLinks(){
+		return randLinks;
 	}
 	
 	public void resetRands(){
@@ -223,21 +193,56 @@ public class KoalaRoutingTable {
 	
 	public void addRandLink(KoalaNeighbor randLink){
 		if(NodeUtilities.isDefault(randLink)) return;
-		for(KoalaNeighbor each : randLinks)
-			if(NodeUtilities.getDCID(randLink.getSID()) == NodeUtilities.getDCID(each.getSID()))
-				return;
 		if(randLinks.size() == 0)
 			resetRands();
+		for(KoalaNeighbor each : randLinks)
+			if(NodeUtilities.sameDC(randLink,each))
+				return;
 		KoalaNeighbor oldie = randLinks.remove(randLinks.size()-1);
 		oldie.copy(randLink, true);
 		randLinks.add(0, oldie);
-			
 	}
 
+	public void setVicinityLinks(ArrayList<KoalaNeighbor> vicinityLinks){
+		this.vicinityLinks = vicinityLinks;
+	}
 	
+	public ArrayList<KoalaNeighbor> getVicinityLinks(){
+		return vicinityLinks;
+	}
 	
-	public ArrayList<KoalaNeighbor> getRandLinks(){
-		return randLinks;
+	public void resetVicinities(){
+		vicinityLinks = new ArrayList<KoalaNeighbor>();
+		KoalaNeighbor defaultNeighbor;
+		for(int i = 0; i < NodeUtilities.VICINITY_LINKS; i++){
+			defaultNeighbor = KoalaNeighbor.getDefaultNeighbor();
+			defaultNeighbor.setLatency(Double.MAX_VALUE);
+			vicinityLinks.add(defaultNeighbor);
+		}
+	}
+	
+	public boolean addVicinityLink(KoalaNeighbor vicinityLink){
+		if(NodeUtilities.VICINITY_LINKS == 0 || NodeUtilities.isDefault(vicinityLink)) return false;
+		if(vicinityLinks.size() == 0)
+			resetVicinities();
+		int maxLatPos =-1, sameDCPos = -1; 
+		double maxLat = -1; 
+		for(int i = 0; i < vicinityLinks.size(); i ++){
+			KoalaNeighbor each = vicinityLinks.get(i);
+			if(each.getLatency() > maxLat){
+				maxLat = each.getLatency();
+				maxLatPos = i;  
+			}
+			if(NodeUtilities.sameDC(vicinityLink, each))
+				sameDCPos = i;
+		}
+		if(vicinityLink.getLatency() > maxLat) return false;
+		if(sameDCPos >= 0 && vicinityLinks.get(sameDCPos).getLatency() <= vicinityLink.getLatency()) return false;
+		
+		KoalaNeighbor oldie = sameDCPos >= 0? vicinityLinks.remove(sameDCPos) : vicinityLinks.remove(maxLatPos);
+		oldie.copy(vicinityLink, true);
+		vicinityLinks.add(0, oldie);
+		return true;
 	}
 	
 	
@@ -290,6 +295,7 @@ public class KoalaRoutingTable {
 			neighs.addAll(Arrays.asList(globalPredecessors)); neighs.addAll(Arrays.asList(globalSucessors));
 			neighs.addAll(longLinks);
 			neighs.addAll(randLinks);
+			neighs.addAll(vicinityLinks);
 //			neighs.addAll(temps);
 		}
 		Set<String> hs = new LinkedHashSet<String>();
@@ -326,6 +332,7 @@ public class KoalaRoutingTable {
 		neighs.addAll(Arrays.asList(globalPredecessors)); neighs.addAll(Arrays.asList(globalSucessors));
 		neighs.addAll(longLinks);
 		neighs.addAll(randLinks);
+		neighs.addAll(vicinityLinks);
 //		neighs.addAll(temps);
 		
 		Set<String> idhs = new LinkedHashSet<String>();
@@ -350,6 +357,7 @@ public class KoalaRoutingTable {
 		neighs.addAll(Arrays.asList(globalPredecessors)); neighs.addAll(Arrays.asList(globalSucessors));
 		neighs.addAll(longLinks);
 		neighs.addAll(randLinks);
+		neighs.addAll(vicinityLinks);
 //		neighs.addAll(temps);
 		
 		Set<String> idhs = new LinkedHashSet<String>();

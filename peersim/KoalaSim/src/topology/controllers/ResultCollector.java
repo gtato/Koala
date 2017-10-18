@@ -66,7 +66,8 @@ public class ResultCollector extends NodeObserver {
 		flush = Configuration.getInt(prefix + "." +PAR_FLUSH, 100);
 		filter = Configuration.getString(prefix + "."+ PAR_FILTER, "local close global");
 //		plotScript = "gnuplot/plotResults.plt";
-		outfilenames = new String[]{"results.C"+NodeUtilities.C+".RC"+NodeUtilities.RAND_C+"."+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC")+".CCL"+NodeUtilities.getStringCycles()+".COL"+NodeUtilities.NR_COLLABORATORS+".T"+(int)NodeUtilities.COLABORATIVE_THRESHOLD+"."
+		String additional = NodeUtilities.FILENAME_ADDITIONAL.length() > 0 ? NodeUtilities.FILENAME_ADDITIONAL +".": "";
+		outfilenames = new String[]{"results.C"+NodeUtilities.C+".RC"+NodeUtilities.RAND_C+".VC"+NodeUtilities.VICINITY_C+"."+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC")+".CCL"+NodeUtilities.getStringCycles()+".COL"+NodeUtilities.NR_COLLABORATORS+".T"+(int)NodeUtilities.COLABORATIVE_THRESHOLD+"."+additional 
 									};//, "help.C"+NodeUtilities.C+".RC"+NodeUtilities.RAND_C+"."+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC")+".CCL"+NodeUtilities.getStringCycles()+".COL"+NodeUtilities.NR_COLLABORATORS+".T"+(int)NodeUtilities.COLABORATIVE_THRESHOLD+"."};
 		deleteFiles();
 		lastMsg = lastHelp = lastCFail = lastKFail = 0;

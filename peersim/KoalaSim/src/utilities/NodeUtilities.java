@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import messaging.TopologyMessage;
 import chord.ChordNode;
-import chord.ChordProtocol;
 import koala.KoalaNeighbor;
 import koala.KoalaNode;
 import peersim.config.Configuration;
@@ -20,6 +18,7 @@ import peersim.core.Network;
 import peersim.core.Node;
 import renater.RenaterNode;
 import topology.TopologyNode;
+import topology.TopologyPathNode;
 
 public class NodeUtilities {
 	public static final String DEFAULTID = "xxx";
@@ -55,17 +54,19 @@ public class NodeUtilities {
 	public static double[] latencyCategories;
 	
 	public static int PiggybackLength = 0;
-//	public static double WORLD_SIZE = 1.0;
 	
 	public static int SIZE = Configuration.getInt("SIZE", 0);
 	public static int SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
 	public static int M = 0;
 	public static int C = Configuration.getInt("koala.settings.c", 1);
 	public static int RAND_C = Configuration.getInt("koala.settings.random_c", 1);
+	public static double VICINITY_C = Configuration.getDouble("koala.settings.vicinity_c", 1);
 	public static int NEIGHBORS = Configuration.getInt("koala.settings.neighbors", 2);
 	public static double COLABORATIVE_THRESHOLD = Configuration.getDouble("koala.settings.collaborate_threshold", 20);
+	public static String FILENAME_ADDITIONAL =  Configuration.getString("koala.settings.outfile_additional", "");
 	public static int RAND_LINKS;
 	public static int LONG_LINKS;
+	public static int VICINITY_LINKS;
 	public static int FLAT_LONG_LINKS;
 	
 //	public static boolean COLLABORATE = Configuration.getBoolean("koala.settings.collaborate", false);
@@ -83,22 +84,15 @@ public class NodeUtilities {
 	public static HashMap<String, Node> UPS =  new HashMap<String, Node>();
 	public static HashMap<String, Node> DOWNS =  new HashMap<String, Node>();
 	public static HashMap<String, Node> ALT_DOWNS =  new HashMap<String, Node>();
-//	public static HashMap<String, String> FlatMap =  new HashMap<String, String>();
+
 	
 	public static void initialize(){
-//		SIZE = Configuration.getInt("SIZE", 0);
-//		NR_NODE_PER_DC = Configuration.getInt("NR_NODE_PER_DC");
-//		NR_DC = Configuration.getInt("NR_DC");
-//		A = (double) 1 / NR_DC;
 		BETA = (double) 1 / NR_NODE_PER_DC;
-//		ALPHA = Configuration.getDouble("ALPHA", 0.5);
-//		C = 1-B;
-		
-//		SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
 		M = Configuration.getInt("M", getLog2(SIZE));
 		LONG_LINKS = C * getLog2(NR_DC);
 		FLAT_LONG_LINKS = C * M;
 		RAND_LINKS = RAND_C * getLog2(NR_DC);
+		VICINITY_LINKS = (int)VICINITY_C * getLog2(NR_DC);
 		
 		PiggybackLength = Configuration.getInt("koala.settings.piggyback", 10);
 		String dijktraStr = Configuration.getString("koala.settings.dijkstramethod", "ram");
@@ -110,39 +104,10 @@ public class NodeUtilities {
 			DijkstraMethod = DijkstraHipster;
 		else
 			DijkstraMethod = DijkstraRAM;
-		
-//		WORLD_SIZE = Configuration.getDouble("koala.settings.world_size", 1.0);
-//		WORLD_SIZE = (double)NR_DC/1000;
-//		WORLD_SIZE *= 5;
 	}
-	
-//	public static void initializeCategories()
-//	{
-//		int nrCategories = Configuration.getInt("msg.categories",1);
-//		double latDiff = PhysicalDataProvider.getMaxInterLatency() - PhysicalDataProvider.getMinInterLatency();
-//		double latUnit = (double)latDiff/nrCategories;
-//		
-//		double hopUnit = (double)NR_DC/(2*nrCategories);
-//		
-//		hopCategories = new double[nrCategories-1];
-//		latencyCategories = new double[nrCategories-1];
-//		
-//		for(int i=0; i < latencyCategories.length;i++){
-//			if(i==0){
-//				latencyCategories[i] = latUnit;
-//				hopCategories[i] = hopUnit;
-//			}else{
-//				latencyCategories[i] = latencyCategories[i-1] + latUnit;
-//				hopCategories[i] = hopCategories[i-1] + hopUnit;
-//			}
-//		}
-//		System.out.println();
-//	}
-	
 	
 	public static void intializeDCCenters(List<String> lines){
 		CenterPerDC = new double[NR_DC][2];
-		
 		for (int i = 0; i < NR_DC; i++){
           	if(lines != null){
           		CenterPerDC[i][0] = Double.parseDouble(lines.get(i).split(", ")[0]);
@@ -153,19 +118,6 @@ public class NodeUtilities {
         	}
         }
 	}
-	
-	
-//	public static void setNodePIDs(int rid, int kid, int cid){
-//		RID = rid;
-//		KID = kid;
-//		CID = cid;
-//	}
-//	
-//	public static void setProtPIDs(int rid, int kid, int cid){
-//		RPID = rid;
-//		KPID = kid;
-//		CPID = cid;
-//	}
 	
 	public static int getLinkable(int pid){
 		if(pid == RPID)
@@ -241,6 +193,12 @@ public class NodeUtilities {
 	}
 	
 	public static boolean sameDC(TopologyNode tp1, TopologyNode tp2){
+		if(getDCID(tp1.getSID()) == getDCID(tp2.getSID()))
+			return true;
+		return false;
+	}
+	
+	public static boolean sameDC(TopologyPathNode tp1, TopologyPathNode tp2){
 		if(getDCID(tp1.getSID()) == getDCID(tp2.getSID()))
 			return true;
 		return false;
@@ -379,20 +337,6 @@ public class NodeUtilities {
 		return newId.toString();
 	}
 	
-	
-//	public static double normalizeLatency(int totDistance, double latency) {
-//		double x1 = PhysicalDataProvider.getMinInterLatency();
-//        double y1 = 1;
-//        double x2 = PhysicalDataProvider.getMaxInterLatency();
-//        double y2 = (double) 1 / totDistance;
-//
-//        double sl = (double) (y2-y1)/(x2 - x1);
-//
-//        double y = (double) sl * (latency - x1) + y1;
-//        return y;
-//	}
-	
-	
 //	marin's normalization
 //	public static double normalizeLatency(int totDistance, double latency) {
 //		return 1 - (latency/PhysicalDataProvider.getMaxInterLatency()); 
@@ -402,23 +346,18 @@ public class NodeUtilities {
 //		double x1 = PhysicalDataProvider.getAvgInterLatency() - 2*PhysicalDataProvider.getStdInterLatency();
 		double x1 = PhysicalDataProvider.getMinInterLatency();
         double y1 = 1;
-//        double x2 = PhysicalDataProvider.getAvgInterLatency() + 2*PhysicalDataProvider.getStdInterLatency();
+//      double x2 = PhysicalDataProvider.getAvgInterLatency() + 2*PhysicalDataProvider.getStdInterLatency();
         double x2 = PhysicalDataProvider.getMaxInterLatency();
-        
         double y2 = (double) 1 / totDistance;
-
-        if(latency > x2)
-        	latency = x2;
+//      double y2 = 0;
         
-        if(latency < x1)
-        	latency = x1;
+        if(latency > x2) latency = x2;
+        if(latency < x1) latency = x1;
         
         double sl = (double) (y2-y1)/(x2 - x1);
-
         double y = (double) sl * (latency - x1) + y1;
         return y;
 	}	
-	
 	
 	public static double[] getCoordinatesBetweenTwoPoints(double[] p1, double[] p2){
 		double[] cords = new double[2];
@@ -450,8 +389,6 @@ public class NodeUtilities {
 		}
 	}
 	
-	
-	
 	public static ArrayList<Node> getUniformRandNodes(int upOrDown, int nr){
 		ArrayList<Node> ret = new ArrayList<Node>();
 		if(nr < 1) return ret;
@@ -467,7 +404,6 @@ public class NodeUtilities {
 		
 		return ret;
 	}
-	
 	
 	public static void cleanAllVisited(){
 		for(int i =0; i < Network.size();i++){

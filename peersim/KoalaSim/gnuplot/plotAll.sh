@@ -32,7 +32,7 @@ rm -f /tmp/*.mpl
 
 
 
-group=100
+group=500
 # group=2
 # plot occurrences in message paths
 # f1="/tmp/$RANDOM.mpl"
@@ -48,11 +48,11 @@ group=100
 # f8="/tmp/$RANDOM.mpl"
 # f16="/tmp/$RANDOM.mpl"
 # f32="/tmp/$RANDOM.mpl"         
-# ./group.py -f '../out/results/results.C1.RC1.1000x100.CCL500K.COL0.T50.A0.5.dat' -n $group > $f0
-# ./group.py -f '../out/results/results.C1.RC1.1000x100.CCL500K.COL2.T50.A0.5.dat' -n $group > $f2
-# ./group.py -f '../out/results/results.C1.RC1.1000x100.CCL500K.COL4.T50.A0.5.dat' -n $group > $f4
-# ./group.py -f '../out/results/results.C1.RC1.1000x100.CCL500K.COL8.T50.A0.5.dat' -n $group > $f8
-# ./group.py -f '../out/results/results.C1.RC1.1000x100.CCL500K.COL16.T50.A0.5.dat' -n $group > $f16
+# ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL0.T50.A0.5.dat' -n $group > $f0
+# ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL2.T50.A0.5.dat' -n $group > $f2
+# ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL4.T50.A0.5.dat' -n $group > $f4
+# ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL8.T50.A0.5.dat' -n $group > $f8
+# ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL16.T50.A0.5.dat' -n $group > $f16
 # ./group.py -f '../out/results/results.C1.RC1.1000x100.CCL500K.COL32.T50.A0.5.dat' -n $group > $f32
 # gnuplot -e "koala0='$f0'; koala2='$f2' ; koala4='$f4' ; koala8='$f8'; koala16='$f16'; koala32='$f32'" plotLatency.plt &
 # ./group.py -f '../out/results/resultsC1CH1A0.5.datnos10' -n $group > $f1 ; gnuplot -e "filename='$f1'" paper1/plotLatency.plt &
@@ -78,17 +78,17 @@ group=100
 # ./group_help.py -f '../out/results/help.C1.RC1.1000x100.CCL500K.COL4.T90.A0.5.dat' -n $group > $f90
 # gnuplot -e "koala10='$f10'; koala20='$f20' ; koala30='$f30' ; koala40='$f40'; koala50='$f50'; koala60='$f60'; koala70='$f70'; koala80='$f80'; koala90='$f90'" plotThreshold.plt &
 
+f10="/tmp/$RANDOM.mpl"
+f100="/tmp/$RANDOM.mpl"
+./group.py -f '../out/results/results.C1.RC2.VC0.0.1000x1.CCL20K.COL0.T100.A0.25.dat' -n $group > $f10
+./group.py -f '../out/results/results.C1.RC1.VC1.0.1000x1.CCL20K.COL0.T100.A0.25.dat' -n $group > $f100
+gnuplot -e "koala10='$f10'; koala100='$f100';" paper1/plotLatNodeXPoP.plt &
+
 # f10="/tmp/$RANDOM.mpl"
 # f100="/tmp/$RANDOM.mpl"
 # ./group.py -f '../out/results/results.C1.RC1.1000x10.CCL100K.COL0.T50.A0.5.dat' -n $group > $f10
-# ./group.py -f '../out/results/results.C1.RC1.1000x100.CCL100K.COL0.T50.A0.5.dat' -n $group > $f100
-# gnuplot -e "koala10='$f10'; koala100='$f100';" paper1/plotLatNodeXPoP.plt &
-
-f10="/tmp/$RANDOM.mpl"
-f100="/tmp/$RANDOM.mpl"
-./group.py -f '../out/results/results.C1.RC1.1000x10.CCL100K.COL0.T50.A0.5.dat' -n $group > $f10
-./group.py -f '../out/results/results.C1.RC1.1000x100.CCL50K.COL0.T50.A0.5.dat' -n $group > $f100
-gnuplot -e "datafile='$f100';" plotHopsCategories.plt &
+# ./group.py -f '../out/results/results.C1.RC1.1000x100.CCL50K.COL0.T50.A0.5.dat' -n $group > $f100
+# gnuplot -e "datafile='$f100';" plotHopsCategories.plt &
 
 
 

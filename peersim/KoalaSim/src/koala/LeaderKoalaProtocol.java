@@ -141,6 +141,13 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 		return false;
 	}
 	
+	protected boolean addVicinityLink(KoalaNeighbor vl){
+		KoalaNode kvl= (KoalaNode)NodeUtilities.Nodes.get(vl.getCID()).getProtocol(NodeUtilities.LKID);
+		if(myNode.isLeader() && kvl.isLeader())
+			return myNode.getRoutingTable().addVicinityLink(vl);
+		return false;
+	}
+	
 //	protected int addNeighbor(KoalaNeighbor n){
 //		if(myNode.isLeader() || myNode.isLocal(n))
 //			return myNode.tryAddNeighbour(n);

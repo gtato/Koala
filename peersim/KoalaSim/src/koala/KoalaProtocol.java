@@ -269,7 +269,10 @@ public class KoalaProtocol extends TopologyProtocol{
 			myOldNeighbors.addAll(oldies);
 
 			addLongLink(potentialKN); 
-			if(isSource) addRandomLink(potentialKN);
+			if(isSource){ 
+				addRandomLink(potentialKN); 
+				addVicinityLink(potentialKN);
+			}
 			myNode.updateLatencyPerDC(recNeighbor.getSID(), l, lq);
 			
 			if( res == 2)
@@ -339,8 +342,10 @@ public class KoalaProtocol extends TopologyProtocol{
         
         if(msgSender == null)
         	msg.setIdealPiggyBack();
-        else
+        else{
         	addRandomLink(new KoalaNeighbor(msg.getFirstSender()));
+        	addVicinityLink(new KoalaNeighbor(msgSender, msg.getLatency(), 3));
+        }
         
         if(!destNode.equals(myNode)){
         	myNode.nrMsgRouted++;
@@ -497,10 +502,19 @@ public class KoalaProtocol extends TopologyProtocol{
 //			if(advs.size() == myNode.getRoutingTable().getLocals().size()){
 			if(advs.size() == NodeUtilities.NR_COLLABORATORS+1){
 				//everybody replied
+				KoalaRHMsgContent myBest = advs.get(0);
 				double max=-1; TopologyPathNode best=null;
 				for(KoalaRHMsgContent ad : advs)
 					if(ad.getScore() > max){max = ad.getScore(); best = ad.getNeighbor();}
-				
+//				System.out.println(
+//						myNode.getSID() + "->"+best.getSID()+"->"+content.getLabel()+","+
+//						myBest.getScore() + ","+
+//						max + ","+
+//						NodeUtilities.distance(myNode.getSID(), content.getLabel())+","+
+//						NodeUtilities.distance(best.getSID(), content.getLabel())
+//						);
+//				
+				 
 				//send to the best
 				if(best!= null){
 					ResultCollector.countHelp();
@@ -687,6 +701,10 @@ public class KoalaProtocol extends TopologyProtocol{
 	
 	protected boolean addLongLink(KoalaNeighbor ll){
 		return myNode.getRoutingTable().addLongLink(ll);
+	}
+	
+	protected boolean addVicinityLink(KoalaNeighbor vl){
+		return myNode.getRoutingTable().addVicinityLink(vl);
 	}
 	
 	@Override
