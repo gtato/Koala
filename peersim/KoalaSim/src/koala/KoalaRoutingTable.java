@@ -192,7 +192,7 @@ public class KoalaRoutingTable {
 	}
 	
 	public void addRandLink(KoalaNeighbor randLink){
-		if(NodeUtilities.isDefault(randLink)) return;
+		if(NodeUtilities.RAND_LINKS == 0 || NodeUtilities.isDefault(randLink)) return;
 		if(randLinks.size() == 0)
 			resetRands();
 		for(KoalaNeighbor each : randLinks)

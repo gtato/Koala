@@ -36,7 +36,7 @@ public class TrafficGenerator extends GraphObserver {
 	
 	private int msgID;
 	private int msgCategory;
-//	private boolean allAdded = false; 
+	 
 	
 //	private ArrayList<Node[]> routes = new ArrayList<Node[]>();
 	private Random rand;
@@ -47,6 +47,7 @@ public class TrafficGenerator extends GraphObserver {
 //		initilizeRoutes();
 		long seed = Configuration.getLong("random.seed", 12345678);
 		rand = new Random(seed);
+//		KoalaProtocol.setInitializeMode(true);
 	}
 
 	@Override
@@ -91,7 +92,7 @@ public class TrafficGenerator extends GraphObserver {
 			return;
 		}
 		
-		TopologyNode sourc =(RenaterNode)src.getProtocol(NodeUtilities.RID);
+		TopologyNode source =(RenaterNode)src.getProtocol(NodeUtilities.RID);
 		TopologyNode dest = (RenaterNode)dst.getProtocol(NodeUtilities.RID);
 		
 		Transport tr = (Transport)src.getProtocol(NodeUtilities.TRID);
@@ -128,8 +129,7 @@ public class TrafficGenerator extends GraphObserver {
         	tr.send(null, src, msg, NodeUtilities.CPID);
 		}
 		
-		
-		System.out.println("(" + CommonState.getTime() + ") ROUTE " + sourc.getCID() + " -> " + dest.getCID());
+		System.out.println("(" + CommonState.getTime() + ") ROUTE " + source.getSID() + " -> " + source.getSID());
 		ResultCollector.addSentMsg(msgID, dst);
 		msgID++;
 		

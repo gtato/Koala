@@ -54,6 +54,10 @@ public class FlatKoalaProtocol extends KoalaProtocol{
 //		System.out.println(msg.getID()+  " ("+this.getClass().getName() +") "+ myNode.getID()+" got a message through: ["+msg.pathToString()+"] with latency: " +msg.getLatency());
 	}
 	
+	protected void initializeMsgPiggyback(KoalaMessage msg){
+		msg.setIdealPiggyBack(false);
+	}
+	
 	protected void onFail(TopologyMessage msg){
 		KoalaMessage kmsg = (KoalaMessage) msg;
 		String failmsg = "FLAT failed to sent from " + kmsg.getFirstSender();

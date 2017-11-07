@@ -23,13 +23,13 @@ set ytics "100"
 set macros
 dummy="NaN title ' ' lt -3"
 
-plot koala10  using 4 title "Koala x10" smooth csplines with lines lc rgb "blue" dt 1 lw 1.5, \
-	 koala100 using 4 title "Koala x100" smooth csplines with lines lc rgb "blue" dt 2 lw 1.5, \
-	 koala10  using 5 title "Flat x10" smooth csplines with lines  lc rgb "forest-green" dt 1 lw 1.5, \
-	 koala100  using 5 title "Flat x100" smooth csplines with lines  lc rgb "forest-green" dt 2 lw 1.5, \
-	 koala10  using 6 title "Hier x10" smooth csplines with lines  lc rgb "red" dt 1 lw 1.5, \
-	 koala100  using 6 title "Hier x100" smooth csplines with lines  lc rgb "red" dt 2 lw 1.5, \
-	 koala10  using 2 title "Physical" smooth csplines with lines  lc rgb "grey" lw 1.5 #, @dummy, @dummy
+plot koala10  using 4 title "Koala x10"  with lines lc rgb "blue" dt 1 lw 1.5, \
+	 koala100 using 4 title "Koala x100"  with lines lc rgb "blue" dt 2 lw 1.5, \
+	 koala10  using 5 title "Flat x10"   with lines  lc rgb "forest-green" dt 1 lw 1.5, \
+	 koala100  using 5 title "Flat x100"  with lines  lc rgb "forest-green" dt 2 lw 1.5, \
+	 koala10  using 6 title "Hier x10" with lines  lc rgb "red" dt 1 lw 1.5, \
+	 koala100  using 6 title "Hier x100"   with lines  lc rgb "red" dt 2 lw 1.5, \
+	 koala10  using 2 title "Physical"  with lines  lc rgb "grey" lw 1.5 #, @dummy, @dummy
 
 
 #	 koala1000  using 5 title "Koala x1000" smooth csplines with lines lc rgb "dark-blue" lw 1.5, \

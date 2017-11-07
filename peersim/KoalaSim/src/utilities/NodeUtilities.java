@@ -54,10 +54,12 @@ public class NodeUtilities {
 	public static double[] latencyCategories;
 	
 	public static int PiggybackLength = 0;
+	public static int FlatPiggybackLength = 0;
 	
 	public static int SIZE = Configuration.getInt("SIZE", 0);
 	public static int SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
 	public static int M = 0;
+	public static int DM = 0; //datacenter m
 	public static int C = Configuration.getInt("koala.settings.c", 1);
 	public static int RAND_C = Configuration.getInt("koala.settings.random_c", 1);
 	public static double VICINITY_C = Configuration.getDouble("koala.settings.vicinity_c", 1);
@@ -88,13 +90,18 @@ public class NodeUtilities {
 	
 	public static void initialize(){
 		BETA = (double) 1 / NR_NODE_PER_DC;
-		M = Configuration.getInt("M", getLog2(SIZE));
+		M = Configuration.getInt("koala.settings.m", getLog2(SIZE));
+		if(M < getLog2(SIZE)) M = getLog2(SIZE);
+		DM = Configuration.getInt("koala.settings.dm", NR_NODE_PER_DC);
+		if(DM < NR_NODE_PER_DC) DM = NR_NODE_PER_DC;
 		LONG_LINKS = C * getLog2(NR_DC);
 		FLAT_LONG_LINKS = C * M;
 		RAND_LINKS = RAND_C * getLog2(NR_DC);
 		VICINITY_LINKS = (int)VICINITY_C * getLog2(NR_DC);
 		
-		PiggybackLength = Configuration.getInt("koala.settings.piggyback", 10);
+		PiggybackLength = (int)Configuration.getDouble("koala.settings.piggyback_c", 1) * getLog2(NR_DC) ;
+		FlatPiggybackLength = (int)Configuration.getDouble("koala.settings.piggyback_c", 1) * getLog2(SIZE) ;
+//		PiggybackLength = 50 ;
 		String dijktraStr = Configuration.getString("koala.settings.dijkstramethod", "ram");
 		if(dijktraStr.equalsIgnoreCase("db"))
 			DijkstraMethod = DijkstraDB;
@@ -269,7 +276,7 @@ public class NodeUtilities {
         int size = local ? NR_NODE_PER_DC : getSize();
         int d1 = b - a;
         int d2 = (size - b + a) % size;
-
+        
         return Math.min(d1, d2);
 	}
 	

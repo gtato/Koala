@@ -659,12 +659,14 @@ public class KoalaNode extends TopologyNode{
 				longlinks.add(KoalaJsonParser.jsonTreeToObject(ll, KoalaNeighbor.class));
 
 			JsonArray jrandlinks = srcJO.getAsJsonArray("randlinks");
-			for(JsonElement rl : jrandlinks)
-				randlinks.add(KoalaJsonParser.jsonTreeToObject(rl, KoalaNeighbor.class));
+			if(jrandlinks != null)
+				for(JsonElement rl : jrandlinks)
+					randlinks.add(KoalaJsonParser.jsonTreeToObject(rl, KoalaNeighbor.class));
 			
 			JsonArray jvicinitylinks = srcJO.getAsJsonArray("vicinitylinks");
-			for(JsonElement vl : jvicinitylinks)
-				vicinitylinks.add(KoalaJsonParser.jsonTreeToObject(vl, KoalaNeighbor.class));
+			if(jvicinitylinks != null)
+				for(JsonElement vl : jvicinitylinks)
+					vicinitylinks.add(KoalaJsonParser.jsonTreeToObject(vl, KoalaNeighbor.class));
 			
 			for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
 				kn.getRoutingTable().setGlobalSucessor(succs[i], i);

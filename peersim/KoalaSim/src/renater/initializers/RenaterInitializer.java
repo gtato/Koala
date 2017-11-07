@@ -196,8 +196,20 @@ public class RenaterInitializer implements Control, NodeInitializer {
 		}
 		if(randomize)
 			Collections.shuffle(possibleIDs, CommonState.r);
-		
 	}
+	
+
+//	private void createIDs(){
+//	for(int i =0; i < Math.pow(2, NodeUtilities.M); i++){
+//		String id = dcid + "-" + nodeid;
+//		if(++nodeid == NodeUtilities.DM){nodeid=0; dcid++;}
+//		possibleIDs.add(id);
+//	}
+//	if(randomize)
+//		Collections.shuffle(possibleIDs, CommonState.r);
+//}
+
+	
 	
 	private String getID(){
 		return possibleIDs.remove(0);

@@ -91,9 +91,9 @@ public class KoalaProtocol extends TopologyProtocol{
 			case KoalaMessage.JOIN:
 				join();
 				break;
-			case KoalaMessage.LL:
-				onLongLink(kmsg);
-				break;
+//			case KoalaMessage.LL:
+//				onLongLink(kmsg);
+//				break;
 			case KoalaMessage.RH:
 				onHelpRequest(kmsg); 
 				break;
@@ -129,7 +129,8 @@ public class KoalaProtocol extends TopologyProtocol{
 			myNode.setJoining(true);
 			
 			KoalaMessage km = new KoalaMessage(new KoalaRTMsgConent(myNode));
-			km.setIdealPiggyBack();
+//			km.setIdealPiggyBack();
+			initializeMsgPiggyback(km);
 			joinHops++;
 			send(new TopologyPathNode(bootstrapRn), km);
 			addBootStrap();
@@ -168,8 +169,8 @@ public class KoalaProtocol extends TopologyProtocol{
 	
 	protected Node getBootstrap(){
 		if(lastBootstraps.size()==0) return null;
-//		Node closeBoot = getCloseBootstrap();
-//		if(closeBoot!=null) return closeBoot;
+		Node closeBoot = getCloseBootstrap();
+		if(closeBoot!=null) return closeBoot;
 		//we couldn't find smth nice 
 		return NodeUtilities.Nodes.get(lastBootstraps.get(CommonState.r.nextInt(lastBootstraps.size())));		
 	}
@@ -268,10 +269,12 @@ public class KoalaProtocol extends TopologyProtocol{
 			ArrayList<KoalaNeighbor> oldies = myNode.getRoutingTable().getOldNeighborsContainer();
 			myOldNeighbors.addAll(oldies);
 
-			addLongLink(potentialKN); 
-			if(isSource){ 
-				addRandomLink(potentialKN); 
-				addVicinityLink(potentialKN);
+			if(learn){
+				addLongLink(potentialKN); 
+				if(isSource){ 
+					addRandomLink(potentialKN); 
+					addVicinityLink(potentialKN);
+				}
 			}
 			myNode.updateLatencyPerDC(recNeighbor.getSID(), l, lq);
 			
@@ -341,7 +344,8 @@ public class KoalaProtocol extends TopologyProtocol{
         }
         
         if(msgSender == null)
-        	msg.setIdealPiggyBack();
+        	initializeMsgPiggyback(msg);
+//        	msg.setIdealPiggyBack();
         else{
         	addRandomLink(new KoalaNeighbor(msg.getFirstSender()));
         	addVicinityLink(new KoalaNeighbor(msgSender, msg.getLatency(), 3));
@@ -394,6 +398,9 @@ public class KoalaProtocol extends TopologyProtocol{
         	
 	}
 	
+	protected void initializeMsgPiggyback(KoalaMessage msg){
+		msg.setIdealPiggyBack(false);
+	}
 	
 	private void onNewLocalNeighbour(KoalaMessage kmsg) {
 		KoalaNLNMsgContent content = (KoalaNLNMsgContent )kmsg.getContent();
@@ -604,12 +611,12 @@ public class KoalaProtocol extends TopologyProtocol{
  		
 	}
 		
-	protected void onLongLink(KoalaMessage msg) {
-		KoalaNeighbor ll = new KoalaNeighbor(msg.getLastSender(), msg.getLatency(), 3);
-		boolean added = addLongLink(ll); 
-		if(added)
-			send(ll, msg);
-	}
+//	protected void onLongLink(KoalaMessage msg) {
+//		KoalaNeighbor ll = new KoalaNeighbor(msg.getLastSender(), msg.getLatency(), 3);
+//		boolean added = addLongLink(ll); 
+//		if(added)
+//			send(ll, msg);
+//	}
 
 
 	/**

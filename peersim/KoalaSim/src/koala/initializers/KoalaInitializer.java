@@ -93,7 +93,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		}
 		
 		ArrayList<Integer> inx = new ArrayList<Integer>();
-		for(int i = 0; i < Network.size(); i++)
+		for(int i = 0; i < nr; i++)
 			inx.add(i);
 		
 		Collections.shuffle(inx, CommonState.r);
@@ -207,15 +207,17 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	
 	
 	private void joinList(ArrayList<Integer> inx, int pid){
+		int s = inx.size();
+		if(s==0) return;
 		double perc,prevPerc=0;
 		System.out.println("Joining " + NodeUtilities.getProtocolName(pid));
 //		int s = nr;
-		int s = inx.size();
+		
 		if(!initialize){
 			for (int i = 0; i < s; i++) {
 				Node n = Network.get(inx.get(i));
 				KoalaProtocol kp = (KoalaProtocol)n.getProtocol(pid);				
-				System.out.print(i+ ". joining " + kp.getMyNode().getCID());
+				System.out.print(i+ ". joining " + kp.getMyNode().getSID());
 				kp.join();
 				System.out.println(" in " + KoalaProtocol.joinHops);
 				perc = (double)100*(i+1)/s;
@@ -505,10 +507,11 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	
 	private String getFilename(int pid){
 		return "out/koala/init.C"+NodeUtilities.C +".RC" + NodeUtilities.RAND_C +".VC" + NodeUtilities.VICINITY_C +"."+ NodeUtilities.getProtocolName(pid)+"."+NodeUtilities.NR_DC+"x"+NodeUtilities.NR_NODE_PER_DC +".dat";
+//		return "out/koala/init.C"+NodeUtilities.C +".RC0.VC0.0" +"."+ NodeUtilities.getProtocolName(pid)+"."+NodeUtilities.NR_DC+"x"+NodeUtilities.NR_NODE_PER_DC +".dat";
 	}
 	
 	private boolean loadFromFile(int pid){
-		if(!fromFile) return false;
+		if(!fromFile || nr==0) return false;
 		
 		
 		try {
@@ -598,8 +601,9 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		KoalaNode kn = (KoalaNode)kp.getMyNode();
 		ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(kn);
 		kn.getRoutingTable().setLongLinks(lls);
-		
 		kp.join();
+		System.out.println("Joined in " + KoalaProtocol.joinHops);
+		
 	}
 
 }

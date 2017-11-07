@@ -1,0 +1,178 @@
+
+
+*******************************************************************************
+Mon Oct 30 19:09:39 2017
+
+
+FIT:    data read from koala0
+        format = z
+        #datapoints = 1000
+        residuals are weighted equally (unit weight)
+
+function used for fitting: a
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   a            
+   0 1.5806995970e+07   0.00e+00  1.00e+00    1.000000e+00
+   3 2.4137239129e+05  -6.51e-10  1.00e-03    1.257623e+02
+
+After 3 iterations the fit converged.
+final sum of squares of residuals : 241372
+rel. change during last iteration : -6.51113e-15
+
+degrees of freedom    (FIT_NDF)                        : 999
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 15.5439
+variance of residuals (reduced chisquare) = WSSR/ndf   : 241.614
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+a               = 125.762          +/- 0.4915       (0.3909%)
+
+
+*******************************************************************************
+Mon Oct 30 19:11:39 2017
+
+
+FIT:    data read from koala0
+        format = z
+        #datapoints = 1000
+        residuals are weighted equally (unit weight)
+
+function used for fitting: a
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   a            
+   0 1.5806995970e+07   0.00e+00  1.00e+00    1.000000e+00
+   3 2.4137239129e+05  -6.51e-10  1.00e-03    1.257623e+02
+
+After 3 iterations the fit converged.
+final sum of squares of residuals : 241372
+rel. change during last iteration : -6.51113e-15
+
+degrees of freedom    (FIT_NDF)                        : 999
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 15.5439
+variance of residuals (reduced chisquare) = WSSR/ndf   : 241.614
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+a               = 125.762          +/- 0.4915       (0.3909%)
+
+
+*******************************************************************************
+Thu Nov  2 11:56:13 2017
+
+
+FIT:    data read from "<(sed -n '1,10000p' ".koala0.")" using 1:14 every 5
+        format = x:z
+        #datapoints = 1999
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+	f(x) = c
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   c            
+   0 1.8662000000e+04   0.00e+00  1.00e+00    1.000000e+00
+   2 3.0189464732e+03  -1.30e-01  1.00e-02    3.797399e+00
+
+After 2 iterations the fit converged.
+final sum of squares of residuals : 3018.95
+rel. change during last iteration : -1.29541e-06
+
+degrees of freedom    (FIT_NDF)                        : 1998
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 1.22922
+variance of residuals (reduced chisquare) = WSSR/ndf   : 1.51098
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+c               = 3.7974           +/- 0.02749      (0.724%)
+
+
+*******************************************************************************
+Thu Nov  2 11:57:18 2017
+
+
+FIT:    data read from "<(sed -n '1,10000p' ".koala0.")" using 1:14 every 5
+        format = x:z
+        #datapoints = 1999
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+	f(x) = c
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   c            
+   0 1.8662000000e+04   0.00e+00  1.00e+00    1.000000e+00
+   2 3.0189464732e+03  -1.30e-01  1.00e-02    3.797399e+00
+
+After 2 iterations the fit converged.
+final sum of squares of residuals : 3018.95
+rel. change during last iteration : -1.29541e-06
+
+degrees of freedom    (FIT_NDF)                        : 1998
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 1.22922
+variance of residuals (reduced chisquare) = WSSR/ndf   : 1.51098
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+c               = 3.7974           +/- 0.02749      (0.724%)
+
+
+*******************************************************************************
+Thu Nov  2 11:57:43 2017
+
+
+FIT:    data read from "<(sed -n '1,10000p' ".koala0.")" using 1:14 every 5
+        format = x:z
+        #datapoints = 1999
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+	f(x) = c
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   c            
+   0 1.8662000000e+04   0.00e+00  1.00e+00    1.000000e+00
+   2 3.0189464732e+03  -1.30e-01  1.00e-02    3.797399e+00
+
+After 2 iterations the fit converged.
+final sum of squares of residuals : 3018.95
+rel. change during last iteration : -1.29541e-06
+
+degrees of freedom    (FIT_NDF)                        : 1998
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 1.22922
+variance of residuals (reduced chisquare) = WSSR/ndf   : 1.51098
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+c               = 3.7974           +/- 0.02749      (0.724%)
+
+
+*******************************************************************************
+Thu Nov  2 12:12:16 2017
+
+
+FIT:    data read from "<(sed -n '1,10000p' ".koala0.")" using 1:14 every 5
+        format = x:z
+        #datapoints = 1999
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+	f(x) = c
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   c            
+   0 1.8662000000e+04   0.00e+00  1.00e+00    1.000000e+00
+   2 3.0189464732e+03  -1.30e-01  1.00e-02    3.797399e+00
+
+After 2 iterations the fit converged.
+final sum of squares of residuals : 3018.95
+rel. change during last iteration : -1.29541e-06
+
+degrees of freedom    (FIT_NDF)                        : 1998
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 1.22922
+variance of residuals (reduced chisquare) = WSSR/ndf   : 1.51098
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+c               = 3.7974           +/- 0.02749      (0.724%)

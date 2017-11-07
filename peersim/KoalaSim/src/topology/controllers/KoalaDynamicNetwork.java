@@ -7,6 +7,7 @@ import java.util.Collections;
 import chord.ChordNode;
 import koala.KoalaNode;
 import koala.KoalaProtocol;
+import koala.initializers.KoalaInitializer;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Control;
@@ -35,6 +36,7 @@ public class KoalaDynamicNetwork implements Control{
 	protected final int minsize;
 	protected final String mode;
 	protected final boolean alt;
+	
 	protected final NodeInitializer[] inits;
 	
 	public KoalaDynamicNetwork(String prefix) {
@@ -107,7 +109,8 @@ public class KoalaDynamicNetwork implements Control{
 		int upind = alt ? -1:0;
 		ArrayList<Node> toUp = NodeUtilities.getUniformRandNodes(upind, toAdd);
 		ArrayList<Node> toDown = NodeUtilities.getUniformRandNodes(1, toRemove);
-				
+			
+		
 		for(int i=0; i < toAdd; i++){
 			Node node = toUp.get(i);
 			NodeUtilities.up(node);

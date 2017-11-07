@@ -126,6 +126,10 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 		}
 	}
 
+	protected void initializeMsgPiggyback(KoalaMessage msg){
+		msg.setIdealPiggyBack(true);
+	}
+	
 	protected void addRandomLink(KoalaNeighbor rl){
 		//Normally the following info should have been embeded inside the neighbor, but that is not so important for the moment 
 		KoalaNode krl= (KoalaNode)NodeUtilities.Nodes.get(rl.getCID()).getProtocol(NodeUtilities.LKID);

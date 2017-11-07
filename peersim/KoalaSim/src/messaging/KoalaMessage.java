@@ -71,8 +71,9 @@ public class KoalaMessage extends TopologyMessage /*implements JsonSerializer< K
 	}
 	
 	
-	public void setIdealPiggyBack(){
-		for(int i = 0; i < NodeUtilities.PiggybackLength; i++){
+	public void setIdealPiggyBack(boolean nested){
+		int length = nested ? NodeUtilities.PiggybackLength : NodeUtilities.FlatPiggybackLength; 
+		for(int i = 0; i < length; i++){
 			int dcID = CommonState.r.nextInt(NodeUtilities.getSize());
 			KoalaNeighbor k = KoalaNeighbor.getDefaultNeighbor();
 			k.setIdealID(dcID + "-0");

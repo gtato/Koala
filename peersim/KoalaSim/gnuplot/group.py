@@ -12,7 +12,7 @@ options, args = parser.parse_args()
  
 
 groupby = 100
-data = {'rlat':0,'clat':0, 'klat':0, 'fklat':0, 'lklat':0, 
+data = {'i':0,'rlat':0,'clat':0, 'klat':0, 'fklat':0, 'lklat':0, 
         'lrhop':0, 'grhop':0, 'lchop':0, 'gchop':0, 'lkhop':0, 'gkhop':0, 'lfkhop':0, 'gfkhop':0,'llkhop':0, 'glkhop':0,
         'msg':0, 'cfail':0, 'kfail':0, 'fkfail':0, 'lkfail':0}
 j = i = ln = ll = 0
@@ -26,6 +26,7 @@ with open(options.file) as f:
         j += 1
         ln += float(words[0])-ll
         ll = float(words[0])
+        data['i'] += float(words[0])
         data['rlat'] += float(words[1])
         data['clat'] += float(words[2])
         data['klat'] += float(words[3])
@@ -57,7 +58,7 @@ with open(options.file) as f:
 #        print line
         if i%options.n == 0:
 #         if ln >= options.n:
-            print "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (words[0], 
+            print "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (data['i']/options.n, 
                                             data['rlat']/options.n,
                                             data['clat']/options.n,
                                             data['klat']/options.n,
@@ -81,14 +82,14 @@ with open(options.file) as f:
                                             data['fkfail']/ln,
                                             data['lkfail']/ln
                                             )
-            data = {'rlat':0,'clat':0, 'klat':0, 'fklat':0, 'lklat':0, 
+            data = {'i':0,'rlat':0,'clat':0, 'klat':0, 'fklat':0, 'lklat':0, 
                     'lrhop':0, 'grhop':0, 'lchop':0, 'gchop':0, 'lkhop':0, 'gkhop':0, 'lfkhop':0, 'gfkhop':0,'llkhop':0, 'glkhop':0,
                     'msg':0, 'cfail':0, 'kfail':0, 'fkfail':0, 'lkfail':0}
             ln=0
             j=0
 
     if j != 0:
-        print "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (words[0], 
+        print "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s" % (data['i']/j, 
                                         data['rlat']/j,
                                         data['clat']/j,
                                         data['klat']/j,

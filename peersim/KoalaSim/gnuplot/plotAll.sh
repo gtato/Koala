@@ -32,8 +32,8 @@ rm -f /tmp/*.mpl
 
 
 
-group=500
-# group=2
+group=1000
+# group=22
 # plot occurrences in message paths
 # f1="/tmp/$RANDOM.mpl"
 # f2="/tmp/$RANDOM.mpl"
@@ -41,21 +41,21 @@ group=500
 #./path_occurrences.py -f '../out/results/resultsA0.5.dat' -n 5 -p 'r' > $f1 ; gnuplot -e "filename='$f1'" plotPathOccurrence.plt &
 #./path_occurrences.py -f '../out/results/resultsA0.5.dat' -n 5 -p 'k' > $f2 ; gnuplot -e "filename='$f2'" plotPathOccurrence.plt &
 
-#comparision of latency for the 3 protocols 
-# f0="/tmp/$RANDOM.mpl"
-# f2="/tmp/$RANDOM.mpl"
-# f4="/tmp/$RANDOM.mpl"
-# f8="/tmp/$RANDOM.mpl"
-# f16="/tmp/$RANDOM.mpl"
-# f32="/tmp/$RANDOM.mpl"         
-# ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL0.T50.A0.5.dat' -n $group > $f0
-# ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL2.T50.A0.5.dat' -n $group > $f2
-# ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL4.T50.A0.5.dat' -n $group > $f4
-# ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL8.T50.A0.5.dat' -n $group > $f8
-# ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL16.T50.A0.5.dat' -n $group > $f16
-# ./group.py -f '../out/results/results.C1.RC1.1000x100.CCL500K.COL32.T50.A0.5.dat' -n $group > $f32
-# gnuplot -e "koala0='$f0'; koala2='$f2' ; koala4='$f4' ; koala8='$f8'; koala16='$f16'; koala32='$f32'" plotLatency.plt &
-# ./group.py -f '../out/results/resultsC1CH1A0.5.datnos10' -n $group > $f1 ; gnuplot -e "filename='$f1'" paper1/plotLatency.plt &
+# comparision of latency for the 3 protocols 
+#  f0="/tmp/$RANDOM.mpl"
+#  f2="/tmp/$RANDOM.mpl"
+#  f4="/tmp/$RANDOM.mpl"
+#  f8="/tmp/$RANDOM.mpl"
+#  f16="/tmp/$RANDOM.mpl"
+#  f32="/tmp/$RANDOM.mpl"         
+#  ./group.py -f '../out/results/workshop3/results.C1.RC1.VC0.0.1000x100.CCL50K.COL0.T100.A0.5.dat' -n $group > $f0
+#  ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL2.T50.A0.5.dat' -n $group > $f2
+#  ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL4.T50.A0.5.dat' -n $group > $f4
+#  ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL8.T50.A0.5.dat' -n $group > $f8
+#  ./group.py -f '../out/results/temp/results.C1.RC1.1000x100.CCL500K.COL16.T50.A0.5.dat' -n $group > $f16
+#  ./group.py -f '../out/results/results.C1.RC1.1000x100.CCL500K.COL32.T50.A0.5.dat' -n $group > $f32
+#  gnuplot -e "koala0='$f0'; koala2='$f2' ; koala4='$f4' ; koala8='$f8'; koala16='$f16'; koala32='$f32'" plotLatency.plt &
+#  ./group.py -f '../out/results/resultsC1CH1A0.5.datnos10' -n $group > $f1 ; gnuplot -e "filename='$f1'" paper1/plotLatency.plt &
 
 
 # f10="/tmp/$RANDOM.mpl"
@@ -78,11 +78,54 @@ group=500
 # ./group_help.py -f '../out/results/help.C1.RC1.1000x100.CCL500K.COL4.T90.A0.5.dat' -n $group > $f90
 # gnuplot -e "koala10='$f10'; koala20='$f20' ; koala30='$f30' ; koala40='$f40'; koala50='$f50'; koala60='$f60'; koala70='$f70'; koala80='$f80'; koala90='$f90'" plotThreshold.plt &
 
-f10="/tmp/$RANDOM.mpl"
-f100="/tmp/$RANDOM.mpl"
-./group.py -f '../out/results/results.C1.RC2.VC0.0.1000x1.CCL20K.COL0.T100.A0.25.dat' -n $group > $f10
-./group.py -f '../out/results/results.C1.RC1.VC1.0.1000x1.CCL20K.COL0.T100.A0.25.dat' -n $group > $f100
-gnuplot -e "koala10='$f10'; koala100='$f100';" paper1/plotLatNodeXPoP.plt &
+# f10="/tmp/$RANDOM.mpl"
+# f100="/tmp/$RANDOM.mpl"
+# ./group.py -f '../out/results/results.C1.RC1.VC0.0.1000x100.CCL50K.COL0.T100.A0.5.dat' -n $group > $f10
+# ./group.py -f '../out/results/results.C1.RC1.VC0.0.1000x100.CCL50K.COL0.T100.A0.5.dat' -n $group > $f100
+# gnuplot -e "koala10='$f10'; koala100='$f100';" paper1/plotLatNodeXPoP.plt &
+
+#f0="/tmp/$RANDOM.mpl"
+#./group.py -f '../out/results/results.C2.RC0.VC0.0.1000x1.CCL10K.COL0.T100.A1.0.dat' -n $group > $f0
+# gnuplot -e "koala0='$f0';" workshopLatency.plt &
+# gnuplot -e "koala0='../out/results/results.C2.RC0.VC0.0.1000x1.CCL10K.COL0.T100.A1.0.dat'; koala1='$f0'" workshopExp1Latency.plt &
+#gnuplot -e "koala0='../out/results/results.C2.RC0.VC0.0.1000x1.CCL10K.COL0.T100.A1.0.dat'; koala1='$f0'" workshopExp1Hops.plt &
+
+#f1="/tmp/$RANDOM.mpl"
+#./boxplot.py -f '../out/results/workshop3/results.C2.RC0.VC0.0.1000x10.CCL120K.COL0.T100.A1.0.dat' -c 4 #> $f1
+#gnuplot -e "f1='$f1';" workshopExp3Latency.plt &
+# 
+# f1="/tmp/$RANDOM.mpl"
+# ./boxplot.py -f '../out/results/workshop2/results.C2.RC0.VC0.0.1000x1.CCL10K.COL0.T100.A1.0.dat,../out/results/workshop2/results.C2.RC0.VC0.0.1000x1.CCL10K.COL0.T100.A0.5.dat' -c 13 > $f1
+# gnuplot -e "f1='$f1';" workshopExp2Hops.plt &
+
+# gnuplot -e "koala0='../out/results/workshop3/results.C1.RC0.VC0.0.1000x100.CCL50K.COL0.T100.A0.5.dat';" workshopExp3Latency.plt &
+# gnuplot -e "koala0='../out/results/workshop3/results.C2.RC0.VC0.0.1000x100.CCL50K.COL0.T100.A0.5.dat';" workshopExp3Latency.plt &
+# gnuplot -e "koala0='../out/results/workshop3/results.C4.RC0.VC0.0.1000x100.CCL50K.COL0.T100.A0.5.dat';" workshopExp3Latency.plt &
+
+
+s=90000
+e=100000
+# fn='../out/results/workshop3/results.C4.RC0.VC0.0.1000x100.CCL50K.COL0.T100.A0.5.dat'
+fn='../out/results/results.C4.RC0.VC0.0.1000x100.CCL500K.COL0.T100.A0.5.dat'
+f1="/tmp/$RANDOM.mpl"
+./boxplot.py -f $fn -c 4 -s $s -n "SR-flat" >> $f1 #single latency
+./boxplot.py -f $fn -c 3 -s $s -n "MR-flat" >> $f1 #multi latency
+./boxplot.py -f $fn -c 5 -s $s -n "hierarchical" >> $f1 #hiearchical latency
+gnuplot -e "f1='$f1'" workshopExp3Latency.plt &
+
+f1="/tmp/$RANDOM.mpl"
+f2="/tmp/$RANDOM.mpl"
+
+./boxplot.py -f $fn -c 13 -s $s -n "SR-flat" >> $f1 #single hop
+./boxplot.py -f $fn -c 11 -s $s -n "MR-flat" >> $f1 #multi hop
+./boxplot.py -f $fn -c 15 -s $s -n "hierarchical" >> $f1 #hiearchical hop
+./boxplot.py -f $fn -c 12 -s $s -n "SR-flat" >> $f2 #single hop
+./boxplot.py -f $fn -c 10 -s $s -n "MR-flat" >> $f2 #multi hop
+./boxplot.py -f $fn -c 14 -s $s -n "hierarchical" >> $f2 #hiearchical hop
+gnuplot -e "f1='$f1'; f2='$f2'" workshopExp3Hops.plt &
+
+
+
 
 # f10="/tmp/$RANDOM.mpl"
 # f100="/tmp/$RANDOM.mpl"

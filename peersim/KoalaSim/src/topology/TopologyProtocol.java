@@ -115,14 +115,14 @@ public abstract class TopologyProtocol implements EDProtocol {
 	protected Node getCloseBootstrap(){
 		if(lastBootstraps.size()==0) return null;
 		int dcid = NodeUtilities.getDCID(myNode.getSID());
-		for(int i=0;i<50;i++){
-			int p = dcid+i>=NodeUtilities.NR_DC? dcid+i-NodeUtilities.NR_DC:dcid+i;
-			int m = dcid-i<0? NodeUtilities.NR_DC-dcid-i:dcid-i;
+		for(int i=0;i<1000;i++){
+			int s = dcid+i>=NodeUtilities.getSize()? dcid+i-NodeUtilities.getSize():dcid+i;
+			int p = dcid-i<0? NodeUtilities.getSize()-dcid-i:dcid-i;
 			ArrayList<Node> l = null;
+			if(bootstraps.containsKey(s))
+				l = bootstraps.get(s);
 			if(bootstraps.containsKey(p))
 				l = bootstraps.get(p);
-			if(bootstraps.containsKey(m))
-				l = bootstraps.get(m);
 			if(l!=null)
 				return l.get(CommonState.r.nextInt(l.size())); 
 		}
@@ -177,7 +177,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 				System.exit(1);
 			}
 			
-			if(msg.getHops() > 500){
+			if(msg.getHops() > 1000){
 				System.err.println("Too many hops, something is wrong here");
 				onFail(msg);
 				return;
