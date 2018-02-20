@@ -67,13 +67,33 @@ public class ResultCollector extends NodeObserver {
 		filter = Configuration.getString(prefix + "."+ PAR_FILTER, "local close global");
 //		plotScript = "gnuplot/plotResults.plt";
 		String additional = NodeUtilities.FILENAME_ADDITIONAL.length() > 0 ? NodeUtilities.FILENAME_ADDITIONAL +".": "";
-		outfilenames = new String[]{"results.C"+NodeUtilities.C+".RC"+NodeUtilities.RAND_C+".VC"+NodeUtilities.VICINITY_C+"."+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC")+".CCL"+NodeUtilities.getStringCycles()+".COL"+NodeUtilities.NR_COLLABORATORS+".T"+(int)NodeUtilities.COLABORATIVE_THRESHOLD+"."+additional 
+		
+		
+		outfilenames = new String[]{getFileName(additional) 
 									};//, "help.C"+NodeUtilities.C+".RC"+NodeUtilities.RAND_C+"."+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC")+".CCL"+NodeUtilities.getStringCycles()+".COL"+NodeUtilities.NR_COLLABORATORS+".T"+(int)NodeUtilities.COLABORATIVE_THRESHOLD+"."};
 		deleteFiles();
 		lastMsg = lastHelp = lastCFail = lastKFail = 0;
 		msgToPrint.add("cycle\trlat\tclat\tklat\trhop\tchop\tkhop\tmsgs\trpath\tcpath\tkpath\tcfail\tkfail");
 	}
 
+	private String getFileName(String additional){
+		String file = "results";
+		if(NodeUtilities.C > 0)
+			file += ".C"+NodeUtilities.C;
+		if(NodeUtilities.RAND_C > 0)
+			file += ".RC"+NodeUtilities.RAND_C;
+		if(NodeUtilities.VICINITY_C > 0)
+			file += ".VC"+NodeUtilities.VICINITY_C;
+		if(NodeUtilities.APPLICATION_C > 0)
+			file += ".AC"+NodeUtilities.APPLICATION_C;
+		if(NodeUtilities.NR_COLLABORATORS > 0){
+			file +=".COL"+NodeUtilities.NR_COLLABORATORS+".T"+(int)NodeUtilities.COLABORATIVE_THRESHOLD;
+		}
+		
+		file += "."+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC");
+		file += ".CCL"+NodeUtilities.getStringCycles()+"."+additional;
+		return file;
+	}
 	
 	@Override
 	public boolean execute() {

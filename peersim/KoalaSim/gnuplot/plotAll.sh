@@ -2,6 +2,72 @@
 
 rm -f /tmp/*.mpl
 
+group=1000
+
+# gnuplot -e "koala0='../out/results/results.C2.0.1000x1.CCL50K.COL0.T100.A0.5.dat'; \
+# koala1='../out/results/results.C1.0.VC1.0.1000x1.CCL50K.COL0.T100.A0.5.dat';" \
+# newplots/plotLatency.plt &
+
+p='../out/results/results'
+fkl=5 #flat koala latency
+fklh=13 #flat koala local hops
+fkgh=14 #flat koala global hops
+
+cl=3 #chord latency
+clh=9 # chord local hops
+cgh=10 # chord global hops
+
+phl=2 #physical latency
+
+
+p='../out/results/icfec/exp1/results'
+false && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group" -o "exp2.2l" \
+		  -f "$p.C2.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=2:brown,
+ 		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cpl=1:web-blue,
+ 		      $p.C1.0.RC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cvl=1:red,
+ 		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cal=1:orange,
+ 		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$phl:Physical:forest-green"
+
+
+false && ./plot.py -x "Time (1K cycles)" -y "Hops" -s "group:$group" -o "exp2.2h" \
+		  -f "$p.C2.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=2:brown,
+ 		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=1 Cpl=1:web-blue,
+ 		      $p.C1.0.RC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=1 Cvl=1:red,
+ 		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=1 Cal=1:orange"
+
+
+p='../out/results/icfec/exp2/results'
+true && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group"  \
+		  -f "$p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.25.dat:$fkl:Cll=1 Cpl=1:web-blue,
+ 		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cvl=1:red,
+ 		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.75.dat:$fkl:Cll=1 Cal=1:orange,
+ 		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$phl:Physical:forest-green"
+
+
+
+
+p='../out/results/icfec/exp4/results'
+false && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group" -o "exp4l" \
+		  -f "$p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$fkl:Koala consec.:web-blue,
+ 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$cl:Chord consec.:red,
+ 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.rand.A0.5.dat:$fkl:Koala rand.:blue,
+ 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.rand.A0.5.dat:$cl:Chord rand.:brown,
+ 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$phl:Physical:forest-green"
+
+
+false && ./plot.py -x "Time (1K cycles)" -y "Hops" -s "group:$group" -o "exp4h" \
+		  -f "$p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$fklh:Koala local:web-blue,
+ 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$fkgh:Koala global:blue,
+ 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$clh:Chord local:red,
+ 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$cgh:Chord global:brown"
+
+
+
+
+
+# ./group.py -f "$p.C2.0.1000x1.CCL50K.COL0.T100.A0.5.dat" -n $group
+
+
 #plot the size of the routing table
 #gnuplot  -e "filename='../out/koala/rtA0.5.dat'" plotRT.plt &
 
@@ -30,9 +96,6 @@ rm -f /tmp/*.mpl
 #plot the koala topology (there are some problems with this one)
 #gnuplot -e "filename='../out/koala/topologyA0.5.dat'" plotKoala.plt &
 
-
-
-group=1000
 # group=22
 # plot occurrences in message paths
 # f1="/tmp/$RANDOM.mpl"
@@ -102,27 +165,27 @@ group=1000
 # gnuplot -e "koala0='../out/results/workshop3/results.C2.RC0.VC0.0.1000x100.CCL50K.COL0.T100.A0.5.dat';" workshopExp3Latency.plt &
 # gnuplot -e "koala0='../out/results/workshop3/results.C4.RC0.VC0.0.1000x100.CCL50K.COL0.T100.A0.5.dat';" workshopExp3Latency.plt &
 
-
-s=90000
-e=100000
-# fn='../out/results/workshop3/results.C4.RC0.VC0.0.1000x100.CCL50K.COL0.T100.A0.5.dat'
-fn='../out/results/results.C4.RC0.VC0.0.1000x100.CCL500K.COL0.T100.A0.5.dat'
-f1="/tmp/$RANDOM.mpl"
-./boxplot.py -f $fn -c 4 -s $s -n "SR-flat" >> $f1 #single latency
-./boxplot.py -f $fn -c 3 -s $s -n "MR-flat" >> $f1 #multi latency
-./boxplot.py -f $fn -c 5 -s $s -n "hierarchical" >> $f1 #hiearchical latency
-gnuplot -e "f1='$f1'" workshopExp3Latency.plt &
-
-f1="/tmp/$RANDOM.mpl"
-f2="/tmp/$RANDOM.mpl"
-
-./boxplot.py -f $fn -c 13 -s $s -n "SR-flat" >> $f1 #single hop
-./boxplot.py -f $fn -c 11 -s $s -n "MR-flat" >> $f1 #multi hop
-./boxplot.py -f $fn -c 15 -s $s -n "hierarchical" >> $f1 #hiearchical hop
-./boxplot.py -f $fn -c 12 -s $s -n "SR-flat" >> $f2 #single hop
-./boxplot.py -f $fn -c 10 -s $s -n "MR-flat" >> $f2 #multi hop
-./boxplot.py -f $fn -c 14 -s $s -n "hierarchical" >> $f2 #hiearchical hop
-gnuplot -e "f1='$f1'; f2='$f2'" workshopExp3Hops.plt &
+# 
+# s=90000
+# e=100000
+# # fn='../out/results/workshop3/results.C4.RC0.VC0.0.1000x100.CCL50K.COL0.T100.A0.5.dat'
+# fn='../out/results/results.C4.RC0.VC0.0.1000x100.CCL500K.COL0.T100.A0.5.dat'
+# f1="/tmp/$RANDOM.mpl"
+# ./boxplot.py -f $fn -c 4 -s $s -n "SR-flat" >> $f1 #single latency
+# ./boxplot.py -f $fn -c 3 -s $s -n "MR-flat" >> $f1 #multi latency
+# ./boxplot.py -f $fn -c 5 -s $s -n "hierarchical" >> $f1 #hiearchical latency
+# gnuplot -e "f1='$f1'" workshopExp3Latency.plt &
+# 
+# f1="/tmp/$RANDOM.mpl"
+# f2="/tmp/$RANDOM.mpl"
+# 
+# ./boxplot.py -f $fn -c 13 -s $s -n "SR-flat" >> $f1 #single hop
+# ./boxplot.py -f $fn -c 11 -s $s -n "MR-flat" >> $f1 #multi hop
+# ./boxplot.py -f $fn -c 15 -s $s -n "hierarchical" >> $f1 #hiearchical hop
+# ./boxplot.py -f $fn -c 12 -s $s -n "SR-flat" >> $f2 #single hop
+# ./boxplot.py -f $fn -c 10 -s $s -n "MR-flat" >> $f2 #multi hop
+# ./boxplot.py -f $fn -c 14 -s $s -n "hierarchical" >> $f2 #hiearchical hop
+# gnuplot -e "f1='$f1'; f2='$f2'" workshopExp3Hops.plt &
 
 
 
@@ -253,7 +316,7 @@ gnuplot -e "f1='$f1'; f2='$f2'" workshopExp3Hops.plt &
 
 
 
-lastn=2000
+# lastn=2000
 
 #latency based on message categories
 #./categories.py -f '../out/results/resultsA0.5.dat' -c 'lat' -n $lastn > /tmp/lcat.mpl ;\

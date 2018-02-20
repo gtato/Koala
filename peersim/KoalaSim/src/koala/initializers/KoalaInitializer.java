@@ -47,6 +47,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	private final int nr;
 	private int pid;
 	private final boolean initialize;
+	private final boolean clearlinks;
 	private final int flushload;
 	
 //	private FileOutputStream[] foss = new FileOutputStream[10];
@@ -58,6 +59,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	public KoalaInitializer(String prefix) {
 		nr = Configuration.getInt(prefix + "." + PAR_KOALA_NR, Network.size());
 		initialize = Configuration.getBoolean(prefix + "." + PAR_KOALA_INIT, false);
+		clearlinks = Configuration.getBoolean(prefix + ".clearlinks", false);
 		pid = Configuration.getPid(prefix + "." + PAR_PROT, -1);
 		fromFile = Configuration.getBoolean(prefix + ".fromfile", false);
 		flushload = Configuration.getInt(prefix + ".flushload", 50000);
@@ -150,8 +152,8 @@ public class KoalaInitializer implements Control, NodeInitializer {
 				kn.setJoined(true);
 			}
 //			System.out.println("generating kleinberg for the " + i + "th node");
-			ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(kn);
-			kn.getRoutingTable().setLongLinks(lls);
+			kn.getRoutingTable().intializeLongLinks();
+			kn.getRoutingTable().intializeRandomLinks();
 		}	
 		
 		joinList(inx, pid);
@@ -191,8 +193,10 @@ public class KoalaInitializer implements Control, NodeInitializer {
 				kn.setJoined(true);
 			}
 			if(rn.isGateway()){
-				ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(kn);
-				kn.getRoutingTable().setLongLinks(lls);
+//				ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(kn);
+//				kn.getRoutingTable().setLongLinks(lls);
+				kn.getRoutingTable().intializeLongLinks();
+				kn.getRoutingTable().intializeRandomLinks();
 				linx.add(inx.get(i));
 				
 			}
@@ -229,7 +233,9 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			}
 			
 		}
+		
 		saveToFile(pid);
+		clearLinks(pid);
 		System.out.println("\nDone joining "+ NodeUtilities.getProtocolName(pid));
 //		System.exit(0);
 		
@@ -268,95 +274,6 @@ public class KoalaInitializer implements Control, NodeInitializer {
 //		}
 		
 		System.out.println("Done!");
-	}
-	
-	HashSet<Integer> nids = new LinkedHashSet<Integer>();
-	private ArrayList<KoalaNeighbor> getLongLinksKleinsberg(KoalaNode kn){
-		ArrayList<KoalaNeighbor> pll = new ArrayList<KoalaNeighbor>();
-		int k = NodeUtilities.getLongLinks();
-		int size = NodeUtilities.getSize(); 
-		int n = size / 2;
-		if(size <= k)
-			k = size/4;
-//		int n = NodeUtilities.NR_DC;
-		
-		int limit = 50;
-		int trials = 0;
-		while(nids.size() != k && trials < limit){
-			int sizebefore = nids.size();
-			int nid = (int) Math.round(Math.exp(Math.log(n) * (CommonState.r.nextDouble()-1.0))*n);
-			if(nid >  NodeUtilities.NEIGHBORS) //skip neighbors, we already have them
-				nids.add(nid);
-//			System.out.println(nids.size());
-			if(sizebefore == nids.size())
-				trials++;
-			else
-				trials = 0;
-		}
-		
-		for(Integer dist : nids){
-			String[] ids = NodeUtilities.getIDFromDistance(kn.getSID(), dist);
-			String realId = CommonState.r.nextInt() % 2 == 0 ? ids[0] : ids[1]; 
-			String id = initialize ? getFromNeighborhood(realId) : NodeUtilities.DEFAULTID;
-			KoalaNeighbor kneigh = new KoalaNeighbor(new TopologyPathNode(id), PhysicalDataProvider.getDefaultInterLatency());
-			kneigh.setIdealID(realId);
-			pll.add(kneigh);
-		}
-		nids.clear();
-		return pll;
-		 
-	}
-	
-	
-	private ArrayList<KoalaNeighbor> getLongLinksChord(KoalaNode kn){
-		ArrayList<KoalaNeighbor> pll = new ArrayList<KoalaNeighbor>();
-		int k = NodeUtilities.getLongLinks();
-		int size = NodeUtilities.getSize(); 
-		int n = size / 2;
-		if(size <= k)
-			k = size/4;
-		
-		
-		for(int i = 0; i < k; i++){
-			
-		}
-		
-		
-		
-		
-		
-		
-		int limit = 50;
-		int trials = 0;
-		
-		
-		
-		
-		
-		
-		while(nids.size() != k && trials < limit){
-			int sizebefore = nids.size();
-			int nid = (int) Math.round(Math.exp(Math.log(n) * (CommonState.r.nextDouble()-1.0))*n);
-			if(nid >  NodeUtilities.NEIGHBORS) //skip neighbors, we already have them
-				nids.add(nid);
-//			System.out.println(nids.size());
-			if(sizebefore == nids.size())
-				trials++;
-			else
-				trials = 0;
-		}
-		
-		for(Integer dist : nids){
-			String[] ids = NodeUtilities.getIDFromDistance(kn.getSID(), dist);
-			String realId = CommonState.r.nextInt() % 2 == 0 ? ids[0] : ids[1]; 
-			String id = initialize ? getFromNeighborhood(realId) : NodeUtilities.DEFAULTID;
-			KoalaNeighbor kneigh = new KoalaNeighbor(new TopologyPathNode(id), PhysicalDataProvider.getDefaultInterLatency());
-			kneigh.setIdealID(realId);
-			pll.add(kneigh);
-		}
-		nids.clear();
-		return pll;
-		 
 	}
 	
 	
@@ -505,8 +422,30 @@ public class KoalaInitializer implements Control, NodeInitializer {
         }
 	}
 	
+	private void clearLinks(int pid){
+		if(!clearlinks) return;
+		for(int i = 0; i < Network.size(); i++){
+			KoalaNode kn = (KoalaNode )Network.get(i).getProtocol(NodeUtilities.getLinkable(pid));
+			kn.getRoutingTable().intializeLongLinks();
+			kn.getRoutingTable().initializeVicinities();
+			kn.getRoutingTable().intializeRandomLinks();
+			kn.getRoutingTable().setApplicationLinks(new ArrayList<KoalaNeighbor>());
+		}
+	} 
+	
 	private String getFilename(int pid){
-		return "out/koala/init.C"+NodeUtilities.C +".RC" + NodeUtilities.RAND_C +".VC" + NodeUtilities.VICINITY_C +"."+ NodeUtilities.getProtocolName(pid)+"."+NodeUtilities.NR_DC+"x"+NodeUtilities.NR_NODE_PER_DC +".dat";
+		String file = "out/koala/init"; 
+		if(NodeUtilities.C > 0)
+			file += ".C"+NodeUtilities.C;
+		if(NodeUtilities.RAND_C > 0)
+			file += ".RC"+NodeUtilities.RAND_C;
+		if(NodeUtilities.VICINITY_C > 0)
+			file += ".VC"+NodeUtilities.VICINITY_C;
+		if(NodeUtilities.APPLICATION_C > 0)
+			file += ".AC"+NodeUtilities.APPLICATION_C;
+		file += "."+ NodeUtilities.getProtocolName(pid)+"."+NodeUtilities.NR_DC+"x"+NodeUtilities.NR_NODE_PER_DC +".dat"; 
+		
+		return file;
 //		return "out/koala/init.C"+NodeUtilities.C +".RC0.VC0.0" +"."+ NodeUtilities.getProtocolName(pid)+"."+NodeUtilities.NR_DC+"x"+NodeUtilities.NR_NODE_PER_DC +".dat";
 	}
 	
@@ -548,6 +487,8 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			}
 			
 			assignLocals(pid);
+			clearLinks(pid);
+				
 			
 			return true;
 			
@@ -599,8 +540,8 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		KoalaProtocol kp = (KoalaProtocol) n.getProtocol(p);
 		kp.intializeMyNode(n, p);
 		KoalaNode kn = (KoalaNode)kp.getMyNode();
-		ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(kn);
-		kn.getRoutingTable().setLongLinks(lls);
+//		ArrayList<KoalaNeighbor> lls = getLongLinksKleinsberg(kn);
+//		kn.getRoutingTable().setLongLinks(lls);
 		kp.join();
 		System.out.println("Joined in " + KoalaProtocol.joinHops);
 		

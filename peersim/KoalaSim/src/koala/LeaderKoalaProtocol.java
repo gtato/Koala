@@ -134,14 +134,14 @@ public class LeaderKoalaProtocol extends KoalaProtocol{
 		//Normally the following info should have been embeded inside the neighbor, but that is not so important for the moment 
 		KoalaNode krl= (KoalaNode)NodeUtilities.Nodes.get(rl.getCID()).getProtocol(NodeUtilities.LKID);
 		if(myNode.isLeader() && krl.isLeader())
-			myNode.getRoutingTable().addRandLink(rl);
+			myNode.getRoutingTable().updateRandomLinks(rl);
 	}
 	
 	protected boolean addLongLink(KoalaNeighbor ll){
 		//Normally the following info should have been embeded inside the neighbor, but that is not so important for the moment 
 		KoalaNode krl= (KoalaNode)NodeUtilities.Nodes.get(ll.getCID()).getProtocol(NodeUtilities.LKID);
 		if(myNode.isLeader() && krl.isLeader())
-			myNode.getRoutingTable().addLongLink(ll);
+			myNode.getRoutingTable().updateLongLinks(ll);
 		return false;
 	}
 	

@@ -46,7 +46,7 @@ public class KoalaNode extends TopologyNode{
 	public int nrMsgRoutedByLatency=0;
 	
 	
-	
+	private int type;
 	private boolean isJoining;
 	private KoalaRoutingTable routingTable;
 	
@@ -76,6 +76,14 @@ public class KoalaNode extends TopologyNode{
 		super.reset();
 		resetRoutingTable();
 		resetLatencyPerDC();
+	}
+	
+	public int getType(){
+		return type;
+	}
+	
+	public int setType(int t){
+		return type = t;
 	}
 	
 	public void resetLatencyPerDC(){
@@ -114,7 +122,7 @@ public class KoalaNode extends TopologyNode{
 	}
 	
 	public void resetRoutingTable() {
-		routingTable = new KoalaRoutingTable();
+		routingTable = new KoalaRoutingTable(this);
 	}
 	
 
@@ -587,6 +595,7 @@ public class KoalaNode extends TopologyNode{
 			JsonArray longlinks = new JsonArray();
 			JsonArray randlinks = new JsonArray();
 			JsonArray vicinitylinks = new JsonArray();
+			JsonArray applicationlinks = new JsonArray();
 			
 			for(KoalaNeighbor s : src.getRoutingTable().getGlobalSucessors())
 				succs.add(KoalaJsonParser.toJsonTree(s));
@@ -606,6 +615,9 @@ public class KoalaNode extends TopologyNode{
 			for(KoalaNeighbor vl : src.getRoutingTable().getVicinityLinks())
 				vicinitylinks.add(KoalaJsonParser.toJsonTree(vl));
 			
+			for(KoalaNeighbor al : src.getRoutingTable().getApplicationLinks())
+				applicationlinks.add(KoalaJsonParser.toJsonTree(al));
+			
 			JsonObject obj = new JsonObject();
 			obj.addProperty("cid", src.getCID());
 			obj.addProperty("sid", src.getSID());
@@ -616,6 +628,7 @@ public class KoalaNode extends TopologyNode{
 			obj.add("longlinks", (JsonElement)longlinks);
 			obj.add("randlinks", (JsonElement)randlinks);
 			obj.add("vicinitylinks", (JsonElement)vicinitylinks);
+			obj.add("applicationlinks", (JsonElement)applicationlinks);
 			
 			return obj;
 		}
@@ -641,6 +654,7 @@ public class KoalaNode extends TopologyNode{
 			ArrayList<KoalaNeighbor> longlinks = new ArrayList<KoalaNeighbor>();
 			ArrayList<KoalaNeighbor> randlinks = new ArrayList<KoalaNeighbor>();
 			ArrayList<KoalaNeighbor> vicinitylinks = new ArrayList<KoalaNeighbor>();
+			ArrayList<KoalaNeighbor> applicationlinks = new ArrayList<KoalaNeighbor>();
 			
 			JsonArray jsuccs = srcJO.getAsJsonArray("succs");
 			for(int i = 0; i < jsuccs.size(); i++)
@@ -668,6 +682,11 @@ public class KoalaNode extends TopologyNode{
 				for(JsonElement vl : jvicinitylinks)
 					vicinitylinks.add(KoalaJsonParser.jsonTreeToObject(vl, KoalaNeighbor.class));
 			
+			JsonArray japplicationlinks = srcJO.getAsJsonArray("applicationlinks");
+			if(japplicationlinks != null)
+				for(JsonElement vl : japplicationlinks)
+					applicationlinks.add(KoalaJsonParser.jsonTreeToObject(vl, KoalaNeighbor.class));
+			
 			for(int i = 0; i < NodeUtilities.NEIGHBORS; i++){
 				kn.getRoutingTable().setGlobalSucessor(succs[i], i);
 				kn.getRoutingTable().setGlobalPredecessor(preds[i], i);
@@ -677,6 +696,7 @@ public class KoalaNode extends TopologyNode{
 			kn.getRoutingTable().setLongLinks(longlinks);
 			kn.getRoutingTable().setRandLinks(randlinks);
 			kn.getRoutingTable().setVicinityLinks(vicinitylinks);
+			kn.getRoutingTable().setApplicationLinks(applicationlinks);
 			
 			return kn;
 		}

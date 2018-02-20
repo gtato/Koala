@@ -279,18 +279,18 @@ public class RenaterInitializer implements Control, NodeInitializer {
         }
         
         if(NodeUtilities.KID >= 0){
-        	koalaNode.setCID(id); koalaNode.setSID(id); koalaNode.setNode(node);
+        	koalaNode.setCID(id); koalaNode.setSID(id); koalaNode.setNode(node); koalaNode.setType(NodeUtilities.KID); 
         }
         if(NodeUtilities.CID >= 0){
         	chordNode.setCID(id); chordNode.setSID(fid.split("-")[0]); chordNode.setNode(node);
         }
         	
         if(NodeUtilities.FKID >= 0){
-        	flatKoalaNode.setCID(id); flatKoalaNode.setSID(fid); flatKoalaNode.setNode(node);
+        	flatKoalaNode.setCID(id); flatKoalaNode.setSID(fid); flatKoalaNode.setNode(node); koalaNode.setType(NodeUtilities.FKID);
         }
         
         if(NodeUtilities.LKID >= 0){
-        	leadKoalaNode.setCID(id); leadKoalaNode.setSID(id); leadKoalaNode.setNode(node);
+        	leadKoalaNode.setCID(id); leadKoalaNode.setSID(id); leadKoalaNode.setNode(node); koalaNode.setType(NodeUtilities.LKID);
         }
         
         NodeUtilities.Nodes.put(id, node);

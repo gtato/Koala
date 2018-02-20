@@ -60,8 +60,9 @@ public class NodeUtilities {
 	public static int SUCC_SIZE = Configuration.getInt("SUCC_SIZE", 4);
 	public static int M = 0;
 	public static int DM = 0; //datacenter m
-	public static int C = Configuration.getInt("koala.settings.c", 1);
-	public static int RAND_C = Configuration.getInt("koala.settings.random_c", 1);
+	public static double C = Configuration.getInt("koala.settings.c", 1);
+	public static double RAND_C = Configuration.getInt("koala.settings.random_c", 1);
+	public static double APPLICATION_C = Configuration.getDouble("koala.settings.application_c", 1);
 	public static double VICINITY_C = Configuration.getDouble("koala.settings.vicinity_c", 1);
 	public static int NEIGHBORS = Configuration.getInt("koala.settings.neighbors", 2);
 	public static double COLABORATIVE_THRESHOLD = Configuration.getDouble("koala.settings.collaborate_threshold", 20);
@@ -69,6 +70,7 @@ public class NodeUtilities {
 	public static int RAND_LINKS;
 	public static int LONG_LINKS;
 	public static int VICINITY_LINKS;
+	public static int APPLICATION_LINKS;
 	public static int FLAT_LONG_LINKS;
 	
 //	public static boolean COLLABORATE = Configuration.getBoolean("koala.settings.collaborate", false);
@@ -94,10 +96,11 @@ public class NodeUtilities {
 		if(M < getLog2(SIZE)) M = getLog2(SIZE);
 		DM = Configuration.getInt("koala.settings.dm", NR_NODE_PER_DC);
 		if(DM < NR_NODE_PER_DC) DM = NR_NODE_PER_DC;
-		LONG_LINKS = C * getLog2(NR_DC);
-		FLAT_LONG_LINKS = C * M;
-		RAND_LINKS = RAND_C * getLog2(NR_DC);
-		VICINITY_LINKS = (int)VICINITY_C * getLog2(NR_DC);
+		LONG_LINKS = (int)C * getLog2(NR_DC);
+		FLAT_LONG_LINKS = (int)C * M;
+		RAND_LINKS = (int)RAND_C * getLog2(NR_DC);
+		APPLICATION_LINKS = (int)(APPLICATION_C * getLog2(NR_DC));
+		VICINITY_LINKS = (int)(VICINITY_C * getLog2(NR_DC));
 		
 		PiggybackLength = (int)Configuration.getDouble("koala.settings.piggyback_c", 1) * getLog2(NR_DC) ;
 		FlatPiggybackLength = (int)Configuration.getDouble("koala.settings.piggyback_c", 1) * getLog2(SIZE) ;

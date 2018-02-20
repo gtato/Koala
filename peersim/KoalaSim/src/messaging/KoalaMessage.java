@@ -23,7 +23,7 @@ public class KoalaMessage extends TopologyMessage /*implements JsonSerializer< K
 	public static final int NLN = 2; //new local neighbor
 	public static final int ROUTE = 3;
 	public static final int JOIN = 4;
-	public static final int LL = 5; //long link
+	public static final int AL = 5; //application link
 	public static final int RH = 6; //route help
 	
 //	private static final int PiggybackLength = 10;
@@ -93,8 +93,8 @@ public class KoalaMessage extends TopologyMessage /*implements JsonSerializer< K
 			return "ROUTE";
 		case JOIN:
 			return "JOIN";
-		case LL:
-			return "LL";
+		case AL:
+			return "AL";
 		}
 		return null;
 	}
@@ -111,7 +111,7 @@ public class KoalaMessage extends TopologyMessage /*implements JsonSerializer< K
 				return KoalaRouteMsgContent.class;
 			case JOIN:
 				return KoalaMsgContent.class;
-			case LL:
+			case AL:
 				return KoalaMsgContent.class;
 		}
 		return null;

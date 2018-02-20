@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+import peersim.config.Configuration;
+
 public class KoaLite {
-	public static String DB_Path = "out/koa.db";
+//	public static String DB_Path = "out/koa.db";
 	private static Connection c = null;
 //	public static void main( String args[] )
 //	{
@@ -32,6 +34,14 @@ public class KoaLite {
 //		close();
 //	}
 	
+	public static String getFilename(){
+		String file = "out/koalite."; 
+		String seed = Configuration.getString("random.seed", "1234567890");
+		file += seed + "."+ NodeUtilities.NR_DC+"x"+NodeUtilities.NR_NODE_PER_DC +".db"; 
+		return file;
+//		return "out/koala/init.C"+NodeUtilities.C +".RC0.VC0.0" +"."+ NodeUtilities.getProtocolName(pid)+"."+NodeUtilities.NR_DC+"x"+NodeUtilities.NR_NODE_PER_DC +".dat";
+	}
+	
 	public static void close(){
 		try {
 			if(c==null) return;
@@ -47,7 +57,7 @@ public class KoaLite {
 		try {
 			Class.forName("org.sqlite.JDBC");
 		
-			c = DriverManager.getConnection("jdbc:sqlite:"+DB_Path);
+			c = DriverManager.getConnection("jdbc:sqlite:"+getFilename());
 			c.setAutoCommit(false);
 			
 			Statement stmt = c.createStatement();

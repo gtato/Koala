@@ -177,7 +177,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 				System.exit(1);
 			}
 			
-			if(msg.getHops() > 1000){
+			if(msg.getHops() > NodeUtilities.NR_DC/2){
 				System.err.println("Too many hops, something is wrong here");
 				onFail(msg);
 				return;

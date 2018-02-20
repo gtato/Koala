@@ -36,6 +36,7 @@ public class TrafficGenerator extends GraphObserver {
 	
 	private int msgID;
 	private int msgCategory;
+	private int minicycles;
 	 
 	
 //	private ArrayList<Node[]> routes = new ArrayList<Node[]>();
@@ -45,15 +46,17 @@ public class TrafficGenerator extends GraphObserver {
 		super(prefix);
 		msgID = 0;
 //		initilizeRoutes();
-		long seed = Configuration.getLong("random.seed", 12345678);
-		rand = new Random(seed);
+//		long seed = Configuration.getLong("random.seed", 12345678);
+//		rand = new Random(seed);
 //		KoalaProtocol.setInitializeMode(true);
+		minicycles = Configuration.getInt(prefix+".minicycles", 1);
 	}
 
 	@Override
 	public boolean execute() {
 		updateGraph();
-		route();
+		for(int i = 0; i < minicycles; i++)
+			route();
 		return false;
 	}
 
@@ -129,7 +132,7 @@ public class TrafficGenerator extends GraphObserver {
         	tr.send(null, src, msg, NodeUtilities.CPID);
 		}
 		
-		System.out.println("(" + CommonState.getTime() + ") ROUTE " + source.getSID() + " -> " + source.getSID());
+		System.out.println("(" + CommonState.getTime() + ") ROUTE " + source.getSID() + " -> " + dest.getSID());
 		ResultCollector.addSentMsg(msgID, dst);
 		msgID++;
 		
