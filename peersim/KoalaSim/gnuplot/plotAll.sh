@@ -20,47 +20,54 @@ cgh=10 # chord global hops
 phl=2 #physical latency
 
 
-p='../out/results/icfec/exp1/results'
-false && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group" -o "exp2.2l" \
-		  -f "$p.C2.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=2:brown,
- 		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cpl=1:web-blue,
- 		      $p.C1.0.RC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cvl=1:red,
- 		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cal=1:orange,
- 		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$phl:Physical:forest-green"
-
-
-false && ./plot.py -x "Time (1K cycles)" -y "Hops" -s "group:$group" -o "exp2.2h" \
-		  -f "$p.C2.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=2:brown,
- 		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=1 Cpl=1:web-blue,
- 		      $p.C1.0.RC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=1 Cvl=1:red,
- 		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=1 Cal=1:orange"
-
-
-p='../out/results/icfec/exp2/results'
+group=100
 true && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group"  \
-		  -f "$p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.25.dat:$fkl:Cll=1 Cpl=1:web-blue,
- 		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cvl=1:red,
- 		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.75.dat:$fkl:Cll=1 Cal=1:orange,
- 		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$phl:Physical:forest-green"
+		  -f "$p.C1.0.VC1.0.100x10.CCL20K.A0.5.dat:$fkl:Cll=1 Cpl=1:brown,
+  		      $p.C1.0.VC1.0.100x10.CCL20K.A0.5.dat:$phl:Physical:forest-green"
+#  		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cpl=1:web-blue,
+#  		      $p.C1.0.RC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cvl=1:red,
+#  		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cal=1:orange,
 
-
-
-
-p='../out/results/icfec/exp4/results'
-false && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group" -o "exp4l" \
-		  -f "$p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$fkl:Koala consec.:web-blue,
- 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$cl:Chord consec.:red,
- 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.rand.A0.5.dat:$fkl:Koala rand.:blue,
- 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.rand.A0.5.dat:$cl:Chord rand.:brown,
- 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$phl:Physical:forest-green"
-
-
-false && ./plot.py -x "Time (1K cycles)" -y "Hops" -s "group:$group" -o "exp4h" \
-		  -f "$p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$fklh:Koala local:web-blue,
- 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$fkgh:Koala global:blue,
- 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$clh:Chord local:red,
- 		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$cgh:Chord global:brown"
-
+p='../out/results/icfec/exp1/results'
+# false && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group" -o "exp2.2l" \
+# 		  -f "$p.C2.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=2:brown,
+#  		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cpl=1:web-blue,
+#  		      $p.C1.0.RC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cvl=1:red,
+#  		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cal=1:orange,
+#  		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$phl:Physical:forest-green"
+# 
+# 
+# false && ./plot.py -x "Time (1K cycles)" -y "Hops" -s "group:$group" -o "exp2.2h" \
+# 		  -f "$p.C2.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=2:brown,
+#  		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=1 Cpl=1:web-blue,
+#  		      $p.C1.0.RC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=1 Cvl=1:red,
+#  		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkgh:Cll=1 Cal=1:orange"
+# 
+# 
+# p='../out/results/icfec/exp2/results'
+# true && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group"  \
+# 		  -f "$p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.25.dat:$fkl:Cll=1 Cpl=1:web-blue,
+#  		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cvl=1:red,
+#  		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.75.dat:$fkl:Cll=1 Cal=1:orange,
+#  		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$phl:Physical:forest-green"
+# 
+# 
+# 
+# 
+# p='../out/results/icfec/exp4/results'
+# false && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group" -o "exp4l" \
+# 		  -f "$p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$fkl:Koala consec.:web-blue,
+#  		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$cl:Chord consec.:red,
+#  		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.rand.A0.5.dat:$fkl:Koala rand.:blue,
+#  		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.rand.A0.5.dat:$cl:Chord rand.:brown,
+#  		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$phl:Physical:forest-green"
+# 
+# 
+# false && ./plot.py -x "Time (1K cycles)" -y "Hops" -s "group:$group" -o "exp4h" \
+# 		  -f "$p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$fklh:Koala local:web-blue,
+#  		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$fkgh:Koala global:blue,
+#  		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$clh:Chord local:red,
+#  		      $p.C1.0.VC1.0.1000x10.CCL200K.COL0.T100.norand.A0.5.dat:$cgh:Chord global:brown"
 
 
 
