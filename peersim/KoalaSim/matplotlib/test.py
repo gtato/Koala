@@ -114,10 +114,10 @@ def get_data(files, filters):
     res = {}
     ids = []
     for file in files:
-        file_lab = file.split('.')[1] #core or edge
+#         file_lab = file.split('.')[1] #core or edge
         # file_lab = 'with koala' if file.split('.')[4] == '1koala' else 'no koala'
-        unique = file.split('.')[5]
-        with open('../out/%s' % file ) as f:
+#         unique = file.split('.')[5]
+        with open(file) as f:
             res['%s-%s' %(file_lab,unique)] = json.load(f)
             ids.append('%s-%s' %(file_lab,unique))
 
