@@ -204,23 +204,23 @@ public class ResultCollector extends NodeObserver {
 //				nr++;
 
 				
-				String printstr = rm.getSentCycle()+""; //1 
-				printstr +=	NodeUtilities.RPID >= 0 ? "\t"+rm.getTotalLatency() : "\t0"; //2
-				printstr += NodeUtilities.CPID >= 0 ? "\t"+cm.getTotalLatency() : "\t0"; //3
-				printstr += NodeUtilities.KPID >= 0 ? "\t"+km.getTotalLatency() : "\t0"; //4
-				printstr += NodeUtilities.FKPID >= 0 ? "\t"+fkm.getTotalLatency() : "\t0"; //5
-				printstr += NodeUtilities.LKPID >= 0 ? "\t"+lkm.getTotalLatency() : "\t0"; //6
+				String printstr = rm.getSentCycle()+""; //0 
+				printstr +=	NodeUtilities.RPID >= 0 ? "\t"+rm.getTotalLatency() : "\t0"; //1
+				printstr += NodeUtilities.CPID >= 0 ? "\t"+cm.getTotalLatency() : "\t0"; //2
+				printstr += NodeUtilities.KPID >= 0 ? "\t"+km.getTotalLatency() : "\t0"; //3
+				printstr += NodeUtilities.FKPID >= 0 ? "\t"+fkm.getTotalLatency() : "\t0"; //4
+				printstr += NodeUtilities.LKPID >= 0 ? "\t"+lkm.getTotalLatency() : "\t0"; //5
 				
-				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.getLocalHops() : "\t0"; //7
-				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.getGlobalHops() : "\t0"; //8
-				printstr += NodeUtilities.CPID >= 0 ? "\t"+ cm.getLocalHops() : "\t0"; //9
-				printstr += NodeUtilities.CPID >= 0 ? "\t"+ cm.getGlobalHops() : "\t0"; //10
-				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.getLocalHops() : "\t0"; //11
-				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.getGlobalHops() : "\t0"; //12
-				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ fkm.getLocalHops() : "\t0"; //13
-				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ fkm.getGlobalHops() : "\t0"; //14
-				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ lkm.getLocalHops() : "\t0"; //15
-				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ lkm.getGlobalHops() : "\t0"; //16
+				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.getLocalHops() : "\t0"; //6
+				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.getGlobalHops() : "\t0"; //7
+				printstr += NodeUtilities.CPID >= 0 ? "\t"+ cm.getLocalHops() : "\t0"; //8
+				printstr += NodeUtilities.CPID >= 0 ? "\t"+ cm.getGlobalHops() : "\t0"; //9
+				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.getLocalHops() : "\t0"; //10
+				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.getGlobalHops() : "\t0"; //11
+				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ fkm.getLocalHops() : "\t0"; //12
+				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ fkm.getGlobalHops() : "\t0"; //13
+				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ lkm.getLocalHops() : "\t0"; //14
+				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ lkm.getGlobalHops() : "\t0"; //15
 
 //				printstr += renProtPid >= 0 ? "\t"+ rm.getHopCategory() + "\t"+ rm.getLatencyCategory(): "\t0\t0";
 // 				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.pathToStrArray(): "\t[]";
@@ -230,11 +230,11 @@ public class ResultCollector extends NodeObserver {
 // 				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ lkm.pathToStrArray(): "\t[]";
 // 				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.getPhysicalPathToStrArray(): "\t[]";
 				
- 				printstr += "\t"+ (nrInterDCMsg - lastMsg); //17
- 				printstr += NodeUtilities.CPID >= 0 ? "\t"+ (ChordProtocol.FAIL - lastCFail): "\t0"; //18
- 				printstr += NodeUtilities.KPID >= 0 ? "\t"+ (KoalaProtocol.FAIL - lastKFail): "\t0"; //19
- 				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ (FlatKoalaProtocol.FAIL - lastFKFail): "\t0"; //20
- 				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ (LeaderKoalaProtocol.FAIL - lastLKFail): "\t0"; //21
+ 				printstr += "\t"+ (nrInterDCMsg - lastMsg); //16
+ 				printstr += NodeUtilities.CPID >= 0 ? "\t"+ (ChordProtocol.FAIL - lastCFail): "\t0"; //17
+ 				printstr += NodeUtilities.KPID >= 0 ? "\t"+ (KoalaProtocol.FAIL - lastKFail): "\t0"; //18
+ 				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ (FlatKoalaProtocol.FAIL - lastFKFail): "\t0"; //19
+ 				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ (LeaderKoalaProtocol.FAIL - lastLKFail): "\t0"; //20
  				
  				
 // 				helpToPrint.add((nrHelpMsg-lastHelp) + "\t" + (nrInterDCMsg - lastMsg));
