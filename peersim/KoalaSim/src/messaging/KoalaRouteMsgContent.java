@@ -2,6 +2,7 @@ package messaging;
 
 import java.util.ArrayList;
 
+import koala.KoalaNode;
 import topology.TopologyNode;
 import topology.TopologyPathNode;
 
@@ -26,6 +27,11 @@ public class KoalaRouteMsgContent extends KoalaMsgContent {
 	public KoalaRouteMsgContent(TopologyNode node) {
 		super(KoalaMessage.ROUTE);
 		this.node = new TopologyPathNode( node.getCID(), node.getSID());
+		if( node instanceof KoalaNode) {
+			KoalaNode kn = (KoalaNode) node;
+			this.node.setVivaldiCoordinates(kn.vivaldiCoordinates);
+			this.node.setVivaldiUncertainty(kn.vivaldiUncertainty);
+		}
 		this.updateLatency = false;
 	}
 	

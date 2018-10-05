@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import com.google.common.collect.EvictingQueue;
+//import com.google.common.collect.EvictingQueue;
 
 import es.usc.citius.hipster.model.function.impl.LazyActionStateTransitionFunction;
 import messaging.KoalaMessage;
@@ -265,7 +265,16 @@ public class KoalaProtocol extends TopologyProtocol{
 			
 			KoalaNeighbor potentialKN = new KoalaNeighbor(recNeighbor, l, lq);
 			potentialKN.setRecentlyAdded(true);
-            int res  = myNode.tryAddNeighbour(potentialKN, false);
+            
+			//vivaldi stuff
+			potentialKN.setVivaldiCoordinates(recNeighbor.getVivaldiCoordinates());
+			potentialKN.setVivaldiUncertainty(recNeighbor.getVivaldiUncertainty());
+			if(isSender)
+				Vivaldi.update(myNode, potentialKN, l);
+				
+			
+			
+			int res  = myNode.tryAddNeighbour(potentialKN, false);
 			ArrayList<KoalaNeighbor> oldies = myNode.getRoutingTable().getOldNeighborsContainer();
 			myOldNeighbors.addAll(oldies);
 
@@ -349,6 +358,8 @@ public class KoalaProtocol extends TopologyProtocol{
         else{
         	addRandomLink(new KoalaNeighbor(msg.getFirstSender()));
         	addVicinityLink(new KoalaNeighbor(msgSender, msg.getLatency(), 3));
+        	
+        	Vivaldi.update(myNode, msgSender, msg.getLatency());
         }
         
         if(!destNode.equals(myNode)){

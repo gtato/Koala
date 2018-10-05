@@ -89,6 +89,9 @@ public class NodeUtilities {
 	public static HashMap<String, Node> DOWNS =  new HashMap<String, Node>();
 	public static HashMap<String, Node> ALT_DOWNS =  new HashMap<String, Node>();
 
+	public static int VIV_DIMENSIONS = Configuration.getInt("koala.settings.vivaldi.dimensions", 3);
+	public static double VIV_UNCERTAINTY_FACTOR= Configuration.getDouble("koala.settings.vivaldi.uncertainty_factor", 0.25);
+	public static double VIV_CORRECTION_FACTOR = Configuration.getDouble("koala.settings.vivaldi.correction_factor", 0.25);
 	
 	public static void initialize(){
 		BETA = (double) 1 / NR_NODE_PER_DC;

@@ -1,5 +1,6 @@
 package koala;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 
 import peersim.config.Configuration;
@@ -17,17 +18,22 @@ public class KoalaNeighbor extends TopologyPathNode{
 	private int latencyQuality = -1;
 	private double rating = -1; 
 	private boolean recentlyAdded = false;
+//	private ArrayList<Double> vivaldiCoordinates;
+//	private double vivaldiUncertainty = 1000;
+	
 	
 	public KoalaNeighbor(TopologyNode knd) {
 		super(knd.getCID(), knd.getSID());
 		this.idealID = knd.getSID();
 		this.latency = PhysicalDataProvider.getDefaultInterLatency();
+		
 	}
 	
 	public KoalaNeighbor(TopologyPathNode knd) {
 		super(knd.getCID(), knd.getSID());
 		this.idealID = knd.getSID();
 		this.latency = PhysicalDataProvider.getDefaultInterLatency();
+		
 	}
 	
 //	public KoalaNeighbor(String nodeID, String koalaID) {
@@ -40,6 +46,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 		this.latency = latency;
 		this.latencyQuality = latencyQuality;
 		this.idealID = knd.getSID();
+		
 	}
 	
 	public KoalaNeighbor(TopologyPathNode tpn, double latency, int latencyQuality) {
@@ -47,6 +54,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 		this.latency = latency;
 		this.latencyQuality = latencyQuality;
 		this.idealID = tpn.getSID();
+		
 	}
 	
 	public KoalaNeighbor(TopologyPathNode tpn,  double latency) {
@@ -54,6 +62,8 @@ public class KoalaNeighbor extends TopologyPathNode{
 		this.latency = latency;
 		this.idealID = tpn.getSID();
 	}
+	
+	
 	
 	public double getLatency() {
 		return latency;
@@ -86,6 +96,8 @@ public class KoalaNeighbor extends TopologyPathNode{
 		this.setLatency(kn.getLatency());
 		this.setLatencyQuality(kn.getLatencyQuality());
 		this.setRecentlyAdded(kn.isRecentlyAdded());
+		this.setVivaldiCoordinates(kn.getVivaldiCoordinates());
+		this.setVivaldiUncertainty(kn.getVivaldiUncertainty());
 		if(alsoIdeal) this.setIdealID(kn.getIdealID());
 	}
 //	public KoalaNeighbor clone(){
@@ -151,7 +163,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 		TopologyPathNode tpd = new TopologyPathNode(NodeUtilities.DEFAULTID);
 		return new KoalaNeighbor(tpd);
 	}
-	
+
 	public static class NeighborComparator implements Comparator<KoalaNeighbor>{
 		String referenceId;
 		public NeighborComparator(String ref){

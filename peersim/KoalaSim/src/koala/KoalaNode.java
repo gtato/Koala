@@ -45,6 +45,8 @@ public class KoalaNode extends TopologyNode{
 	public int nrMsgRouted=0;
 	public int nrMsgRoutedByLatency=0;
 	
+	public ArrayList<Double> vivaldiCoordinates;
+	public double vivaldiUncertainty = 1000;
 	
 	private int type;
 	private boolean isJoining;
@@ -54,15 +56,17 @@ public class KoalaNode extends TopologyNode{
 	
 	public KoalaNode(String prefix) {
 		super(prefix);
+		resetVivaldiCoords();
 	}
-	
 	
 	public KoalaNode(String prefix, TopologyPathNode kn) {
 		super(prefix, kn.getCID(), kn.getSID());
+		resetVivaldiCoords();
 	}
 	
 	public KoalaNode(String prefix, String cid, String sid) {
 		super(prefix, cid, sid);
+		resetVivaldiCoords();
 	}
 	
 	public Object clone() {
@@ -76,6 +80,7 @@ public class KoalaNode extends TopologyNode{
 		super.reset();
 		resetRoutingTable();
 		resetLatencyPerDC();
+		resetVivaldiCoords();
 	}
 	
 	public int getType(){
@@ -88,6 +93,12 @@ public class KoalaNode extends TopologyNode{
 	
 	public void resetLatencyPerDC(){
 		this.latencyPerDC = new HashMap<Integer, Double>();
+	}
+	
+	public void resetVivaldiCoords() {
+		vivaldiCoordinates = new ArrayList<Double>();
+		for(int i =0;i < NodeUtilities.VIV_DIMENSIONS;i++)
+			vivaldiCoordinates.add(0.0);
 	}
 	
 	public boolean isLeader(){

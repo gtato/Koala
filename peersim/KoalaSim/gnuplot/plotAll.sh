@@ -19,11 +19,10 @@ cgh=10 # chord global hops
 
 phl=2 #physical latency
 
-
 group=100
 true && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group"  \
-		  -f "$p.C1.0.VC1.0.100x10.CCL20K.A0.5.dat:$fkl:Cll=1 Cpl=1:brown,
-  		      $p.C1.0.VC1.0.100x10.CCL20K.A0.5.dat:$phl:Physical:forest-green"
+		-f "$p.C1.0.VC1.0.1000x10.CCL20K.A0.5.dat:$fkl:Cll=1 Cpl=1:brown, 
+  		    $p.C1.0.VC1.0.1000x10.CCL20K.A0.5.dat:$phl:Physical:forest-green"
 #  		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cpl=1:web-blue,
 #  		      $p.C1.0.RC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cvl=1:red,
 #  		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cal=1:orange,

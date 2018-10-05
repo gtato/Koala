@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 
-import com.google.common.collect.Lists;
+//import com.google.common.collect.Lists;
 
 import peersim.core.CommonState;
 import renater.RenaterNode;
