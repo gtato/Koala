@@ -17,7 +17,8 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 	ArrayList<KoalaNeighbor> neighbors;
 	ArrayList<KoalaNeighbor> oldNeighbors;
 	
-	
+	ArrayList<Double> vivaldiCoordinates;
+	double vivaldiUncertainty;
 	
 	public KoalaRTMsgConent(KoalaNode kn) {
 		super(KoalaMessage.RT);
@@ -48,7 +49,9 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 		for(KoalaNeighbor oldNeig : oldNeigs)
 //			oldNeighbors[i] = KoalaJsonParser.toJson(oldNeig);
 			oldNeighbors.add(oldNeig.cclone());
-			
+		vivaldiCoordinates = kn.getVivaldiCoordinates();
+		vivaldiUncertainty = kn.getVivaldiUncertainty();
+		
 		
 	}
 	
@@ -60,7 +63,10 @@ public class KoalaRTMsgConent extends KoalaMsgContent {
 		kn.setBootstrapID(bootstrap);
 		
 		kn.getRoutingTable().setNeighborsContainer(neighbors);
-		kn.getRoutingTable().setOldNeighborsContainer(oldNeighbors); 
+		kn.getRoutingTable().setOldNeighborsContainer(oldNeighbors);
+		
+		kn.setVivaldiCoordinates(vivaldiCoordinates);
+		kn.setVivaldiUncertainty(vivaldiUncertainty);
 		return kn;
 	}
 	

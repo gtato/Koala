@@ -267,10 +267,8 @@ public class KoalaProtocol extends TopologyProtocol{
 			potentialKN.setRecentlyAdded(true);
             
 			//vivaldi stuff
-			potentialKN.setVivaldiCoordinates(recNeighbor.getVivaldiCoordinates());
-			potentialKN.setVivaldiUncertainty(recNeighbor.getVivaldiUncertainty());
 			if(isSender)
-				Vivaldi.update(myNode, potentialKN, l);
+				Vivaldi.update(myNode, msgSender, l);
 				
 			
 			
@@ -350,6 +348,7 @@ public class KoalaProtocol extends TopologyProtocol{
         if(msgSender != null && !msgSender.equals(myNode)){
 	        myNode.updateLatencyPerDC(msgSender.getSID(), msg.getLatency(), 3);
 	        myNode.updateLatencies();
+	        myNode.updateCoordinates(msgSender);
         }
         
         if(msgSender == null)
@@ -753,6 +752,7 @@ public class KoalaProtocol extends TopologyProtocol{
 	protected void onReceiveLatency(TopologyPathNode dest, double l) {
 		 myNode.updateLatencyPerDC(dest.getSID(), l, 3);
 	     myNode.updateLatencies();
+	     Vivaldi.update(myNode, dest, l);
 	}
 
 	protected void onSuccess(TopologyMessage msg) {

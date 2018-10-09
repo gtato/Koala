@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-file = '../out/vivaldi/vivaldiA0.5.dat' #edge/core 50 ms update_text
+file = '../out/vivaldi/vivalditopologyA0.5.dat' #edge/core 50 ms update_text
 content = open(file).read()
 
 x = []

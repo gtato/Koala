@@ -5,6 +5,9 @@ import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.core.Protocol;
 import utilities.NodeUtilities;
+
+import java.util.ArrayList;
+
 import example.hot.InetCoordinates;
 
 public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
@@ -16,6 +19,9 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 	protected boolean joined;
 	private Node node;
 	boolean visited;
+	private ArrayList<Double> vivaldiCoordinates;
+	private double vivaldiUncertainty;
+	
 	
 	public int getDCID(){
 		return NodeUtilities.getDCID(specificID);
@@ -51,10 +57,34 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 			this.setBirthday(CommonState.getTime());
 	}
 	
+	public ArrayList<Double> getVivaldiCoordinates() {
+		return vivaldiCoordinates;
+	}
+
+	public void setVivaldiCoordinates(ArrayList<Double> vivaldi_coordinates) {
+		this.vivaldiCoordinates = vivaldi_coordinates;
+	}
+
+	public double getVivaldiUncertainty() {
+		return vivaldiUncertainty;
+	}
+
+	public void setVivaldiUncertainty(double vivaldi_uncertainty) {
+		this.vivaldiUncertainty = vivaldi_uncertainty;
+	}
+	
+	public void resetVivaldiCoords() {
+		vivaldiUncertainty = 1000;
+		vivaldiCoordinates = new ArrayList<Double>();
+		for(int i =0;i < NodeUtilities.VIV_DIMENSIONS;i++)
+			vivaldiCoordinates.add(0.0);
+	}
+	
 	public void reset(){
 		setCID(null);
 		setSID(null);
 		setJoined(false);
+		resetVivaldiCoords();
 	}
 	
 	public long getAge(){
@@ -74,6 +104,15 @@ public class TopologyNode extends InetCoordinates implements Protocol, Linkable{
 		reset();
 		commonID = cid;
 		specificID = sid;
+	}
+	
+	public TopologyNode(String prefix, String cid, String sid, ArrayList<Double> coords, double uncertainty) {
+		super(prefix);
+		reset();
+		commonID = cid;
+		specificID = sid;
+		vivaldiCoordinates = coords;
+		vivaldiUncertainty = uncertainty;
 	}
 
 	public String getCID() {

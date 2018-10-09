@@ -29,8 +29,8 @@ public class KoalaRouteMsgContent extends KoalaMsgContent {
 		this.node = new TopologyPathNode( node.getCID(), node.getSID());
 		if( node instanceof KoalaNode) {
 			KoalaNode kn = (KoalaNode) node;
-			this.node.setVivaldiCoordinates(kn.vivaldiCoordinates);
-			this.node.setVivaldiUncertainty(kn.vivaldiUncertainty);
+			this.node.setVivaldiCoordinates(kn.getVivaldiCoordinates());
+			this.node.setVivaldiUncertainty(kn.getVivaldiUncertainty());
 		}
 		this.updateLatency = false;
 	}

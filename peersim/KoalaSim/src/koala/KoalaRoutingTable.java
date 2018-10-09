@@ -210,6 +210,8 @@ public class KoalaRoutingTable {
 					ll.setLatency(kn.getLatency());
 					ll.setLatencyQuality(kn.getLatencyQuality());
 				}
+				ll.setVivaldiCoordinates(kn.getVivaldiCoordinates());
+				ll.setVivaldiUncertainty(kn.getVivaldiUncertainty());
 				return false;
 			}
 			else{

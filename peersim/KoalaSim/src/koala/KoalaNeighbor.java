@@ -23,17 +23,15 @@ public class KoalaNeighbor extends TopologyPathNode{
 	
 	
 	public KoalaNeighbor(TopologyNode knd) {
-		super(knd.getCID(), knd.getSID());
+		super(knd.getCID(), knd.getSID(),knd.getVivaldiCoordinates(), knd.getVivaldiUncertainty());
 		this.idealID = knd.getSID();
 		this.latency = PhysicalDataProvider.getDefaultInterLatency();
-		
 	}
 	
 	public KoalaNeighbor(TopologyPathNode knd) {
-		super(knd.getCID(), knd.getSID());
+		super(knd.getCID(), knd.getSID(),knd.getVivaldiCoordinates(), knd.getVivaldiUncertainty());
 		this.idealID = knd.getSID();
 		this.latency = PhysicalDataProvider.getDefaultInterLatency();
-		
 	}
 	
 //	public KoalaNeighbor(String nodeID, String koalaID) {
@@ -42,7 +40,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 //	}
 	
 	public KoalaNeighbor(TopologyNode knd, double latency, int latencyQuality) {
-		super(knd.getCID(), knd.getSID());
+		super(knd.getCID(), knd.getSID(), knd.getVivaldiCoordinates(), knd.getVivaldiUncertainty());
 		this.latency = latency;
 		this.latencyQuality = latencyQuality;
 		this.idealID = knd.getSID();
@@ -50,7 +48,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 	}
 	
 	public KoalaNeighbor(TopologyPathNode tpn, double latency, int latencyQuality) {
-		super(tpn.getCID(), tpn.getSID());
+		super(tpn.getCID(), tpn.getSID(),tpn.getVivaldiCoordinates(), tpn.getVivaldiUncertainty() );
 		this.latency = latency;
 		this.latencyQuality = latencyQuality;
 		this.idealID = tpn.getSID();
@@ -58,7 +56,7 @@ public class KoalaNeighbor extends TopologyPathNode{
 	}
 	
 	public KoalaNeighbor(TopologyPathNode tpn,  double latency) {
-		super(tpn.getCID(), tpn.getSID());
+		super(tpn.getCID(), tpn.getSID(), tpn.getVivaldiCoordinates(), tpn.getVivaldiUncertainty());
 		this.latency = latency;
 		this.idealID = tpn.getSID();
 	}
@@ -75,6 +73,8 @@ public class KoalaNeighbor extends TopologyPathNode{
 	
 	public void updateLatency(KoalaNeighbor updated)
 	{
+		this.setVivaldiCoordinates(updated.getVivaldiCoordinates());
+		this.setVivaldiUncertainty(updated.getVivaldiUncertainty());
 		if(updated.getLatencyQuality() >= getLatencyQuality())
 		{
 			setLatency(updated.getLatency());

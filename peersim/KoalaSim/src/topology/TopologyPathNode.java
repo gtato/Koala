@@ -9,7 +9,7 @@ public class TopologyPathNode{
 	private String commonID;
 	private String specificID;
 	private ArrayList<Double> vivaldiCoordinates;
-	private double vivaldiUncertainty = 1000;
+	private double vivaldiUncertainty;
 	
 	public TopologyPathNode(String commonID, String specificID, ArrayList<Double> coords, double uncertainty) {
 		super();
@@ -37,7 +37,8 @@ public class TopologyPathNode{
 		super();
 		this.commonID = tn.getCID();
 		this.specificID = tn.getSID();
-		resetVivaldiCoords();
+		this.vivaldiCoordinates = tn.getVivaldiCoordinates();
+		this.vivaldiUncertainty = tn.getVivaldiUncertainty();
 	}
 	
 	

@@ -1,17 +1,22 @@
 package koala.controllers;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 
 import koala.KoalaNode;
+import peersim.core.CommonState;
 import peersim.core.Node;
-import renater.RenaterEdge;
 import renater.RenaterGraph;
-import renater.RenaterNode;
 import topology.controllers.NodeObserver;
 import utilities.NodeUtilities;
 
-public class VivaldiObserver extends NodeObserver{
-
+public class VivaldiObserver  extends NodeObserver{
+	
+	public static ArrayList<Double> errors = new ArrayList<Double>();
+	public static ArrayList<Double> uncertainty = new ArrayList<Double>();
+	public static ArrayList<String> out = new ArrayList<String>();
+	boolean ended = false;
+	
 	public VivaldiObserver(String name) {
 		super(name);
 	}
@@ -19,8 +24,29 @@ public class VivaldiObserver extends NodeObserver{
 	
 	@Override
 	public boolean execute() {
-		super.g = new RenaterGraph(pid,false);
-		graphToFile();
+//		super.g = new RenaterGraph(pid,false);
+		double sum = 0;
+		double sumu = 0;
+		for(double d : errors) 
+			sum +=d;
+		
+		for(double d : uncertainty) 
+			sumu +=d;
+		
+		
+		out.add((double)sum/errors.size()+" " + (double)sumu/uncertainty.size());
+//		ps.println((double)sum/errors.size());
+//		errors = new ArrayList<Double>();
+//		uncertainty = new ArrayList<Double>();
+		errors.clear();
+		uncertainty.clear();
+		
+		
+		if(CommonState.getTime() == CommonState.getEndTime()-1 && !ended){
+			graphToFile();
+			ended = true;
+		}
+		
 		return false;
 	}
 
@@ -28,14 +54,9 @@ public class VivaldiObserver extends NodeObserver{
 	protected void printGraph(PrintStream ps, int psIndex) {
 		if (psIndex != 0)
 			return;
-		for (int i = 0; i < g.size(); i++) {
-			KoalaNode current = (KoalaNode) ((Node)g.getNode(i)).getProtocol(NodeUtilities.KID);
-            for(int j = 0; j < NodeUtilities.VIV_DIMENSIONS; j++)
-            	ps.print(current.vivaldiCoordinates.get(j) + " ");
-            ps.print(current.getSID());
-            ps.println();
-		}
 		
+		for(String d : out) 
+			ps.println(d);
 	}
 
 	
@@ -48,5 +69,4 @@ public class VivaldiObserver extends NodeObserver{
 	protected String[] getOutputFileNames() {
 		return new String[]{"vivaldi"};
 	}
-	
 }
