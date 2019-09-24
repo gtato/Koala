@@ -8,10 +8,19 @@ group=1000
 # koala1='../out/results/results.C1.0.VC1.0.1000x1.CCL50K.COL0.T100.A0.5.dat';" \
 # newplots/plotLatency.plt &
 
-p='../out/results/results'
+
+#                 results.C1.0.VC1.0.1000x10.CCL10K.A0.5
+kl=4
+klh=11
+kgh=12
+
 fkl=5 #flat koala latency
 fklh=13 #flat koala local hops
 fkgh=14 #flat koala global hops
+
+hkl=6
+hklh=15
+hkgh=16
 
 cl=3 #chord latency
 clh=9 # chord local hops
@@ -19,10 +28,79 @@ cgh=10 # chord global hops
 
 phl=2 #physical latency
 
-group=100
-true && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group"  \
-		-f "$p.C1.0.VC1.0.1000x10.CCL20K.A0.5.dat:$fkl:Cll=1 Cpl=1:brown, 
-  		    $p.C1.0.VC1.0.1000x10.CCL20K.A0.5.dat:$phl:Physical:forest-green"
+
+ccolor=red
+mrcolor=brown
+srcolor=web-blue
+hcolor=orange
+phcolor=forest-green
+
+group=1000
+
+
+
+
+#p='../out/results/results.C2.0.VC1.0.801010.1000x10.CCL100K.A0.5.dat'
+#p1='../out/results/results.C2.0.VC1.0.AC1.0.COL1.T100.801010.1000x10.CCL100K.A0.5.dat'
+#p='../out/results/results.C2.0.VC1.0.COL2.T100.801010.1000x10.CCL100K.A0.5.dat'
+p='../out/results/results.C1.0.VC1.0.AC1.0.COL2.T100.101080.1000x10.CCL100K.A0.5.dat'
+
+true && ./plot.py -x "Time (1K cycles)" -y "Latency (ms)" -s "group:$group"  \
+				 -f "
+					 $p:$fkl:Single-ring:$srcolor
+					,$p:$kl:Multi-ring-col-2:$mrcolor
+					,$p:$hkl:Hierachical:$hcolor
+					,$p:$cl:Chord:$ccolor
+					,$p:$phl:Physical:$phcolor
+					"
+
+	#$p:$kl:Multi-ring:$mrcolor
+					#,$p1:$kl:Multi-ring-col-1:$mrcolor:2
+
+#experiment 1
+#p='../out/results/results.C1.0.VC1.0.uniform.1000x10.CCL100K.A0.5.dat_chord'
+#p='../out/results/results.C1.0.VC1.0.AC1.0.COL1.T100.uniform.1000x10.CCL100K.A0.5.dat'
+
+p='../out/results/results.C2.0.VC1.0.uniform.1000x10.CCL100K.A0.5.dat'
+p1='../out/results/results.C2.0.VC1.0.COL1.T100.uniform.1000x10.CCL100K.A0.5.dat'
+p2='../out/results/results.C2.0.VC1.0.COL2.T100.uniform.1000x10.CCL100K.A0.5.dat'
+
+
+false && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group"  \
+				 -f "$p:$kl:Multi-ring:$mrcolor
+					,$p1:$kl:Multi-ring-col-1:$mrcolor:2
+					,$p2:$kl:Multi-ring-col-2:$mrcolor:5
+					,$p:$fkl:Single-ring:$srcolor
+					,$p:$hkl:Hierachical:$hcolor
+					,$p:$cl:Chord:$ccolor
+					,$p:$phl:Physical:$phcolor
+					"
+
+
+false && ./plot.py -x "Time (1K cycles)" -y "Local hops" -s "group:$group"  \
+				 -f "$p:$klh:Multi-ring:$mrcolor
+					,$p1:$klh:Multi-ring-col-1:$mrcolor:2
+					,$p2:$klh:Multi-ring-col-2:$mrcolor:5
+					,$p:$fklh:Single-ring:$srcolor
+					,$p:$hklh:Hierachical:$hcolor
+					,$p:$clh:Chord:$ccolor
+					"
+
+
+false && ./plot.py -x "Time (1K cycles)" -y "Global hops" -s "group:$group"  \
+				 -f "$p:$kgh:Multi-ring:$mrcolor
+					,$p1:$kgh:Multi-ring-col-1:$mrcolor:2
+					,$p2:$kgh:Multi-ring-col-2:$mrcolor:5
+					,$p:$fkgh:Single-ring:$srcolor
+					,$p:$hkgh:Hierachical:$hcolor
+					,$p:$cgh:Chord:$ccolor
+					"
+
+
+
+#true && ./plot.py -x "Time (1K cycles)" -y "Latency" -s "group:$group"  \
+		#		-f "$p.C1.0.VC1.0.1000x10.CCL20K.A0.5.dat:$fkl:Cll=1 Cpl=1:brown, 
+  		    #    $p.C1.0.VC1.0.1000x10.CCL20K.A0.5.dat:$phl:Physical:forest-green"
 #  		      $p.C1.0.VC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cpl=1:web-blue,
 #  		      $p.C1.0.RC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cvl=1:red,
 #  		      $p.C1.0.AC1.0.10000x1.CCL200K.COL0.T100.A0.5.dat:$fkl:Cll=1 Cal=1:orange,

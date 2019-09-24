@@ -89,7 +89,7 @@ public class ResultCollector extends NodeObserver {
 		if(NodeUtilities.NR_COLLABORATORS > 0){
 			file +=".COL"+NodeUtilities.NR_COLLABORATORS+".T"+(int)NodeUtilities.COLABORATIVE_THRESHOLD;
 		}
-		
+		file +=  "."+NodeUtilities.LOCALITY.replaceAll(" ", "");
 		file += "."+Configuration.getString("NR_DC")+"x"+Configuration.getString("NR_NODE_PER_DC");
 		file += ".CCL"+NodeUtilities.getStringCycles()+"."+additional;
 		return file;
@@ -121,6 +121,7 @@ public class ResultCollector extends NodeObserver {
 //			plotIt();
 			ended = true;
 //			KoaLite.close();
+			NodeUtilities.playSound(); 
 		}
 		
 		if(CommonState.getTime()%flush==0)
@@ -211,15 +212,15 @@ public class ResultCollector extends NodeObserver {
 				printstr += NodeUtilities.FKPID >= 0 ? "\t"+fkm.getTotalLatency() : "\t0"; //4
 				printstr += NodeUtilities.LKPID >= 0 ? "\t"+lkm.getTotalLatency() : "\t0"; //5
 				
-				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.getLocalHops() : "\t0"; //6
+				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.getLocalHops(true) : "\t0"; //6
 				printstr += NodeUtilities.RPID >= 0 ? "\t"+ rm.getGlobalHops() : "\t0"; //7
-				printstr += NodeUtilities.CPID >= 0 ? "\t"+ cm.getLocalHops() : "\t0"; //8
+				printstr += NodeUtilities.CPID >= 0 ? "\t"+ cm.getLocalHops(true) : "\t0"; //8
 				printstr += NodeUtilities.CPID >= 0 ? "\t"+ cm.getGlobalHops() : "\t0"; //9
-				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.getLocalHops() : "\t0"; //10
+				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.getLocalHops(true) : "\t0"; //10
 				printstr += NodeUtilities.KPID >= 0 ? "\t"+ km.getGlobalHops() : "\t0"; //11
-				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ fkm.getLocalHops() : "\t0"; //12
+				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ fkm.getLocalHops(true) : "\t0"; //12
 				printstr += NodeUtilities.FKPID >= 0 ? "\t"+ fkm.getGlobalHops() : "\t0"; //13
-				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ lkm.getLocalHops() : "\t0"; //14
+				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ lkm.getLocalHops(true) : "\t0"; //14
 				printstr += NodeUtilities.LKPID >= 0 ? "\t"+ lkm.getGlobalHops() : "\t0"; //15
 
 //				printstr += renProtPid >= 0 ? "\t"+ rm.getHopCategory() + "\t"+ rm.getLatencyCategory(): "\t0\t0";

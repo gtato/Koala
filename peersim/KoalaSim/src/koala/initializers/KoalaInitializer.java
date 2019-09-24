@@ -50,6 +50,7 @@ public class KoalaInitializer implements Control, NodeInitializer {
 	private final boolean clearlinks;
 	private final int flushload;
 	
+	
 //	private FileOutputStream[] foss = new FileOutputStream[10];
 //	private PrintStream[] pss = new PrintStream[10];
 	private boolean fromFile = false;
@@ -143,7 +144,8 @@ public class KoalaInitializer implements Control, NodeInitializer {
 		NodeUtilities.CURRENT_PID = pid;
 		
 		if(loadFromFile(pid)) return;
-		
+		double oldAlpha = NodeUtilities.ALPHA;
+		NodeUtilities.ALPHA = 0.5;
 		for (int i = 0; i < nr; i++) {
 			Node n = Network.get(inx.get(i));
 			KoalaNode kn = (KoalaNode )n.getProtocol(NodeUtilities.getLinkable(pid));
@@ -153,12 +155,26 @@ public class KoalaInitializer implements Control, NodeInitializer {
 			}
 //			System.out.println("generating kleinberg for the " + i + "th node");
 			kn.getRoutingTable().intializeLongLinks();
-			kn.getRoutingTable().intializeRandomLinks();
+			if(NodeUtilities.VIV_TEST)
+				setAllAsRandom(kn, inx);
+			else
+				kn.getRoutingTable().intializeRandomLinks();
 		}	
 		
 		joinList(inx, pid);
-		
+		NodeUtilities.ALPHA = oldAlpha;
 	} 
+	
+	private void setAllAsRandom(KoalaNode mykn, ArrayList<Integer> inx) {
+		ArrayList<KoalaNeighbor> randLinks = new ArrayList<KoalaNeighbor>();
+		for (int i = 0; i < nr; i++) {
+			Node n = Network.get(inx.get(i));
+			KoalaNode kn = (KoalaNode )n.getProtocol(NodeUtilities.getLinkable(pid));
+			if(kn.equals(mykn)) continue;
+			randLinks.add( new KoalaNeighbor(kn));
+		}	
+		mykn.getRoutingTable().setRandLinks(randLinks);
+	}
 	
 	private void initializeLeader(ArrayList<Integer> inx, int pid){
 		NodeUtilities.CURRENT_PID = pid;

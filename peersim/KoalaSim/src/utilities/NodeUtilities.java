@@ -1,6 +1,11 @@
 package utilities;
 
+import java.applet.Applet;
+import java.applet.AudioClip;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,7 +82,7 @@ public class NodeUtilities {
 	public static int NR_COLLABORATORS = Configuration.getInt("koala.settings.collaborate_nr", 2);
 	
 	public static boolean NESTED = Configuration.getBoolean("koala.settings.nested", false);
-	public static String LOCALITY = Configuration.getString("koala.settings.locality", "local");
+	public static String LOCALITY = Configuration.getString("koala.settings.locality", "uniform");
 	public static double CLOSE_LAT = Configuration.getDouble("koala.settings.close_latency_rate", 0.25);
 	
 	public static Map<String, Node> Nodes =  new HashMap<String, Node>();
@@ -92,6 +97,10 @@ public class NodeUtilities {
 	public static int VIV_DIMENSIONS = Configuration.getInt("koala.settings.vivaldi.dimensions", 3);
 	public static double VIV_UNCERTAINTY_FACTOR= Configuration.getDouble("koala.settings.vivaldi.uncertainty_factor", 0.25);
 	public static double VIV_CORRECTION_FACTOR = Configuration.getDouble("koala.settings.vivaldi.correction_factor", 0.25);
+	
+	public static boolean VIV_TEST = Configuration.getBoolean("koala.settings.vivaldi.test", false);
+	
+	
 	
 	public static void initialize(){
 		BETA = (double) 1 / NR_NODE_PER_DC;
@@ -430,6 +439,21 @@ public class NodeUtilities {
 		String revcyc = new StringBuilder(cyc).reverse().toString();
 		revcyc = revcyc.replaceAll("000000", "M").replaceAll("000", "K");
 		return new StringBuilder(revcyc).reverse().toString();
+	}
+	
+	public static void playSound() {  
+	      try {
+	     
+	         File file = new File("/home/gtato/Downloads/test.wav");
+	         URL url = null;
+	         if (file.canRead()) {url = file.toURI().toURL();}
+//	         System.out.println(url);
+	         AudioClip clip = Applet.newAudioClip(url);
+	         clip.play();
+//	         System.out.println("should've played by now");
+	      }catch (IOException e) {
+	         e.printStackTrace();
+	      } 
 	}
 	
 }

@@ -143,6 +143,12 @@ public class KoalaProtocol extends TopologyProtocol{
 		super.send(dest, msg);
 	}
 	
+	public void send(TopologyPathNode dest, TopologyMessage msg, int helpHops)
+	{
+		checkPiggybackedAfter();
+		super.send(dest, msg, helpHops);
+	}
+	
 	
 	
 
@@ -363,8 +369,9 @@ public class KoalaProtocol extends TopologyProtocol{
         
         if(!destNode.equals(myNode)){
         	myNode.nrMsgRouted++;
-            KoalaNeighbor kn = getRoute(destNode.getSID(), msg);
-            if(NodeUtilities.CURRENT_PID == NodeUtilities.KPID && !kn.getCID().equals(kn.getSID())){
+        	KoalaNeighbor kn = getRoute(destNode.getSID(), msg);
+//        	System.out.println("dest: " + kn.getSID() + " next hop: " + kn.getSID());
+        	if(NodeUtilities.CURRENT_PID == NodeUtilities.KPID && !kn.getCID().equals(kn.getSID())){
             	System.out.println("dafuq, there is smth wrong");
             }
             
@@ -531,7 +538,7 @@ public class KoalaProtocol extends TopologyProtocol{
 				//send to the best
 				if(best!= null){
 					ResultCollector.countHelp();
-					send(best, drafts.remove(content.getLabel()));
+					send(best, drafts.remove(content.getLabel()), NodeUtilities.NR_COLLABORATORS);
 					advices.remove(content.getLabel());
 				}else
 					onFail(drafts.remove(content.getLabel()));

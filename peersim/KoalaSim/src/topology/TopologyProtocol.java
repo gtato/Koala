@@ -161,7 +161,11 @@ public abstract class TopologyProtocol implements EDProtocol {
 		NodeUtilities.CURRENT_PID = pid;
 	}
 
-	public void send(TopologyPathNode dest, TopologyMessage msg)
+	public void send(TopologyPathNode dest, TopologyMessage msg) {
+		send(dest, msg, 0);
+	}
+	
+	public void send(TopologyPathNode dest, TopologyMessage msg, int helpHops)
 	{
 		
 		if(dest == null || dest.equals(myNode)){
@@ -197,7 +201,7 @@ public abstract class TopologyProtocol implements EDProtocol {
 			if(msg.getLastSender() == null)
 				msg.addToPath(new TopologyPathNode(myNode));
 			msg.addToPath(dest.cclone());
-			
+			msg.addHelpHops(helpHops);
 			
 			if(NodeUtilities.getDCID(myNode.getSID()) == NodeUtilities.getDCID(dest.getSID()))
 				ResultCollector.countIntra();

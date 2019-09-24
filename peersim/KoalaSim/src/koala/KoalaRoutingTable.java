@@ -97,8 +97,7 @@ public class KoalaRoutingTable {
 			randLinks.add(kneigh);
 		}
 	}
-	
-	
+		
 	
 	public KoalaNeighbor[] getGlobalPredecessors() {
 		return globalPredecessors;

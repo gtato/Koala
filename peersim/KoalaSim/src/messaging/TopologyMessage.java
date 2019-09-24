@@ -22,6 +22,7 @@ public abstract class TopologyMessage {
 	protected int category;
 	protected String label;
 	protected TopologyMessageContent content;
+	protected int helpHops;
 	
 	
 	private long sentCycle;
@@ -61,6 +62,14 @@ public abstract class TopologyMessage {
 	
 	public boolean isType(int type){
 		return this.type == type;
+	}
+	
+	public void addHelpHops(int nr) {
+		helpHops += nr;
+	}
+	
+	public int getHelpHops() {
+		return helpHops;
 	}
 	
 	public void setType(int msgType) {
@@ -233,7 +242,8 @@ public abstract class TopologyMessage {
 		return this.getPath().size()-1;
 	}
 	
-	public int getLocalHops(){
+	
+	public int getLocalHops(boolean includeHelp){
 		TopologyPathNode lastpn = null;
 		int lh = 0;
 		for(TopologyPathNode pn : path){
@@ -242,11 +252,13 @@ public abstract class TopologyMessage {
 				lh++;
 			lastpn = pn;
 		}
+		if(includeHelp)
+			lh+=helpHops;
 		return lh;
 	}
 	
 	public int getGlobalHops(){
-		return getHops()-getLocalHops();
+		return getHops()-getLocalHops(false);
 	}
 	
 //	
